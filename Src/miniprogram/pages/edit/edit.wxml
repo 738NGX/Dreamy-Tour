@@ -1,0 +1,16 @@
+<!--edit.wxml-->
+<navigation-bar
+  title="梦·旅"
+  back="{{false}}"
+  color="black"
+  background="#FFF"
+></navigation-bar>
+<scroll-view
+  class="scrollarea"
+  scroll-y
+  type="list"
+>
+  <view class="container">
+  </view>
+</scroll-view>
+

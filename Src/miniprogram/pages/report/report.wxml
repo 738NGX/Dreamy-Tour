@@ -1,0 +1,33 @@
+<!--report.wxml-->
+<navigation-bar
+  title="梦·旅"
+  back="{{false}}"
+  color="black"
+  background="#FFF"
+></navigation-bar>
+<t-tabs defaultValue="{{0}}">
+  <t-tab-panel
+    icon="assignment"
+    label="文字报告"
+    value="{{0}}"
+  />
+  <t-tab-panel
+    icon="calendar-1"
+    label="时间可视化"
+    value="{{1}}"
+  />
+  <t-tab-panel
+    icon="location"
+    label="空间可视化"
+    value="{{2}}"
+  />
+</t-tabs>
+<scroll-view
+  class="scrollarea"
+  scroll-y
+  type="list"
+>
+  <view class="container">
+  </view>
+</scroll-view>
+
