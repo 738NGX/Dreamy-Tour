@@ -5,6 +5,23 @@
   color="black"
   background="#FFF"
 ></navigation-bar>
+<t-tabs defaultValue="{{0}}">
+  <t-tab-panel
+    icon="map-search"
+    label="计划"
+    value="{{0}}"
+  />
+  <t-tab-panel
+    icon="map-location"
+    label="复盘"
+    value="{{1}}"
+  />
+  <t-tab-panel
+    icon="map-setting"
+    label="设置"
+    value="{{2}}"
+  />
+</t-tabs>
 <scroll-view
   class="scrollarea"
   scroll-y
