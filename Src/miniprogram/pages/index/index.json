@@ -1,5 +1,15 @@
 {
-  "usingComponents": {
-    "navigation-bar": "/components/navigation-bar/navigation-bar"
-  }
+    "usingComponents": {
+        "navigation-bar": "/components/navigation-bar/navigation-bar",
+        "t-tabs": "tdesign-miniprogram/tabs/tabs",
+        "t-tab-panel": "tdesign-miniprogram/tab-panel/tab-panel",
+        "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
+        "t-popup": "tdesign-miniprogram/popup/popup",
+        "t-button": "tdesign-miniprogram/button/button",
+        "t-input": "tdesign-miniprogram/input/input",
+        "t-calendar": "tdesign-miniprogram/calendar/calendar",
+        "t-cell": "tdesign-miniprogram/cell/cell",
+        "t-picker": "tdesign-miniprogram/picker/picker",
+        "t-picker-item": "tdesign-miniprogram/picker-item/picker-item"
+    }
 }

@@ -1,22 +1,50 @@
 {
-  "pages": [
-    "pages/index/index",
-    "pages/logs/logs"
-  ],
-  "window": {
-    "navigationBarTextStyle": "black",
-    "navigationStyle": "custom"
-  },
-  "style": "v2",
-  "rendererOptions": {
-    "skyline": {
-      "defaultDisplayBlock": true,
-      "disableABTest": true,
-      "sdkVersionBegin": "3.0.0",
-      "sdkVersionEnd": "15.255.255"
-    }
-  },
-  "componentFramework": "glass-easel",
-  "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+    "pages": [
+        "pages/index/index",
+        "pages/edit/edit",
+        "pages/report/report",
+        "pages/calculator/calculator",
+        "pages/menu/menu"
+    ],
+    "tabBar": {
+        "custom": true,
+        "color": "#000000",
+        "selectedColor": "#31869B",
+        "list": [
+            {
+                "pagePath": "pages/index/index",
+                "text": "主页"
+            },
+            {
+                "pagePath": "pages/edit/edit",
+                "text": "编辑行程"
+            },
+            {
+                "pagePath": "pages/report/report",
+                "text": "规划报告"
+            },
+            {
+                "pagePath": "pages/calculator/calculator",
+                "text": "计算器"
+            },
+            {
+                "pagePath": "pages/menu/menu",
+                "text": "更多"
+            }
+        ]
+    },
+    "window": {
+        "navigationBarTextStyle": "black",
+        "navigationStyle": "custom"
+    },
+    "rendererOptions": {
+        "skyline": {
+            "defaultDisplayBlock": true,
+            "disableABTest": true,
+            "sdkVersionBegin": "3.0.0",
+            "sdkVersionEnd": "15.255.255"
+        }
+    },
+    "sitemapLocation": "sitemap.json",
+    "lazyCodeLoading": "requiredComponents"
 }

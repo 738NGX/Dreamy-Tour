@@ -1,0 +1,38 @@
+<!--calculator.wxml-->
+<navigation-bar
+  title="梦·旅"
+  back="{{false}}"
+  color="black"
+  background="#FFF"
+></navigation-bar>
+<t-tabs defaultValue="{{0}}">
+  <t-tab-panel
+    icon="calculation-1"
+    label="标准"
+    value="{{0}}"
+  />
+  <t-tab-panel
+    icon="currency-exchange"
+    label="汇率"
+    value="{{1}}"
+  />
+  <t-tab-panel
+    icon="time"
+    label="时区"
+    value="{{2}}"
+  />
+  <t-tab-panel
+    icon="calendar"
+    label="日期"
+    value="{{3}}"
+  />
+</t-tabs>
+<scroll-view
+  class="scrollarea"
+  scroll-y
+  type="list"
+>
+  <view class="container">
+  </view>
+</scroll-view>
+
