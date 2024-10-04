@@ -1,10 +1,46 @@
 /**app.wxss**/
+page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-size: cover;
+    background-image: linear-gradient(120deg, rgba(161, 196, 253, 0.15) 0%, rgba(194, 233, 251, 0.15) 100%);
+}
+
+.scrollarea {
+    flex: 1;
+    overflow-y: hidden;
+}
+
 .container {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 200rpx 0;
-  box-sizing: border-box;
-} 
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 10rpx 10rpx 180rpx 10rpx;
+    box-sizing: border-box;
+}
+
+.row{
+    margin: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.column{
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 10rpx;
+    margin: 10rpx;
+    padding: 10rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    justify-content: center;
+}

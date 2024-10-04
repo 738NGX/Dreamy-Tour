@@ -1,33 +1,43 @@
-<!--edit.wxml-->
 <navigation-bar
   title="梦·旅"
   back="{{false}}"
   color="black"
   background="#FFF"
-></navigation-bar>
-<t-tabs defaultValue="{{0}}">
-  <t-tab-panel
-    icon="map-search"
-    label="计划"
-    value="{{0}}"
-  />
-  <t-tab-panel
-    icon="map-location"
-    label="复盘"
-    value="{{1}}"
-  />
-  <t-tab-panel
-    icon="map-setting"
-    label="设置"
-    value="{{2}}"
-  />
+/>
+<t-tabs defaultValue="{{0}}" bind:change="onChildPageChange">
+  <block wx:for="{{tabList}}" wx:key="value">
+    <t-tab-panel
+      icon="{{item.icon}}"
+      label="{{item.label}}"
+      value="{{item.value}}"
+    />
+  </block>
 </t-tabs>
-<scroll-view
-  class="scrollarea"
-  scroll-y
-  type="list"
->
-  <view class="container">
-  </view>
-</scroll-view>
+<block wx:if="{{selectingTour}}">
+  <block wx:if="{{childPage==0}}">
+    {{currentTour.title}}
+    往:{{currentTour.startDateStr}}
+    返:{{currentTour.endDateStr}}
+    主货币:{{currentTour.mainCurrency}}
+    辅货币:{{currentTour.subCurrency}}
+  </block>
+</block>
+<block wx:else>
+  <scroll-view
+    class="scrollarea"
+    scroll-y
+    type="list"
+  >
+    <view class="container" style="height:100%; align-items: center; justify-content: center;">
+      <view class="column" style="align-items: center; justify-content: center;">
+        <image
+          mode="aspectFit"
+          style="margin:20rpx 0;"
+          src="../../resources/hanamaru1.png"
+        />
+        <view>当前没有选择需要编辑的行程的说</view>
+      </view>
+    </view>
+  </scroll-view>
+</block>
 

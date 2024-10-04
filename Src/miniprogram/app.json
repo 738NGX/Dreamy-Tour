@@ -17,7 +17,7 @@
             },
             {
                 "pagePath": "pages/edit/edit",
-                "text": "编辑规划"
+                "text": "编辑行程"
             },
             {
                 "pagePath": "pages/report/report",
@@ -37,7 +37,6 @@
         "navigationBarTextStyle": "black",
         "navigationStyle": "custom"
     },
-    "style": "v2",
     "rendererOptions": {
         "skyline": {
             "defaultDisplayBlock": true,
@@ -46,12 +45,6 @@
             "sdkVersionEnd": "15.255.255"
         }
     },
-    "usingComponents": {
-        "t-tabs": "tdesign-miniprogram/tabs/tabs",
-        "t-tab-panel": "tdesign-miniprogram/tab-panel/tab-panel",
-        "t-fab": "tdesign-miniprogram/fab/fab"
-    },
-    "componentFramework": "glass-easel",
     "sitemapLocation": "sitemap.json",
     "lazyCodeLoading": "requiredComponents"
 }

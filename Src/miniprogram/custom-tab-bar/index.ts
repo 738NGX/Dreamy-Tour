@@ -13,7 +13,7 @@ Component({
             {
                 value: '/pages/edit/edit',
                 icon: 'map-edit',
-                label: '编辑规划'
+                label: '编辑行程'
             },
             {
                 value: '/pages/report/report',
