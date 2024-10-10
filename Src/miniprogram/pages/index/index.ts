@@ -20,13 +20,13 @@ Component({
         subCurrencies: currencyList,
         minDate: new Date(new Date().getTime() - 365 * MILLISECONDS.DAY).getTime(),
         maxDate: new Date(new Date().getTime() + 365 * MILLISECONDS.DAY).getTime(),
+        currencyText: '主货币:人民币-CNY\n辅货币:日元-JPY',
 
         // 页面状态
         childPage: 0,
         creatorVisible: false,
         calendarVisible: false,
         currencySelectorVisible: false,
-        currencyText: '主货币:人民币-CNY\n辅货币:日元-JPY',
 
         // 数据缓存
         containsTour: false,
@@ -61,6 +61,7 @@ Component({
                 const page: any = getCurrentPages().pop();
                 this.getTabBar().setData({ value: '/' + page.route })
             }
+            this.setData({ tourList: app.globalData.tourList });
         },
         onChildPageChange(e: any) {
             this.setData({ childPage: e.detail.value })
@@ -112,7 +113,7 @@ Component({
         createTour() {
             this.setData({
                 newTourName: this.data.newTourName
-            }, () => {
+            }, async () => {
                 const tourHashMap = this.data.tourHashMap;
                 const newId = this.data.containsTour ? Math.max(...Array.from(tourHashMap.keys())) + 1 : 0;
                 const newTour = new Tour(
@@ -123,6 +124,7 @@ Component({
                     this.data.newTourCurrency[0],
                     this.data.newTourCurrency[1],
                 );
+                await newTour.getExchangeRate();
                 tourHashMap.set(newId, 'tour-' + newTour.id);
 
                 this.setData({
@@ -221,6 +223,7 @@ Component({
                 this.setData({
                     tourList: tourList,
                 });
+                app.globalData.tourList = tourList;
             }).catch((err) => {
                 console.error('读取 tour 数据时出错: ', err);
             });

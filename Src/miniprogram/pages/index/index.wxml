@@ -17,31 +17,39 @@
   <!--行程列表页面-->
   <block wx:if="{{containsTour}}">
     <!--有创建的行程-->
-    <block wx:for="{{tourList}}" wx:key="id">
-      <t-swipe-cell>
-        <t-cell
-          title="{{item.title}}"
-          note="往:{{item.startDate}}\n返:{{item.endDate}}"
-          bordered="{{false}}"
-        />
-        <view slot="right" class="btn-wrapper">
-          <view
-            class="btn2 edit-btn"
-            data-index="{{item.id}}"
-            bind:tap="selectTour"
-          >
-            选择
-          </view>
-          <view
-            class="btn2 delete-btn"
-            data-index="{{item.id}}"
-            bind:tap="removeTour"
-          >
-            删除
-          </view>
-        </view>
-      </t-swipe-cell>
-    </block>
+    <scroll-view
+      class="scrollarea"
+      scroll-y
+      type="list"
+    >
+      <view class="container">
+        <block wx:for="{{tourList}}" wx:key="id">
+          <t-swipe-cell>
+            <t-cell
+              title="{{item.title}}"
+              note="往:{{item.startDate}}\n返:{{item.endDate}}"
+              bordered="{{false}}"
+            />
+            <view slot="right" class="btn-wrapper">
+              <view
+                class="btn2 edit-btn"
+                data-index="{{item.id}}"
+                bind:tap="selectTour"
+              >
+                选择
+              </view>
+              <view
+                class="btn2 delete-btn"
+                data-index="{{item.id}}"
+                bind:tap="removeTour"
+              >
+                删除
+              </view>
+            </view>
+          </t-swipe-cell>
+        </block>
+      </view>
+    </scroll-view>
   </block>
   <block wx:else>
     <!--没有创建的行程-->
@@ -64,89 +72,75 @@
   </block>
 </block>
 <block wx:else>
-  <!--弹出窗口: 创建空白行程-->
-  <t-popup
-    visible="{{creatorVisible}}"
-    bind:visible-change="onCreatorVisibleChange"
-    placement="bottom"
-    style="height: 50vh;"
-  >
-    <view class="block">
-      <view class="header">
-        <view
-          class="btn btn--cancel"
-          aria-role="button"
-          bind:tap="onCreatorVisibleChange"
-        >
-          取消
-        </view>
-        <view class="title">创建空白行程</view>
-        <view
-          class="btn btn--confirm"
-          aria-role="button"
-          bind:tap="createTour"
-        >
-          确定
-        </view>
-      </view>
-      <t-input
-        label="行程名"
-        placeholder="行程名上限20个字符"
-        value="{{newTourName}}"
-        maxlength="{{20}}"
-        bind:blur="handleTitleInput"
-      />
-      <view class="row" style='justify-content: space-between;'>
-        <view class="column" style="width: 90%;">
-          <view>出发日期:{{newTourStartDateStr}}</view>
-          <view>返程日期:{{newTourEndDateStr}}</view>
-        </view>
-        <t-button
-          size="large"
-          theme="primary"
-          variant="outline"
-          style="width: 10%;"
-          bind:tap="handleCalendar"
-        >
-          选择
-        </t-button>
-      </view>
-      <t-calendar
-        visible="{{calendarVisible}}"
-        value="{{newTourDate}}"
-        minDate="{{minDate}}"
-        maxDate="{{maxDate}}"
-        bind:confirm="handleCalendarConfirm"
-        type="range"
-      />
-      <t-cell
-        title="选择统计货币"
-        arrow
-        hover
-        note="{{currencyText}}"
-        bind:click="onCurrencyPicker"
-      />
-      <t-picker
-        visible="{{currencySelectorVisible}}"
-        value="{{newTourCurrency}}"
-        title="选择主/辅货币"
-        cancelBtn="取消"
-        confirmBtn="确认"
-        usingCustomNavbar
-        bindchange="onCurrencyPickerChange"
-        bindpick="onCurrencyColumnChange"
-        bindcancel="onCurrencyPickerCancel"
-      >
-        <t-picker-item options="{{mainCurrencies}}"></t-picker-item>
-        <t-picker-item options="{{subCurrencies}}"></t-picker-item>
-      </t-picker>
-    </view>
-  </t-popup>
   <scroll-view
     class="scrollarea"
     scroll-y
     type="list"
   >
+    <!--弹出窗口: 创建空白行程-->
+    <t-popup-headered
+      visible="{{creatorVisible}}"
+      title="创建空白行程"
+      bind:visible-change="onCreatorVisibleChange"
+      bindConfirm="createTour"
+      bindCancel="onCreatorVisibleChange"
+      placement="bottom"
+      style="height: 50vh;"
+    >
+      <view class="block">
+        <t-input
+          label="行程名"
+          placeholder="行程名上限20个字符"
+          value="{{newTourName}}"
+          maxlength="{{20}}"
+          bind:blur="handleTitleInput"
+        />
+        <view class="row">
+          <view class="column" style="width: 90%;">
+            <view>出发日期:{{newTourStartDateStr}}</view>
+            <view>返程日期:{{newTourEndDateStr}}</view>
+          </view>
+          <t-button
+            size="large"
+            theme="primary"
+            variant="outline"
+            style="width: 10%;"
+            bind:tap="handleCalendar"
+          >
+            选择
+          </t-button>
+        </view>
+        <t-calendar
+          visible="{{calendarVisible}}"
+          value="{{newTourDate}}"
+          minDate="{{minDate}}"
+          maxDate="{{maxDate}}"
+          bind:confirm="handleCalendarConfirm"
+          type="range"
+        />
+        <t-cell
+          title="选择统计货币"
+          arrow
+          hover
+          note="{{currencyText}}"
+          bind:click="onCurrencyPicker"
+        />
+        <t-picker
+          visible="{{currencySelectorVisible}}"
+          value="{{newTourCurrency}}"
+          title="选择主/辅货币"
+          cancelBtn="取消"
+          confirmBtn="确认"
+          usingCustomNavbar
+          bindchange="onCurrencyPickerChange"
+          bindpick="onCurrencyColumnChange"
+          bindcancel="onCurrencyPickerCancel"
+        >
+          <t-picker-item options="{{mainCurrencies}}"></t-picker-item>
+          <t-picker-item options="{{subCurrencies}}"></t-picker-item>
+        </t-picker>
+      </view>
+    </t-popup-headered>
     <!--选择行程创建方式-->
     <view class="container">
       <block wx:for="{{creatorArray}}" wx:key="button">

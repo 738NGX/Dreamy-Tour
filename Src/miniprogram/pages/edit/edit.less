@@ -1,10 +1,119 @@
+@import url('../../components/fonts/transportation.less');
+
 .location {
     background-color: #fff;
-    border-radius: 10rpx;
-    border: 5rpx solid #0052d9;
+    border-radius: 20rpx;
+    border: 6rpx solid #0052d9;
     padding: 10rpx;
     display: flex;
     flex-direction: column;
     align-items: left;
     justify-content: center;
+    width: 90%;
+}
+
+.box {
+    padding: 32rpx;
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    background-color: var(--td-bg-color-container, #fff);
+}
+
+.box2 {
+    padding: 32rpx;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    background-color: var(--td-bg-color-container, #fff);
+}
+
+.transportation {
+    background-color: #fff;
+    border-radius: 20rpx;
+    border: 6rpx solid #0052d9;
+    padding: 10rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    justify-content: center;
+    width: 75%;
+}
+
+.connecter {
+    width: 6rpx;
+    height: 30rpx;
+    background-color: #0052d9;
+}
+
+.suffix {
+    display: flex;
+    align-items: center;
+}
+
+.suffix--line {
+    width: 1px;
+    height: 24px;
+    background-color: var(--td-component-stroke, #f3f3f3);
+    margin-right: 16px;
+}
+
+.tips {
+    text-align: right !important;
+}
+
+.transexpensecell {
+    --td-cell-horizontal-padding: 10rpx;
+    --td-cell-vertical-padding: 10rpx;
+}
+
+.t-radio {
+    --td-radio-icon-size: 32rpx;
+    --td-radio-vertical-padding: 5rpx;
+}
+
+.card {
+    position: relative;
+    margin: 32rpx;
+    border-radius: 12rpx;
+    overflow: hidden;
+    box-sizing: border-box;
+    border: 3rpx solid var(--td-bg-color-container, #fff);
+}
+
+.card--active {
+    border-color: var(--td-brand-color, #0052d9);
+}
+
+.card--active::after {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    border-width: 28px 28px 28px 0;
+    border-style: solid;
+    border-color: var(--td-brand-color, #0052d9) transparent transparent transparent;
+}
+
+.card__icon {
+    color: var(--td-bg-color-container, #fff);
+    position: absolute;
+    left: 1.5px;
+    top: 1.5px;
+    z-index: 1;
+}
+
+.horizontal-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 10rpx;
+}
+
+.horizontal-box .card {
+    flex: 0 0 calc(10% - 20rpx);
+    margin: 0 0 10rpx 0;
 }
