@@ -33,6 +33,20 @@
         bindpick="onDatetimeColumnChange"
         bindcancel="onDatetimeCancel"
       />
+      <!--时区选择弹窗-->
+      <t-picker
+        visible="{{timezoneVisible}}"
+        value="{{[selectingTimeOffset]}}"
+        title="选择时区"
+        cancelBtn="取消"
+        confirmBtn="确认"
+        usingCustomNavbar
+        bindchange="onTimezonePickerChange"
+        bindpick="onTimezoneColumnChange"
+        bindcancel="onTimezonePickerCancel"
+      >
+        <t-picker-item options="{{timezoneList}}"></t-picker-item>
+      </t-picker>
       <!--持续时间选择弹窗-->
       <t-date-time-picker
         title="选择持续时间"
@@ -118,7 +132,7 @@
                       label="费用"
                       placeholder="0.00"
                       align="right"
-                      type="number"
+                      type="digit"
                       value="{{item.amount}}"
                       bind:change="onExpensePriceInput"
                       tips="{{priceError ? '请输入正确的费用' : ''}}"
@@ -256,7 +270,7 @@
           label="费用"
           placeholder="0.00"
           align="right"
-          type="number"
+          type="digit"
           value="{{editingTransExpense.amount}}"
           bind:change="onTransExpensePriceInput"
           tips="{{priceError ? '请输入正确的费用' : ''}}"
@@ -354,6 +368,26 @@
               data-index="{{0}}"
             >
               调整
+            </t-button>
+          </view>
+          <view class="row">
+            <t-icon
+              name="time"
+              size="32rpx"
+              style="margin:0 10rpx;"
+            />
+            <view style="width: 90%;">
+              时区:{{currentTour.locations[0].timezone}}
+            </view>
+            <t-button
+              size="large"
+              theme="primary"
+              variant="outline"
+              style="width: 10%;height: 50rpx;"
+              bind:tap="handleNodeTimezoneSelect"
+              data-index="{{0}}"
+            >
+              选择
             </t-button>
           </view>
           <view class="row">
@@ -487,21 +521,11 @@
                 size="large"
                 theme="primary"
                 variant="outline"
-                style="width: 49%;height: 50rpx;"
+                style="width: 100%;height: 50rpx;"
                 bind:tap="addTransportExpense"
                 data-index="{{i}}"
               >
                 增加交通
-              </t-button>
-              <t-button
-                size="large"
-                theme="primary"
-                variant="outline"
-                style="width: 49%;height: 50rpx;"
-                bind:tap="onTransNoteVisibleChange"
-                data-index="{{i}}"
-              >
-                编辑备注
               </t-button>
             </view>
           </view>
@@ -552,6 +576,26 @@
                 data-index="{{i+1}}"
               >
                 调整
+              </t-button>
+            </view>
+            <view class="row">
+              <t-icon
+                name="time"
+                size="32rpx"
+                style="margin:0 10rpx;"
+              />
+              <view style="width: 90%;">
+                时区:{{currentTour.locations[i+1].timezone}}
+              </view>
+              <t-button
+                size="large"
+                theme="primary"
+                variant="outline"
+                style="width: 10%;height: 50rpx;"
+                bind:tap="handleNodeTimezoneSelect"
+                data-index="{{i+1}}"
+              >
+                选择
               </t-button>
             </view>
             <view class="row">
@@ -647,6 +691,20 @@
           选择
         </t-button>
       </view>
+      <view class="row" style="background-color:white;margin:0;padding:20rpx">
+        <view class="column" style="width:90%;">
+          <view>默认时区:{{currentTour.timezone}}</view>
+        </view>
+        <t-button
+          size="large"
+          theme="primary"
+          variant="outline"
+          style="width: 10%;"
+          bind:tap="handleTourTimezoneSelector"
+        >
+          选择
+        </t-button>
+      </view>
       <t-calendar
         visible="{{calendarVisible}}"
         value="{{currentDateRange}}"
@@ -655,6 +713,19 @@
         bind:confirm="handleCalendarConfirm"
         type="range"
       />
+      <t-picker
+        visible="{{timezoneVisible}}"
+        value="{{[selectingTimeOffset]}}"
+        title="选择时区"
+        cancelBtn="取消"
+        confirmBtn="确认"
+        usingCustomNavbar
+        bindchange="onTourTimezonePickerChange"
+        bindpick="onTimezoneColumnChange"
+        bindcancel="onTimezonePickerCancel"
+      >
+        <t-picker-item options="{{timezoneList}}"></t-picker-item>
+      </t-picker>
       <view class="row" style="background-color:white;margin:0;padding:20rpx">
         <view class="column" style="width:90%;">
           <view>主货币:{{currencyList[currentTour.mainCurrency].label}}</view>
@@ -690,7 +761,7 @@
         label="指定汇率"
         placeholder="0.00"
         align="right"
-        type="number"
+        type="digit"
         value="{{currentTour.currencyExchangeRate}}"
         bind:blur="onTourCurrencyExchangeRateInput"
         tips="{{priceError ? '请输入正确的汇率' : ''}}"

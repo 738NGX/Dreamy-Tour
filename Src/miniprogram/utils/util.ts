@@ -5,12 +5,20 @@ export const MILLISECONDS = {
     DAY: 8.64e+7
 };
 
-export const formatTime = (date: Date) => {
-    const year = date.getFullYear()
-    const month = date.getMonth() + 1
-    const day = date.getDate()
-    const hour = date.getHours()
-    const minute = date.getMinutes()
+export const formatTime = (date: Date, timeOffset?: number) => {
+    const usingDate = new Date(date);
+    if (timeOffset !== undefined) {
+        usingDate.setTime(
+            usingDate.getTime() + new Date().getTimezoneOffset() * MILLISECONDS.MINUTE 
+            - timeOffset * MILLISECONDS.MINUTE
+        );
+    }
+    
+    const year = usingDate.getFullYear()
+    const month = usingDate.getMonth() + 1
+    const day = usingDate.getDate()
+    const hour = usingDate.getHours()
+    const minute = usingDate.getMinutes()
 
     return (
         [year, month, day].map(formatNumber).join('/') +
@@ -24,12 +32,21 @@ export const formatNumber = (n: number) => {
     return s[1] ? s : '0' + s
 }
 
-export const formatDate = (date: Date) => {
-    const year = date.getFullYear()
-    const month = date.getMonth() + 1
-    const day = date.getDate()
+export const formatDate = (date: Date, timeOffset?: number) => {
+    const usingDate = new Date(date);
+    if (timeOffset !== undefined) {
+        usingDate.setTime(
+            usingDate.getTime() + new Date().getTimezoneOffset() * MILLISECONDS.MINUTE 
+            - timeOffset * MILLISECONDS.MINUTE
+        );
+    }
+    
+    const year = usingDate.getFullYear()
+    const month = usingDate.getMonth() + 1
+    const day = usingDate.getDate()
     const arr = ['(日)', '(一)', '(二)', '(三)', '(四)', '(五)', '(六)'];
-    return [year, month, day].map(formatNumber).join('/') + arr[date.getDay()];
+    
+    return [year, month, day].map(formatNumber).join('/') + arr[usingDate.getDay()];
 }
 
 export function timeToMilliseconds(time: string) {
@@ -45,7 +62,7 @@ export function timeToMilliseconds(time: string) {
     return milliseconds;
 }
 
-export function exchangeCurrency(amount:number, from:string, to:string) {
+export function exchangeCurrency(amount: number, from: string, to: string) {
     return new Promise((resolve, reject) => {
         wx.request({
             url: 'https://books.738ngx.site/exchange-currency',
@@ -69,3 +86,7 @@ export function exchangeCurrency(amount:number, from:string, to:string) {
     });
 }
 
+export function getChartData(data: any) {
+    let res = { series: [{ data: data }] };
+    return JSON.parse(JSON.stringify(res));
+}

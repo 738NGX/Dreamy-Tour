@@ -38,6 +38,7 @@ Component({
         newTourStartDateStr: formatDate(new Date()),
         newTourEndDateStr: formatDate(new Date(new Date().getTime() + MILLISECONDS.DAY)),
         newTourCurrency: [Currency.CNY, Currency.JPY],
+        newTourTimeOffset: -480,
     },
     methods: {
         onLoad() {
@@ -121,6 +122,7 @@ Component({
                     this.data.newTourName,
                     new Date(this.data.newTourDate[0]),
                     new Date(this.data.newTourDate[1]),
+                    this.data.newTourTimeOffset,
                     this.data.newTourCurrency[0],
                     this.data.newTourCurrency[1],
                 );

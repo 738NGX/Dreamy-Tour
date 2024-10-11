@@ -2,6 +2,10 @@
     "usingComponents": {
         "navigation-bar": "/components/navigation-bar/navigation-bar",
         "t-tabs": "tdesign-miniprogram/tabs/tabs",
-        "t-tab-panel": "tdesign-miniprogram/tab-panel/tab-panel"
+        "t-tab-panel": "tdesign-miniprogram/tab-panel/tab-panel",
+        "t-collapse": "tdesign-miniprogram/collapse/collapse",
+        "t-collapse-panel": "tdesign-miniprogram/collapse-panel/collapse-panel",
+        "t-cell": "tdesign-miniprogram/cell/cell",
+        "qiun-wx-ucharts": "@qiun/wx-ucharts"
     }
 }

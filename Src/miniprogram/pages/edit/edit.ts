@@ -9,7 +9,7 @@ if (PLUGIN_KEY) {
     });
     qqmapsdk
 }
-import { currencyList, transportList, expenseList, tagList, Tour, Location, TransportExpense } from '../../utils/tour';
+import { currencyList, transportList, expenseList, tagList, timezoneList, Tour, Location, TransportExpense } from '../../utils/tour';
 import { MILLISECONDS, formatTime, formatNumber, timeToMilliseconds, formatDate } from '../../utils/util';
 
 const app = getApp<IAppOption>();
@@ -29,6 +29,7 @@ Component({
         transportList: transportList,
         expenseList: expenseList,
         tagList: tagList,
+        timezoneList: timezoneList,
         minDate: new Date(new Date().getTime() - 365 * MILLISECONDS.DAY).getTime(),
         maxDate: new Date(new Date().getTime() + 365 * MILLISECONDS.DAY).getTime(),
 
@@ -42,11 +43,13 @@ Component({
         transExpenseVisible: false,
         priceError: false,
         calendarVisible: false,
+        timezoneVisible: false,
 
         // 数据缓存
         currentTour: null as Tour | null,
         currentDateRange: null as number[] | null,
         selectingDatetime: new Date().getTime(),
+        selectingTimeOffset: -480,
         selectingDuration: '',
         editingNote: '',
         editingLocationId: -1,
@@ -108,9 +111,14 @@ Component({
             }
             if (!this.data.currentTour || this.data.editingLocationId < 0) return;
             const editingLocation = this.data.currentTour.locations[this.data.editingLocationId];
+            const selectingDatetime = (
+                new Date(editingLocation.startDate).getTime()
+                + new Date().getTimezoneOffset() * MILLISECONDS.MINUTE
+                - editingLocation.timeOffset * MILLISECONDS.MINUTE
+            );
             this.setData({
                 datetimeVisible: true,
-                selectingDatetime: new Date(editingLocation.startDate).getTime(),
+                selectingDatetime: selectingDatetime,
                 datetimeEditMode: DatetimeEditMode.StartDate
             });
         },
@@ -120,9 +128,14 @@ Component({
             }
             if (!this.data.currentTour || this.data.editingLocationId < 0) return;
             const editingLocation = this.data.currentTour.locations[this.data.editingLocationId];
+            const selectingDatetime = (
+                new Date(editingLocation.endDate).getTime()
+                + new Date().getTimezoneOffset() * MILLISECONDS.MINUTE
+                - editingLocation.timeOffset * MILLISECONDS.MINUTE
+            );
             this.setData({
                 datetimeVisible: true,
-                selectingDatetime: new Date(editingLocation.endDate).getTime(),
+                selectingDatetime: selectingDatetime,
                 datetimeEditMode: DatetimeEditMode.EndDate
             });
         },
@@ -135,26 +148,27 @@ Component({
             const id = this.data.editingLocationId;
             const currentTour = new Tour(this.data.currentTour);
             const editingLocation = currentTour.locations[id];
+            const selectingDatetime = new Date(
+                this.data.selectingDatetime
+                - new Date().getTimezoneOffset() * MILLISECONDS.MINUTE
+                + editingLocation.timeOffset * MILLISECONDS.MINUTE
+            );
 
             if (this.data.datetimeEditMode === DatetimeEditMode.StartDate) {
-                editingLocation.startDate = new Date(this.data.selectingDatetime);
-                editingLocation.startDateStr = formatTime(editingLocation.startDate);
+                editingLocation.startDate = new Date(selectingDatetime);
                 editingLocation.updateDuration();
                 if (id > 0) {
                     const associatedTransportation = currentTour.transportations[id - 1];
                     associatedTransportation.endDate = editingLocation.startDate;
-                    associatedTransportation.endDateStr = editingLocation.startDateStr;
                     associatedTransportation.updateDuration();
                 }
             }
             else if (this.data.datetimeEditMode === DatetimeEditMode.EndDate) {
-                editingLocation.endDate = new Date(this.data.selectingDatetime);
-                editingLocation.endDateStr = formatTime(editingLocation.endDate);
+                editingLocation.endDate = new Date(selectingDatetime);
                 editingLocation.updateDuration();
                 if (id < currentTour.locations.length - 1) {
                     const associatedTransportation = currentTour.transportations[id];
                     associatedTransportation.startDate = editingLocation.endDate;
-                    associatedTransportation.startDateStr = editingLocation.endDateStr;
                     associatedTransportation.updateDuration();
                 }
             }
@@ -174,6 +188,46 @@ Component({
                 editingLocationId: -1,
                 datetimeEditMode: DatetimeEditMode.None
             });
+        },
+        handleNodeTimezoneSelect(e: any) {
+            if (e.currentTarget.dataset.index != undefined) {
+                this.setData({ editingLocationId: e.currentTarget.dataset.index });
+            }
+            if (!this.data.currentTour || this.data.editingLocationId < 0) return;
+            const editingLocation = this.data.currentTour.locations[this.data.editingLocationId];
+            this.setData({
+                timezoneVisible: true,
+                selectingTimeOffset: editingLocation.timeOffset
+            });
+        },
+        onTimezoneColumnChange(e: any) {
+            this.setData({ selectingTimeOffset: Number(e.detail.value[0]) });
+        },
+        onTimezonePickerCancel() {
+            this.setData({
+                timezoneVisible: false,
+                selectingTimeOffset: -480,
+            });
+        },
+        onTimezonePickerChange() {
+            if (!this.data.currentTour || this.data.editingLocationId < 0) return;
+
+            const currentTour = new Tour(this.data.currentTour);
+            const id = this.data.editingLocationId;
+
+            currentTour.locations[id].timeOffset = this.data.selectingTimeOffset;
+            currentTour.locations[id].timezone = this.data.timezoneList.filter((item: any) => item.value == this.data.selectingTimeOffset)[0].label;
+            currentTour.locations[id].startDateStr = formatTime(currentTour.locations[id].startDate, currentTour.locations[id].timeOffset);
+            currentTour.locations[id].endDateStr = formatTime(currentTour.locations[id].endDate, currentTour.locations[id].timeOffset);
+
+            app.globalData.currentTour = currentTour;
+            this.setData({
+                currentTour: currentTour,
+                timezoneVisible: false,
+                editingLocationId: -1,
+                selectingTimeOffset: -480,
+            });
+            wx.setStorageSync('tour-' + currentTour.id, currentTour);
         },
         /**
          * 位置节点备注修改
@@ -424,7 +478,7 @@ Component({
                 this.setData({
                     'editingLocation.expenses': this.data.editingLocation.expenses.map((expense: any, index: number) => {
                         if (index === this.data.editingExpenseId) {
-                            expense.amount = e.detail.value;
+                            expense.amount = Number(e.detail.value);
                         }
                         return expense;
                     })
@@ -562,7 +616,7 @@ Component({
             }
             if (isNumber) {
                 this.setData({
-                    'editingTransExpense.amount': e.detail.value
+                    'editingTransExpense.amount': Number(e.detail.value)
                 });
             }
         },
@@ -625,7 +679,7 @@ Component({
             this.setData({ currentTour: currentTour });
             wx.setStorageSync('tour-' + currentTour.id, currentTour);
         },
-        async exchangeTourCurrency(){
+        async exchangeTourCurrency() {
             if (!this.data.currentTour) return;
 
             const currentTour = new Tour(this.data.currentTour);
@@ -661,7 +715,7 @@ Component({
                 });
             }
             if (!isNumber) return;
-            currentTour.currencyExchangeRate = e.detail.value;
+            currentTour.currencyExchangeRate = Number(e.detail.value);
             app.globalData.currentTour = currentTour;
             this.setData({ currentTour: currentTour });
             wx.setStorageSync('tour-' + currentTour.id, currentTour);
@@ -695,6 +749,29 @@ Component({
             this.setData({
                 currentTour: currentTour,
                 calendarVisible: false
+            });
+            wx.setStorageSync('tour-' + currentTour.id, currentTour);
+        },
+        handleTourTimezoneSelector() {
+            if (!this.data.currentTour) return;
+            this.setData({
+                selectingTimeOffset: this.data.currentTour.timeOffset,
+                timezoneVisible: true
+            });
+        },
+        onTourTimezonePickerChange() {
+            if (!this.data.currentTour) return;
+
+            const currentTour = new Tour(this.data.currentTour);
+            currentTour.timeOffset = this.data.selectingTimeOffset;
+            currentTour.timezone = this.data.timezoneList.filter((item: any) => item.value == this.data.selectingTimeOffset)[0].label;
+            currentTour.startDateStr = formatDate(currentTour.startDate, currentTour.timeOffset);
+            currentTour.endDateStr = formatDate(currentTour.endDate, currentTour.timeOffset);
+
+            app.globalData.currentTour = currentTour;
+            this.setData({
+                currentTour: currentTour,
+                timezoneVisible: false,
             });
             wx.setStorageSync('tour-' + currentTour.id, currentTour);
         }

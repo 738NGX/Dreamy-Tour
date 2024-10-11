@@ -1,4 +1,4 @@
-import { formatDate, formatTime, MILLISECONDS,exchangeCurrency } from './util';
+import { formatDate, formatTime, MILLISECONDS, exchangeCurrency } from './util';
 
 export enum TransportType { Bus, Metro, Train, Flight, Walk, Cycle, Car, Taxi, Ship, Other };
 export enum Currency { CNY, USD, EUR, JPY, HKD };
@@ -35,7 +35,7 @@ export const expenseList = [
 ];
 
 export const tagList = [
-    { value: 0, color: 'fbfbfb' },
+    { value: 0, color: 'f0f0f0' },
     { value: 1, color: 'ff9547' },
     { value: 2, color: 'ff9eac' },
     { value: 3, color: '27c1b7' },
@@ -45,7 +45,47 @@ export const tagList = [
     { value: 7, color: 'ffd010' },
     { value: 8, color: 'c252c6' },
     { value: 9, color: 'ff6fbe' },
-]
+];
+
+export const timezoneList = [
+    { label: 'UTC-12(IDLW:国际换日线)', value: 720 },
+    { label: 'UTC-11(SST:美属萨摩亚标准时间)', value: 660 },
+    { label: 'UTC-10(HST:夏威夷标准时间)', value: 600 },
+    { label: 'UTC-9:30(MIT:马克萨斯群岛标准时间)', value: 570 },
+    { label: 'UTC-9(AKST:阿拉斯加标准时间)', value: 540 },
+    { label: 'UTC-8(PST:太平洋标准时间)', value: 480 },
+    { label: 'UTC-7(MST:山地标准时间)', value: 420 },
+    { label: 'UTC-6(CST:中部标准时间)', value: 360 },
+    { label: 'UTC-5(EST:东部标准时间)', value: 300 },
+    { label: 'UTC-4(AST:大西洋标准时间)', value: 240 },
+    { label: 'UTC-3:30(NST:纽芬兰标准时间)', value: 210 },
+    { label: 'UTC-3(BRT:巴西利亚标准时间)', value: 180 },
+    { label: 'UTC-2(FNT:中大西洋标准时间)', value: 120 },
+    { label: 'UTC-1(CVT:佛得角标准时间)', value: 60 },
+    { label: 'UTC+0(GMT:格林尼治标准时间)', value: 0 },
+    { label: 'UTC+1(CET:中欧标准时间)', value: -60 },
+    { label: 'UTC+2(EET:东欧标准时间)', value: -120 },
+    { label: 'UTC+3(MSK:莫斯科标准时间)', value: -180 },
+    { label: 'UTC+3:30(IRST:伊朗标准时间)', value: -210 },
+    { label: 'UTC+4(GST:波斯湾标准时间)', value: -240 },
+    { label: 'UTC+4:30(AFT:阿富汗标准时间)', value: -270 },
+    { label: 'UTC+5(PKT:巴基斯坦标准时间)', value: -300 },
+    { label: 'UTC+5:30(IST:印度标准时间)', value: -330 },
+    { label: 'UTC+5:45(NPT:尼泊尔标准时间)', value: -345 },
+    { label: 'UTC+6(BST:孟加拉标准时间)', value: -360 },
+    { label: 'UTC+6:30(MMT:缅甸标准时间)', value: -390 },
+    { label: 'UTC+7(ICT:中南半岛标准时间)', value: -420 },
+    { label: 'UTC+8(CST:中国标准时间)', value: -480 },
+    { label: 'UTC+9(JST:日本标准时间)', value: -540 },
+    { label: 'UTC+9:30(ACST:澳大利亚中部标准时间)', value: -570 },
+    { label: 'UTC+10(AEST:澳大利亚东部标准时间)', value: -600 },
+    { label: 'UTC+10:30(LHST:豪勋爵群岛标准时间)', value: -630 },
+    { label: 'UTC+11(NFT:诺福克岛标准时间)', value: -660 },
+    { label: 'UTC+12(NZST:新西兰标准时间)', value: -720 },
+    { label: 'UTC+12:45(CHAST:查塔姆群岛标准时间)', value: -765 },
+    { label: 'UTC+13(PET:太平洋标准时间)', value: -780 },
+    { label: 'UTC+14(LINT:莱恩群岛标准时间)', value: -840 },
+];
 
 /**
  * 行程类
@@ -57,8 +97,10 @@ export class Tour {
     // 日期信息
     startDate: Date;
     endDate: Date;
-    startDateStr: String;
-    endDateStr: String;
+    startDateStr: string;
+    endDateStr: string;
+    timeOffset: number;
+    timezone: string;
     // 货币信息
     mainCurrency: Currency;
     subCurrency: Currency;
@@ -72,6 +114,7 @@ export class Tour {
         title?: string,
         startDate?: Date,
         endDate?: Date,
+        timeOffset?: number,
         mainCurrency?: Currency,
         subCurrency?: Currency,
         locations?: Location[],
@@ -82,12 +125,14 @@ export class Tour {
             this.title = title!;
             this.startDate = startDate!;
             this.endDate = endDate!;
-            this.startDateStr = formatDate(startDate!);
-            this.endDateStr = formatDate(endDate!);
+            this.timeOffset = timeOffset ? timeOffset : -480;
+            this.timezone = timezoneList.find((timezone) => timezone.value == this.timeOffset)!.label;
+            this.startDateStr = formatDate(this.startDate, this.timeOffset);
+            this.endDateStr = formatDate(this.endDate, this.timeOffset);
             this.mainCurrency = mainCurrency ? mainCurrency : Currency.CNY;
             this.subCurrency = subCurrency ? subCurrency : Currency.JPY;
             this.currencyExchangeRate = 1;
-            this.locations = locations ? locations : [new Location(0, startDate!, startDate!)];
+            this.locations = locations ? locations : [new Location(0, startDate!, startDate!, this.timeOffset)];
             this.transportations = transportations ? transportations : [];
         } else {
             const data = idOrData;
@@ -95,8 +140,10 @@ export class Tour {
             this.title = data.title;
             this.startDate = new Date(data.startDate);
             this.endDate = new Date(data.endDate);
-            this.startDateStr = formatDate(this.startDate);
-            this.endDateStr = formatDate(this.endDate);
+            this.timeOffset = data.timeOffset;
+            this.timezone = data.timezone;
+            this.startDateStr = formatDate(this.startDate, this.timeOffset);
+            this.endDateStr = formatDate(this.endDate, this.timeOffset);
             this.mainCurrency = data.mainCurrency;
             this.subCurrency = data.subCurrency;
             this.currencyExchangeRate = data.currencyExchangeRate;
@@ -121,8 +168,13 @@ export class Tour {
     addLocation() {
         const lastLoaction = this.locations[this.locations.length - 1];
         const nextTime = new Date(lastLoaction.endDate.getTime() + 1000 * 30 * 60);
-        this.transportations.push(new Transportation(this.transportations.length, lastLoaction.endDate, nextTime));
-        this.locations.push(new Location(this.locations.length, nextTime, nextTime));
+        this.transportations.push(
+            new Transportation(this.transportations.length, lastLoaction.endDate, nextTime, this.timeOffset)
+        );
+        this.locations.push(
+            new Location(this.locations.length, nextTime, nextTime, this.timeOffset)
+        );
+        this.locations[this.locations.length - 1].setPosition(lastLoaction.longitude, lastLoaction.latitude);
     }
 
     removeLocation(index: number) {
@@ -156,20 +208,26 @@ export class TourNode {
     endDate: Date;
     startDateStr: string = '';
     endDateStr: string = '';
+    timeOffset: number = -480;
+    timezone: string = 'UTC+8(CST:中国标准时间)';
     duration: number = 0;
     durationStr: string = '';
     note: string = '';
 
-    constructor(index: number, startDate: Date, endDate: Date) {
+    constructor(index: number, startDate: Date, endDate: Date, timeOffset: number) {
         this.index = index;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.startDateStr = formatTime(startDate);
-        this.endDateStr = formatTime(endDate);
+        this.timeOffset = timeOffset;
+        this.timezone = timezoneList.find((timezone) => timezone.value == this.timeOffset)!.label;
+        this.startDateStr = formatTime(startDate, this.timeOffset);
+        this.endDateStr = formatTime(endDate, this.timeOffset);
         this.updateDuration();
     }
 
     updateDuration() {
+        this.startDateStr = formatTime(this.startDate, this.timeOffset);
+        this.endDateStr = formatTime(this.endDate, this.timeOffset);
         this.duration = this.endDate.getTime() - this.startDate.getTime();
         const hours = Math.floor(this.duration / MILLISECONDS.HOUR);
         const minutes = Math.floor(this.duration % MILLISECONDS.HOUR / MILLISECONDS.MINUTE);
@@ -194,10 +252,11 @@ export class Location extends TourNode {
     latitude: number = 31.307627;
     expenses: Expense[] = [];
 
-    constructor(dataOrIndex: any, startDate?: Date, endDate?: Date) {
+    constructor(dataOrIndex: any, startDate?: Date, endDate?: Date, timeOffset?: number) {
         let index: number;
         let start: Date;
         let end: Date;
+        let offset: number;
         let title: string = '';
         let longitude: number = 121.496300;
         let latitude: number = 31.307627;
@@ -207,17 +266,19 @@ export class Location extends TourNode {
             index = dataOrIndex;
             start = startDate!;
             end = endDate!;
+            offset = timeOffset!;
         } else {
             const data = dataOrIndex;
             index = data.index;
             start = new Date(data.startDate);
             end = new Date(data.endDate);
+            offset = data.timeOffset;
             title = data.title;
             longitude = data.longitude;
             latitude = data.latitude;
             expenses = data.expenses.map((expense: any) => new Expense(expense));
         }
-        super(index, start, end);
+        super(index, start, end, offset);
         this.title = title;
         this.longitude = longitude;
         this.latitude = latitude;
@@ -257,24 +318,27 @@ export class Location extends TourNode {
 export class Transportation extends TourNode {
     transportExpenses: TransportExpense[] = [];
 
-    constructor(dataOrIndex: any, startDate?: Date, endDate?: Date) {
+    constructor(dataOrIndex: any, startDate?: Date, endDate?: Date, timeOffset?: number) {
         let index: number;
         let start: Date;
         let end: Date;
+        let offset: number;
         let expenses: TransportExpense[] = [];
 
         if (typeof dataOrIndex === 'number') {
             index = dataOrIndex;
             start = startDate!;
             end = endDate!;
+            offset = timeOffset!;
         } else {
             const data = dataOrIndex;
             index = data.index;
             start = new Date(data.startDate);
             end = new Date(data.endDate);
+            offset = data.timeOffset;
             expenses = data.transportExpenses.map((expense: any) => new TransportExpense(expense));
         }
-        super(index, start, end);
+        super(index, start, end, offset);
         this.transportExpenses = expenses;
     }
 
