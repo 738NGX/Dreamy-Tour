@@ -413,19 +413,9 @@
           <view class="row">
             <t-button
               size="large"
-              theme="danger"
-              variant="outline"
-              style="width: 31%;height: 50rpx;"
-              bind:tap=""
-              data-index="{{0}}"
-            >
-              删除节点
-            </t-button>
-            <t-button
-              size="large"
               theme="primary"
               variant="outline"
-              style="width: 31%;height: 50rpx;"
+              style="width: 49%;height: 50rpx;"
               bind:tap="onExpenseVisibleChange"
               data-index="{{0}}"
             >
@@ -435,7 +425,7 @@
               size="large"
               theme="primary"
               variant="outline"
-              style="width: 31%;height: 50rpx;"
+              style="width: 49%;height: 50rpx;"
               bind:tap="onNoteVisibleChange"
               data-index="{{0}}"
             >
@@ -531,13 +521,24 @@
           </view>
           <view class="connecter" />
           <view class="location">
-            <t-input
-              placeholder="请输入位置名称"
-              value="{{currentTour.locations[i+1].title}}"
-              maxcharacter="{{40}}"
-              bind:blur="handleLocationTitleInput"
-              data-index="{{i+1}}"
-            />
+            <t-swipe-cell>
+              <t-input
+                placeholder="请输入位置名称,右滑可删除节点"
+                value="{{currentTour.locations[i+1].title}}"
+                maxcharacter="{{40}}"
+                bind:blur="handleLocationTitleInput"
+                data-index="{{i+1}}"
+              />
+              <view slot="right" class="btn-wrapper">
+                <view
+                  class="btn2 delete-btn"
+                  data-index="{{i+1}}"
+                  bind:tap="removeNode"
+                >
+                  删除
+                </view>
+              </view>
+            </t-swipe-cell>
             <view class="row">
               <t-icon
                 name="flight-takeoff"
@@ -621,19 +622,9 @@
             <view class="row">
               <t-button
                 size="large"
-                theme="danger"
-                variant="outline"
-                style="width: 31%;height: 50rpx;"
-                bind:tap="removeNode"
-                data-index="{{i+1}}"
-              >
-                删除节点
-              </t-button>
-              <t-button
-                size="large"
                 theme="primary"
                 variant="outline"
-                style="width: 31%;height: 50rpx;"
+                style="width: 49%;height: 50rpx;"
                 bind:tap="onExpenseVisibleChange"
                 data-index="{{i+1}}"
               >
@@ -643,7 +634,7 @@
                 size="large"
                 theme="primary"
                 variant="outline"
-                style="width: 31%;height: 50rpx;"
+                style="width: 49%;height: 50rpx;"
                 bind:tap="onNoteVisibleChange"
                 data-index="{{i+1}}"
               >
@@ -767,6 +758,20 @@
         tips="{{priceError ? '请输入正确的汇率' : ''}}"
         t-class-tips="tips"
       />
+      <view class="row" style="background-color:white;margin:0;padding:20rpx">
+        <view class="column" style="width:90%;">
+          导出当前行程到剪切板
+        </view>
+        <t-button
+          size="large"
+          theme="primary"
+          variant="outline"
+          style="width: 10%;"
+          bind:tap="exportTourToClipboard"
+        >
+          导出
+        </t-button>
+      </view>
     </scroll-view>
   </block>
 </block>

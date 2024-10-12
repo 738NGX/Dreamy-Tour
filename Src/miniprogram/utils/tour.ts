@@ -197,6 +197,15 @@ export class Tour {
         this.locations[index].startDateStr = formatTime(this.locations[index].startDate);
         this.locations[index].updateDuration();
     }
+
+    toString(): string {
+        return JSON.stringify(this);
+    }
+
+    static fromString(serializedString: string): Tour {
+        const obj = JSON.parse(serializedString);
+        return new Tour(obj);
+    }
 };
 
 /**
@@ -258,6 +267,7 @@ export class Location extends TourNode {
         let end: Date;
         let offset: number;
         let title: string = '';
+        let note: string = '';
         let longitude: number = 121.496300;
         let latitude: number = 31.307627;
         let expenses: Expense[] = [];
@@ -274,6 +284,7 @@ export class Location extends TourNode {
             end = new Date(data.endDate);
             offset = data.timeOffset;
             title = data.title;
+            note = data.note;
             longitude = data.longitude;
             latitude = data.latitude;
             expenses = data.expenses.map((expense: any) => new Expense(expense));
@@ -283,6 +294,7 @@ export class Location extends TourNode {
         this.longitude = longitude;
         this.latitude = latitude;
         this.expenses = expenses;
+        this.note = note;
     }
 
     setPosition(longitude: number, latitude: number) {

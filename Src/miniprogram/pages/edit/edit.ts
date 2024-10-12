@@ -246,7 +246,6 @@ Component({
                 });
                 return;
             }
-
             this.setData({
                 editingLocationId: id,
                 editingNote: currentTour.locations[id].note,
@@ -261,6 +260,7 @@ Component({
 
             const currentTour = new Tour(this.data.currentTour);
             currentTour.locations[this.data.editingLocationId].note = this.data.editingNote;
+            console.log(currentTour.locations[this.data.editingLocationId].note);
 
             app.globalData.currentTour = currentTour;
             this.setData({
@@ -774,6 +774,22 @@ Component({
                 timezoneVisible: false,
             });
             wx.setStorageSync('tour-' + currentTour.id, currentTour);
+        },
+        exportTourToClipboard(){
+            if (!this.data.currentTour) return;
+
+            const currentTour = new Tour(this.data.currentTour);
+            const exportText = currentTour.toString();
+            wx.setClipboardData({
+                data: exportText,
+                success: () => {
+                    wx.showToast({
+                        title: '导出成功',
+                        icon: 'success',
+                        duration: 2000
+                    });
+                }
+            });
         }
     },
 })

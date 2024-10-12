@@ -1,4 +1,15 @@
-import { Tour, Currency, currencyList } from './tour';
+import {
+    CDN_PATH,
+    PLUGIN_KEY
+} from '../config/appConfig';
+if (PLUGIN_KEY) {
+    const QQMapWX = require('../components/qqmap-wx-jssdk');
+    const qqmapsdk = new QQMapWX({
+        key: PLUGIN_KEY // 必填
+    });
+    qqmapsdk
+}
+import { Tour, Currency, currencyList, expenseList, ExpenseType } from './tour';
 import { getChartData } from './util';
 
 export class Reporter {
@@ -18,6 +29,25 @@ export class Reporter {
     // 分标签列表
     tagList: ExpenseItemList[];
 
+    // 分位置列表
+    locationList: ExpenseItemList[];
+
+    // 地图路径
+    markers: any[] = [];
+    polyline: any = {
+        level: 'abovebuildings',
+        points: [] as { latitude: number, longitude: number }[],
+        color: '#0052D9',
+        width: 8,
+        arrowLine: true,
+        segmentTexts: [] as { name: string, startIndex: number, endIndex: number }[],
+        textStyle: {
+            fontSize: 20,
+            textColor: '#000000',
+            strokeColor: '#ffffff'
+        }
+    };
+
     constructor(tour: Tour) {
         this.tourData = tour;
 
@@ -29,6 +59,9 @@ export class Reporter {
             new ExpenseItemList(this.mainCurrency, this.subCurrency)
         );
         this.tagList = Array(10).fill(null).map(() =>
+            new ExpenseItemList(this.mainCurrency, this.subCurrency)
+        );
+        this.locationList = Array(tour.locations.length).fill(null).map(() =>
             new ExpenseItemList(this.mainCurrency, this.subCurrency)
         );
 
@@ -43,22 +76,38 @@ export class Reporter {
         const rate = this.currencyExchangeRate;
 
         for (const location of this.tourData.locations) {
+            this.polyline.points.push({ latitude: Number(location.latitude), longitude: Number(location.longitude) });
+            this.markers.push(
+                {
+                    id: location.index,
+                    iconPath: `${CDN_PATH}/Marker1_Activated@3x.png`,
+                    latitude: Number(location.latitude),
+                    longitude: Number(location.longitude),
+                    width: 30,
+                    height: 30,
+                }
+            );
+
             for (const expense of location.expenses) {
                 if (expense.currency === this.mainCurrency) {
                     this.expenseCalculator.total.addMain(expense.amount, rate);
                     this.expenseCalculator.totalInType[expense.type].addMain(expense.amount, rate);
                     this.expenseCalculator.totalInTag[expense.tag].addMain(expense.amount, rate);
 
-                    this.typeList[expense.type].data.push(new ExpenseItem(expense.amount, 0, rate, expense.title, location.title, location.startDateStr));
-                    this.tagList[expense.tag].data.push(new ExpenseItem(expense.amount, 0, rate, expense.title, location.title, location.startDateStr));
+                    const expenseItem = new ExpenseItem(expense.amount, 0, rate, expense.title, location.title, location.startDateStr, expense.type);
+                    this.typeList[expense.type].data.push(expenseItem);
+                    this.tagList[expense.tag].data.push(expenseItem);
+                    this.locationList[location.index].data.push(expenseItem);
                 }
                 else {
                     this.expenseCalculator.total.addSub(expense.amount, rate);
                     this.expenseCalculator.totalInType[expense.type].addSub(expense.amount, rate);
                     this.expenseCalculator.totalInTag[expense.tag].addSub(expense.amount, rate);
 
-                    this.typeList[expense.type].data.push(new ExpenseItem(0, expense.amount, rate, expense.title, location.title, location.startDateStr));
-                    this.tagList[expense.tag].data.push(new ExpenseItem(0, expense.amount, rate, expense.title, location.title, location.startDateStr));
+                    const expenseItem = new ExpenseItem(0, expense.amount, rate, expense.title, location.title, location.startDateStr, expense.type);
+                    this.typeList[expense.type].data.push(expenseItem);
+                    this.tagList[expense.tag].data.push(expenseItem);
+                    this.locationList[location.index].data.push(expenseItem);
                 }
             }
         }
@@ -68,6 +117,8 @@ export class Reporter {
         const rate = this.currencyExchangeRate;
 
         for (const transportation of this.tourData.transportations) {
+            this.polyline.segmentTexts.push({ name: transportation.durationStr, startIndex: transportation.index, endIndex: transportation.index + 1 });
+
             for (const expense of transportation.transportExpenses) {
                 if (expense.currency === this.mainCurrency) {
                     this.expenseCalculator.total.addMain(expense.amount, rate);
@@ -96,6 +147,9 @@ export class Reporter {
             list.update();
         }
         for (const list of this.tagList) {
+            list.update();
+        }
+        for (const list of this.locationList) {
             list.update();
         }
     }
@@ -222,6 +276,7 @@ export class ExpenseItem {
     title: string = '';
     from: string = '';
     time: string = '';
+    type: string = '';
 
     constructor(
         mainCurrency?: number,
@@ -229,7 +284,8 @@ export class ExpenseItem {
         rate?: number,
         title?: string,
         from?: string,
-        time?: string
+        time?: string,
+        type?: ExpenseType,
     ) {
         this.mainCurrency = mainCurrency || 0;
         this.subCurrency = subCurrency || 0;
@@ -237,6 +293,7 @@ export class ExpenseItem {
         this.title = title || '';
         this.from = from || '';
         this.time = time || '';
+        this.type = type !== undefined ? expenseList[type].icon : '';
     }
 
     set(main: number, sub: number, rate: number) {

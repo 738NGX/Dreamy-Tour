@@ -8,8 +8,7 @@ Component({
         // 页面显示内容
         tabList: [
             { icon: 'assignment', label: '文字报告', value: 0 },
-            { icon: 'calendar-1', label: '时间可视化', value: 1 },
-            { icon: 'location', label: '空间可视化', value: 2 },
+            { icon: 'location', label: '地图可视化', value: 1 },
         ],
         optsInType: {
             legend: {
@@ -84,7 +83,9 @@ Component({
         childPage: 0,
         canvas2d: 'true',
         selectingTour: false,
-        activeCollapses: [[],[],[],[],[]],
+        activeCollapses: [[], [], [], [], [], []],
+        markerDetailVisible: false,
+        selectingMarkerId: -1,
 
         // 数据缓存
         reporter: null as Reporter | null,
@@ -160,6 +161,14 @@ Component({
                     ...this.data.activeCollapses,
                     [e.currentTarget.dataset.index]: e.detail.value
                 }
+            });
+        },
+        onMarkerDetailVisibleChange(e: any) {
+            let id = e.detail.markerId;
+            if (id === undefined) { id = -1; }
+            this.setData({
+                markerDetailVisible: !this.data.markerDetailVisible,
+                selectingMarkerId: id,
             });
         }
     },
