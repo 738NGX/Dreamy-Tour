@@ -160,6 +160,20 @@
         bind:change="handleImporterInput"
       />
     </t-popup-headered>
+    <!--弹出窗口:选择行程复制-->
+    <t-picker
+      visible="{{tourSelectorVisible}}"
+      value="{{[selectingTourId]}}"
+      title="选择行程拷贝"
+      cancelBtn="取消"
+      confirmBtn="确认"
+      usingCustomNavbar
+      bindchange="copyTour"
+      bindpick="onTourColumnChange"
+      bindcancel="onTourSelectorVisibleChange"
+    >
+      <t-picker-item options="{{displayTourList}}"></t-picker-item>
+    </t-picker>
     <!--选择行程创建方式-->
     <view class="container">
       <block wx:for="{{creatorArray}}" wx:key="button">

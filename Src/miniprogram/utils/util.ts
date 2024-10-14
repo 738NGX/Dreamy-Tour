@@ -9,11 +9,11 @@ export const formatTime = (date: Date, timeOffset?: number) => {
     const usingDate = new Date(date);
     if (timeOffset !== undefined) {
         usingDate.setTime(
-            usingDate.getTime() + new Date().getTimezoneOffset() * MILLISECONDS.MINUTE 
+            usingDate.getTime() + new Date().getTimezoneOffset() * MILLISECONDS.MINUTE
             - timeOffset * MILLISECONDS.MINUTE
         );
     }
-    
+
     const year = usingDate.getFullYear()
     const month = usingDate.getMonth() + 1
     const day = usingDate.getDate()
@@ -36,16 +36,16 @@ export const formatDate = (date: Date, timeOffset?: number) => {
     const usingDate = new Date(date);
     if (timeOffset !== undefined) {
         usingDate.setTime(
-            usingDate.getTime() + new Date().getTimezoneOffset() * MILLISECONDS.MINUTE 
+            usingDate.getTime() + new Date().getTimezoneOffset() * MILLISECONDS.MINUTE
             - timeOffset * MILLISECONDS.MINUTE
         );
     }
-    
+
     const year = usingDate.getFullYear()
     const month = usingDate.getMonth() + 1
     const day = usingDate.getDate()
     const arr = ['(日)', '(一)', '(二)', '(三)', '(四)', '(五)', '(六)'];
-    
+
     return [year, month, day].map(formatNumber).join('/') + arr[usingDate.getDay()];
 }
 

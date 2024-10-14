@@ -679,7 +679,7 @@ Component({
             this.setData({ currentTour: currentTour });
             wx.setStorageSync('tour-' + currentTour.id, currentTour);
         },
-        async exchangeTourCurrency() {
+        exchangeTourCurrency() {
             if (!this.data.currentTour) return;
 
             const currentTour = new Tour(this.data.currentTour);
@@ -687,7 +687,7 @@ Component({
             const newSubCurrency = currentTour.mainCurrency;
             currentTour.mainCurrency = newMainCurrency;
             currentTour.subCurrency = newSubCurrency;
-            await currentTour.getExchangeRate();
+            currentTour.currencyExchangeRate = Number((1 / currentTour.currencyExchangeRate).toFixed(7));
 
             app.globalData.currentTour = currentTour;
             this.setData({ currentTour: currentTour });

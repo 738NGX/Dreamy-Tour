@@ -12,10 +12,11 @@ Component({
         ],
         creatorArray: [
             { image: '../../resources/chika2.png', text: '从零开始创建一个空白行程.', button: '创建', action: 'onCreatorVisibleChange' },
-            { image: '../../resources/ruby2.png', text: '复制一个已有的行程.', button: '拷贝', action: '' },
+            { image: '../../resources/ruby2.png', text: '复制一个已有的行程.', button: '拷贝', action: 'onTourSelectorVisibleChange' },
             { image: '../../resources/you2.png', text: '从外部复制的文本数据导入行程.', button: '导入', action: 'onImporterVisibleChange' },
         ],
         tourList: [] as { id: number; title: string; startDate: string; endDate: string; }[],
+        displayTourList: [] as { label: string; value: number }[],
         mainCurrencies: currencyList,
         subCurrencies: currencyList,
         minDate: new Date(new Date().getTime() - 365 * MILLISECONDS.DAY).getTime(),
@@ -28,6 +29,7 @@ Component({
         importerVisible: false,
         calendarVisible: false,
         currencySelectorVisible: false,
+        tourSelectorVisible: false,
 
         // 数据缓存
         containsTour: false,
@@ -40,6 +42,9 @@ Component({
         newTourEndDateStr: formatDate(new Date(new Date().getTime() + MILLISECONDS.DAY)),
         newTourCurrency: [Currency.CNY, Currency.JPY],
         newTourTimeOffset: -480,
+
+        // 复制行程数据
+        selectingTourId: 0,
 
         // 导入行程数据
         importedTourData: '',
@@ -67,6 +72,10 @@ Component({
                 this.getTabBar().setData({ value: '/' + page.route })
             }
             this.setData({ tourList: app.globalData.tourList });
+            const displayTourList = this.data.tourList.map((tour: any) => {
+                return { label: tour.title, value: tour.id };
+            });
+            this.setData({ displayTourList: displayTourList });
         },
         onChildPageChange(e: any) {
             this.setData({ childPage: e.detail.value })
@@ -226,12 +235,77 @@ Component({
             });
 
             Promise.all(promises).then(() => {
+                const displayTourList = tourList.map((tour: any) => {
+                    return { label: tour.title, value: tour.id };
+                });
                 this.setData({
                     tourList: tourList,
+                    displayTourList: displayTourList,
                 });
                 app.globalData.tourList = tourList;
             }).catch((err) => {
                 console.error('读取 tour 数据时出错: ', err);
+            });
+        },
+        onTourSelectorVisibleChange() {
+            if (this.data.tourList.length == 0) {
+                wx.showToast({
+                    title: '没有行程',
+                    icon: 'error',
+                    duration: 2000
+                });
+                return;
+            }
+            this.setData({
+                tourSelectorVisible: !this.data.tourSelectorVisible,
+                selectingTourId: this.data.tourList[0].id,
+            });
+        },
+        onTourColumnChange(e: any) {
+            this.setData({ selectingTourId: e.detail.value[0] });
+        },
+        copyTour() {
+            const tourHashMap = this.data.tourHashMap;
+            const newId = this.data.containsTour ? Math.max(...Array.from(tourHashMap.keys())) + 1 : 0;
+            const selectingTourId = this.data.selectingTourId;
+
+            wx.getStorage({
+                key: 'tour-' + selectingTourId,
+                success: (res) => {
+                    const selectingTour = res.data as Tour;
+                    const newTour = new Tour(selectingTour);
+                    newTour.id = newId;
+
+                    tourHashMap.set(newId, 'tour-' + newId);
+
+                    this.setData({
+                        tourHashMap: tourHashMap,
+                        containsTour: true,
+                    });
+
+                    Promise.all([
+                        new Promise((resolve, reject) => {
+                            wx.setStorage({
+                                key: 'tour-' + newId,
+                                data: newTour,
+                                success: resolve,
+                                fail: reject,
+                            });
+                        }),
+                        new Promise((resolve, reject) => {
+                            wx.setStorage({
+                                key: 'tourHashMap',
+                                data: Array.from(tourHashMap),
+                                success: resolve,
+                                fail: reject,
+                            });
+                        })
+                    ]).then(() => {
+                        this.updateTourList();
+                    }).catch((err) => {
+                        console.error('存储 tour 数据时出错: ', err);
+                    });
+                },
             });
         },
         onImporterVisibleChange() {
