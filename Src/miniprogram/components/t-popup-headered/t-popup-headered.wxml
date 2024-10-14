@@ -1,0 +1,26 @@
+<t-popup
+  visible="{{visible}}"
+  bind:visible-change="onVisibleChange"
+  placement="{{placement}}"
+  style="{{visible ? style : 'height: 0; overflow: hidden;'}}"
+>
+  <view class="header">
+    <view
+      class="btn btn--cancel"
+      aria-role="button"
+      bind:tap="onCancel"
+    >
+      取消
+    </view>
+    <view class="title">{{title}}</view>
+    <view
+      class="btn btn--confirm"
+      aria-role="button"
+      bind:tap="onConfirm"
+    >
+      确定
+    </view>
+  </view>
+  <slot></slot>
+</t-popup>
+
