@@ -25,11 +25,11 @@ Component({
                 icon: 'calculation',
                 label: '计算器'
             },
-            {
-                value: '/pages/menu/menu',
-                icon: 'app',
-                label: '更多'
-            }
+            //{
+            //    value: '/pages/menu/menu',
+            //    icon: 'app',
+            //    label: '更多'
+            //}
         ]
     },
     //  组件的方法列表

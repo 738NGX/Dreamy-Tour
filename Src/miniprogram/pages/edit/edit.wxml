@@ -15,11 +15,764 @@
 </t-tabs>
 <block wx:if="{{selectingTour}}">
   <block wx:if="{{childPage==0}}">
-    {{currentTour.title}}
-    往:{{currentTour.startDateStr}}
-    返:{{currentTour.endDateStr}}
-    主货币:{{currentTour.mainCurrency}}
-    辅货币:{{currentTour.subCurrency}}
+    <scroll-view
+      class="scrollarea"
+      scroll-y
+      type="list"
+    >
+      <!--时间选择弹窗-->
+      <t-date-time-picker
+        title="选择日期和时间"
+        visible="{{datetimeVisible}}"
+        mode="minute"
+        value="{{selectingDatetime}}"
+        format="YYYY/MM/DD HH:mm"
+        start="{{currentDateRange[0]}}"
+        end="{{currentDateRange[1]}}"
+        bindchange="onDatetimeConfirm"
+        bindpick="onDatetimeColumnChange"
+        bindcancel="onDatetimeCancel"
+      />
+      <!--时区选择弹窗-->
+      <t-picker
+        visible="{{timezoneVisible}}"
+        value="{{[selectingTimeOffset]}}"
+        title="选择时区"
+        cancelBtn="取消"
+        confirmBtn="确认"
+        usingCustomNavbar
+        bindchange="onTimezonePickerChange"
+        bindpick="onTimezoneColumnChange"
+        bindcancel="onTimezonePickerCancel"
+      >
+        <t-picker-item options="{{timezoneList}}"></t-picker-item>
+      </t-picker>
+      <!--持续时间选择弹窗-->
+      <t-date-time-picker
+        title="选择持续时间"
+        visible="{{durationVisible}}"
+        mode="{{['null', 'minute']}}"
+        value="{{selectingDuration}}"
+        format="HH:mm"
+        start="{{0}}"
+        value="{{selectingDuration}}"
+        bindchange="onDurationConfirm"
+        bindpick="onDurationColumnChange"
+        bindcancel="onDurationCancel"
+      />
+      <!--位置选择弹窗-->
+      <t-popup-headered
+        visible="{{mapVisible}}"
+        title="选择位置"
+        bind:visible-change="onMapVisibleChange"
+        bindConfirm="changeLocation"
+        bindCancel="onMapVisibleChange"
+        placement="bottom"
+        style="height: 50vh;"
+      >
+        <map
+          style="width:100%;height:500rpx;"
+          latitude="{{mapLocation[0]}}"
+          longitude="{{mapLocation[1]}}"
+          markers="{{markers}}"
+          bindtap="onTapMap"
+        />
+        <view class="column" style="width:90%;">
+          当前位置:{{mapLocation[0]}},{{mapLocation[1]}}
+        </view>
+      </t-popup-headered>
+      <!--编辑消费弹窗-->
+      <t-popup-headered
+        visible="{{expenseVisible}}"
+        title="编辑消费"
+        bind:visible-change="onExpenseVisibleChange"
+        bindConfirm="changeExpense"
+        bindCancel="onExpenseVisibleChange"
+        placement="bottom"
+        style="height: 80vh;"
+      >
+        <scroll-view
+          class="scrollarea"
+          scroll-y
+          type="list"
+          style="height: 70vh;"
+        >
+          <view class="container" style="padding:0;justify-content:flex-start;">
+            <t-collapse
+              value="{{[editingExpenseId]}}"
+              bind:change="onExpenseIdChange"
+              expandMutex
+              expandIcon
+            >
+              <block
+                wx:for="{{editingLocation.expenses}}"
+                wx:key="index"
+                wx:for-index="i"
+              >
+                <t-swipe-cell>
+                  <t-collapse-panel
+                    header="{{item.title}}"
+                    headerRightContent="{{item.amount}}{{currencyList[item.currency].symbol}}"
+                    value="{{i}}"
+                  >
+                    <t-icon
+                      prefix="iconfont"
+                      name="{{expenseList[item.type].icon}}"
+                      size="32rpx"
+                      slot="header-left-icon"
+                    />
+                    <t-input
+                      label="标题"
+                      placeholder="请输入标题"
+                      value="{{item.title}}"
+                      maxcharacter="{{40}}"
+                      bind:change="onExpenseTitleInput"
+                    />
+                    <t-input
+                      label="费用"
+                      placeholder="0.00"
+                      align="right"
+                      type="digit"
+                      value="{{item.amount}}"
+                      bind:change="onExpensePriceInput"
+                      tips="{{priceError ? '请输入正确的费用' : ''}}"
+                      t-class-tips="tips"
+                    >
+                      <t-button
+                        size="large"
+                        theme="primary"
+                        variant="outline"
+                        bind:tap="exchangeExpenseCurrency"
+                        style="height:50rpx;"
+                        slot="suffix"
+                      >
+                        {{currencyList[item.currency].symbol}}
+                      </t-button>
+                    </t-input>
+                    <t-radio-group
+                      value="{{item.type}}"
+                      borderless
+                      t-class="box2"
+                      bind:change="handleExpenseTypeChange"
+                    >
+                      <block wx:for="{{expenseList}}" wx:key="label">
+                        <t-radio value="{{item.value}}">
+                          <view
+                            class="row"
+                            style="margin:0"
+                            slot="label"
+                          >
+                            <t-icon
+                              prefix="iconfont"
+                              name="{{item.icon}}"
+                              size="32rpx"
+                              style="margin:0 10rpx;"
+                            />
+                            {{item.label}}
+                          </view>
+                        </t-radio>
+                      </block>
+                    </t-radio-group>
+                    <t-radio-group
+                      t-class="horizontal-box"
+                      value="{{item.tag}}"
+                      bind:change="onExpenseTagChange"
+                    >
+                      <view
+                        wx:for="{{tagList}}"
+                        wx:key="index"
+                        wx:for-index="j"
+                        class="card {{editingLocation.expenses[i].tag == j ? 'card--active' : ''}}"
+                        style="background-color: #{{item.color}};"
+                      >
+                        <t-icon
+                          wx:if="{{editingLocation.expenses[i].tag == j}}"
+                          name="check"
+                          t-class="card__icon"
+                        />
+                        <t-radio
+                          value="{{item.value}}"
+                          label="{{j}}"
+                          icon="none"
+                          style="background-color: #{{item.color}};"
+                          borderless
+                        />
+                      </view>
+                    </t-radio-group>
+                    <t-textarea
+                      placeholder="备注最多输入500个字"
+                      maxlength="500"
+                      disableDefaultPadding="{{true}}"
+                      value="{{item.note}}"
+                      bind:change="onExpenseNoteInput"
+                      indicator
+                    />
+                  </t-collapse-panel>
+                  <view
+                    slot="right"
+                    class="btn2 delete-btn"
+                    bind:tap="removeExpense"
+                    data-index="{{i}}"
+                  >
+                    删除
+                  </view>
+                </t-swipe-cell>
+              </block>
+            </t-collapse>
+            <t-button
+              theme="primary"
+              style="--td-button-border-radius:0;"
+              bind:tap="addExpense"
+            >
+              添加
+            </t-button>
+          </view>
+        </scroll-view>
+      </t-popup-headered>
+      <!--编辑备注弹窗-->
+      <t-popup-headered
+        visible="{{noteVisible}}"
+        title="编辑备注"
+        bind:visible-change="onNoteVisibleChange"
+        bindConfirm="changeNote"
+        bindCancel="onNoteVisibleChange"
+        placement="bottom"
+        style="height: 30vh;"
+      >
+        <t-textarea
+          style="height: 100%;"
+          placeholder="备注最多输入500个字"
+          maxlength="500"
+          disableDefaultPadding="{{true}}"
+          value="{{editingNote}}"
+          bind:change="onNoteInput"
+          indicator
+        />
+      </t-popup-headered>
+      <!--编辑交通消费弹窗-->
+      <t-popup-headered
+        visible="{{transExpenseVisible}}"
+        title="编辑交通"
+        bind:visible-change="onTransExpenseVisibleChange"
+        bindConfirm="changeTransExpense"
+        bindCancel="onTransExpenseVisibleChange"
+        placement="bottom"
+        style="height: 60vh;"
+      >
+        <t-input
+          label="标题"
+          placeholder="请输入标题"
+          value="{{editingTransExpense.title}}"
+          maxcharacter="{{40}}"
+          bind:change="onTransExpenseTitleInput"
+        />
+        <t-input
+          label="费用"
+          placeholder="0.00"
+          align="right"
+          type="digit"
+          value="{{editingTransExpense.amount}}"
+          bind:change="onTransExpensePriceInput"
+          tips="{{priceError ? '请输入正确的费用' : ''}}"
+          t-class-tips="tips"
+        >
+          <t-button
+            size="large"
+            theme="primary"
+            variant="outline"
+            bind:tap="exchangeTransExpenseCurrency"
+            style="height:50rpx;"
+            slot="suffix"
+          >
+            {{currencyList[editingTransExpense.currency].symbol}}
+          </t-button>
+        </t-input>
+        <t-radio-group
+          value="{{editingTransExpense.transportType}}"
+          borderless
+          t-class="box"
+          bind:change="handleTransExpenseTypeChange"
+        >
+          <block wx:for="{{transportList}}" wx:key="label">
+            <t-radio value="{{item.value}}">
+              <view
+                class="row"
+                style="margin:0"
+                slot="label"
+              >
+                <t-icon
+                  prefix="iconfont"
+                  name="{{item.icon}}"
+                  size="32rpx"
+                  style="margin:0 10rpx;"
+                />
+                {{item.label}}
+              </view>
+            </t-radio>
+          </block>
+        </t-radio-group>
+        <t-textarea
+          placeholder="备注最多输入500个字"
+          maxlength="500"
+          disableDefaultPadding="{{true}}"
+          value="{{editingTransExpense.note}}"
+          bind:change="onTransExpenseNoteInput"
+          indicator
+        />
+      </t-popup-headered>
+      <!--节点显示-->
+      <view class="container" style="align-items: center;">
+        <view class="location">
+          <t-input
+            placeholder="请输入位置名称"
+            value="{{currentTour.locations[0].title}}"
+            maxcharacter="{{40}}"
+            bind:blur="handleLocationTitleInput"
+            data-index="{{0}}"
+          />
+          <view class="row">
+            <t-icon
+              name="flight-takeoff"
+              size="32rpx"
+              style="margin:0 10rpx;"
+            />
+            <view style="width: 90%;">
+              开始时间:{{currentTour.locations[0].startDateStr}}
+            </view>
+            <t-button
+              size="large"
+              theme="primary"
+              variant="outline"
+              style="width: 10%;height: 50rpx;"
+              bind:tap="handleNodeStartDateSelect"
+              data-index="{{0}}"
+            >
+              调整
+            </t-button>
+          </view>
+          <view class="row">
+            <t-icon
+              name="flight-landing"
+              size="32rpx"
+              style="margin:0 10rpx;"
+            />
+            <view style="width: 90%;">
+              结束时间:{{currentTour.locations[0].endDateStr}}
+            </view>
+            <t-button
+              size="large"
+              theme="primary"
+              variant="outline"
+              style="width: 10%;height: 50rpx;"
+              bind:tap="handleNodeEndDateSelect"
+              data-index="{{0}}"
+            >
+              调整
+            </t-button>
+          </view>
+          <view class="row">
+            <t-icon
+              name="time"
+              size="32rpx"
+              style="margin:0 10rpx;"
+            />
+            <view style="width: 90%;">
+              时区:{{currentTour.locations[0].timezone}}
+            </view>
+            <t-button
+              size="large"
+              theme="primary"
+              variant="outline"
+              style="width: 10%;height: 50rpx;"
+              bind:tap="handleNodeTimezoneSelect"
+              data-index="{{0}}"
+            >
+              选择
+            </t-button>
+          </view>
+          <view class="row">
+            <t-icon
+              name="location"
+              size="32rpx"
+              style="margin:0 10rpx;"
+            />
+            <view style="width: 90%;">
+              位置:{{currentTour.locations[0].latitude}},{{currentTour.locations[0].longitude}}
+            </view>
+            <t-button
+              size="large"
+              theme="primary"
+              variant="outline"
+              style="width: 10%;height: 50rpx;"
+              bind:tap="onMapVisibleChange"
+              data-index="{{0}}"
+            >
+              选择
+            </t-button>
+          </view>
+          <view class="row">
+            <t-button
+              size="large"
+              theme="primary"
+              variant="outline"
+              style="width: 49%;height: 50rpx;"
+              bind:tap="onExpenseVisibleChange"
+              data-index="{{0}}"
+            >
+              编辑消费
+            </t-button>
+            <t-button
+              size="large"
+              theme="primary"
+              variant="outline"
+              style="width: 49%;height: 50rpx;"
+              bind:tap="onNoteVisibleChange"
+              data-index="{{0}}"
+            >
+              编辑备注
+            </t-button>
+          </view>
+        </view>
+        <!--遍历节点-->
+        <block
+          wx:for="{{currentTour.transportations}}"
+          wx:key="index"
+          wx:for-index="i"
+        >
+          <view class="connecter" />
+          <view class="transportation">
+            <view class="row">
+              <t-icon
+                name="time"
+                size="32rpx"
+                style="margin:0 10rpx;"
+              />
+              <view style="width:90%;">
+                交通时长:{{item.durationStr}}
+              </view>
+              <t-button
+                size="large"
+                theme="primary"
+                variant="outline"
+                style="width: 10%;height: 50rpx;"
+                bind:tap="handleDuartionSelect"
+                data-index="{{i}}"
+              >
+                调整
+              </t-button>
+            </view>
+            <block
+              wx:for="{{item.transportExpenses}}"
+              wx:key="index"
+              wx:for-index="j"
+            >
+              <t-swipe-cell>
+                <t-cell class="transexpensecell" bordered="{{false}}">
+                  <view
+                    class="row"
+                    style="margin:0;"
+                    slot="left-icon"
+                  >
+                    <t-icon
+                      prefix="iconfont"
+                      name="{{transiconList[item.transportType]}}"
+                      size="32rpx"
+                      style="margin:0 10rpx;"
+                    />
+                    {{item.title}}
+                  </view>
+                  <view style="display:flex;justify-content:space-between;" slot="right-icon">
+                    <view style="width:90%;" />
+                    <t-button
+                      size="large"
+                      theme="primary"
+                      variant="outline"
+                      bind:tap="onTransExpenseVisibleChange"
+                      style="height:50rpx;width:10%;margin-left:auto;"
+                      data-index="{{[i,j]}}"
+                    >
+                      编辑
+                    </t-button>
+                  </view>
+                </t-cell>
+                <view slot="right" class="btn-wrapper">
+                  <view
+                    class="btn2 delete-btn"
+                    data-index="{{[i,j]}}"
+                    bind:tap="removeTransportExpense"
+                  >
+                    删除
+                  </view>
+                </view>
+              </t-swipe-cell>
+            </block>
+            <view class="row">
+              <t-button
+                size="large"
+                theme="primary"
+                variant="outline"
+                style="width: 100%;height: 50rpx;"
+                bind:tap="addTransportExpense"
+                data-index="{{i}}"
+              >
+                增加交通
+              </t-button>
+            </view>
+          </view>
+          <view class="connecter" />
+          <view class="location">
+            <t-swipe-cell>
+              <t-input
+                placeholder="请输入位置名称,右滑可删除节点"
+                value="{{currentTour.locations[i+1].title}}"
+                maxcharacter="{{40}}"
+                bind:blur="handleLocationTitleInput"
+                data-index="{{i+1}}"
+              />
+              <view slot="right" class="btn-wrapper">
+                <view
+                  class="btn2 delete-btn"
+                  data-index="{{i+1}}"
+                  bind:tap="removeNode"
+                >
+                  删除
+                </view>
+              </view>
+            </t-swipe-cell>
+            <view class="row">
+              <t-icon
+                name="flight-takeoff"
+                size="32rpx"
+                style="margin:0 10rpx;"
+              />
+              <view style="width: 90%;">
+                开始时间:{{currentTour.locations[i+1].startDateStr}}
+              </view>
+              <t-button
+                size="large"
+                theme="primary"
+                variant="outline"
+                style="width: 10%;height: 50rpx;"
+                bind:tap="handleNodeStartDateSelect"
+                data-index="{{i+1}}"
+              >
+                调整
+              </t-button>
+            </view>
+            <view class="row">
+              <t-icon
+                name="flight-landing"
+                size="32rpx"
+                style="margin:0 10rpx;"
+              />
+              <view style="width: 90%;">
+                结束时间:{{currentTour.locations[i+1].endDateStr}}
+              </view>
+              <t-button
+                size="large"
+                theme="primary"
+                variant="outline"
+                style="width: 10%;height: 50rpx;"
+                bind:tap="handleNodeEndDateSelect"
+                data-index="{{i+1}}"
+              >
+                调整
+              </t-button>
+            </view>
+            <view class="row">
+              <t-icon
+                name="time"
+                size="32rpx"
+                style="margin:0 10rpx;"
+              />
+              <view style="width: 90%;">
+                时区:{{currentTour.locations[i+1].timezone}}
+              </view>
+              <t-button
+                size="large"
+                theme="primary"
+                variant="outline"
+                style="width: 10%;height: 50rpx;"
+                bind:tap="handleNodeTimezoneSelect"
+                data-index="{{i+1}}"
+              >
+                选择
+              </t-button>
+            </view>
+            <view class="row">
+              <t-icon
+                name="location"
+                size="32rpx"
+                style="margin:0 10rpx;"
+              />
+              <view style="width: 90%;">
+                位置:{{currentTour.locations[i+1].latitude}},{{currentTour.locations[i+1].longitude}}
+              </view>
+              <t-button
+                size="large"
+                theme="primary"
+                variant="outline"
+                style="width: 10%;height: 50rpx;"
+                bind:tap="onMapVisibleChange"
+                data-index="{{i+1}}"
+              >
+                选择
+              </t-button>
+            </view>
+            <view class="row">
+              <t-button
+                size="large"
+                theme="primary"
+                variant="outline"
+                style="width: 49%;height: 50rpx;"
+                bind:tap="onExpenseVisibleChange"
+                data-index="{{i+1}}"
+              >
+                编辑消费
+              </t-button>
+              <t-button
+                size="large"
+                theme="primary"
+                variant="outline"
+                style="width: 49%;height: 50rpx;"
+                bind:tap="onNoteVisibleChange"
+                data-index="{{i+1}}"
+              >
+                编辑备注
+              </t-button>
+            </view>
+          </view>
+        </block>
+        <view class="connecter" />
+        <t-button
+          theme="primary"
+          size="large"
+          bind:tap="addNode"
+        >
+          添加节点
+        </t-button>
+      </view>
+    </scroll-view>
+  </block>
+  <block wx:elif="{{childPage==1}}">
+    <scroll-view
+      class="scrollarea"
+      scroll-y
+      type="list"
+    >
+      <t-input
+        label="行程名"
+        placeholder="行程名上限20个字符"
+        value="{{currentTour.title}}"
+        maxlength="{{20}}"
+        bind:blur="handleTitleInput"
+      />
+      <view class="row" style="background-color:white;margin:0;padding:20rpx">
+        <view class="column" style="width:90%;">
+          <view>出发日期:{{currentTour.startDateStr}}</view>
+          <view>返程日期:{{currentTour.endDateStr}}</view>
+        </view>
+        <t-button
+          size="large"
+          theme="primary"
+          variant="outline"
+          style="width: 10%;"
+          bind:tap="handleCalendar"
+        >
+          选择
+        </t-button>
+      </view>
+      <view class="row" style="background-color:white;margin:0;padding:20rpx">
+        <view class="column" style="width:90%;">
+          <view>默认时区:{{currentTour.timezone}}</view>
+        </view>
+        <t-button
+          size="large"
+          theme="primary"
+          variant="outline"
+          style="width: 10%;"
+          bind:tap="handleTourTimezoneSelector"
+        >
+          选择
+        </t-button>
+      </view>
+      <t-calendar
+        visible="{{calendarVisible}}"
+        value="{{currentDateRange}}"
+        minDate="{{minDate}}"
+        maxDate="{{maxDate}}"
+        bind:confirm="handleCalendarConfirm"
+        type="range"
+      />
+      <t-picker
+        visible="{{timezoneVisible}}"
+        value="{{[selectingTimeOffset]}}"
+        title="选择时区"
+        cancelBtn="取消"
+        confirmBtn="确认"
+        usingCustomNavbar
+        bindchange="onTourTimezonePickerChange"
+        bindpick="onTimezoneColumnChange"
+        bindcancel="onTimezonePickerCancel"
+      >
+        <t-picker-item options="{{timezoneList}}"></t-picker-item>
+      </t-picker>
+      <view class="row" style="background-color:white;margin:0;padding:20rpx">
+        <view class="column" style="width:90%;">
+          <view>主货币:{{currencyList[currentTour.mainCurrency].label}}</view>
+          <view>辅货币:{{currencyList[currentTour.subCurrency].label}}</view>
+        </view>
+        <t-button
+          size="large"
+          theme="primary"
+          variant="outline"
+          style="width: 10%;"
+          bind:tap="exchangeTourCurrency"
+        >
+          交换
+        </t-button>
+      </view>
+      <view class="row" style="background-color:white;margin:0;padding:20rpx">
+        <view class="column" style="width:90%;">
+          汇率:1{{currencyList[currentTour.subCurrency].symbol}}=
+          {{currentTour.currencyExchangeRate}}
+          {{currencyList[currentTour.mainCurrency].symbol}}
+        </view>
+        <t-button
+          size="large"
+          theme="primary"
+          variant="outline"
+          style="width: 10%;"
+          bind:tap="getCurrencyExchangeRate"
+        >
+          获取
+        </t-button>
+      </view>
+      <t-input
+        label="指定汇率"
+        placeholder="0.00"
+        align="right"
+        type="digit"
+        value="{{currentTour.currencyExchangeRate}}"
+        bind:blur="onTourCurrencyExchangeRateInput"
+        tips="{{priceError ? '请输入正确的汇率' : ''}}"
+        t-class-tips="tips"
+      />
+      <view class="row" style="background-color:white;margin:0;padding:20rpx">
+        <view class="column" style="width:90%;">
+          导出当前行程到剪切板
+        </view>
+        <t-button
+          size="large"
+          theme="primary"
+          variant="outline"
+          style="width: 10%;"
+          bind:tap="exportTourToClipboard"
+        >
+          导出
+        </t-button>
+      </view>
+    </scroll-view>
   </block>
 </block>
 <block wx:else>
