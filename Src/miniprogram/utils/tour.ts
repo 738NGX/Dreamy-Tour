@@ -1,7 +1,7 @@
 import { formatDate, formatTime, MILLISECONDS, exchangeCurrency } from './util';
 
 export enum TransportType { Bus, Metro, Train, Flight, Walk, Cycle, Car, Taxi, Ship, Other };
-export enum Currency { CNY, USD, EUR, JPY, HKD };
+export enum Currency { CNY, USD, EUR, JPY, HKD, MOP,TWD,GBP,KRW,SGD,THB,RUB,CAD,INR,AUD,VND };
 export enum ExpenseType { Hotel, Meal, Transportation, Ticket, Shopping, Other };
 
 export const currencyList = [
@@ -9,7 +9,18 @@ export const currencyList = [
     { label: '美元-USD', symbol: 'USD', value: Currency.USD },
     { label: '欧元-EUR', symbol: 'EUR', value: Currency.EUR },
     { label: '日元-JPY', symbol: 'JPY', value: Currency.JPY },
-    { label: '港币-HKD', symbol: 'HKD', value: Currency.HKD },
+    { label: '港元-HKD', symbol: 'HKD', value: Currency.HKD },
+    { label: '澳元-MOP', symbol: 'MOP', value: Currency.MOP },
+    { label: '新台币-TWD', symbol: 'TWD', value: Currency.TWD },
+    { label: '英镑-GBP', symbol: 'GBP', value: Currency.GBP },
+    { label: '韩元-KRW', symbol: 'KRW', value: Currency.KRW },
+    { label: '新加坡元-SGD', symbol: 'SGD', value: Currency.SGD },
+    { label: '泰铢-THB', symbol: 'THB', value: Currency.THB },
+    { label: '俄罗斯卢布-RUB', symbol: 'RUB', value: Currency.RUB },
+    { label: '加元-CAD', symbol: 'CAD', value: Currency.CAD },
+    { label: '印度卢比-INR', symbol: 'INR', value: Currency.INR },
+    { label: '澳元-AUD', symbol: 'AUD', value: Currency.AUD },
+    { label: '越南盾-VND', symbol: 'VND', value: Currency.VND },
 ];
 
 export const transportList = [
