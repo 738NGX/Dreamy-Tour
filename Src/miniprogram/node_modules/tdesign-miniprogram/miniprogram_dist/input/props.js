@@ -7,6 +7,10 @@ const props = {
         type: String,
         value: 'left',
     },
+    allowInputOverMax: {
+        type: Boolean,
+        value: false,
+    },
     alwaysEmbed: {
         type: Boolean,
         value: false,
@@ -39,13 +43,17 @@ const props = {
         type: Number,
         required: true,
     },
+    cursorColor: {
+        type: String,
+        value: '#0052d9',
+    },
     cursorSpacing: {
         type: Number,
         value: 0,
     },
     disabled: {
-        type: Boolean,
-        value: false,
+        type: null,
+        value: undefined,
     },
     focus: {
         type: Boolean,
@@ -89,8 +97,8 @@ const props = {
         type: null,
     },
     readonly: {
-        type: Boolean,
-        value: false,
+        type: null,
+        value: undefined,
     },
     safePasswordCertPath: {
         type: String,

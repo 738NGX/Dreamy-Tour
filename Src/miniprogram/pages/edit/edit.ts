@@ -9,8 +9,8 @@ if (PLUGIN_KEY) {
     });
     qqmapsdk
 }
-import { currencyList, transportList, expenseList, tagList, timezoneList, Tour, Location, TransportExpense } from '../../utils/tour';
-import { MILLISECONDS, formatTime, formatNumber, timeToMilliseconds, formatDate } from '../../utils/util';
+import { currencyList, transportList, expenseList, tagList, timezoneList, Tour, Location, TransportExpense, Transportation } from '../../utils/tour';
+import { MILLISECONDS, formatDate, formatNumber, formatTime, timeToMilliseconds } from '../../utils/util';
 
 const app = getApp<IAppOption>();
 enum DatetimeEditMode { None, StartDate, EndDate };
@@ -32,6 +32,15 @@ Component({
         timezoneList: timezoneList,
         minDate: new Date(new Date().getTime() - 365 * MILLISECONDS.DAY).getTime(),
         maxDate: new Date(new Date().getTime() + 365 * MILLISECONDS.DAY).getTime(),
+        
+        currentStartDateStr: '',
+        currentEndDateStr: '',
+        currentTimezoneStr: '',
+        currentDateRange: null as number[] | null,
+        currentStartDateStrList: null as string[] | null,
+        currentEndDateStrList: null as string[] | null,
+        currentTimezoneStrList: null as string[] | null,
+        currentDurationStrList: null as string[] | null,
 
         // 页面状态
         childPage: 0,
@@ -47,7 +56,6 @@ Component({
 
         // 数据缓存
         currentTour: null as Tour | null,
-        currentDateRange: null as number[] | null,
         selectingDatetime: new Date().getTime(),
         selectingTimeOffset: -480,
         selectingDuration: '',
@@ -74,10 +82,26 @@ Component({
             if (app.globalData.currentTour) {
                 const currentTour = app.globalData.currentTour as Tour;
                 this.setData({
+                    currentStartDateStr: formatDate(currentTour.startDate, currentTour.timeOffset),
+                    currentEndDateStr: formatDate(currentTour.endDate, currentTour.timeOffset),
+                    currentTimezoneStr: timezoneList.find(tz => tz.value === currentTour.timeOffset)?.label || '未知时区',
                     currentDateRange: [
                         new Date(currentTour.startDate).getTime(),
                         new Date(currentTour.endDate).getTime() + MILLISECONDS.DAY - MILLISECONDS.MINUTE
-                    ]
+                    ],
+                    currentStartDateStrList: currentTour.locations.map(location => formatTime(
+                        currentTour.startDate + location.startOffset, location.timeOffset
+                    )),
+                    currentEndDateStrList: currentTour.locations.map(location => formatTime(
+                        currentTour.startDate + location.endOffset, location.timeOffset
+                    )),
+                    currentTimezoneStrList: currentTour.locations.map(location => {
+                        const timezone = timezoneList.find(tz => tz.value === location.timeOffset);
+                        return timezone ? timezone.label : '未知时区'
+                    }),
+                    currentDurationStrList: currentTour.transportations.map(transportation => {
+                        return new Transportation(transportation).getDurationString();
+                    })
                 });
             }
             else {
@@ -112,7 +136,7 @@ Component({
             if (!this.data.currentTour || this.data.editingLocationId < 0) return;
             const editingLocation = this.data.currentTour.locations[this.data.editingLocationId];
             const selectingDatetime = (
-                new Date(editingLocation.startDate).getTime()
+                this.data.currentTour.startDate + editingLocation.startOffset
                 + new Date().getTimezoneOffset() * MILLISECONDS.MINUTE
                 - editingLocation.timeOffset * MILLISECONDS.MINUTE
             );
@@ -122,6 +146,9 @@ Component({
                 datetimeEditMode: DatetimeEditMode.StartDate
             });
         },
+        /**
+         * 位置节点结束日期修改
+         */
         handleNodeEndDateSelect(e: any) {
             if (e.currentTarget.dataset.index != undefined) {
                 this.setData({ editingLocationId: e.currentTarget.dataset.index });
@@ -129,7 +156,7 @@ Component({
             if (!this.data.currentTour || this.data.editingLocationId < 0) return;
             const editingLocation = this.data.currentTour.locations[this.data.editingLocationId];
             const selectingDatetime = (
-                new Date(editingLocation.endDate).getTime()
+                this.data.currentTour.startDate + editingLocation.endOffset
                 + new Date().getTimezoneOffset() * MILLISECONDS.MINUTE
                 - editingLocation.timeOffset * MILLISECONDS.MINUTE
             );
@@ -143,34 +170,49 @@ Component({
             this.setData({ selectingDatetime: new Date(e.detail.value + ":00").getTime() });
         },
         onDatetimeConfirm() {
-            if (!this.data.currentTour || this.data.editingLocationId < 0) return;
+            if (
+                !this.data.currentTour || 
+                !this.data.currentStartDateStrList ||
+                !this.data.currentEndDateStrList ||
+                this.data.editingLocationId < 0
+            ) return;
 
             const id = this.data.editingLocationId;
             const currentTour = new Tour(this.data.currentTour);
             const editingLocation = currentTour.locations[id];
-            const selectingDatetime = new Date(
-                this.data.selectingDatetime
+            const selectingDatetime = this.data.selectingDatetime
                 - new Date().getTimezoneOffset() * MILLISECONDS.MINUTE
-                + editingLocation.timeOffset * MILLISECONDS.MINUTE
-            );
+                + editingLocation.timeOffset * MILLISECONDS.MINUTE;
 
             if (this.data.datetimeEditMode === DatetimeEditMode.StartDate) {
-                editingLocation.startDate = new Date(selectingDatetime);
-                editingLocation.updateDuration();
+                editingLocation.startOffset = selectingDatetime - currentTour.startDate;
                 if (id > 0) {
                     const associatedTransportation = currentTour.transportations[id - 1];
-                    associatedTransportation.endDate = editingLocation.startDate;
-                    associatedTransportation.updateDuration();
+                    associatedTransportation.endOffset = editingLocation.startOffset;
+                    const newDurationStrList = this.data.currentDurationStrList;
+                    if (newDurationStrList) {
+                        newDurationStrList[id - 1] = associatedTransportation.getDurationString();
+                    }
+                    this.setData({ currentDurationStrList: newDurationStrList });
                 }
+                const newStartDateStrList = this.data.currentStartDateStrList;
+                newStartDateStrList[id] = formatTime(currentTour.startDate + editingLocation.startOffset, editingLocation.timeOffset);
+                this.setData({ currentStartDateStrList: newStartDateStrList });
             }
             else if (this.data.datetimeEditMode === DatetimeEditMode.EndDate) {
-                editingLocation.endDate = new Date(selectingDatetime);
-                editingLocation.updateDuration();
+                editingLocation.endOffset = selectingDatetime - currentTour.startDate;
                 if (id < currentTour.locations.length - 1) {
                     const associatedTransportation = currentTour.transportations[id];
-                    associatedTransportation.startDate = editingLocation.endDate;
-                    associatedTransportation.updateDuration();
+                    associatedTransportation.startOffset = editingLocation.endOffset;
+                    const newDurationStrList = this.data.currentDurationStrList;
+                    if (newDurationStrList) {
+                        newDurationStrList[id] = associatedTransportation.getDurationString();
+                    }
+                    this.setData({ currentDurationStrList: newDurationStrList });
                 }
+                const newEndDateStrList = this.data.currentEndDateStrList;
+                newEndDateStrList[id] = formatTime(currentTour.startDate + editingLocation.endOffset, editingLocation.timeOffset);
+                this.setData({ currentEndDateStrList: newEndDateStrList });
             }
 
             app.globalData.currentTour = currentTour;
@@ -210,15 +252,27 @@ Component({
             });
         },
         onTimezonePickerChange() {
-            if (!this.data.currentTour || this.data.editingLocationId < 0) return;
+            if (
+                !this.data.currentTour ||
+                !this.data.currentTimezoneStrList ||
+                !this.data.currentStartDateStrList ||
+                !this.data.currentEndDateStrList ||
+                this.data.editingLocationId < 0
+            ) return;
 
             const currentTour = new Tour(this.data.currentTour);
+            const newStartDateStrList = this.data.currentStartDateStrList;
+            const newEndDateStrList = this.data.currentEndDateStrList;
+            const newTimezoneStrList = this.data.currentTimezoneStrList;
             const id = this.data.editingLocationId;
 
+            // 时区值&显示更新
             currentTour.locations[id].timeOffset = this.data.selectingTimeOffset;
-            currentTour.locations[id].timezone = this.data.timezoneList.filter((item: any) => item.value == this.data.selectingTimeOffset)[0].label;
-            currentTour.locations[id].startDateStr = formatTime(currentTour.locations[id].startDate, currentTour.locations[id].timeOffset);
-            currentTour.locations[id].endDateStr = formatTime(currentTour.locations[id].endDate, currentTour.locations[id].timeOffset);
+            const timezone = timezoneList.find(tz => tz.value === this.data.selectingTimeOffset);
+            newTimezoneStrList[id] = timezone ? timezone.label : '';
+            // 起止时间显示更新
+            newStartDateStrList[id] = formatTime(currentTour.startDate + currentTour.locations[id].startOffset, currentTour.locations[id].timeOffset);
+            newEndDateStrList[id] = formatTime(currentTour.startDate + currentTour.locations[id].endOffset, currentTour.locations[id].timeOffset);
 
             app.globalData.currentTour = currentTour;
             this.setData({
@@ -226,6 +280,9 @@ Component({
                 timezoneVisible: false,
                 editingLocationId: -1,
                 selectingTimeOffset: -480,
+                currentTimezoneStrList: newTimezoneStrList,
+                currentStartDateStrList: newStartDateStrList,
+                currentEndDateStrList: newEndDateStrList
             });
             wx.setStorageSync('tour-' + currentTour.id, currentTour);
         },
@@ -337,11 +394,12 @@ Component({
             if (!this.data.currentTour || this.data.editingTransportationId < 0) return;
             const id = this.data.editingTransportationId;
             const editingTransportation = this.data.currentTour.transportations[id];
-            const durationStr = (
-                formatNumber(Math.floor(editingTransportation.duration / MILLISECONDS.HOUR))
+            
+            const duration = editingTransportation.endOffset - editingTransportation.startOffset;
+            const durationStr = formatNumber(Math.floor(duration / MILLISECONDS.HOUR))
                 + ':' +
-                formatNumber(Math.floor(editingTransportation.duration % MILLISECONDS.HOUR / MILLISECONDS.MINUTE))
-            );
+                formatNumber(Math.floor(duration % MILLISECONDS.HOUR / MILLISECONDS.MINUTE))
+            
             this.setData({
                 durationVisible: true,
                 selectingDuration: durationStr,
@@ -351,24 +409,35 @@ Component({
             this.setData({ selectingDuration: e.detail.value });
         },
         onDurationConfirm() {
-            if (!this.data.currentTour || this.data.editingTransportationId < 0) return;
+            if (
+                !this.data.currentTour ||
+                !this.data.currentStartDateStrList ||
+                !this.data.currentDurationStrList ||
+                this.data.editingTransportationId < 0
+            ) return;
 
             const id = this.data.editingTransportationId;
             const currentTour = new Tour(this.data.currentTour);
             const editingTransportation = currentTour.transportations[id];
             const milliseconds = timeToMilliseconds(this.data.selectingDuration);
-            editingTransportation.endDate = new Date(editingTransportation.startDate.getTime() + milliseconds);
-            editingTransportation.endDateStr = formatTime(editingTransportation.endDate);
-            editingTransportation.updateDuration();
+            editingTransportation.endOffset = editingTransportation.startOffset + milliseconds;
 
             const associatedLocation = currentTour.locations[id + 1];
-            associatedLocation.startDate = editingTransportation.endDate;
-            associatedLocation.startDateStr = editingTransportation.endDateStr;
-            associatedLocation.updateDuration();
+            associatedLocation.startOffset = editingTransportation.endOffset;
+
+            const currentDurationStrList = this.data.currentDurationStrList;
+            const currentStartDateStrList = this.data.currentStartDateStrList;
+            currentDurationStrList[id] = editingTransportation.getDurationString();
+            currentStartDateStrList[id + 1] = formatTime(
+                currentTour.startDate + associatedLocation.startOffset, 
+                associatedLocation.timeOffset
+            );
 
             app.globalData.currentTour = currentTour;
             this.setData({
                 currentTour: currentTour,
+                currentStartDateStrList: currentStartDateStrList,
+                currentDurationStrList: currentDurationStrList,
                 durationVisible: false,
                 editingTransportationId: -1
             });
@@ -381,21 +450,80 @@ Component({
          * 增减位置节点
          */
         addNode() {
-            if (!this.data.currentTour) return;
+            if (!this.data.currentTour
+                || !this.data.currentStartDateStrList
+                || !this.data.currentEndDateStrList
+                || !this.data.currentTimezoneStrList
+                || !this.data.currentDurationStrList
+            ) return;
 
             const currentTour = new Tour(this.data.currentTour);
             currentTour.addLocation();
+            
+            const currentStartDateStrList = this.data.currentStartDateStrList;
+            const currentEndDateStrList = this.data.currentEndDateStrList;
+            const currentTimezoneStrList = this.data.currentTimezoneStrList;
+            const currentDurationStrList = this.data.currentDurationStrList;
+
+            const newNode = currentTour.locations[currentTour.locations.length - 1];
+            const newTransportNode = currentTour.transportations[currentTour.transportations.length - 1];
+            currentStartDateStrList.push(
+                formatTime(currentTour.startDate + newNode.startOffset, newNode.timeOffset)
+            );
+            currentEndDateStrList.push(
+                formatTime(currentTour.startDate + newNode.endOffset, newNode.timeOffset)
+            );
+            currentTimezoneStrList.push(
+                timezoneList.find(tz => tz.value === newNode.timeOffset)?.label || '未知时区'
+            );
+            currentDurationStrList.push(newTransportNode.getDurationString());
+
             app.globalData.currentTour = currentTour;
-            this.setData({ currentTour: currentTour });
+            this.setData({ 
+                currentTour: currentTour,
+                currentStartDateStrList: currentStartDateStrList,
+                currentEndDateStrList: currentEndDateStrList,
+                currentTimezoneStrList: currentTimezoneStrList,
+                currentDurationStrList: currentDurationStrList
+            });
             wx.setStorageSync('tour-' + currentTour.id, currentTour);
         },
         removeNode(e: any) {
-            if (!this.data.currentTour) return;
+            if (!this.data.currentTour
+                || !this.data.currentStartDateStrList
+                || !this.data.currentEndDateStrList
+                || !this.data.currentTimezoneStrList
+                || !this.data.currentDurationStrList
+            ) return;
+            const id = e.currentTarget.dataset.index;
 
             const currentTour = new Tour(this.data.currentTour);
-            currentTour.removeLocation(e.currentTarget.dataset.index);
+            currentTour.removeLocation(id);
+            
+            const currentStartDateStrList = this.data.currentStartDateStrList;
+            const currentEndDateStrList = this.data.currentEndDateStrList;
+            const currentTimezoneStrList = this.data.currentTimezoneStrList;
+            const currentDurationStrList = this.data.currentDurationStrList;
+            currentStartDateStrList.splice(id, 1);
+            currentEndDateStrList.splice(id, 1);
+            currentTimezoneStrList.splice(id, 1);
+            if (id > 1) {
+                currentDurationStrList[id - 1] = currentTour.transportations[id - 2].getDurationString();
+            }
+            currentDurationStrList?.splice(id, 1);
+            currentStartDateStrList[id] = formatTime(
+                currentTour.startDate + currentTour.locations[id].startOffset, 
+                currentTour.locations[id].timeOffset
+            );
+
             app.globalData.currentTour = currentTour;
-            this.setData({ currentTour: currentTour });
+            this.setData({ 
+                currentTour: currentTour,
+                currentStartDateStrList: currentStartDateStrList,
+                currentEndDateStrList: currentEndDateStrList,
+                currentTimezoneStrList: currentTimezoneStrList,
+                currentDurationStrList: currentDurationStrList
+            });
             wx.setStorageSync('tour-' + currentTour.id, currentTour);
         },
         /**
@@ -727,10 +855,8 @@ Component({
             if (!this.data.currentTour) return;
 
             const currentTour = new Tour(this.data.currentTour);
-            currentTour.startDate = new Date(e.detail.value[0]);
-            currentTour.endDate = new Date(e.detail.value[1]);
-            currentTour.startDateStr = formatDate(currentTour.startDate);
-            currentTour.endDateStr = formatDate(currentTour.endDate);
+            currentTour.startDate = new Date(e.detail.value[0]).getTime();
+            currentTour.endDate = new Date(e.detail.value[1]).getTime();
             this.setData({
                 currentDateRange: [
                     new Date(currentTour.startDate).getTime(),
@@ -741,13 +867,15 @@ Component({
             app.globalData.currentTour = currentTour;
             app.globalData.tourList = app.globalData.tourList.map((tour: any) => {
                 if (tour.id === currentTour.id) {
-                    tour.startDate = currentTour.startDateStr;
-                    tour.endDate = currentTour.endDateStr;
+                    tour.startDate = formatDate(currentTour.startDate, currentTour.timeOffset);
+                    tour.endDate = formatDate(currentTour.endDate, currentTour.timeOffset);
                 }
                 return tour;
             });
             this.setData({
                 currentTour: currentTour,
+                currentStartDateStr: formatDate(currentTour.startDate, currentTour.timeOffset),
+                currentEndDateStr: formatDate(currentTour.endDate, currentTour.timeOffset),
                 calendarVisible: false
             });
             wx.setStorageSync('tour-' + currentTour.id, currentTour);
@@ -764,18 +892,16 @@ Component({
 
             const currentTour = new Tour(this.data.currentTour);
             currentTour.timeOffset = this.data.selectingTimeOffset;
-            currentTour.timezone = this.data.timezoneList.filter((item: any) => item.value == this.data.selectingTimeOffset)[0].label;
-            currentTour.startDateStr = formatDate(currentTour.startDate, currentTour.timeOffset);
-            currentTour.endDateStr = formatDate(currentTour.endDate, currentTour.timeOffset);
 
             app.globalData.currentTour = currentTour;
             this.setData({
                 currentTour: currentTour,
+                currentTimezoneStr: timezoneList.find(tz => tz.value === currentTour.timeOffset)?.label || '未知时区',
                 timezoneVisible: false,
             });
             wx.setStorageSync('tour-' + currentTour.id, currentTour);
         },
-        exportTourToClipboard(){
+        exportTourToClipboard() {
             if (!this.data.currentTour) return;
 
             const currentTour = new Tour(this.data.currentTour);

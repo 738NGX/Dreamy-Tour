@@ -8,15 +8,14 @@ import { SuperComponent, wxComponent } from '../common/src/index';
 import config from '../common/config';
 import props from './props';
 import useCustomNavbar from '../mixins/using-custom-navbar';
-import { unitConvert } from '../common/utils';
-const systemInfo = wx.getSystemInfoSync();
+import { unitConvert, systemInfo } from '../common/utils';
 const { prefix } = config;
 const name = `${prefix}-fab`;
 const baseButtonProps = {
     size: 'large',
     shape: 'circle',
     theme: 'primary',
-    externalClass: `${prefix}-fab__button`,
+    tClass: `${prefix}-fab__button`,
 };
 let Fab = class Fab extends SuperComponent {
     constructor() {
@@ -42,6 +41,9 @@ let Fab = class Fab extends SuperComponent {
             onTplButtonTap(e) {
                 this.triggerEvent('click', e);
             },
+            onStart(e) {
+                this.triggerEvent('dragstart', e.detail.e);
+            },
             onMove(e) {
                 const { yBounds } = this.properties;
                 const { distanceTop } = this.data;
@@ -53,6 +55,9 @@ let Fab = class Fab extends SuperComponent {
                 this.setData({
                     moveStyle: `right: ${right}px; bottom: ${bottom}px;`,
                 });
+            },
+            onEnd(e) {
+                this.triggerEvent('dragend', e.detail.e);
             },
             computedSize() {
                 var _a, _b;

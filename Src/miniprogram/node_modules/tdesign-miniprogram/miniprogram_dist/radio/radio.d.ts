@@ -14,6 +14,9 @@ export default class Radio extends SuperComponent {
             type: BooleanConstructor;
             value: boolean;
         };
+        tId: {
+            type: StringConstructor;
+        };
         allowUncheck?: {
             type: BooleanConstructor;
             value?: boolean;
@@ -88,14 +91,17 @@ export default class Radio extends SuperComponent {
         iconVal: any[];
         _placement: string;
         _disabled: boolean;
+        _readonly: boolean;
     };
     observers: {
         disabled(v: any): void;
+        readonly(v: any): void;
     };
     methods: {
         handleTap(e: any): void;
         doChange(): void;
         init(): void;
         setDisabled(disabled: Boolean): void;
+        setReadonly(readonly: Boolean): void;
     };
 }
