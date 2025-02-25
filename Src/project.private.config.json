@@ -3,5 +3,6 @@
   "projectname": "Dreamy%20Tour",
   "setting": {
     "compileHotReLoad": true
-  }
+  },
+  "libVersion": "development"
 }

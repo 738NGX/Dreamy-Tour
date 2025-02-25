@@ -5,8 +5,12 @@ export const MILLISECONDS = {
     DAY: 8.64e+7
 };
 
-export const formatTime = (date: Date, timeOffset?: number) => {
-    const usingDate = new Date(date);
+export const formatTime: {
+    (date: Date, timeOffset?: number): string;
+    (timestamp: number, timeOffset?: number): string;
+} = (input: Date | number, timeOffset?: number): string => {
+    const usingDate = new Date(typeof input === 'number' ? input : input.getTime());
+
     if (timeOffset !== undefined) {
         usingDate.setTime(
             usingDate.getTime() + new Date().getTimezoneOffset() * MILLISECONDS.MINUTE
@@ -14,26 +18,31 @@ export const formatTime = (date: Date, timeOffset?: number) => {
         );
     }
 
-    const year = usingDate.getFullYear()
-    const month = usingDate.getMonth() + 1
-    const day = usingDate.getDate()
-    const hour = usingDate.getHours()
-    const minute = usingDate.getMinutes()
+    const year = usingDate.getFullYear();
+    const month = usingDate.getMonth() + 1;
+    const day = usingDate.getDate();
+    const hour = usingDate.getHours();
+    const minute = usingDate.getMinutes();
 
     return (
         [year, month, day].map(formatNumber).join('/') +
         ' ' +
         [hour, minute].map(formatNumber).join(':')
-    )
-}
+    );
+};
+
 
 export const formatNumber = (n: number) => {
     const s = n.toString()
     return s[1] ? s : '0' + s
 }
 
-export const formatDate = (date: Date, timeOffset?: number) => {
-    const usingDate = new Date(date);
+export const formatDate: {
+    (date: Date, timeOffset?: number): string;
+    (timestamp: number, timeOffset?: number): string;
+} = (input: Date | number, timeOffset?: number): string => {
+    const usingDate = new Date(typeof input === 'number' ? input : input.getTime());
+
     if (timeOffset !== undefined) {
         usingDate.setTime(
             usingDate.getTime() + new Date().getTimezoneOffset() * MILLISECONDS.MINUTE
@@ -41,13 +50,13 @@ export const formatDate = (date: Date, timeOffset?: number) => {
         );
     }
 
-    const year = usingDate.getFullYear()
-    const month = usingDate.getMonth() + 1
-    const day = usingDate.getDate()
+    const year = usingDate.getFullYear();
+    const month = usingDate.getMonth() + 1;
+    const day = usingDate.getDate();
     const arr = ['(日)', '(一)', '(二)', '(三)', '(四)', '(五)', '(六)'];
 
     return [year, month, day].map(formatNumber).join('/') + arr[usingDate.getDay()];
-}
+};
 
 export function timeToMilliseconds(time: string) {
     const match = time.match(/^(\d{1,2}):(\d{2})$/);

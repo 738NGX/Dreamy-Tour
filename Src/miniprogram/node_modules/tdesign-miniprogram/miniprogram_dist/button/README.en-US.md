@@ -76,7 +76,7 @@ custom-style | Object | - | CSS(Cascading Style Sheets)，used to set style on v
 app-parameter | String | - | \- | N
 block | Boolean | false | make button to be a block-level element | N
 content | String / Slot | - | button's children elements。[see more ts definition](https://github.com/Tencent/tdesign-miniprogram/blob/develop/src/common/common.ts) | N
-custom-dataset | Object | - | Typescript：`any` | N
+custom-dataset | any | - | \- | N
 disabled | Boolean | undefined | disable the button, make it can not be clicked | N
 ghost | Boolean | false | make background-color to be transparent | N
 hover-class | String | - | \- | N
@@ -108,7 +108,6 @@ name | params | description
 -- | -- | --
 agreeprivacyauthorization | \- | \-
 chooseavatar | \- | \-
-click | `(e: MouseEvent)` | trigger on click
 contact | \- | \-
 createliveactivity | \- | \-
 error | \- | \-
@@ -134,11 +133,11 @@ Name | Default Value | Description
 -- | -- | --
 --td-button-border-radius | @radius-default | - 
 --td-button-border-width | 4rpx | - 
---td-button-danger-active-bg-color | @error-color-7 | - 
---td-button-danger-active-border-color | @error-color-7 | - 
+--td-button-danger-active-bg-color | @error-color-active | - 
+--td-button-danger-active-border-color | @error-color-active | - 
 --td-button-danger-bg-color | @error-color | - 
 --td-button-danger-border-color | @error-color | - 
---td-button-danger-color | @font-white-1 | - 
+--td-button-danger-color | @text-color-anti | - 
 --td-button-danger-dashed-border-color | @button-danger-dashed-color | - 
 --td-button-danger-dashed-color | @error-color | - 
 --td-button-danger-dashed-disabled-color | @button-danger-disabled-color | - 
@@ -146,7 +145,7 @@ Name | Default Value | Description
 --td-button-danger-disabled-border-color | @error-color-3 | - 
 --td-button-danger-disabled-color | @font-white-1 | - 
 --td-button-danger-outline-active-bg-color | @bg-color-container-active | - 
---td-button-danger-outline-active-border-color | @error-color-7 | - 
+--td-button-danger-outline-active-border-color | @error-color-active | - 
 --td-button-danger-outline-border-color | @button-danger-outline-color | - 
 --td-button-danger-outline-color | @error-color | - 
 --td-button-danger-outline-disabled-color | @error-color-3 | - 
@@ -157,14 +156,14 @@ Name | Default Value | Description
 --td-button-default-active-border-color | @bg-color-component-active | - 
 --td-button-default-bg-color | @bg-color-component | - 
 --td-button-default-border-color | @bg-color-component | - 
---td-button-default-color | @font-gray-1 | - 
+--td-button-default-color | @text-color-primary | - 
 --td-button-default-disabled-bg | @bg-color-component-disabled | - 
 --td-button-default-disabled-border-color | @bg-color-component-disabled | - 
---td-button-default-disabled-color | @font-gray-4 | - 
+--td-button-default-disabled-color | @text-color-disabled | - 
 --td-button-default-outline-active-bg-color | @bg-color-container-active | - 
 --td-button-default-outline-active-border-color | @component-border | - 
 --td-button-default-outline-border-color | @component-border | - 
---td-button-default-outline-color | @font-gray-1 | - 
+--td-button-default-outline-color | @text-color-primary | - 
 --td-button-default-outline-disabled-color | @component-border | - 
 --td-button-default-text-active-bg-color | @bg-color-container-active | - 
 --td-button-extra-small-font-size | @font-size-base | - 
@@ -173,12 +172,15 @@ Name | Default Value | Description
 --td-button-extra-small-padding-horizontal | 16rpx | - 
 --td-button-font-weight | 600 | - 
 --td-button-ghost-border-color | @button-ghost-color | - 
---td-button-ghost-color | @bg-color-container | - 
+--td-button-ghost-color | @text-color-anti | - 
 --td-button-ghost-danger-border-color | @error-color | - 
 --td-button-ghost-danger-color | @error-color | - 
---td-button-ghost-disabled-color | rgba(255, 255, 255, 0.35) | - 
+--td-button-ghost-danger-hover-color | @error-color-active | - 
+--td-button-ghost-disabled-color | @font-white-4 | - 
+--td-button-ghost-hover-color | @font-white-2 | - 
 --td-button-ghost-primary-border-color | @brand-color | - 
 --td-button-ghost-primary-color | @brand-color | - 
+--td-button-ghost-primary-hover-color | @brand-color-active | - 
 --td-button-icon-border-radius | 8rpx | - 
 --td-button-icon-spacer | @spacer | - 
 --td-button-large-font-size | @font-size-m | - 
@@ -209,13 +211,13 @@ Name | Default Value | Description
 --td-button-primary-active-border-color | @brand-color-active | - 
 --td-button-primary-bg-color | @brand-color | - 
 --td-button-primary-border-color | @brand-color | - 
---td-button-primary-color | @font-white-1 | - 
+--td-button-primary-color | @text-color-anti | - 
 --td-button-primary-dashed-border-color | @button-primary-dashed-color | - 
 --td-button-primary-dashed-color | @brand-color | - 
 --td-button-primary-dashed-disabled-color | @brand-color-disabled | - 
 --td-button-primary-disabled-bg | @brand-color-disabled | - 
 --td-button-primary-disabled-border-color | @brand-color-disabled | - 
---td-button-primary-disabled-color | @font-white-1 | - 
+--td-button-primary-disabled-color | @text-color-anti | - 
 --td-button-primary-outline-active-bg-color | @bg-color-container-active | - 
 --td-button-primary-outline-active-border-color | @brand-color-active | - 
 --td-button-primary-outline-border-color | @button-primary-outline-color | - 
@@ -227,4 +229,4 @@ Name | Default Value | Description
 --td-button-small-font-size | @font-size-base | - 
 --td-button-small-height | 64rpx | - 
 --td-button-small-icon-font-size | 36rpx | - 
---td-button-small-padding-horizontal | 24rpx | -
+--td-button-small-padding-horizontal | 24rpx | - 

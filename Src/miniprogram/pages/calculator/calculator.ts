@@ -252,7 +252,7 @@ Component({
         handleCalendarConfirm(e: any) {
             const { dateIndex } = this.data;
             const date = new Date(e.detail.value).getTime();
-            const dateStr = formatDate(new Date(date), new Date().getTimezoneOffset());
+            const dateStr = formatDate(date, new Date().getTimezoneOffset());
             if (dateIndex === 0) {
                 this.setData({ date: [date, this.data.date[1]], dateStr: [dateStr, this.data.dateStr[1]] });
             } else {
@@ -264,7 +264,7 @@ Component({
         updateDateInterval(e: any) {
             const dateInterval = Number(e.detail.value);
             const date = [this.data.date[0], this.data.date[0] + dateInterval * MILLISECONDS.DAY];
-            const dateStr = [formatDate(new Date(date[0]), new Date().getTimezoneOffset()), formatDate(new Date(date[1]), new Date().getTimezoneOffset())];
+            const dateStr = [formatDate(date[0], new Date().getTimezoneOffset()), formatDate(date[1], new Date().getTimezoneOffset())];
             this.setData({ dateInterval: dateInterval, date: date, dateStr: dateStr });
         }
     },

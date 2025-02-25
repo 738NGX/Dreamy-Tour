@@ -1,4 +1,4 @@
-import { formatDate, formatTime, MILLISECONDS, exchangeCurrency } from './util';
+import { exchangeCurrency, MILLISECONDS } from './util';
 
 export enum TransportType { Bus, Metro, Train, Flight, Walk, Cycle, Car, Taxi, Ship, Other };
 export enum Currency { CNY, USD, EUR, JPY, HKD, MOP,TWD,GBP,KRW,SGD,THB,RUB,CAD,INR,AUD,VND };
@@ -106,12 +106,9 @@ export class Tour {
     id: number;
     title: string;
     // 日期信息
-    startDate: Date;
-    endDate: Date;
-    startDateStr: string;
-    endDateStr: string;
+    startDate: number;
+    endDate: number;
     timeOffset: number;
-    timezone: string;
     // 货币信息
     mainCurrency: Currency;
     subCurrency: Currency;
@@ -123,8 +120,8 @@ export class Tour {
     constructor(
         idOrData: number | any,
         title?: string,
-        startDate?: Date,
-        endDate?: Date,
+        startDate?: number,
+        endDate?: number,
         timeOffset?: number,
         mainCurrency?: Currency,
         subCurrency?: Currency,
@@ -137,24 +134,18 @@ export class Tour {
             this.startDate = startDate!;
             this.endDate = endDate!;
             this.timeOffset = timeOffset ? timeOffset : -480;
-            this.timezone = timezoneList.find((timezone) => timezone.value == this.timeOffset)!.label;
-            this.startDateStr = formatDate(this.startDate, this.timeOffset);
-            this.endDateStr = formatDate(this.endDate, this.timeOffset);
             this.mainCurrency = mainCurrency ? mainCurrency : Currency.CNY;
             this.subCurrency = subCurrency ? subCurrency : Currency.JPY;
             this.currencyExchangeRate = 1;
-            this.locations = locations ? locations : [new Location(0, startDate!, startDate!, this.timeOffset)];
+            this.locations = locations ? locations : [new Location(0, 0, 0, this.timeOffset)];
             this.transportations = transportations ? transportations : [];
         } else {
             const data = idOrData;
             this.id = data.id;
             this.title = data.title;
-            this.startDate = new Date(data.startDate);
-            this.endDate = new Date(data.endDate);
+            this.startDate = data.startDate;
+            this.endDate = data.endDate;
             this.timeOffset = data.timeOffset;
-            this.timezone = data.timezone;
-            this.startDateStr = formatDate(this.startDate, this.timeOffset);
-            this.endDateStr = formatDate(this.endDate, this.timeOffset);
             this.mainCurrency = data.mainCurrency;
             this.subCurrency = data.subCurrency;
             this.currencyExchangeRate = data.currencyExchangeRate;
@@ -178,9 +169,9 @@ export class Tour {
 
     addLocation() {
         const lastLoaction = this.locations[this.locations.length - 1];
-        const nextTime = new Date(lastLoaction.endDate.getTime() + 1000 * 30 * 60);
+        const nextTime = lastLoaction.endOffset + 30 * MILLISECONDS.MINUTE;
         this.transportations.push(
-            new Transportation(this.transportations.length, lastLoaction.endDate, nextTime, this.timeOffset)
+            new Transportation(this.transportations.length, lastLoaction.endOffset, nextTime, this.timeOffset)
         );
         this.locations.push(
             new Location(this.locations.length, nextTime, nextTime, this.timeOffset)
@@ -204,9 +195,7 @@ export class Tour {
             this.transportations[i].index = i;
         }
         this.locations[this.locations.length - 1].index = this.locations.length - 1;
-        this.locations[index].startDate = this.transportations[index - 1].endDate;
-        this.locations[index].startDateStr = formatTime(this.locations[index].startDate);
-        this.locations[index].updateDuration();
+        this.locations[index].startOffset = this.transportations[index - 1].endOffset;
     }
 
     toString(): string {
@@ -224,41 +213,30 @@ export class Tour {
  */
 export class TourNode {
     index: number;
-    startDate: Date;
-    endDate: Date;
-    startDateStr: string = '';
-    endDateStr: string = '';
+    startOffset: number;
+    endOffset: number;
     timeOffset: number = -480;
-    timezone: string = 'UTC+8(CST:中国标准时间)';
-    duration: number = 0;
-    durationStr: string = '';
     note: string = '';
 
-    constructor(index: number, startDate: Date, endDate: Date, timeOffset: number) {
+    constructor(index: number, startOffset: number, endOffset: number, timeOffset: number) {
         this.index = index;
-        this.startDate = startDate;
-        this.endDate = endDate;
+        this.startOffset = startOffset;
+        this.endOffset = endOffset;
         this.timeOffset = timeOffset;
-        this.timezone = timezoneList.find((timezone) => timezone.value == this.timeOffset)!.label;
-        this.startDateStr = formatTime(startDate, this.timeOffset);
-        this.endDateStr = formatTime(endDate, this.timeOffset);
-        this.updateDuration();
     }
 
-    updateDuration() {
-        this.startDateStr = formatTime(this.startDate, this.timeOffset);
-        this.endDateStr = formatTime(this.endDate, this.timeOffset);
-        this.duration = this.endDate.getTime() - this.startDate.getTime();
-        const hours = Math.floor(this.duration / MILLISECONDS.HOUR);
-        const minutes = Math.floor(this.duration % MILLISECONDS.HOUR / MILLISECONDS.MINUTE);
-        if (this.duration < 0) {
-            this.durationStr = '结束时间早于开始时间';
+    getDurationString(): string {
+        const duration = this.endOffset - this.startOffset;
+        const hours = Math.floor(duration / MILLISECONDS.HOUR);
+        const minutes = Math.floor(duration % MILLISECONDS.HOUR / MILLISECONDS.MINUTE);
+        if (duration < 0) {
+            return '结束时间早于开始时间';
         }
         else if (hours > 0) {
-            this.durationStr = hours + '小时' + minutes + '分钟';
+            return hours + '小时' + minutes + '分钟';
         }
         else {
-            this.durationStr = minutes + '分钟';
+            return minutes + '分钟';
         }
     }
 };
@@ -272,10 +250,10 @@ export class Location extends TourNode {
     latitude: number = 31.307627;
     expenses: Expense[] = [];
 
-    constructor(dataOrIndex: any, startDate?: Date, endDate?: Date, timeOffset?: number) {
+    constructor(dataOrIndex: any, startOffset?: number, endOffset?: number, timeOffset?: number) {
         let index: number;
-        let start: Date;
-        let end: Date;
+        let start: number;
+        let end: number;
         let offset: number;
         let title: string = '';
         let note: string = '';
@@ -285,14 +263,14 @@ export class Location extends TourNode {
 
         if (typeof dataOrIndex === 'number') {
             index = dataOrIndex;
-            start = startDate!;
-            end = endDate!;
+            start = startOffset!;
+            end = endOffset!;
             offset = timeOffset!;
         } else {
             const data = dataOrIndex;
             index = data.index;
-            start = new Date(data.startDate);
-            end = new Date(data.endDate);
+            start = data.startOffset;
+            end = data.endOffset;
             offset = data.timeOffset;
             title = data.title;
             note = data.note;
@@ -341,23 +319,23 @@ export class Location extends TourNode {
 export class Transportation extends TourNode {
     transportExpenses: TransportExpense[] = [];
 
-    constructor(dataOrIndex: any, startDate?: Date, endDate?: Date, timeOffset?: number) {
+    constructor(dataOrIndex: any, startOffset?: number, endOffset?: number, timeOffset?: number) {
         let index: number;
-        let start: Date;
-        let end: Date;
+        let start: number;
+        let end: number;
         let offset: number;
         let expenses: TransportExpense[] = [];
 
         if (typeof dataOrIndex === 'number') {
             index = dataOrIndex;
-            start = startDate!;
-            end = endDate!;
+            start = startOffset!;
+            end = endOffset!;
             offset = timeOffset!;
         } else {
             const data = dataOrIndex;
             index = data.index;
-            start = new Date(data.startDate);
-            end = new Date(data.endDate);
+            start = data.startOffset;
+            end = data.endOffset;
             offset = data.timeOffset;
             expenses = data.transportExpenses.map((expense: any) => new TransportExpense(expense));
         }

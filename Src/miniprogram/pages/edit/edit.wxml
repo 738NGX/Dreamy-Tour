@@ -183,7 +183,7 @@
                         wx:key="index"
                         wx:for-index="j"
                         class="card {{editingLocation.expenses[i].tag == j ? 'card--active' : ''}}"
-                        style="background-color: #{{item.color}};"
+                        style="background-color: \#{{item.color}};"
                       >
                         <t-icon
                           wx:if="{{editingLocation.expenses[i].tag == j}}"
@@ -194,7 +194,7 @@
                           value="{{item.value}}"
                           label="{{j}}"
                           icon="none"
-                          style="background-color: #{{item.color}};"
+                          style="background-color: \#{{item.color}};"
                           borderless
                         />
                       </view>
@@ -337,7 +337,7 @@
               style="margin:0 10rpx;"
             />
             <view style="width: 90%;">
-              开始时间:{{currentTour.locations[0].startDateStr}}
+              开始时间:{{currentStartDateStrList[0]}}
             </view>
             <t-button
               size="large"
@@ -357,7 +357,7 @@
               style="margin:0 10rpx;"
             />
             <view style="width: 90%;">
-              结束时间:{{currentTour.locations[0].endDateStr}}
+              结束时间:{{currentEndDateStrList[0]}}
             </view>
             <t-button
               size="large"
@@ -377,7 +377,7 @@
               style="margin:0 10rpx;"
             />
             <view style="width: 90%;">
-              时区:{{currentTour.locations[0].timezone}}
+              时区:{{currentTimezoneStrList[0]}}
             </view>
             <t-button
               size="large"
@@ -448,7 +448,7 @@
                 style="margin:0 10rpx;"
               />
               <view style="width:90%;">
-                交通时长:{{item.durationStr}}
+                交通时长:{{currentDurationStrList[i]}}
               </view>
               <t-button
                 size="large"
@@ -546,7 +546,7 @@
                 style="margin:0 10rpx;"
               />
               <view style="width: 90%;">
-                开始时间:{{currentTour.locations[i+1].startDateStr}}
+                开始时间:{{currentStartDateStrList[i+1]}}
               </view>
               <t-button
                 size="large"
@@ -566,7 +566,7 @@
                 style="margin:0 10rpx;"
               />
               <view style="width: 90%;">
-                结束时间:{{currentTour.locations[i+1].endDateStr}}
+                结束时间:{{currentEndDateStrList[i+1]}}
               </view>
               <t-button
                 size="large"
@@ -586,7 +586,7 @@
                 style="margin:0 10rpx;"
               />
               <view style="width: 90%;">
-                时区:{{currentTour.locations[i+1].timezone}}
+                时区:{{currentTimezoneStrList[i+1]}}
               </view>
               <t-button
                 size="large"
@@ -669,8 +669,8 @@
       />
       <view class="row" style="background-color:white;margin:0;padding:20rpx">
         <view class="column" style="width:90%;">
-          <view>出发日期:{{currentTour.startDateStr}}</view>
-          <view>返程日期:{{currentTour.endDateStr}}</view>
+          <view>出发日期:{{currentStartDateStr}}</view>
+          <view>返程日期:{{currentEndDateStr}}</view>
         </view>
         <t-button
           size="large"
@@ -684,7 +684,7 @@
       </view>
       <view class="row" style="background-color:white;margin:0;padding:20rpx">
         <view class="column" style="width:90%;">
-          <view>默认时区:{{currentTour.timezone}}</view>
+          <view>默认时区:{{currentTimezoneStr}}</view>
         </view>
         <t-button
           size="large"

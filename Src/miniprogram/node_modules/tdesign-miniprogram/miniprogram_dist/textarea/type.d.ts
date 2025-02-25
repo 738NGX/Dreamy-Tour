@@ -3,6 +3,10 @@ export interface TdTextareaProps {
         type: BooleanConstructor;
         value?: boolean;
     };
+    allowInputOverMax?: {
+        type: BooleanConstructor;
+        value?: boolean;
+    };
     autofocus?: {
         type: BooleanConstructor;
         value?: boolean;
@@ -46,10 +50,6 @@ export interface TdTextareaProps {
         type: BooleanConstructor;
         value?: boolean;
     };
-    defaultFixed?: {
-        type: BooleanConstructor;
-        value?: boolean;
-    };
     focus?: {
         type: BooleanConstructor;
         value?: boolean;
@@ -78,9 +78,17 @@ export interface TdTextareaProps {
         type: StringConstructor;
         value?: string;
     };
+    placeholderClass?: {
+        type: StringConstructor;
+        value?: string;
+    };
     placeholderStyle?: {
         type: StringConstructor;
         value?: string;
+    };
+    readonly?: {
+        type: BooleanConstructor;
+        value?: boolean;
     };
     selectionEnd?: {
         type: NumberConstructor;

@@ -78,7 +78,7 @@ custom-style | Object | - | 样式，一般用于开启虚拟化组件节点场�
 app-parameter | String | - | 打开 APP 时，向 APP 传递的参数，open-type=launchApp时有效 | N
 block | Boolean | false | 是否为块级元素 | N
 content | String / Slot | - | 按钮内容。[通用类型定义](https://github.com/Tencent/tdesign-miniprogram/blob/develop/src/common/common.ts) | N
-custom-dataset | Object | - | 自定义 dataset，可通过 event.currentTarget.dataset.custom 获取。。TS 类型：`any` | N
+custom-dataset | any | - | 自定义 dataset，可通过 event.currentTarget.dataset.custom 获取 | N
 disabled | Boolean | undefined | 禁用状态。优先级：Button.disabled > Form.disabled | N
 ghost | Boolean | false | 是否为幽灵按钮（镂空按钮） | N
 hover-class | String | - | 指定按钮按下去的样式类，按钮不为加载或禁用状态时有效。当 `hover-class="none"` 时，没有点击态效果 | N
@@ -101,7 +101,7 @@ size | String | medium | 组件尺寸。可选项：extra-small/small/medium/lar
 suffix | Slot | - | 右侧内容，可用于定义右侧图标。[通用类型定义](https://github.com/Tencent/tdesign-miniprogram/blob/develop/src/common/common.ts) | N
 t-id | String | - | 按钮标签id | N
 theme | String | default | 组件风格，依次为品牌色、危险色。可选项：default/primary/danger/light | N
-type | String | - | 同小程序的 formType。。可选项：submit/reset | N
+type | String | - | 同小程序的 formType。可选项：submit/reset | N
 variant | String | base | 按钮形式，基础、线框、虚线、文字。可选项：base/outline/dashed/text | N
 
 ### Button Events
@@ -110,7 +110,6 @@ variant | String | base | 按钮形式，基础、线框、虚线、文字。可
 -- | -- | --
 agreeprivacyauthorization | \- | 原生按钮属性，用户同意隐私协议事件回调，open-type=agreePrivacyAuthorization时有效 （Tips: 如果使用 onNeedPrivacyAuthorization 接口，需要在 bindagreeprivacyauthorization 触发后再调用 resolve({ event: "agree", buttonId })）
 chooseavatar | \- | 原生按钮属性，获取用户头像回调，`open-type=chooseAvatar` 时有效。返回 `e.detail.avatarUrl` 为头像临时文件链接
-click | `(e: MouseEvent)` | 点击时触发
 contact | \- | 原生按钮属性，客服消息回调，`open-type="contact"` 时有效
 createliveactivity | \- | 新的一次性订阅消息下发机制回调，`open-type=liveActivity` 时有效
 error | \- | 原生按钮属性，当使用开放能力时，发生错误的回调，`open-type=launchApp` 时有效
@@ -136,11 +135,11 @@ t-class-loading | 加载样式类
 -- | -- | --
 --td-button-border-radius | @radius-default | - 
 --td-button-border-width | 4rpx | - 
---td-button-danger-active-bg-color | @error-color-7 | - 
---td-button-danger-active-border-color | @error-color-7 | - 
+--td-button-danger-active-bg-color | @error-color-active | - 
+--td-button-danger-active-border-color | @error-color-active | - 
 --td-button-danger-bg-color | @error-color | - 
 --td-button-danger-border-color | @error-color | - 
---td-button-danger-color | @font-white-1 | - 
+--td-button-danger-color | @text-color-anti | - 
 --td-button-danger-dashed-border-color | @button-danger-dashed-color | - 
 --td-button-danger-dashed-color | @error-color | - 
 --td-button-danger-dashed-disabled-color | @button-danger-disabled-color | - 
@@ -148,7 +147,7 @@ t-class-loading | 加载样式类
 --td-button-danger-disabled-border-color | @error-color-3 | - 
 --td-button-danger-disabled-color | @font-white-1 | - 
 --td-button-danger-outline-active-bg-color | @bg-color-container-active | - 
---td-button-danger-outline-active-border-color | @error-color-7 | - 
+--td-button-danger-outline-active-border-color | @error-color-active | - 
 --td-button-danger-outline-border-color | @button-danger-outline-color | - 
 --td-button-danger-outline-color | @error-color | - 
 --td-button-danger-outline-disabled-color | @error-color-3 | - 
@@ -159,14 +158,14 @@ t-class-loading | 加载样式类
 --td-button-default-active-border-color | @bg-color-component-active | - 
 --td-button-default-bg-color | @bg-color-component | - 
 --td-button-default-border-color | @bg-color-component | - 
---td-button-default-color | @font-gray-1 | - 
+--td-button-default-color | @text-color-primary | - 
 --td-button-default-disabled-bg | @bg-color-component-disabled | - 
 --td-button-default-disabled-border-color | @bg-color-component-disabled | - 
---td-button-default-disabled-color | @font-gray-4 | - 
+--td-button-default-disabled-color | @text-color-disabled | - 
 --td-button-default-outline-active-bg-color | @bg-color-container-active | - 
 --td-button-default-outline-active-border-color | @component-border | - 
 --td-button-default-outline-border-color | @component-border | - 
---td-button-default-outline-color | @font-gray-1 | - 
+--td-button-default-outline-color | @text-color-primary | - 
 --td-button-default-outline-disabled-color | @component-border | - 
 --td-button-default-text-active-bg-color | @bg-color-container-active | - 
 --td-button-extra-small-font-size | @font-size-base | - 
@@ -175,12 +174,15 @@ t-class-loading | 加载样式类
 --td-button-extra-small-padding-horizontal | 16rpx | - 
 --td-button-font-weight | 600 | - 
 --td-button-ghost-border-color | @button-ghost-color | - 
---td-button-ghost-color | @bg-color-container | - 
+--td-button-ghost-color | @text-color-anti | - 
 --td-button-ghost-danger-border-color | @error-color | - 
 --td-button-ghost-danger-color | @error-color | - 
---td-button-ghost-disabled-color | rgba(255, 255, 255, 0.35) | - 
+--td-button-ghost-danger-hover-color | @error-color-active | - 
+--td-button-ghost-disabled-color | @font-white-4 | - 
+--td-button-ghost-hover-color | @font-white-2 | - 
 --td-button-ghost-primary-border-color | @brand-color | - 
 --td-button-ghost-primary-color | @brand-color | - 
+--td-button-ghost-primary-hover-color | @brand-color-active | - 
 --td-button-icon-border-radius | 8rpx | - 
 --td-button-icon-spacer | @spacer | - 
 --td-button-large-font-size | @font-size-m | - 
@@ -211,13 +213,13 @@ t-class-loading | 加载样式类
 --td-button-primary-active-border-color | @brand-color-active | - 
 --td-button-primary-bg-color | @brand-color | - 
 --td-button-primary-border-color | @brand-color | - 
---td-button-primary-color | @font-white-1 | - 
+--td-button-primary-color | @text-color-anti | - 
 --td-button-primary-dashed-border-color | @button-primary-dashed-color | - 
 --td-button-primary-dashed-color | @brand-color | - 
 --td-button-primary-dashed-disabled-color | @brand-color-disabled | - 
 --td-button-primary-disabled-bg | @brand-color-disabled | - 
 --td-button-primary-disabled-border-color | @brand-color-disabled | - 
---td-button-primary-disabled-color | @font-white-1 | - 
+--td-button-primary-disabled-color | @text-color-anti | - 
 --td-button-primary-outline-active-bg-color | @bg-color-container-active | - 
 --td-button-primary-outline-active-border-color | @brand-color-active | - 
 --td-button-primary-outline-border-color | @button-primary-outline-color | - 
@@ -229,4 +231,4 @@ t-class-loading | 加载样式类
 --td-button-small-font-size | @font-size-base | - 
 --td-button-small-height | 64rpx | - 
 --td-button-small-icon-font-size | 36rpx | - 
---td-button-small-padding-horizontal | 24rpx | -
+--td-button-small-padding-horizontal | 24rpx | - 

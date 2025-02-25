@@ -133,8 +133,8 @@ Component({
                 const newTour = new Tour(
                     newId,
                     this.data.newTourName,
-                    new Date(this.data.newTourDate[0]),
-                    new Date(this.data.newTourDate[1]),
+                    this.data.newTourDate[0],
+                    this.data.newTourDate[1],
                     this.data.newTourTimeOffset,
                     this.data.newTourCurrency[0],
                     this.data.newTourCurrency[1],
@@ -222,8 +222,8 @@ Component({
                             tourList.push({
                                 id: tour.id,
                                 title: tour.title,
-                                startDate: tour.startDateStr,
-                                endDate: tour.endDateStr,
+                                startDate: formatDate(tour.startDate),
+                                endDate: formatDate(tour.endDate),
                             });
                             resolve(true);
                         },
