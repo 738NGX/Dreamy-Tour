@@ -53,8 +53,8 @@ userRoute.get('/user/:uid/detail', async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /user/{uid}/detail:
- *   get:
+ * /wx-login:
+ *   post:
  *     tags:
  *       - 用户相关接口
  *     summary: 微信登录接口

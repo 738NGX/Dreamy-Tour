@@ -6,7 +6,8 @@
  * @Last Modified time: 2025-02-25 18:40:34
  */
 
-import VO from "../base/vo"
+import VO from "@/base/vo"
+
 
 /**
  * @swagger
@@ -42,6 +43,10 @@ import VO from "../base/vo"
  *           format: uri
  *           description: 用户头像的 URL 地址
  *           example: https://your.avatar.com
+ *         gender:
+ *           type: string
+ *           description: 性别（女、男、保密）
+ *           example: 保密
  */
 class UserDetailVo extends VO<UserDetailVo> {
   // 用户 id
