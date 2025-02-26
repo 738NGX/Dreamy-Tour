@@ -1,8 +1,6 @@
 {
     "usingComponents": {
-        "navigation-bar": "/components/navigation-bar/navigation-bar",
-        "t-tabs": "tdesign-miniprogram/tabs/tabs",
-        "t-tab-panel": "tdesign-miniprogram/tab-panel/tab-panel",
+        "header": "/components/header/header",
         "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
         "t-button": "tdesign-miniprogram/button/button",
         "t-input": "tdesign-miniprogram/input/input",

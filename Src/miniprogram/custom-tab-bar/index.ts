@@ -11,6 +11,11 @@ Component({
                 label: '主页'
             },
             {
+                value: '/pages/channel/channel',
+                icon: 'chat-double',
+                label: '频道'
+            },
+            {
                 value: '/pages/edit/edit',
                 icon: 'map-edit',
                 label: '编辑行程'
@@ -20,16 +25,16 @@ Component({
                 icon: 'chart-combo',
                 label: '规划结果'
             },
-            {
-                value: '/pages/calculator/calculator',
-                icon: 'calculation',
-                label: '计算器'
-            },
             //{
-            //    value: '/pages/menu/menu',
-            //    icon: 'app',
-            //    label: '更多'
-            //}
+            //    value: '/pages/calculator/calculator',
+            //    icon: 'calculation',
+            //    label: '计算器'
+            //},
+            {
+                value: '/pages/menu/menu',
+                icon: 'app',
+                label: '更多'
+            }
         ]
     },
     //  组件的方法列表
