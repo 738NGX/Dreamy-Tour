@@ -1,6 +1,7 @@
 {
     "pages": [
         "pages/index/index",
+        "pages/channel/channel",
         "pages/edit/edit",
         "pages/report/report",
         "pages/calculator/calculator",
@@ -14,6 +15,10 @@
             {
                 "pagePath": "pages/index/index",
                 "text": "主页"
+            },
+            {
+                "pagePath": "pages/channel/channel",
+                "text": "频道"
             },
             {
                 "pagePath": "pages/edit/edit",

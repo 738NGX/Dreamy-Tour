@@ -1,0 +1,8 @@
+<navigation-bar title="梦·旅" back="{{false}}" color="black" background="#FFF" />
+<block wx:if="{{tabList.length > 0}}">
+  <t-tabs defaultValue="{{0}}" bind:change="onTabChange">
+    <block wx:for="{{tabList}}" wx:key="value">
+      <t-tab-panel icon="{{item.icon}}" label="{{item.label}}" value="{{item.value}}" />
+    </block>
+  </t-tabs>
+</block>
