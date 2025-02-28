@@ -3,14 +3,18 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:36:25 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-02-25 10:02:07
+ * @Last Modified time: 2025-02-28 19:52:36
  */
 import sqlite3 from "sqlite3";
 import path from 'path';
-import { AsyncSQLite } from "../base/asyncSQLite";
-
+import { open } from "sqlite"
 
 const dbPath = path.resolve(process.cwd(), 'database.db');
-const db = new AsyncSQLite(new sqlite3.Database(dbPath));
 
-export default db;
+const dbPromise = open({
+  filename: dbPath,
+  driver: sqlite3.Database
+})
+
+
+export default dbPromise;

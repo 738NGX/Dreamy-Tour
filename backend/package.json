@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node -r tsconfig-paths/register src/index.ts"  
+    "start": "ts-node -r tsconfig-paths/register src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,8 +16,10 @@
     "express": "^4.21.2",
     "express-async-errors": "^3.1.1",
     "http-status-codes": "^2.3.0",
+    "jsonwebtoken": "^9.0.2",
     "on-finished": "^2.4.1",
     "reflect-metadata": "^0.2.2",
+    "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
@@ -25,6 +27,7 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.13.5",
     "@types/on-finished": "^2.3.4",
     "@types/sqlite3": "^5.1.0",

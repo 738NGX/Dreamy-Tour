@@ -6,8 +6,8 @@
  * @Last Modified time: 2025-02-25 20:19:30
  */
 import { IsInt, Min } from "class-validator";
-import DTO from "../base/dto";
-import { Type } from "class-transformer";
+import { Expose, Type } from "class-transformer";
+import DTO from "@/base/dto";
 
 /**
  * @swagger
@@ -25,6 +25,7 @@ import { Type } from "class-transformer";
  *       description: 查询用户细节所需的参数
  */
 class UserDetailDto extends DTO<UserDetailDto> {
+  @Expose()
   @IsInt({
     message: "用户 ID 必须是整数"
   })

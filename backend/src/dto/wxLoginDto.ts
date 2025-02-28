@@ -6,6 +6,7 @@
  * @Last Modified time: 2025-02-25 20:23:46
  */
 import DTO from "@/base/dto";
+import { Expose, Type } from "class-transformer";
 import { IsNotEmpty } from "class-validator";
 
 
@@ -25,9 +26,11 @@ import { IsNotEmpty } from "class-validator";
  *       description: 微信登录所需要的参数
  */
 class WxLoginDto extends DTO<WxLoginDto> {
+  @Expose()
   @IsNotEmpty({
     message: "授权码不能为空"
   })
+  @Type(() => String)
   code: string  // 授权码
 }
 
