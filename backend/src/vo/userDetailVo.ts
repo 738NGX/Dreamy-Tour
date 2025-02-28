@@ -7,6 +7,7 @@
  */
 
 import VO from "@/base/vo"
+import { Expose } from "class-transformer"
 
 
 /**
@@ -49,23 +50,23 @@ import VO from "@/base/vo"
  *           example: 保密
  */
 class UserDetailVo extends VO<UserDetailVo> {
-  // 用户 id
-  uid: number
+  @Expose()
+  uid: number   // 学号
 
-  // 姓名
-  name: string
+  @Expose()
+  name: string  // 学号
 
-  // 年龄
-  age: number
+  @Expose()
+  age: number   // 年龄
 
-  // 学校名称
-  school: string
+  @Expose()
+  school: string  // 学校名称
 
-  // 头像地址
-  avatarUrl: string
+  @Expose()
+  avatarUrl: string // 头像地址
 
-  // 性别
-  gender: string
+  @Expose()
+  gender: string  // 性别
 }
 
-export default UserDetailVo
+export default UserDetailVo;

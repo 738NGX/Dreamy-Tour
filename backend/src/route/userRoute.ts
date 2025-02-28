@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:44:15 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-02-25 20:25:02
+ * @Last Modified time: 2025-02-28 20:59:03
  */
 
 import express, { Request, Response } from "express"
@@ -12,6 +12,10 @@ import UserDetailDto from "@/dto/userDetailDto";
 import UserService from "@/service/userService";
 import Result from "@/base/result";
 import UnauthorizedError from "@/exception/unauthorizedError";
+import swaggerJSDoc from "swagger-jsdoc";
+import WxLoginDto from "@/dto/wxLoginDto";
+import { StatusCodes } from "http-status-codes";
+import WxLoginVo from "@/vo/wxLoginVo";
 
 
 const userRoute = express.Router();
@@ -75,7 +79,16 @@ userRoute.get('/user/:uid/detail', async (req: Request, res: Response) => {
  *               $ref: '#/components/schemas/UserDetailVo'
  */
 userRoute.post('/wx-login', async (req: Request, res: Response) => {
-  throw new UnauthorizedError();
+  const wxLoginDto = new WxLoginDto(req.body);
+  await wxLoginDto.validate()
+  
+  // 获取微信登录成功后的 token
+  const token = await UserService.wxLogin(wxLoginDto);
+  // 响应 201
+  res.status(StatusCodes.CREATED)
+    .json(plainToInstance(WxLoginVo, {
+      token: token
+    }));
 })
 
 export default userRoute;

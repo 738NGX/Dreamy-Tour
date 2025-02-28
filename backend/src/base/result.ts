@@ -15,7 +15,7 @@ class Result {
   msg: string
 
   // 数据
-  data: object
+  data: any
 
   /**
    * 构造函数

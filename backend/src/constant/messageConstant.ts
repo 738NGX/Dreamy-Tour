@@ -10,7 +10,8 @@ enum MessageConstant {
   PAGE_ON_VACATION = "您访问的页面正在度假⛱️，请稍后再试",
   GHOST_MODE_DETECTED = "👻 检测到隐身状态，请先解除咒语",
   UNIVERSE_RULE_VIOLATION = "🌌 检测到违反宇宙基本法的参数组合",
-  NEED_ELDER_PERMISSION = "🚫 禁区！需要长老权限"
+  NEED_ELDER_PERMISSION = "🚫 禁区！需要长老权限",
+  UNKNOWN_ERROR = "未知异常"
 }
 
 export default MessageConstant;
