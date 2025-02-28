@@ -130,15 +130,15 @@ Component({
             }, async () => {
                 const tourHashMap = this.data.tourHashMap;
                 const newId = this.data.containsTour ? Math.max(...Array.from(tourHashMap.keys())) + 1 : 0;
-                const newTour = new Tour(
-                    newId,
-                    this.data.newTourName,
-                    this.data.newTourDate[0],
-                    this.data.newTourDate[1],
-                    this.data.newTourTimeOffset,
-                    this.data.newTourCurrency[0],
-                    this.data.newTourCurrency[1],
-                );
+                const newTour = new Tour({
+                    id: newId,
+                    title: this.data.newTourName,
+                    startDate: this.data.newTourDate[0],
+                    endDate: this.data.newTourDate[1],
+                    timeOffset: this.data.newTourTimeOffset,
+                    mainCurrency: this.data.newTourCurrency[0],
+                    subCurrency: this.data.newTourCurrency[1],
+                });
                 await newTour.getExchangeRate();
                 tourHashMap.set(newId, 'tour-' + newTour.id);
 

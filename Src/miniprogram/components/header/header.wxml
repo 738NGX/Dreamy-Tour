@@ -1,4 +1,9 @@
-<navigation-bar title="梦·旅" back="{{false}}" color="black" background="#FFF" />
+<block wx:if="{{title.length > 0}}">
+  <t-navbar title="{{title}}" left-arrow/>
+</block>
+<block wx:else>
+  <t-navbar title="梦·旅" />
+</block>
 <block wx:if="{{tabList.length > 0}}">
   <t-tabs defaultValue="{{0}}" bind:change="onTabChange">
     <block wx:for="{{tabList}}" wx:key="value">

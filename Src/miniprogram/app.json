@@ -5,7 +5,8 @@
         "pages/edit/edit",
         "pages/report/report",
         "pages/calculator/calculator",
-        "pages/menu/menu"
+        "pages/menu/menu",
+        "pages/channel-detail/channel-detail"
     ],
     "tabBar": {
         "custom": true,

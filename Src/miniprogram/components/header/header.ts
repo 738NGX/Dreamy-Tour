@@ -1,5 +1,9 @@
 Component({
   properties: {
+    title: {
+      type: String,
+      value: ''
+    },
     tabList: {
       type: Array,
       value: []

@@ -1,0 +1,197 @@
+import {
+  CDN_PATH,
+  PLUGIN_KEY
+} from '../../../config/appConfig';
+if (PLUGIN_KEY) {
+  const QQMapWX = require('../../../components/qqmap-wx-jssdk');
+  const qqmapsdk = new QQMapWX({
+    key: PLUGIN_KEY // 必填
+  });
+  qqmapsdk
+}
+import { Channel } from "../../../utils/channel/channel";
+import { userList } from '../../../utils/testData';
+import { timezoneList } from '../../../utils/tour';
+import { formatDate, formatTime, MILLISECONDS } from "../../../utils/util";
+
+Component({
+  properties: {
+    currentChannel: {
+      type: Object,
+      value: {},
+    },
+  },
+
+  data: {
+    fullFootprints: [] as any[],
+    fullMarkers: [] as any[],
+    footprints: [] as any[],
+    markers: [] as any[],
+    photoSwiperList: [] as any[],
+
+    filterVisible: false,
+    filterDate: [0, 0],
+    filterDateStr: ['', ''],
+    filterMinDate: 0,
+    filterMaxDate: 0,
+
+    rankingVisible: false,
+
+    markerDetailVisible: false,
+    currentPhotoIndex: 0,
+    selectingMarkerInfo: {
+      tourTitle: '',
+      locationTitle: '',
+      time: '',
+      timezone: '',
+    } as any,
+
+    userRankings: [] as any[],
+  },
+
+  lifetimes: {
+    ready() {
+      this.generateFullFootprints();
+      this.generateFullMarkers();
+      this.generateUserRankings();
+    },
+  },
+
+  methods: {
+    generateFullFootprints() {
+      const currentChannel = this.properties.currentChannel as Channel;
+      const sortedTours = currentChannel.tourSaves.sort((a, b) => b.startDate - a.startDate);
+      const footprints = sortedTours.map(tour => {
+        return {
+          title: tour.title,
+          startDate: tour.startDate,
+          endDate: tour.endDate,
+          startDateStr: formatDate(tour.startDate),
+          endDateStr: formatDate(tour.endDate),
+          users: tour.users
+        }
+      });
+      let filterMinDate = new Date().getTime();
+      let filterMaxDate = new Date().getTime() + MILLISECONDS.DAY;
+      if (footprints.length > 0) {
+        filterMinDate = footprints[footprints.length - 1].startDate;
+        filterMaxDate = footprints[0].endDate;
+      }
+      this.setData({
+        fullFootprints: footprints,
+        footprints: footprints,
+        filterMinDate: filterMinDate,
+        filterMaxDate: filterMaxDate,
+        filterDate: [filterMinDate, filterMaxDate],
+        filterDateStr: [formatDate(filterMinDate), formatDate(filterMaxDate)],
+      });
+    },
+    generateFullMarkers() {
+      const currentChannel = this.properties.currentChannel as Channel;
+      const markers = currentChannel.tourSaves.reduce((acc: any[], tour) => {
+        tour.locations.forEach(location => {
+          if (location.photos.length > 0) {
+            acc.push({
+              id: tour.id * 10000 + location.index,
+              latitude: location.latitude,
+              longitude: location.longitude,
+              iconPath: `${CDN_PATH}/Marker1_Activated@3x.png`,
+              width: 30,
+              height: 30,
+              info: {
+                tourTitle: tour.title,
+                locationTitle: location.title,
+                time: formatTime(tour.startDate + location.startOffset, location.timeOffset),
+                timezone: timezoneList.find(timezone => timezone.value == location.timeOffset)?.label,
+              }
+            });
+          }
+        });
+        return acc;
+      }, []);
+      this.setData({ fullMarkers: markers, markers: markers });
+    },
+    generateUserRankings() {
+      const userTourCount: Map<number, number> = new Map();
+
+      this.data.footprints.forEach(tour => {
+        tour.users.forEach((userId: any) => {
+          userTourCount.set(userId, (userTourCount.get(userId) || 0) + 1);
+        });
+      });
+      const rankList = userList.map(user => {
+        const count = userTourCount.get(user.id) || 0;
+        return { rank: 0, name: user.name, count };
+      }).filter(user => user.count > 0);
+      rankList.sort((a, b) => b.count - a.count);
+      rankList.forEach((user, index) => {
+        user.rank = index + 1;
+      });
+      this.setData({ userRankings: rankList });
+    },
+    onRankingVisibleChange(){
+      this.setData({
+        rankingVisible: !this.data.rankingVisible,
+      });
+    },
+    onMarkerDetailVisibleChange(e: any) {
+      let id = e.detail.markerId;
+      if (id === undefined) { id = -1; }
+      this.setData({
+        markerDetailVisible: !this.data.markerDetailVisible,
+      });
+      if (id != -1) {
+        this.setData({
+          currentPhotoIndex: 0,
+          photoSwiperList: this.properties.currentChannel.tourSaves.find(
+            (tour: any) => tour.id == Math.floor(id / 10000))?.locations.find(
+              (location: any) => location.index == id % 10000)?.photos ?? [],
+          selectingMarkerInfo: this.data.markers.find((marker: any) => marker.id == id)?.info ?? {},
+        });
+      }
+    },
+    filterFootprints() {
+      const fullFootprints = this.data.fullFootprints;
+      const filterDate = this.data.filterDate;
+      const footprints = fullFootprints.filter(footprint => {
+        return footprint.startDate <= filterDate[1] && footprint.endDate >= filterDate[0];
+      });
+      this.setData({ footprints: footprints });
+    },
+    filterMarkers() {
+      const fullMarkers = this.data.fullMarkers;
+      const filterDate = this.data.filterDate;
+      const markers = fullMarkers.filter(marker => {
+        const tourId = Math.floor(marker.id / 10000);
+        const locationIndex = marker.id % 10000;
+        const tour = this.properties.currentChannel.tourSaves.find((tour: any) => tour.id == tourId);
+        const location = tour?.locations.find((location: any) => location.index == locationIndex);
+        return tour?.startDate + location?.startOffset <= filterDate[1] && tour?.endDate + location?.endOffset >= filterDate[0];
+      });
+      this.setData({ markers: markers });
+    },
+    handleFilter() {
+      this.setData({ filterVisible: true });
+    },
+    handleFilterConfirm(e: any) {
+      const filterDate = e.detail.value;
+      this.setData({
+        filterDate: filterDate,
+        filterDateStr: [formatDate(filterDate[0]), formatDate(filterDate[1])],
+      });
+      this.filterFootprints();
+      this.filterMarkers();
+      this.generateUserRankings();
+    },
+    clearFilter() {
+      this.setData({
+        filterDate: [this.data.filterMinDate, this.data.filterMaxDate],
+        filterDateStr: [formatDate(this.data.filterMinDate), formatDate(this.data.filterMaxDate)],
+      });
+      this.filterFootprints();
+      this.filterMarkers();
+      this.generateUserRankings();
+    },
+  }
+});
+
