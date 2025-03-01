@@ -1,5 +1,5 @@
 import { evaluateExpression } from "../../utils/calculator";
-import { Currency, currencyList, timezoneList } from "../../utils/tour";
+import { Currency, currencyList, timezoneList } from "../../utils/tour/tour";
 import { exchangeCurrency, formatDate, formatTime, MILLISECONDS } from "../../utils/util";
 
 

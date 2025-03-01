@@ -19,7 +19,9 @@ Component({
   methods: {
     onLoad(options: any) {
       const { channelId } = options;
-      this.setData({ currentChannel: new Channel(channelList.find(channel => channel.id === parseInt(channelId))) });
+      this.setData({ 
+        currentChannel: new Channel(channelList.find(channel => channel.id === parseInt(channelId))),
+      });
     },
     onChildPageChange(e: any) {
       this.setData({ childPage: e.detail.value })
