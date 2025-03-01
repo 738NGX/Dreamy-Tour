@@ -5,7 +5,7 @@ import MessageConstant from "../constant/messageConstant";
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:48:14 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-02-23 23:09:47
+ * @Last Modified time: 2025-03-01 15:11:32
  */
 class Result {
   // 0 错误；1 正确
@@ -44,7 +44,7 @@ class Result {
    * @returns 
    */
   static error(msg: string) {
-    return new this(0, msg, {});
+    return new this(0, msg, null);
   }
 }
 
