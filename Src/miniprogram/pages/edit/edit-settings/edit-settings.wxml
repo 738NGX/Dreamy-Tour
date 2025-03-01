@@ -1,0 +1,38 @@
+<scroll-view class="scrollarea" scroll-y type="list">
+  <t-input label="行程名" placeholder="行程名上限20个字符" value="{{currentTour.title}}" maxlength="{{20}}" bind:blur="handleTitleInput" />
+  <view class="row" style="background-color:white;margin:0;padding:20rpx">
+    <view class="column" style="width:90%">
+      <view>出发日期:{{currentStartDateStr}}</view>
+      <view>返程日期:{{currentEndDateStr}}</view>
+    </view>
+     <t-button size="large" theme="primary" variant="outline" style="width: 10%;" bind:tap="handleCalendar">选择</t-button>
+  </view>
+  <view class="row" style="background-color:white;margin:0;padding:20rpx">
+    <view class="column" style="width:90%;">
+      <view>默认时区:{{currentTimezoneStr}}</view>
+    </view>
+    <t-button size="large" theme="primary" variant="outline" style="width: 10%;" bind:tap="handleTourTimezoneSelector">选择</t-button>
+  </view>
+  <t-calendar visible="{{calendarVisible}}" value="{{currentDateRange}}" minDate="{{minDate}}" maxDate="{{maxDate}}" bind:confirm="handleCalendarConfirm" type="range" />
+  <t-picker visible="{{timezoneVisible}}" value="{{[selectingTimeOffset]}}" title="选择时区" cancelBtn="取消" confirmBtn="确认" usingCustomNavbar bindchange="onTourTimezonePickerChange" bindpick="onTimezoneColumnChange" bindcancel="onTimezonePickerCancel">
+    <t-picker-item options="{{timezoneList}}"></t-picker-item>
+  </t-picker>
+  <view class="row" style="background-color:white;margin:0;padding:20rpx">
+    <view class="column" style="width:90%;">
+      <view>主货币:{{currencyList[currentTour.mainCurrency].label}}</view>
+      <view>辅货币:{{currencyList[currentTour.subCurrency].label}}</view>
+    </view>
+    <t-button size="large" theme="primary" variant="outline" style="width: 10%;" bind:tap="exchangeTourCurrency">交换</t-button>
+  </view>
+  <view class="row" style="background-color:white;margin:0;padding:20rpx">
+    <view class="column" style="width:90%;">汇率:1{{currencyList[currentTour.subCurrency].symbol}}=
+      {{currentTour.currencyExchangeRate}}
+      {{currencyList[currentTour.mainCurrency].symbol}}</view>
+    <t-button size="large" theme="primary" variant="outline" style="width: 10%;" bind:tap="getCurrencyExchangeRate">获取</t-button>
+  </view>
+  <t-input label="指定汇率" placeholder="0.00" align="right" type="digit" value="{{currentTour.currencyExchangeRate}}" bind:blur="onTourCurrencyExchangeRateInput" tips="{{priceError ? '请输入正确的汇率' : ''}}" t-class-tips="tips" />
+  <view class="row" style="background-color:white;margin:0;padding:20rpx">
+    <view class="column" style="width:90%;">导出当前行程到剪切板</view>
+    <t-button size="large" theme="primary" variant="outline" style="width: 10%;" bind:tap="exportTourToClipboard">导出</t-button>
+  </view>
+</scroll-view>

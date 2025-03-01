@@ -28,14 +28,6 @@
             {
                 "pagePath": "pages/report/report",
                 "text": "规划报告"
-            },
-            {
-                "pagePath": "pages/calculator/calculator",
-                "text": "计算器"
-            },
-            {
-                "pagePath": "pages/menu/menu",
-                "text": "更多"
             }
         ]
     },
