@@ -1,4 +1,5 @@
-import { Currency, Tour, currencyList } from '../../utils/tour';
+import { Currency, currencyList } from '../../utils/tour/expense';
+import { Tour } from '../../utils/tour/tour';
 import { formatDate, MILLISECONDS } from '../../utils/util';
 
 const app = getApp<IAppOption>();

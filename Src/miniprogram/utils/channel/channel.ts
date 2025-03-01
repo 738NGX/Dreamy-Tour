@@ -1,5 +1,3 @@
-import { Tour } from "../tour";
-
 export enum ChannelLevel { S, A, B, C }
 
 export const channelLevelInfo = {
@@ -14,12 +12,10 @@ export class Channel {
   name: string;
   description: string;
   level: ChannelLevel;
-  tourSaves: Tour[] = [];
   constructor(data: any) {
-      this.id = data.id ?? -1;
-      this.name = data.name ?? '新频道';
-      this.description = data.description ?? '这是一个新频道';
-      this.level = data.level ?? ChannelLevel.C;
-      this.tourSaves = data.tourSaves ?? [];
+    this.id = data.id ?? -1;
+    this.name = data.name ?? '新频道';
+    this.description = data.description ?? '这是一个新频道';
+    this.level = data.level ?? ChannelLevel.C;
   }
 }

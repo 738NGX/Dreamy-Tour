@@ -1,0 +1,22 @@
+<header class="custom-navbar" title="帖子" tabList="{{[]}}" />
+<swiper class="swiper-container" style="height: {{maxHeight}}px;">
+  <swiper-item class="swiper-item" wx:for="{{currentPost.photos}}" wx:key="id">
+    <image class="swiper-image" src="{{item.value}}" mode="widthFix" bindload="onImageLoad" data-index="{{index}}" />
+  </swiper-item>
+</swiper>
+<view class="post-content">
+  <view class="post-title">
+    <text>{{ currentPost.isSticky ? '[置顶]' + currentPost.title : currentPost.title }}</text>
+  </view>
+  <view class="post-content-text">
+    <text>{{ currentPost.content }}</text>
+  </view>
+  <view class="post-meta">
+    <t-avatar class="avatar-example" t-class-content="external-class-content" size="24px">{{ author[0] }}</t-avatar>
+    <text class="username">{{ author }}</text>
+    <view class="timestr">
+      <t-icon name="time" size="18" style="margin-right:10rpx;" />
+      {{ timeStr }}
+    </view>
+  </view>
+</view>

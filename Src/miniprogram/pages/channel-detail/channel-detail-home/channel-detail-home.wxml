@@ -8,10 +8,12 @@
   </scroll-view>
 </t-popup>
 <t-popup style="width:80vw; border-radius: 15rpx; padding:10rpx;" visible="{{rankingVisible}}" usingCustomNavbar bind:visible-change="onRankingVisibleChange" placement="center">
-  <view class="wrapper wrapper__left">旅行排行</view>
-  <block wx:if="{{userRankings.length>0}}" wx:for="{{userRankings}}" wx:key="index" wx:for-index="i">
-    <t-cell title="{{item.name}}" note="{{item.count}}次" leftIcon="numbers-{{item.rank}}" />
-  </block>
+  <scroll-view class="scrollarea" style="height:40vh;" scroll-y type="list">
+    <view class="wrapper wrapper__left">旅行排行</view>
+    <block wx:if="{{userRankings.length>0}}" wx:for="{{userRankings}}" wx:key="index" wx:for-index="i">
+      <t-cell title="{{item.name}}" note="{{item.count}}次" leftIcon="numbers-{{item.rank}}" />
+    </block>
+  </scroll-view>
 </t-popup>
 <t-calendar visible="{{filterVisible}}" value="{{filterDate}}" minDate="{{filterMinDate}}" maxDate="{{filterMaxDate}}" type="range" bind:confirm="handleFilterConfirm" />
 <!-- 正式页面 -->

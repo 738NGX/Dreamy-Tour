@@ -2,6 +2,7 @@ import {
   CDN_PATH,
   PLUGIN_KEY
 } from '../config/appConfig';
+import { Currency, currencyList, expenseList, ExpenseType } from './tour/expense';
 if (PLUGIN_KEY) {
   const QQMapWX = require('../components/qqmap-wx-jssdk');
   const qqmapsdk = new QQMapWX({
@@ -9,7 +10,7 @@ if (PLUGIN_KEY) {
   });
   qqmapsdk
 }
-import { Tour, Currency, currencyList, expenseList, ExpenseType } from './tour';
+import { Tour } from './tour/tour';
 import { formatDate, getChartData } from './util';
 
 export class Reporter {
