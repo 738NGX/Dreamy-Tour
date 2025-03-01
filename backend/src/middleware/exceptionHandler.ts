@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import Result from "@/base/result";
+import Result from "@/vo/result";
 import ParamsError from "@/exception/paramsError";
 import UnauthorizedError from "@/exception/unauthorizedError";
 import ForbiddenError from "@/exception/forbiddenError";
