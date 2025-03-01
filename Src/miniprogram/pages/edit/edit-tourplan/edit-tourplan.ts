@@ -9,7 +9,10 @@ if (PLUGIN_KEY) {
     });
     qqmapsdk
 }
-import { currencyList, transportList, expenseList, tagList, timezoneList, Tour, Location, TransportExpense, Transportation } from '../../../utils/tour';
+import { Location,  Transportation } from '../../../utils/tour/tourNode';
+import { Tour } from '../../../utils/tour/tour';
+import { currencyList, transportList, expenseList, tagList, TransportExpense } from '../../../utils/tour/expense';
+import { timezoneList } from '../../../utils/tour/timezone';
 import { MILLISECONDS, formatDate, formatNumber, formatTime, timeToMilliseconds } from '../../../utils/util';
 
 const app = getApp<IAppOption>();

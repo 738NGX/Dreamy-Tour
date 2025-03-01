@@ -1,4 +1,3 @@
-
 const app = getApp<IAppOption>();
 
 Component({

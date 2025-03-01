@@ -1,4 +1,4 @@
-import { Tour } from '../../../utils/tour';
+import { Tour } from '../../../utils/tour/tour';
 import { formatDate } from '../../../utils/util';
 
 const app = getApp<IAppOption>();
@@ -38,9 +38,11 @@ Component({
   methods: {
         //更新组件展示信息
         refreshData(){
-          this.updateTourHashMap();
-          console.log("currenttourlist:",app.globalData.tourList)
+          this.updateTourHashMap().then(() => {
+          this.updateTourList();
           this.setData({ tourList: app.globalData.tourList });
+          console.log("currenttourlist:",app.globalData.tourList)
+        })
         },
         //同步更新组件内tourhashmap
         updateTourHashMap() {
