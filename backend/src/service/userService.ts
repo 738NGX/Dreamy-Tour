@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-02-28 20:54:03
+ * @Last Modified time: 2025-03-01 21:35:54
  */
 import UserDetailVo from "@/vo/userDetailVo";
 import User from "@/entity/user";
@@ -15,6 +15,7 @@ import JwtUtil from "@/util/jwtUtil";
 import dbPromise from "@/config/databaseConfig";
 import UserConstant from "@/constant/userConstant";
 import { Database } from "sqlite";
+import WxLoginVo from "@/vo/wxLoginVo";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
@@ -38,11 +39,11 @@ class UserService {
    * @param wxLoginDto 微信登录需要的参数（授权码）
    * @returns token
    */
-  static async wxLogin(wxLoginDto: WxLoginDto): Promise<string> {
+  static async wxLogin(wxLoginDto: WxLoginDto): Promise<WxLoginVo> {
     // 调用微信接口，获取用户的 openid
     const url = new URL('https://api.weixin.qq.com/sns/jscode2session');
-    url.searchParams.append('appid', AppConstant.appId);
-    url.searchParams.append('secret', AppConstant.appSecret);
+    url.searchParams.append('appid', AppConstant.APP_ID);
+    url.searchParams.append('secret', AppConstant.APP_SECRET);
     url.searchParams.append('js_code', wxLoginDto.code);
     url.searchParams.append('grant_type', 'authorization_code');
     const res = await fetch(url.toString());
@@ -65,13 +66,19 @@ class UserService {
 
     // 如果存在，根据 uid 返回 token
     if (typeof uid !== 'undefined') {
-      return JwtUtil.generateByUid(uid);
+      return new WxLoginVo({
+        openid: openid,
+        token: JwtUtil.generateByUid(uid)
+      })
     }
 
     // 如果不存在，新增一个用户，返回 token
     uid = await this.createUser(db, openid);
     if (typeof uid === 'number') {
-      return JwtUtil.generateByUid(uid);
+      return new WxLoginVo({
+        openid: openid,
+        token: JwtUtil.generateByUid(uid)
+      })
     } else {
       throw new Error("用户 ID 生成异常");
     }

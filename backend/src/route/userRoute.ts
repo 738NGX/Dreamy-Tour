@@ -3,92 +3,45 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:44:15 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-02-28 20:59:03
+ * @Last Modified time: 2025-03-01 21:32:34
  */
 
 import express, { Request, Response } from "express"
-import { plainToInstance } from "class-transformer";
-import UserDetailDto from "@/dto/userDetailDto";
 import UserService from "@/service/userService";
-import Result from "@/base/result";
-import UnauthorizedError from "@/exception/unauthorizedError";
-import swaggerJSDoc from "swagger-jsdoc";
+import Result from "@/vo/result";
 import WxLoginDto from "@/dto/wxLoginDto";
 import { StatusCodes } from "http-status-codes";
-import WxLoginVo from "@/vo/wxLoginVo";
+import JwtUtil from "@/util/jwtUtil";
+import AuthConstant from "@/constant/authConstant";
 
 
 const userRoute = express.Router();
 
 /**
- * @swagger
- * /user/{uid}/detail:
- *   get:
- *     tags:
- *       - 用户相关接口
- *     summary: 获取用户详情
- *     description: 返回用户的详细信息，包括用户 ID、姓名、年龄、学校名称和头像地址。
- *     parameters:
- *       - in: path
- *         name: uid
- *         schema:
- *           $ref: '#/components/schemas/UserDetailDto'
- *         required: true
- *         description: 用户唯一标识符 (UID)
- *     responses:
- *       200:
- *         description: 成功返回用户详情
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/UserDetailVo'
+ * [GET] 获取用户的详情信息
+ * @path /user/:uid/detail
  */
-userRoute.get('/user/:uid/detail', async (req: Request, res: Response) => {
-  // 将前端传来的参数转成 DTO 对象
-  const userDetailDto = plainToInstance(UserDetailDto, req.params);
-  // 参数校验
-  await userDetailDto.validate();
-
+userRoute.get('/user/detail', async (req: Request, res: Response) => {
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);  // 经过拦截器处理之后，剩下来的请求中一定包含 token，因此断言为 string
   // 接受来自业务层的处理完成的视图对象
-  const userDetailVo = await UserService.getUserDetailByUid(userDetailDto.uid);
+  const userDetailVo = await UserService.getUserDetailByUid(uid);
   res.json(Result.success(userDetailVo));
 })
 
-
 /**
- * @swagger
- * /wx-login:
- *   post:
- *     tags:
- *       - 用户相关接口
- *     summary: 微信登录接口
- *     description: 通过授权码进行微信登录
- *     parameters:
- *       - in: path
- *         name: code
- *         schema:
- *           $ref: '#/components/schemas/WxLoginDto'
- *         required: true
- *         description: 
- *     responses:
- *       201:
- *         description: 登录成功
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/UserDetailVo'
+ * [POST] 微信登录，如果之前没注册过会自动注册
+ * @path /wx-login
  */
 userRoute.post('/wx-login', async (req: Request, res: Response) => {
   const wxLoginDto = new WxLoginDto(req.body);
   await wxLoginDto.validate()
   
   // 获取微信登录成功后的 token
-  const token = await UserService.wxLogin(wxLoginDto);
+  const wxLoginVo = await UserService.wxLogin(wxLoginDto);
   // 响应 201
   res.status(StatusCodes.CREATED)
-    .json(plainToInstance(WxLoginVo, {
-      token: token
-    }));
+    .json(Result.success(wxLoginVo));
 })
 
 export default userRoute;

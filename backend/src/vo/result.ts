@@ -1,12 +1,14 @@
-import MessageConstant from "../constant/messageConstant";
-
 /*
  * 统一 RESTful 接口的响应格式
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:48:14 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-02-23 23:09:47
+ * @Last Modified time: 2025-03-01 20:48:47
  */
+
+import MessageConstant from "@/constant/messageConstant";
+
+
 class Result {
   // 0 错误；1 正确
   code: number
@@ -44,7 +46,7 @@ class Result {
    * @returns 
    */
   static error(msg: string) {
-    return new this(0, msg, {});
+    return new this(0, msg, null);
   }
 }
 

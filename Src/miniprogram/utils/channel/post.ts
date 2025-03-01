@@ -1,0 +1,34 @@
+import { Photo } from "../tour/photo";
+
+export class Post {
+  id: number;
+  title: string;
+  content: string;
+  linkedChannel: number;
+  user: number;
+  time: number;
+  likes: number[];
+  photos: Photo[];
+  isSticky: boolean;
+  constructor(data: any) {
+    this.id = data.id ?? -1;
+    this.title = data.title ?? '新帖子';
+    this.content = data.content ?? '';
+    this.linkedChannel = data.linkedChannel ?? -1;
+    this.user = data.user ?? -1;
+    this.time = data.time ?? Date.now();
+    this.likes = data.likes ?? [];
+    this.photos = data.photos ? data.photos.map((photo: any) => new Photo(photo)) : [];
+    this.isSticky = data.isSticky ?? false;
+  }
+}
+
+export class Comment extends Post {
+  linkedPost: number;
+  parentComment: number;
+  constructor(data: any) {
+    super(data);
+    this.linkedPost = data.linkedPost ?? -1;
+    this.parentComment = data.parentComment ?? -1;
+  }
+}

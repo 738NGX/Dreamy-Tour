@@ -1,5 +1,5 @@
 import { Reporter } from '../../utils/reporter';
-import { Tour, currencyList } from '../../utils/tour';
+import { Tour, currencyList } from '../../utils/tour/tour';
 
 const app = getApp<IAppOption>();
 

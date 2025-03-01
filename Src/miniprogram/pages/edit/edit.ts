@@ -1,5 +1,3 @@
-import { timezoneList, Tour, Transportation } from '../../utils/tour';
-import { MILLISECONDS, formatDate, formatTime, } from '../../utils/util';
 
 const app = getApp<IAppOption>();
 

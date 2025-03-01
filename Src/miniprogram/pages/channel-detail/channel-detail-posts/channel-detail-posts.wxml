@@ -1,0 +1,30 @@
+<view class="example-search">
+  <t-search placeholder="搜索帖子" bind:change="onSearch" />
+</view><scroll-view class="scrollarea" style="height:75vh;" scroll-y type="list">
+  <view class="post-list">
+    <view class="post-grid">
+      <block wx:for="{{searchedPosts}}" wx:key="id" wx:for-index="i">
+        <view class="post-card" bindtap="handlePostDetail" data-index="{{item.id}}">
+          <!-- 文章图片 -->
+          <image class="post-image" wx:if="{{item.photos.length > 0}}" src="{{item.photos[0].value}}" mode="widthFix" />
+          <!-- 文章信息 -->
+          <view class="post-info">
+            <view class="post-title">
+              <text>{{ item.isSticky ? '[置顶]' + item.title : item.title }}</text>
+            </view>
+          </view>
+          <!-- 用户信息 + 点赞 -->
+          <view class="post-meta">
+            <t-avatar class="avatar-example" t-class-content="external-class-content" size="24px">{{ usernameList[i][0] }}</t-avatar>
+            <text class="username">{{ usernameList[i] }}</text>
+            <view class="likes">
+              <t-icon name="heart" size="16" style="margin-right:10rpx;"/>
+              {{ item.likes.length }}
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+</scroll-view>
+<t-fab icon="add" bind:click="handlePost"></t-fab>

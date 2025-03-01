@@ -3,11 +3,11 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-28 14:06:39 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-02-28 15:21:09
+ * @Last Modified time: 2025-03-01 18:33:16
  */
-enum AppConstant {
-  appId = "wx6c0d5ae365e9b82d",
-  appSecret = "4dc9a166948e23b1a347abbfe8ecbda0"
+class AppConstant {
+  static readonly APP_ID = "wx6c0d5ae365e9b82d";
+  static readonly APP_SECRET = "4dc9a166948e23b1a347abbfe8ecbda0";
 }
 
 export default AppConstant;

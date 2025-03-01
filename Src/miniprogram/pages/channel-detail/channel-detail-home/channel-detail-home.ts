@@ -10,8 +10,10 @@ if (PLUGIN_KEY) {
   qqmapsdk
 }
 import { Channel } from "../../../utils/channel/channel";
-import { userList } from '../../../utils/testData';
-import { timezoneList } from '../../../utils/tour';
+import { tourList, userList } from '../../../utils/testData';
+import { timezoneList } from '../../../utils/tour/timezone';
+import { Tour, TourStatus } from '../../../utils/tour/tour';
+import { Location } from '../../../utils/tour/tourNode';
 import { formatDate, formatTime, MILLISECONDS } from "../../../utils/util";
 
 Component({
@@ -23,6 +25,7 @@ Component({
   },
 
   data: {
+    tourSaves: [] as any[],
     fullFootprints: [] as any[],
     fullMarkers: [] as any[],
     footprints: [] as any[],
@@ -51,6 +54,7 @@ Component({
 
   lifetimes: {
     ready() {
+      this.generateTourSaves();
       this.generateFullFootprints();
       this.generateFullMarkers();
       this.generateUserRankings();
@@ -58,10 +62,16 @@ Component({
   },
 
   methods: {
-    generateFullFootprints() {
+    generateTourSaves() {
       const currentChannel = this.properties.currentChannel as Channel;
-      const sortedTours = currentChannel.tourSaves.sort((a, b) => b.startDate - a.startDate);
-      const footprints = sortedTours.map(tour => {
+      const tourSaves = (tourList as unknown as Tour[])
+        .map(tour => new Tour(tour))
+        .filter(tour => tour.linkedChannel == currentChannel.id && tour.status == TourStatus.Finished && tour.channelVisible)
+        .sort((a: any, b: any) => b.startDate - a.startDate);
+      this.setData({ tourSaves: tourSaves });
+    },
+    generateFullFootprints() {
+      const footprints = this.data.tourSaves.map(tour => {
         return {
           title: tour.title,
           startDate: tour.startDate,
@@ -87,9 +97,8 @@ Component({
       });
     },
     generateFullMarkers() {
-      const currentChannel = this.properties.currentChannel as Channel;
-      const markers = currentChannel.tourSaves.reduce((acc: any[], tour) => {
-        tour.locations.forEach(location => {
+      const markers = this.data.tourSaves.reduce((acc: any[], tour) => {
+        tour.locations.forEach((location: Location) => {
           if (location.photos.length > 0) {
             acc.push({
               id: tour.id * 10000 + location.index,
@@ -129,7 +138,7 @@ Component({
       });
       this.setData({ userRankings: rankList });
     },
-    onRankingVisibleChange(){
+    onRankingVisibleChange() {
       this.setData({
         rankingVisible: !this.data.rankingVisible,
       });
@@ -143,7 +152,7 @@ Component({
       if (id != -1) {
         this.setData({
           currentPhotoIndex: 0,
-          photoSwiperList: this.properties.currentChannel.tourSaves.find(
+          photoSwiperList: this.data.tourSaves.find(
             (tour: any) => tour.id == Math.floor(id / 10000))?.locations.find(
               (location: any) => location.index == id % 10000)?.photos ?? [],
           selectingMarkerInfo: this.data.markers.find((marker: any) => marker.id == id)?.info ?? {},
@@ -164,7 +173,7 @@ Component({
       const markers = fullMarkers.filter(marker => {
         const tourId = Math.floor(marker.id / 10000);
         const locationIndex = marker.id % 10000;
-        const tour = this.properties.currentChannel.tourSaves.find((tour: any) => tour.id == tourId);
+        const tour = this.data.tourSaves.find((tour: any) => tour.id == tourId);
         const location = tour?.locations.find((location: any) => location.index == locationIndex);
         return tour?.startDate + location?.startOffset <= filterDate[1] && tour?.endDate + location?.endOffset >= filterDate[0];
       });

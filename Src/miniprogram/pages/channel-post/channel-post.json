@@ -1,0 +1,8 @@
+{
+  "usingComponents": {
+    "header": "/components/header/header",
+    "t-swiper": "tdesign-miniprogram/swiper/swiper",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar",
+    "t-icon": "tdesign-miniprogram/icon/icon"
+  }
+}

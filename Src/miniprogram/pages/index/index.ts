@@ -1,4 +1,5 @@
-import { Currency, Tour, currencyList } from '../../utils/tour';
+import { Currency, currencyList } from '../../utils/tour/expense';
+import { Tour } from '../../utils/tour/tour';
 import { formatDate, MILLISECONDS } from '../../utils/util';
 
 const app = getApp<IAppOption>();
@@ -51,6 +52,13 @@ Component({
     },
     methods: {
         onLoad() {
+          wx.request({
+            url: 'https://www.mastercard.com.cn/settlement/currencyrate/conversion-rate',
+            method: 'GET',
+            success: (res) => {
+              console.log(res.data);
+            }
+          })
             this.setData({
                 tourHashMap: new Map<number, string>(),
                 subCurrencies: currencyList.filter(currency => currency.value !== this.data.newTourCurrency[0]),
