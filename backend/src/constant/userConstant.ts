@@ -3,16 +3,23 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-28 20:12:10 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-02-28 20:50:38
+ * @Last Modified time: 2025-03-01 16:16:02
  */
-enum UserConstant {
-  FEMALE = 0,
-  MALE = 1,
-  CONFIDENTIAL = 2,
-  DEFAULT_RANK = 0,
-  DEFAULT_AVATAR_URL = 'http://default.avatar.com',
-  STATUS_ENABLE = 0,
-  STATUS_DISABLE = 1
+class UserConstant {
+  // 女性
+  static readonly FEMALE = 0;
+  // 男性
+  static readonly MALE = 1;
+  // 性别保密
+  static readonly CONFIDENTIAL = 2;
+  // 默认的用户等级
+  static readonly DEFAULT_RANK = 0;
+  // 默认的用户头像
+  static readonly DEFAULT_AVATAR_URL = 'http://default.avatar.com';
+  // 启用状态
+  static readonly STATUS_ENABLE = 0;
+  // 禁用状态
+  static readonly STATUS_DISABLE = 1;
 }
 
 export default UserConstant;
