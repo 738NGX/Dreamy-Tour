@@ -53,23 +53,9 @@ Component({
 
     },
     attached() {
-            this.setData({
-                tourHashMap: new Map<number, string>(),
-                subCurrencies: currencyList.filter(currency => currency.value !== this.data.newTourCurrency[0]),
-            });
-            wx.getStorage({
-                key: 'tourHashMap',
-                success: (res) => {
-                    this.setData({ tourHashMap: new Map(res.data) });
-                    this.updateTourList();
-                },
-            })
-            this.setData({ tourList: app.globalData.tourList });
-            const displayTourList = this.data.tourList.map((tour: any) => {
-                return { label: tour.title, value: tour.id };
-            });
-            this.setData({ displayTourList: displayTourList });
-            },
+           this.updateTourHashMap();
+           this.updateTourList();
+    },
     
     moved() {
 
