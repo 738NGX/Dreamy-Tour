@@ -11,23 +11,32 @@ import { Expose } from "class-transformer"
 
 
 class UserDetailVo extends VO<UserDetailVo> {
-  @Expose()
-  uid: number   // 学号
+  // 用户 ID
+  uid: number
 
-  @Expose()
-  name: string  // 学号
+  // 用户名
+  nickname: string
 
-  @Expose()
-  age: number   // 年龄
+  // 性别（女 / 男 / 保密）
+  gender: string
 
-  @Expose()
-  school: string  // 学校名称
+  // 头像地址
+  avatarUrl: string
 
-  @Expose()
-  avatarUrl: string // 头像地址
+  // 邮箱
+  email: string
 
-  @Expose()
-  gender: string  // 性别
+  // 手机号
+  phone: string
+
+  // 个性签名
+  signature: string
+
+  // 生日
+  birthday: string
+
+  // 等级
+  rank: number
 }
 
 export default UserDetailVo;

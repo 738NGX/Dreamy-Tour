@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:48:14 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-01 20:48:47
+ * @Last Modified time: 2025-03-02 15:11:50
  */
 
 import MessageConstant from "@/constant/messageConstant";
@@ -31,14 +31,25 @@ class Result {
     this.data = data;
   }
 
+  static success(data: any): Result;
+  static success(msg: string): Result;
+  static success(msg: string, data: any): Result;
+
   /**
    * 成功响应
    * @param data 响应数据
    * @returns 
    */
-  static success(data: any) {
-    return new this(1, MessageConstant.SUCCESSFUL_RETURN, data);
+  static success(dataOrMsg: any, dataOrUndefined?: any): Result {
+    if (typeof dataOrUndefined !== 'undefined') {
+      return new this(1, dataOrMsg, dataOrUndefined);
+    }
+    if (typeof dataOrMsg === 'string') {
+      return new this(1, dataOrMsg, null);
+    }
+    return new this(1, MessageConstant.SUCCESSFUL_RETURN, dataOrMsg);
   }
+
 
   /**
    * 失败响应

@@ -28,14 +28,20 @@ class User {
   // 手机号
   phone: string
 
-  // 学校
-  school: string
+  // 个性签名
+  signature: string
+
+  // 生日
+  birthday: string
 
   // 等级
   rank: number
 
-  // 启用/禁用
+  // 启用 0 / 禁用 1
   status: number
+
+  // 上次登录时间
+  lastLoginAt: Date
 
   // 创建时间
   createdAt: number
