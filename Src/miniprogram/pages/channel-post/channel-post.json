@@ -3,6 +3,10 @@
     "header": "/components/header/header",
     "t-swiper": "tdesign-miniprogram/swiper/swiper",
     "t-avatar": "tdesign-miniprogram/avatar/avatar",
-    "t-icon": "tdesign-miniprogram/icon/icon"
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-popup": "tdesign-miniprogram/popup/popup",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "t-tag": "tdesign-miniprogram/tag/tag"
   }
 }

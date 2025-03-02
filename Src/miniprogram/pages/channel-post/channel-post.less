@@ -14,7 +14,7 @@
 }
 
 .avatar-example:not(:last-child) {
-  margin-right: 10rpx;
+  margin-right: 20rpx;
 }
 
 .external-class-content {
@@ -27,28 +27,73 @@
   background-color: #fff;
   font-size: large;
   font-weight: bold;
-  padding: 20rpx;
+  padding: 30rpx;
 }
 
 .post-content-text {
   background-color: #fff;
-  padding: 20rpx;
+  padding: 0rpx 30rpx;
 }
 
 .post-meta {
   display: flex;
   align-items: center;
-  padding: 20rpx;
+  padding: 30rpx;
   background-color: #fff;
-  border-bottom: 1px solid #f0f0f0;
-  color: #666;
+  border-bottom: 2px solid #eee;
 }
 
 .username {
   flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .timestr {
   display: flex;
   align-items: center;
+  color: #bbb;
+}
+
+.likes {
+  display: flex;
+  align-items: center;
+  margin-right: 30rpx;
+}
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 20rpx 0rpx;
+  background-color: #fff;
+  border-top: 2px solid #eee;
+}
+
+.bottom-bar-input {
+  background-color: #eee !important;
+  color: #bbb !important;
+  width: 65%;
+  justify-content: left !important;
+  font-weight: normal !important;
+  margin-left:30rpx !important;
+}
+
+.comment-item {
+  width: 100%;
+  display: flex;
+  align-items: top;
+  padding: 20rpx 30rpx;
+  background-color: #fff;
+}
+
+.comment-like {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content:flex-start;
+  margin-top: 20rpx;
 }

@@ -1,22 +1,95 @@
+<wxs module="util" src="../../utils/util.wxs"></wxs>
 <header class="custom-navbar" title="帖子" tabList="{{[]}}" />
-<swiper class="swiper-container" style="height: {{maxHeight}}px;">
-  <swiper-item class="swiper-item" wx:for="{{currentPost.photos}}" wx:key="id">
-    <image class="swiper-image" src="{{item.value}}" mode="widthFix" bindload="onImageLoad" data-index="{{index}}" />
-  </swiper-item>
-</swiper>
-<view class="post-content">
-  <view class="post-title">
-    <text>{{ currentPost.isSticky ? '[置顶]' + currentPost.title : currentPost.title }}</text>
-  </view>
-  <view class="post-content-text">
-    <text>{{ currentPost.content }}</text>
-  </view>
-  <view class="post-meta">
-    <t-avatar class="avatar-example" t-class-content="external-class-content" size="24px">{{ author[0] }}</t-avatar>
-    <text class="username">{{ author }}</text>
-    <view class="timestr">
-      <t-icon name="time" size="18" style="margin-right:10rpx;" />
-      {{ timeStr }}
+<t-popup style="height:50vh;" visible="{{repliesVisible}}" usingCustomNavbar bind:visible-change="handleRepliesDetail" placement="bottom">
+  <t-cell bind:click="handleRepliesSort" title="共{{replies.length}}条回复" hover note="{{repliesSortType}}" arrow />
+  <scroll-view class="scrollarea" scroll-y type="list" style="height: 45vh;">
+    <block wx:for="{{replies}}" wx:key="id" wx:for-index="i">
+      <view class="comment-item">
+        <t-avatar style="margin:10rpx 0rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.userName[0] }}</t-avatar>
+        <view style="margin-left:20rpx; width:75%;">
+          <view class="username" style="margin:10rpx 0rpx;">
+            <text>{{ item.userName }}</text>
+            <t-tag style="margin-left:10rpx;" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
+          </view>
+          <view style="margin:20rpx 0rpx;">
+            <text>{{ item.content }}</text>
+            <block wx:for="{{item.photos}}" wx:key="id">
+              <image src="{{item.value}}" mode="widthFix" style="width:100%;height:100px;margin-top:10rpx;" />
+            </block>
+          </view>
+          <view class="timestr" style="margin:10rpx 0rpx;">
+            <t-icon name="time" size="18" style="margin-right:10rpx;" />
+            {{ item.timeStr }}
+          </view>
+        </view>
+        <view class="comment-like">
+          <t-icon name="heart" size="24" />
+          {{ item.likes.length >=10000 ? util.numberToFixed(item.likes.length / 10000, 1) + 'w' : item.likes.length }}
+        </view>
+      </view>
+    </block>
+  </scroll-view>
+</t-popup>
+<!-- 页面内容 -->
+<view>
+  <scroll-view class="scrollarea" scroll-y type="list" style="height: 83vh;">
+    <swiper class="swiper-container" style="height: {{maxHeight}}px;">
+      <swiper-item class="swiper-item" wx:for="{{currentPost.photos}}" wx:key="id">
+        <image class="swiper-image" src="{{item.value}}" mode="widthFix" bindload="onImageLoad" data-index="{{index}}" />
+      </swiper-item>
+    </swiper>
+    <view class="post-content">
+      <view class="post-title">
+        <text>{{ currentPost.isSticky ? '[置顶]' + currentPost.title : currentPost.title }}</text>
+      </view>
+      <view class="post-content-text">
+        <text>{{ currentPost.content }}</text>
+      </view>
+      <view class="post-meta">
+        <t-avatar class="avatar-example" t-class-content="external-class-content" size="32px">{{ author[0] }}</t-avatar>
+        <view class="username">
+          {{ author }}
+          <t-tag style="margin-left:10rpx;" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(authorGroup)}}">{{authorGroup}}</t-tag>
+        </view>
+        <view class="timestr">
+          <t-icon name="time" size="18" style="margin-right:10rpx;" />
+          {{ timeStr }}
+        </view>
+      </view>
+    </view>
+    <t-cell bind:click="handleCommentsSort" title="共{{structedComments.length}}条评论" hover note="{{commentsSortType}}" arrow />
+    <block wx:for="{{structedComments}}" wx:key="id" wx:for-index="i">
+      <view class="comment-item">
+        <t-avatar style="margin:10rpx 0rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.userName[0] }}</t-avatar>
+        <view style="margin-left:20rpx; width:75%;">
+          <view class="username" style="margin:10rpx 0rpx;">
+            <text>{{ item.userName }}</text>
+            <t-tag style="margin-left:10rpx;" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
+          </view>
+          <view style="margin:20rpx 0rpx;">
+            <text>{{ item.content }}</text>
+            <block wx:for="{{item.photos}}" wx:key="id">
+              <image src="{{item.value}}" mode="widthFix" style="width:100%;height:100px;margin-top:10rpx;" />
+            </block>
+          </view>
+          <view class="timestr" style="margin:10rpx 0rpx;">
+            <t-icon name="time" size="18" style="margin-right:10rpx;" />
+            {{ item.timeStr }}
+          </view>
+          <t-button bind:tap="handleRepliesDetail" data-index="{{item}}" style="padding:0;font-weight:normal;" wx:if="{{item.replies.length > 0}}" size="small" theme="primary" variant="text">查看{{item.replies.length}}条回复></t-button>
+        </view>
+        <view class="comment-like">
+          <t-icon name="heart" size="24" />
+          {{ item.likes.length >=10000 ? util.numberToFixed(item.likes.length / 10000, 1) + 'w' : item.likes.length }}
+        </view>
+      </view>
+    </block>
+  </scroll-view>
+  <view class="bottom-bar">
+    <t-button theme="light" t-class="bottom-bar-input" shape="round" icon="edit-2" content="说点什么..." size="medium"></t-button>
+    <view class="likes">
+      <t-icon name="heart" size="36" style="margin-right:10rpx;" />
+      {{ currentPost.likes.length >=10000 ? util.numberToFixed(currentPost.likes.length / 10000, 1) + 'w' : currentPost.likes.length }}
     </view>
   </view>
 </view>

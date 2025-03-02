@@ -1,6 +1,15 @@
 import { Photo } from "../tour/photo";
 
-export class Post {
+export interface IPost {
+  id: number;
+  content: string;
+  user: number;
+  time: number;
+  likes: number[];
+  photos: Photo[];
+}
+
+export class Post implements IPost {
   id: number;
   title: string;
   content: string;
@@ -23,11 +32,22 @@ export class Post {
   }
 }
 
-export class Comment extends Post {
+export class Comment implements IPost {
+  id: number;
+  content: string;
+  user: number;
+  time: number;
+  likes: number[];
+  photos: Photo[];
   linkedPost: number;
   parentComment: number;
   constructor(data: any) {
-    super(data);
+    this.id = data.id ?? -1;
+    this.content = data.content ?? '';
+    this.user = data.user ?? -1;
+    this.time = data.time ?? Date.now();
+    this.likes = data.likes ?? [];
+    this.photos = data.photos ? data.photos.map((photo: any) => new Photo(photo)) : [];
     this.linkedPost = data.linkedPost ?? -1;
     this.parentComment = data.parentComment ?? -1;
   }
