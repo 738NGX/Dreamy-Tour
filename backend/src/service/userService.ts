@@ -3,33 +3,47 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-02-28 20:54:03
+ * @Last Modified time: 2025-03-02 20:43:47
  */
-import UserDetailVo from "@/vo/userDetailVo";
+import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
 import { UserUtil } from "@/util/userUtil";
-import WxLoginDto from "@/dto/wxLoginDto";
+import WxLoginDto from "@/dto/user/wxLoginDto";
 import UnauthorizedError from "@/exception/unauthorizedError";
 import AppConstant from "@/constant/appConstant";
 import JwtUtil from "@/util/jwtUtil";
 import dbPromise from "@/config/databaseConfig";
 import UserConstant from "@/constant/userConstant";
 import { Database } from "sqlite";
+import WxLoginVo from "@/vo/user/wxLoginVo";
+import UserInfoDto from "@/dto/user/userInfoDto";
+import NicknameDto from "@/dto/user/nicknameDto";
+import { Readable } from "stream";
+import CosUtil from "@/util/cosUtil";
+import CosConstant from "@/constant/cosConstant";
+import FileUtil from "@/util/fileUtil";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
     const db = await dbPromise;
     const row = await db.get<Partial<User>>(
-      "SELECT uid, nickname, school, avatarUrl, gender FROM users WHERE uid = ?", 
+      `SELECT 
+      uid, nickname, gender, avatarUrl, email,
+      phone, signature, birthday, rank
+      FROM users WHERE uid = ?`, 
       [uid]
     );
     if (!row) return null;
     return new UserDetailVo({
       uid: row.uid,
-      name: row.nickname,
-      school: row.school,
+      nickname: row.nickname,
+      gender: UserUtil.getGenderStr(row.gender),
       avatarUrl: row.avatarUrl,
-      gender: UserUtil.getGenderStr(row.gender)
+      email: row.email,
+      phone: row.phone,
+      signature: row.signature,
+      birthday: row.birthday,
+      rank: row.rank
     })
   }
 
@@ -38,11 +52,11 @@ class UserService {
    * @param wxLoginDto 微信登录需要的参数（授权码）
    * @returns token
    */
-  static async wxLogin(wxLoginDto: WxLoginDto): Promise<string> {
+  static async wxLogin(wxLoginDto: WxLoginDto): Promise<WxLoginVo> {
     // 调用微信接口，获取用户的 openid
     const url = new URL('https://api.weixin.qq.com/sns/jscode2session');
-    url.searchParams.append('appid', AppConstant.appId);
-    url.searchParams.append('secret', AppConstant.appSecret);
+    url.searchParams.append('appid', AppConstant.APP_ID);
+    url.searchParams.append('secret', AppConstant.APP_SECRET);
     url.searchParams.append('js_code', wxLoginDto.code);
     url.searchParams.append('grant_type', 'authorization_code');
     const res = await fetch(url.toString());
@@ -65,18 +79,104 @@ class UserService {
 
     // 如果存在，根据 uid 返回 token
     if (typeof uid !== 'undefined') {
-      return JwtUtil.generateByUid(uid);
+      return new WxLoginVo({
+        openid: openid,
+        token: JwtUtil.generateByUid(uid)
+      })
     }
 
     // 如果不存在，新增一个用户，返回 token
     uid = await this.createUser(db, openid);
     if (typeof uid === 'number') {
-      return JwtUtil.generateByUid(uid);
+      return new WxLoginVo({
+        openid: openid,
+        token: JwtUtil.generateByUid(uid)
+      })
     } else {
       throw new Error("用户 ID 生成异常");
     }
   }
 
+  /**
+   * 更新用户的基本信息
+   * @param userInfoDto 用户基本信息（除了昵称、头像）
+   */
+  static async updateUserInfo(userInfoDto: UserInfoDto, uid: number): Promise<void> {
+    const db = await dbPromise;
+    await db.run(
+      `UPDATE users
+      SET gender = ?, email = ?, phone = ?,
+      signature = ?, birthday = ?, updatedAt = CURRENT_TIMESTAMP
+      WHERE uid = ?
+      `,
+      [
+        userInfoDto.gender,
+        userInfoDto.email,
+        userInfoDto.phone,
+        userInfoDto.signature,
+        userInfoDto.birthday,
+        uid
+      ]
+    );
+  }
+
+  /**
+   * 修改用户昵称
+   * @param nicknameDto 新昵称
+   */
+  static async updateNickname(nicknameDto: NicknameDto, uid: number): Promise<void> {
+    const db = await dbPromise;
+    await db.run(
+      `UPDATE users
+      SET nickname = ?
+      WHERE uid = ?`, 
+      [
+        nicknameDto.nickname,
+        uid
+      ]
+    );
+  }
+
+  /**
+   * 更换用户头像，返回新头像的 url
+   * @param file 文件
+   */
+  static async updateAvatar(file: Buffer | Readable, uid: number, fileExtension?: string): Promise<string> {
+    // 上传新头像
+    const freshAvatarUrl = await CosUtil.uploadFile(CosConstant.AVATAR_FOLDER, file, fileExtension);
+    // 获取旧的头像地址
+    const db = await dbPromise;
+    const row = await db.get<{ avatarUrl: string }>(
+      'SELECT avatarUrl FROM users WHERE uid = ?',
+      [uid]
+    );
+    if (!row) throw new Error("用户不存在");
+    const oldAvatarUrl = row.avatarUrl;
+    // 更新数据库中的头像 url
+    await db.run(
+      'UPDATE users SET avatarUrl = ? WHERE uid = ?',
+      [freshAvatarUrl, uid]
+    )
+    // 删除 COS 上原来的头像
+    if (typeof oldAvatarUrl !== 'undefined' && CosUtil.isValidCosUrl(oldAvatarUrl)) {
+      await CosUtil.deleteFile(oldAvatarUrl);
+    }
+    // 返回新头像 url
+    return freshAvatarUrl;
+  }
+
+  /**
+   * 账号注销
+   * @param uid 用户 id
+   */
+  static async unRegister(uid: number): Promise<void> {
+    const db = await dbPromise;
+    db.run(
+      `DELETE FROM users WHERE uid = ?`, 
+      [uid]
+    )
+  }
+  
   /**
    * 根据 openid 查询用户 id
    * @param db 数据库对象
@@ -102,9 +202,12 @@ class UserService {
     // 插入新用户，并返回新的用户 id
     const { lastID } = await db.run(
       `INSERT INTO users (
-        nickname, wxOpenid, gender, avatarUrl, 
-        rank, status, createdAt, updatedAt
-      ) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+        nickname, wxOpenid, gender, avatarUrl, rank,
+        status, lastLoginAt, createdAt, updatedAt
+      ) VALUES (
+       ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP,
+       CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+       )`,
       [
         defaultNickname,
         openid,

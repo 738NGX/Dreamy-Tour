@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import Result from "@/base/result";
+import Result from "@/vo/result";
 import ParamsError from "@/exception/paramsError";
 import UnauthorizedError from "@/exception/unauthorizedError";
 import ForbiddenError from "@/exception/forbiddenError";
+import CosError from "@/exception/cosError";
 
 // 定义错误处理函数类型
 type ErrorHandler = (
@@ -28,6 +29,11 @@ const ERROR_HANDLERS: Map<Function, ErrorHandler> = new Map([
     ForbiddenError, 
     (err, req, res) => res.status(StatusCodes.FORBIDDEN)
       .json(Result.error(`授权异常：${err.message}`))
+  ],
+  [
+    CosError,
+    (err, req, res) => res.status(StatusCodes.BAD_GATEWAY)
+      .json(Result.error(`COS 异常：${err.message}`))
   ]
 ]);
 
