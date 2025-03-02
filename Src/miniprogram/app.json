@@ -6,7 +6,8 @@
         "pages/report/report",
         "pages/calculator/calculator",
         "pages/menu/menu",
-        "pages/channel-detail/channel-detail"
+        "pages/channel-detail/channel-detail",
+        "pages/channel-post/channel-post"
     ],
     "tabBar": {
         "custom": true,
