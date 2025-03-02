@@ -1,5 +1,7 @@
 {
-    "usingComponents": {
+  "component": true,
+  "styleIsolation": "apply-shared",
+  "usingComponents": {
         "header": "/components/header/header",
         "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
         "t-button": "tdesign-miniprogram/button/button",
@@ -9,9 +11,6 @@
         "t-picker": "tdesign-miniprogram/picker/picker",
         "t-picker-item": "tdesign-miniprogram/picker-item/picker-item",
         "t-popup-headered": "/components/t-popup-headered/t-popup-headered",
-        "t-textarea": "tdesign-miniprogram/textarea/textarea",
-
-        "index-tourlist": "./index-tourlist/index-tourlist",
-        "index-newtour": "./index-newtour/index-newtour"
-    }
+        "t-textarea": "tdesign-miniprogram/textarea/textarea"
+  }
 }
