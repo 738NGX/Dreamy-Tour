@@ -1,5 +1,5 @@
 import { Comment, Post } from "../../utils/channel/post";
-import { commentList, postList, userList } from "../../utils/testData";
+import { testData } from "../../utils/testData";
 import { User } from "../../utils/user/user";
 import { formatPostTime, getUserGroupNameInChannel } from "../../utils/util";
 
@@ -10,7 +10,7 @@ enum InputMode { None, Comment, Reply };
 function getStructuredComments(postId: number, userList: User[], commentList: Comment[]) {
   const userMap = new Map(userList.map(user => [user.id, user.name]));
   const replyMap = new Map<number, Comment[]>();
-  const channelId = postList.find(post => post.id == postId)?.linkedChannel;
+  const channelId = testData.postList.find(post => post.id == postId)?.linkedChannel;
 
   // 初始化评论映射
   commentList.forEach(comment => {
@@ -79,23 +79,23 @@ Component({
   methods: {
     onLoad(options: any) {
       const { postId } = options;
-      const currentPost = postList.find(post => post.id == postId);
+      const currentPost = testData.postList.find(post => post.id == postId);
       this.setData({ currentPost });
     },
     onShow() {
-      const author = userList.find(user => user.id == this.data.currentPost?.user)?.name;
+      const author = testData.userList.find(user => user.id == this.data.currentPost?.user)?.name;
       const authorGroup = getUserGroupNameInChannel(
-        new User(userList.find(user => user.id == this.data.currentPost?.user)!),
+        new User(testData.userList.find(user => user.id == this.data.currentPost?.user)!),
         this.data.currentPost?.linkedChannel!
       );
       const timeStr = this.data.currentPost ? formatPostTime(this.data.currentPost.time) : '';
       const structedComments = getStructuredComments(
         this.data.currentPost.id,
-        userList.map(user => new User(user)),
-        commentList.map(comment => new Comment(comment))
+        testData.userList.map(user => new User(user)),
+        testData.commentList.map(comment => new Comment(comment))
       );
       this.setData({
-        commentList: commentList,
+        commentList: testData.commentList,
         author: author,
         authorGroup: authorGroup,
         timeStr: timeStr,
@@ -234,7 +234,7 @@ Component({
           commentList: newCommentList,
           structedComments: getStructuredComments(
             this.data.currentPost.id,
-            userList.map(user => new User(user)),
+            testData.userList.map(user => new User(user)),
             newCommentList
           ),
         });

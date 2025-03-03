@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "header": "/components/header/header",
+    "tour-viewer": "/components/tour-viewer/tour-viewer",
+    "t-cell": "tdesign-miniprogram/cell/cell"
+  }
+}

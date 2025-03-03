@@ -68,24 +68,14 @@ export class Expense {
   note: string = '';
   tag: number = 0;
 
-  constructor(indexOrData: number | any, currency?: Currency, type?: ExpenseType) {
-    if (typeof indexOrData === 'number') {
-      this.index = indexOrData;
-      this.title = '新消费';
-      this.amount = 0;
-      this.currency = currency!;
-      this.type = type!;
-    }
-    else {
-      const data = indexOrData;
-      this.index = data.index;
-      this.title = data.title;
-      this.amount = data.amount;
-      this.currency = data.currency;
-      this.type = data.type;
-      this.note = data.note;
-      this.tag = data.tag;
-    }
+  constructor(data: any) {
+    this.index = data.index;
+    this.title = data.title;
+    this.amount = data.amount;
+    this.currency = data.currency;
+    this.type = data.type;
+    this.note = data.note;
+    this.tag = data.tag;
   }
 }
 
@@ -95,15 +85,15 @@ export class Expense {
 export class TransportExpense extends Expense {
   transportType: TransportType;
 
-  constructor(indexOrData: number | any, currency?: Currency, transportType?: TransportType) {
-    super(indexOrData, currency, ExpenseType.Transportation);
-    if (indexOrData.transportType !== undefined) {
-      this.transportType = indexOrData.transportType;
+  constructor(data: any) {
+    super(data);
+    if (data.transportType !== undefined) {
+      this.transportType = data.transportType;
     }
     else {
-      this.transportType = transportType ? transportType : TransportType.Other;
+      this.transportType = data.transportType ?? TransportType.Other;
     }
-    if (indexOrData.title === undefined) {
+    if (data.title === undefined) {
       this.title = "(右滑可删除该交通)";
     }
   }
