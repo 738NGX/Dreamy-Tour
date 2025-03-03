@@ -139,6 +139,10 @@ export function formatPostTime(timestamp: number): string {
   const target = new Date(timestamp);
   const diffSeconds = Math.floor((now.getTime() - timestamp) / 1000);
 
+  if (diffSeconds < 3) {
+    return `刚刚`;
+  }
+  
   if (diffSeconds < 60) {
     return `${diffSeconds}秒前`;
   }
@@ -162,5 +166,5 @@ export function formatPostTime(timestamp: number): string {
     return `${diffDays}天前`;
   }
 
-  return `${target.getFullYear()}年${(target.getMonth() + 1).toString().padStart(2, '0')}月${target.getDate().toString().padStart(2, '0')}日`;
+  return `${target.getFullYear()}/${(target.getMonth() + 1).toString().padStart(2, '0')}/${target.getDate().toString().padStart(2, '0')}`;
 }

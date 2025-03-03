@@ -43,7 +43,7 @@ export const userList = [
   {
     id: 7,
     name: '吉尔',
-    exp: 1145
+    exp: 6666
   },
   {
     id: 8,

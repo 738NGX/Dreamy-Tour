@@ -7,6 +7,8 @@
     "t-button": "tdesign-miniprogram/button/button",
     "t-popup": "tdesign-miniprogram/popup/popup",
     "t-cell": "tdesign-miniprogram/cell/cell",
-    "t-tag": "tdesign-miniprogram/tag/tag"
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "t-textarea": "tdesign-miniprogram/textarea/textarea",
+    "t-upload": "tdesign-miniprogram/upload/upload"
   }
 }
