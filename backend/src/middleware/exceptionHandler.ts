@@ -5,6 +5,9 @@ import ParamsError from "@/exception/paramsError";
 import UnauthorizedError from "@/exception/unauthorizedError";
 import ForbiddenError from "@/exception/forbiddenError";
 import CosError from "@/exception/cosError";
+import WxServiceError from "@/exception/wxServiceError";
+import NotFoundError from "@/exception/notFoundError";
+import ApiError from "@/exception/apiError";
 
 // 定义错误处理函数类型
 type ErrorHandler = (
@@ -34,6 +37,21 @@ const ERROR_HANDLERS: Map<Function, ErrorHandler> = new Map([
     CosError,
     (err, req, res) => res.status(StatusCodes.BAD_GATEWAY)
       .json(Result.error(`COS 异常：${err.message}`))
+  ],
+  [
+    WxServiceError,
+    (err, req, res) => res.status(StatusCodes.BAD_GATEWAY)
+      .json(Result.error(err.message))
+  ],
+  [
+    NotFoundError,
+    (err, req, res) => res.status(StatusCodes.NOT_FOUND)
+      .json(Result.error(err.message))
+  ],
+  [
+    ApiError,
+    (err, req, res) => res.status(StatusCodes.BAD_GATEWAY)
+      .json(Result.error(err.message))
   ]
 ]);
 
