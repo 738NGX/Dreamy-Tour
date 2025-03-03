@@ -8,6 +8,7 @@ import { StatusCodes } from 'http-status-codes';
 import Result from '@/vo/result';
 import MessageConstant from '@/constant/messageConstant';
 import authInterceptor from './middleware/authInterceptor';
+import currencyRoute from './route/currencyRoute';
 
 
 const app: Application = express()
@@ -20,6 +21,7 @@ app.use(authInterceptor); // 用户认证拦截器
 
 // 路由
 app.use(userRoute)  // 用户相关路由
+app.use(currencyRoute)  // 货币相关路由
 
 // 托底路由，捕获以上路由均无法匹配的 url，返回 404
 app.use((req: Request, res: Response) => {

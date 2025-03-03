@@ -3,13 +3,12 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-02 20:43:47
+ * @Last Modified time: 2025-03-03 10:09:35
  */
 import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
 import { UserUtil } from "@/util/userUtil";
 import WxLoginDto from "@/dto/user/wxLoginDto";
-import UnauthorizedError from "@/exception/unauthorizedError";
 import AppConstant from "@/constant/appConstant";
 import JwtUtil from "@/util/jwtUtil";
 import dbPromise from "@/config/databaseConfig";
@@ -21,7 +20,9 @@ import NicknameDto from "@/dto/user/nicknameDto";
 import { Readable } from "stream";
 import CosUtil from "@/util/cosUtil";
 import CosConstant from "@/constant/cosConstant";
-import FileUtil from "@/util/fileUtil";
+import WxServiceError from "@/exception/wxServiceError";
+import ParamsError from "@/exception/paramsError";
+import NotFoundError from "@/exception/notFoundError";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
@@ -62,14 +63,21 @@ class UserService {
     const res = await fetch(url.toString());
     
     // 先检查状态码是否正常
-    if (!res.ok) throw new Error(`微信接口响应异常: ${res.status}`);
+    if (!res.ok) throw new WxServiceError();
     const resJson = await res.json();
-
-    // 如果错误码不是 0，抛出认证异常
-    if (resJson.errcode && resJson.errcode !== 0) {
-      throw new UnauthorizedError();
+    
+    // 获取错误码，如果错误码不是 0，抛出异常
+    const errcode = resJson.errcode;
+    if (errcode && errcode !== 0) {
+      switch (errcode) {
+        case 40029:
+          throw new ParamsError("授权码无效");
+        case 40163:
+          throw new ParamsError("登录凭证重复使用")
+        default:
+          throw new WxServiceError();
+      }
     }
-
     // 如果正常响应，获取 openid
     const openid: string = resJson.openid;
     
@@ -139,6 +147,7 @@ class UserService {
 
   /**
    * 更换用户头像，返回新头像的 url
+   * TODO: 开启事务
    * @param file 文件
    */
   static async updateAvatar(file: Buffer | Readable, uid: number, fileExtension?: string): Promise<string> {
@@ -146,20 +155,20 @@ class UserService {
     const freshAvatarUrl = await CosUtil.uploadFile(CosConstant.AVATAR_FOLDER, file, fileExtension);
     // 获取旧的头像地址
     const db = await dbPromise;
-    const row = await db.get<{ avatarUrl: string }>(
+    const row = await db.get<Pick<User, 'avatarUrl'>>(
       'SELECT avatarUrl FROM users WHERE uid = ?',
       [uid]
     );
-    if (!row) throw new Error("用户不存在");
+    if (!row) throw new NotFoundError(`用户 ${uid} 不存在`);
     const oldAvatarUrl = row.avatarUrl;
     // 更新数据库中的头像 url
     await db.run(
       'UPDATE users SET avatarUrl = ? WHERE uid = ?',
       [freshAvatarUrl, uid]
     )
-    // 删除 COS 上原来的头像
+    // 异步删除 COS 上原来的头像，不影响主线程（没有await），较少IO时长（当旧头像地址不为空，且是合法的图片路径）
     if (typeof oldAvatarUrl !== 'undefined' && CosUtil.isValidCosUrl(oldAvatarUrl)) {
-      await CosUtil.deleteFile(oldAvatarUrl);
+      CosUtil.deleteFile(oldAvatarUrl)
     }
     // 返回新头像 url
     return freshAvatarUrl;

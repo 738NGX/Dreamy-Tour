@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:44:15 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-02 20:29:03
+ * @Last Modified time: 2025-03-02 23:14:35
  */
 
 import express, { Request, Response } from "express"
@@ -57,7 +57,7 @@ userRoute.put('/user/nickname', async (req: Request, res: Response) => {
   const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);  // 经过拦截器处理之后，剩下来的请求中一定包含 token，因此断言为 string
   const nicknameDto = await NicknameDto.from(req.body);
   // 修改昵称
-  UserService.updateNickname(nicknameDto, uid);
+  await UserService.updateNickname(nicknameDto, uid);
   res.status(StatusCodes.OK)
     .json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
 })
