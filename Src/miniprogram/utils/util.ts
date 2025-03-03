@@ -1,3 +1,5 @@
+import { User } from "./user/user";
+
 export const MILLISECONDS = {
   SECOND: 1e+3,
   MINUTE: 6e+4,
@@ -98,4 +100,67 @@ export function exchangeCurrency(amount: number, from: string, to: string) {
 export function getChartData(data: any) {
   let res = { series: [{ data: data }] };
   return JSON.parse(JSON.stringify(res));
+}
+
+export function getUserGroupName(user: User): string {
+  if (user.isAdmin) {
+    return '系统管理员';
+  } else if (user.exp >= 10000) {
+    return 'Lv.6探险家';
+  } else if (user.exp >= 2880) {
+    return 'Lv.5船长';
+  } else if (user.exp >= 1080) {
+    return 'Lv.4大副';
+  } else if (user.exp >= 450) {
+    return 'Lv.3轮机长';
+  } else if (user.exp >= 150) {
+    return 'Lv.2水手长';
+  } else if (user.exp >= 20) {
+    return 'Lv.1水手';
+  } else {
+    return 'Lv.0船客';
+  }
+}
+
+export function getUserGroupNameInChannel(user: User, channelId: number): string {
+  if (user.isAdmin) {
+    return '系统管理员';
+  } else if (user.havingChannel.includes(channelId)) {
+    return '频道主';
+  } else if (user.adminingChannel.includes(channelId)) {
+    return '频道管理员';
+  } else {
+    return getUserGroupName(user);
+  }
+}
+
+export function formatPostTime(timestamp: number): string {
+  const now = new Date();
+  const target = new Date(timestamp);
+  const diffSeconds = Math.floor((now.getTime() - timestamp) / 1000);
+
+  if (diffSeconds < 60) {
+    return `${diffSeconds}秒前`;
+  }
+
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  if (diffMinutes < 60) {
+    return `${diffMinutes}分钟前`;
+  }
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) {
+    return `${diffHours}小时前`;
+  }
+
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays === 1) {
+    return `昨天${target.getHours().toString().padStart(2, '0')}:${target.getMinutes().toString().padStart(2, '0')}`;
+  }
+
+  if (diffDays < 7) {
+    return `${diffDays}天前`;
+  }
+
+  return `${target.getFullYear()}年${(target.getMonth() + 1).toString().padStart(2, '0')}月${target.getDate().toString().padStart(2, '0')}日`;
 }
