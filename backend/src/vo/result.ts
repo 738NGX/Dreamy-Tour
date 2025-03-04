@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:48:14 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-02 15:11:50
+ * @Last Modified time: 2025-03-03 11:20:44
  */
 
 import MessageConstant from "@/constant/messageConstant";
@@ -30,14 +30,27 @@ class Result {
     this.msg = msg;
     this.data = data;
   }
-
-  static success(data: any): Result;
-  static success(msg: string): Result;
-  static success(msg: string, data: any): Result;
-
   /**
    * 成功响应
    * @param data 响应数据
+   */
+  static success(data: any): Result;
+  /**
+   * 成功响应
+   * @param msg 提示消息
+   */
+  static success(msg: string): Result;
+  /**
+   * 成功响应
+   * @param msg 提示消息
+   * @param data 响应数据
+   */
+  static success(msg: string, data: any): Result;
+
+  /**
+   * 签名实现
+   * @param dataOrMsg 响应数据或提示消息
+   * @param dataOrUndefined 响应数据或 undefined
    * @returns 
    */
   static success(dataOrMsg: any, dataOrUndefined?: any): Result {

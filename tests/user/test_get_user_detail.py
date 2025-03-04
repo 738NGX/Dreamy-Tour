@@ -1,7 +1,7 @@
 import pytest
 import requests
 
-class TestUserAPI:
+class TestGetUserDetail:
   def test_get_user_detail_with_token(self, api_client, base_url) -> None:
     """
     测试携带 token 的情况
@@ -14,11 +14,10 @@ class TestUserAPI:
     assert res.status_code == 200   # 状态码必须是200
     json_data = res.json()
     assert json_data['code'] == 1   # code 为 1
-    data = json_data['data']
     # 必须包含的字段
-    necessary_fields = ['uid', 'name', 'school', 'avatarUrl', 'gender']
+    necessary_fields = ['uid', 'nickname', 'gender', 'avatarUrl', 'email', 'phone', 'signature', 'birthday', 'rank']
     for field in necessary_fields:
-      assert field in data
+      assert field in json_data['data']
 
 
   def test_get_user_detail_without_token(self, base_url) -> None:

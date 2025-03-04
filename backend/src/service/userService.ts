@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-03 10:09:35
+ * @Last Modified time: 2025-03-03 19:16:05
  */
 import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
@@ -34,7 +34,7 @@ class UserService {
       FROM users WHERE uid = ?`, 
       [uid]
     );
-    if (!row) return null;
+    if (!row) throw new NotFoundError("该用户不存在");
     return new UserDetailVo({
       uid: row.uid,
       nickname: row.nickname,
@@ -87,22 +87,24 @@ class UserService {
 
     // 如果存在，根据 uid 返回 token
     if (typeof uid !== 'undefined') {
+      this.updateLastLoginTime(db, uid);  // 异步更新用户登录时间
       return new WxLoginVo({
         openid: openid,
         token: JwtUtil.generateByUid(uid)
-      })
+      });
     }
 
     // 如果不存在，新增一个用户，返回 token
     uid = await this.createUser(db, openid);
     if (typeof uid === 'number') {
+      this.updateLastLoginTime(db, uid);  // 异步更新用户登录时间
       return new WxLoginVo({
         openid: openid,
         token: JwtUtil.generateByUid(uid)
       })
     } else {
       throw new Error("用户 ID 生成异常");
-    }
+    } 
   }
 
   /**
@@ -114,7 +116,7 @@ class UserService {
     await db.run(
       `UPDATE users
       SET gender = ?, email = ?, phone = ?,
-      signature = ?, birthday = ?, updatedAt = CURRENT_TIMESTAMP
+      signature = ?, birthday = ?, updatedAt = datetime('now', 'localtime')
       WHERE uid = ?
       `,
       [
@@ -180,7 +182,7 @@ class UserService {
    */
   static async unRegister(uid: number): Promise<void> {
     const db = await dbPromise;
-    db.run(
+    await db.run(
       `DELETE FROM users WHERE uid = ?`, 
       [uid]
     )
@@ -193,10 +195,14 @@ class UserService {
    * @returns 用户id
    */
   private static async findUserByOpenid(db: Database, openid: string): Promise<number | undefined> {
-    return db.get<number>(
+    const row = await db.get<Pick<User, 'uid'>>(
       "SELECT uid FROM users WHERE wxOpenid = ?",
       [openid]
-    )
+    );
+    if (!row) {
+      return undefined;
+    }
+    return row.uid;
   }
 
   /**
@@ -214,8 +220,8 @@ class UserService {
         nickname, wxOpenid, gender, avatarUrl, rank,
         status, lastLoginAt, createdAt, updatedAt
       ) VALUES (
-       ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP,
-       CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+       ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'),
+       datetime('now', 'localtime'), datetime('now', 'localtime')
        )`,
       [
         defaultNickname,
@@ -229,6 +235,18 @@ class UserService {
 
     if (!lastID) throw new Error('用户创建失败');
     return lastID;
+  }
+
+  /**
+   * 更新用户的登录时间
+   * @param uid 用户 ID
+   */
+  private static async updateLastLoginTime(db: Database, uid: number): Promise<void> {
+    console.log(`更新用户 ${uid} 的登录时间`)
+    await db.run(
+      `UPDATE users SET lastLoginAt = datetime('now', 'localtime') WHERE uid = ?`,
+      [uid]
+    )
   }
 }
 

@@ -12,7 +12,7 @@ def base_url():
 def api_client():
     session = requests.Session()
     session.headers.update({
-        'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDE0MDE3MjIsInVpZCI6MTEsImlhdCI6MTc0MDc5NjkyMn0.oScViIXPFAIFTRdogoz47Z2k1ZMVpBWeHruAKgaFIDs'
+        'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDE2MDUxOTUsInVpZCI6MTIsImlhdCI6MTc0MTAwMDM5NX0.nI3F9T0X6MA7XcWUZ5Ia8fXXvGfKTlSuScTHf1Nwu9A'
     })
     yield session
     session.close()  # 测试结束后自动关闭连接
