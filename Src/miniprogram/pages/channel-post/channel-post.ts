@@ -1,12 +1,16 @@
 import { Comment, Post } from "../../utils/channel/post";
-import { commentList, postList, userList } from "../../utils/testData";
+import { testData } from "../../utils/testData";
 import { User } from "../../utils/user/user";
 import { formatPostTime, getUserGroupNameInChannel } from "../../utils/util";
+
+const app = getApp<IAppOption>();
+
+enum InputMode { None, Comment, Reply };
 
 function getStructuredComments(postId: number, userList: User[], commentList: Comment[]) {
   const userMap = new Map(userList.map(user => [user.id, user.name]));
   const replyMap = new Map<number, Comment[]>();
-  const channelId = postList.find(post => post.id == postId)?.linkedChannel;
+  const channelId = testData.postList.find(post => post.id == postId)?.linkedChannel;
 
   // 初始化评论映射
   commentList.forEach(comment => {
@@ -22,7 +26,7 @@ function getStructuredComments(postId: number, userList: User[], commentList: Co
     return replies.flatMap(reply => {
       let newContent = reply.content;
       if (parentUserName) {
-        newContent = `回复${parentUserName}：${reply.content}`;
+        newContent = `回复@${parentUserName}：${reply.content}`;
       }
       return [{
         ...reply,
@@ -49,35 +53,49 @@ function getStructuredComments(postId: number, userList: User[], commentList: Co
 
 Component({
   data: {
+    currentUserId: app.globalData.currentUserId,
     currentPost: {} as Post,
-    currentPhotoIndex: 0,
-    imageProps: {
-      mode: "widthFix",
-    },
+    imageProps: { mode: "widthFix" },
+
     maxHeight: 0,
     author: '',
     authorGroup: '',
     timeStr: '',
+
+    commentList: [] as any[],
     structedComments: [] as any[],
     commentsSortType: '热度排序',
+
     repliesVisible: false,
+    repliesParent: -1,
     replies: [] as any[],
     repliesSortType: '热度排序',
+
+    inputVisible: false,
+    inputMode: InputMode.None,
+    inputValue: '',
+    originFiles: [] as any[],
   },
   methods: {
     onLoad(options: any) {
       const { postId } = options;
-      const currentPost = postList.find(post => post.id == postId);
-      const author = userList.find(user => user.id == currentPost?.user)?.name;
-      const authorGroup = getUserGroupNameInChannel(new User(userList.find(user => user.id == currentPost?.user)!), currentPost?.linkedChannel!);
-      const timeStr = currentPost ? formatPostTime(currentPost.time) : '';
+      const currentPost = testData.postList.find(post => post.id == postId);
+      this.setData({ currentPost });
+    },
+    onShow() {
+      const author = testData.userList.find(user => user.id == this.data.currentPost?.user)?.name;
+      const authorGroup = getUserGroupNameInChannel(
+        new User(testData.userList.find(user => user.id == this.data.currentPost?.user)!),
+        this.data.currentPost?.linkedChannel!
+      );
+      const timeStr = this.data.currentPost ? formatPostTime(this.data.currentPost.time) : '';
       const structedComments = getStructuredComments(
-        postId,
-        userList.map(user => new User(user)),
-        commentList.map(comment => new Comment(comment))
+        this.data.currentPost.id,
+        testData.userList.map(user => new User(user)),
+        testData.commentList.map(comment => new Comment(comment))
       );
       this.setData({
-        currentPost: currentPost,
+        commentList: testData.commentList,
         author: author,
         authorGroup: authorGroup,
         timeStr: timeStr,
@@ -97,9 +115,11 @@ Component({
       });
     },
     handleRepliesDetail(e: any) {
+      const repliesParent = e.currentTarget.dataset.index?.id;
       const replies = e.currentTarget.dataset.index?.replies;
       this.setData({
         repliesVisible: !this.data.repliesVisible,
+        repliesParent: repliesParent ?? -1,
         replies: replies ?? []
       });
     },
@@ -142,6 +162,121 @@ Component({
           replies: this.data.replies.sort((a, b) => b.likes.length - a.likes.length)
         })
       }
-    }
-  },
-})
+    },
+    handleLike() {
+      const currentPost = new Post(this.data.currentPost);
+      if (currentPost.likes.includes(this.data.currentUserId)) {
+        currentPost.likes = currentPost.likes.filter(id => id !== this.data.currentUserId);
+      } else {
+        currentPost.likes.push(this.data.currentUserId);
+      }
+      this.setData({ currentPost });
+    },
+    handleCommentLike(e: any) {
+      const commentId = e.currentTarget.dataset.index;
+      const structedComments = JSON.parse(JSON.stringify(this.data.structedComments));
+      const comment = structedComments.find((comment: any) => comment.id == commentId);
+      if (comment.likes.includes(this.data.currentUserId)) {
+        comment.likes = comment.likes.filter((id: any) => id !== this.data.currentUserId);
+      } else {
+        comment.likes.push(this.data.currentUserId);
+      }
+      this.setData({ structedComments });
+    },
+    handleReplyLike(e: any) {
+      const commentId = e.currentTarget.dataset.index[0];
+      const replyId = e.currentTarget.dataset.index[1];
+
+      const structedComments = JSON.parse(JSON.stringify(this.data.structedComments));
+      const comment = structedComments.find((comment: any) => comment.id == commentId);
+      const reply = comment.replies.find((reply: any) => reply.id == replyId);
+
+      if (reply.likes.includes(this.data.currentUserId)) {
+        reply.likes = reply.likes.filter((id: any) => id !== this.data.currentUserId);
+      } else {
+        reply.likes.push(this.data.currentUserId);
+      }
+
+      this.setData({
+        structedComments: structedComments,
+        replies: comment.replies
+      });
+    },
+    cancelInput() {
+      this.setData({ inputVisible: false });
+    },
+    handleInput(e: any) {
+      this.setData({ inputValue: e.detail.value });
+    },
+    handleInputSend() {
+      if(this.data.inputValue === '') {
+        wx.showToast({
+          title: '不可发送空白内容',
+          icon: 'none'
+        });
+        return;
+      }
+      if (this.data.inputMode === InputMode.Comment) {
+        const newCommentId = this.data.commentList.length + 1;
+        const newComment = new Comment({
+          id: newCommentId,
+          user: this.data.currentUserId,
+          linkedPost: this.data.currentPost.id,
+          content: this.data.inputValue,
+          time: new Date().getTime(),
+          likes: [],
+          photos: this.data.originFiles.map((file: any) => ({ value: file.url, ariaLabel: file.name })),
+          parentComment: -1
+        });
+        const newCommentList = this.data.commentList.map((comment: any) => new Comment(comment));
+        newCommentList.push(newComment);
+        this.setData({
+          commentList: newCommentList,
+          structedComments: getStructuredComments(
+            this.data.currentPost.id,
+            testData.userList.map(user => new User(user)),
+            newCommentList
+          ),
+        });
+      } else if (this.data.inputMode === InputMode.Reply) {
+        console.log('发送回复');
+      }
+      this.setData({
+        inputVisible: false,
+        inputValue: '',
+        inputMode: InputMode.None,
+        originFiles: []
+      });
+    },
+    handleCommentInput() {
+      this.setData({
+        inputVisible: true,
+        inputMode: InputMode.Comment,
+      });
+    },
+    handleImageUploadSuccess(e: any) {
+      const { files } = e.detail;
+      this.setData({
+        originFiles: files,
+      });
+    },
+    handleImageUploadRemove(e: any) {
+      const { index } = e.detail;
+      const { originFiles } = this.data;
+      originFiles.splice(index, 1);
+      this.setData({
+        originFiles,
+      });
+    },
+    handleImageUploadClick(e: any) {
+      console.log(e.detail.file);
+    },
+
+    handleImageUploadDrop(e: any) {
+      const { files } = e.detail;
+      this.setData({
+        originFiles: files,
+      });
+    },
+  }
+});

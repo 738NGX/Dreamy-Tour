@@ -1,12 +1,12 @@
 import { channelLevelInfo } from '../../../utils/channel/channel';
-import { channelList } from '../../../utils/testData';
+import { testData } from '../../../utils/testData';
 
 Component({
   properties: {
 
   },
   data: {
-    channelList: channelList,
+    channelList: testData.channelList,
     channelLevelList: [''],
   },
   lifetimes: {

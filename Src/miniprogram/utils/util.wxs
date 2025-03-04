@@ -20,7 +20,20 @@ var getUserGroupTagTheme = function (userGroup) {
   return theme
 }
 
+var isInArray = function (arr, value) {
+  if(!arr || !arr.length) {
+    return false
+  }
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] === value) {
+      return true
+    }
+  }
+  return false
+}
+
 module.exports = {
   numberToFixed: numberToFixed,
-  getUserGroupTagTheme: getUserGroupTagTheme
+  getUserGroupTagTheme: getUserGroupTagTheme,
+  isInArray: isInArray
 }

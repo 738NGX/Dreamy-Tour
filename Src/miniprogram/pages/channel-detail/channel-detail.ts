@@ -1,5 +1,5 @@
 import { Channel } from "../../utils/channel/channel";
-import { channelList } from "../../utils/testData";
+import { testData } from "../../utils/testData";
 
 Component({
   data: {
@@ -20,7 +20,7 @@ Component({
     onLoad(options: any) {
       const { channelId } = options;
       this.setData({ 
-        currentChannel: new Channel(channelList.find(channel => channel.id === parseInt(channelId))),
+        currentChannel: new Channel(testData.channelList.find(channel => channel.id === parseInt(channelId))),
       });
     },
     onChildPageChange(e: any) {

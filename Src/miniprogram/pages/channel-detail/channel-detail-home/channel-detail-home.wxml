@@ -26,7 +26,7 @@
 </view>
 <scroll-view class="scrollarea" style="height:40vh;" scroll-y type="list">
   <block wx:for="{{footprints}}" wx:key="index" wx:for-index="i">
-    <t-cell title="{{item.title}}" description="{{item.startDateStr}}-{{item.endDateStr}}" hover arrow />
+    <t-cell bind:click="handleTourView" data-index="{{item.id}}" title="{{item.title}}" description="{{item.startDateStr}}-{{item.endDateStr}}" hover arrow />
   </block>
 </scroll-view>
 <t-fab icon="user-circle" button-props="{{fabButton}}" bind:click="onRankingVisibleChange" text="旅行排行" />

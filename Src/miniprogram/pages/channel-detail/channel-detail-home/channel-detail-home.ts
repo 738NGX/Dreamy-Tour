@@ -10,7 +10,7 @@ if (PLUGIN_KEY) {
   qqmapsdk
 }
 import { Channel } from "../../../utils/channel/channel";
-import { tourList, userList } from '../../../utils/testData';
+import { testData } from '../../../utils/testData';
 import { timezoneList } from '../../../utils/tour/timezone';
 import { Tour, TourStatus } from '../../../utils/tour/tour';
 import { Location } from '../../../utils/tour/tourNode';
@@ -64,7 +64,7 @@ Component({
   methods: {
     generateTourSaves() {
       const currentChannel = this.properties.currentChannel as Channel;
-      const tourSaves = (tourList as unknown as Tour[])
+      const tourSaves = (testData.tourList as unknown as Tour[])
         .map(tour => new Tour(tour))
         .filter(tour => tour.linkedChannel == currentChannel.id && tour.status == TourStatus.Finished && tour.channelVisible)
         .sort((a: any, b: any) => b.startDate - a.startDate);
@@ -73,6 +73,7 @@ Component({
     generateFullFootprints() {
       const footprints = this.data.tourSaves.map(tour => {
         return {
+          id: tour.id,
           title: tour.title,
           startDate: tour.startDate,
           endDate: tour.endDate,
@@ -128,7 +129,7 @@ Component({
           userTourCount.set(userId, (userTourCount.get(userId) || 0) + 1);
         });
       });
-      const rankList = userList.map(user => {
+      const rankList = testData.userList.map(user => {
         const count = userTourCount.get(user.id) || 0;
         return { rank: 0, name: user.name, count };
       }).filter(user => user.count > 0);
@@ -201,6 +202,12 @@ Component({
       this.filterMarkers();
       this.generateUserRankings();
     },
+    handleTourView(e: any) {
+      const tourId = e.currentTarget.dataset.index;
+      wx.navigateTo({
+        url: `/pages/tour-view/tour-view?tourId=${tourId}`,
+      });
+    }
   }
 });
 
