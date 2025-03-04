@@ -1,4 +1,4 @@
-import { exchangeCurrency, MILLISECONDS } from '../util';
+import { exchangeCurrency, MILLISECONDS, formatTime, formatDate, timeToMilliseconds, } from '../util';
 import { Currency, currencyList } from './expense';
 import { Location, Transportation } from './tourNode';
 
@@ -46,7 +46,9 @@ export class Tour {
       index: 0,
       startOffset: 0,
       endOffset: 0,
-      timeOffset: this.timeOffset
+      timeOffset: this.timeOffset,
+      startDate: this.startDate,
+        
     })];
     this.transportations = data.transportations ? data.transportations.map((transportation: any) => new Transportation(transportation)) : [];
   }

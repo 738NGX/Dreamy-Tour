@@ -1,9 +1,10 @@
+/**
+ * 此页面为新建/复制/导入行程界面
+ * 主要功能为创建行程并将行程信息持久化存储
+ */
 import { Tour } from '../../../utils/tour/tour';
 import { Currency, currencyList } from '../../../utils/tour/expense';
 import { formatDate, MILLISECONDS } from '../../../utils/util';
-
-const app = getApp<IAppOption>();
-
 
 Component({
   behaviors: [],
@@ -31,7 +32,6 @@ Component({
       currencySelectorVisible: false,
       tourSelectorVisible: false,
 
-      containsTour: false,
       tourHashMap: new Map(),
 
       // 创建新行程数据
@@ -54,7 +54,7 @@ Component({
     },
     attached() {
            this.updateTourHashMap();
-           this.updateTourList();
+           this.updateTourList;
     },
     
     moved() {
@@ -65,6 +65,10 @@ Component({
     },
   },
   methods: {
+        /**
+         *  updateTourHashMap()
+         * //从wxstorage中获取tourhashmap并赋值给组件
+         */
         updateTourHashMap() {
           return new Promise((resolve) => {
               wx.getStorage({
@@ -80,14 +84,20 @@ Component({
               });
           });
         },
+        /**
+         * 
+         * //新行程弹窗
+         */
         onCreatorVisibleChange() {
             this.setData({
                 creatorVisible: !this.data.creatorVisible,
             });
         },
+        //控制日历弹窗显现
         handleCalendar() {
             this.setData({ calendarVisible: true });
         },
+        //控制日历弹窗的确定，给组件存储的newTour赋值
         handleCalendarConfirm(e: any) {
             this.setData({
                 newTourDate: e.detail.value,
@@ -95,9 +105,11 @@ Component({
                 newTourEndDateStr: formatDate(new Date(e.detail.value[1])),
             });
         },
+        //行程名字变更
         handleTitleInput(e: any) {
             this.setData({ newTourName: e.detail.value, });
         },
+        //控制货币变更
         onCurrencyColumnChange(e: any) {
             const { column, index } = e.detail;
             const newTourMainCurrency = currencyList[index].value;
@@ -107,6 +119,7 @@ Component({
                 this.setData({ subCurrencies: subCurrencies });
             }
         },
+        //确定，更新主/辅货币
         onCurrencyPickerChange(e: any) {
             const { value, label } = e.detail;
 
@@ -124,6 +137,9 @@ Component({
         onCurrencyPicker() {
             this.setData({ currencySelectorVisible: true });
         },
+        /** 
+        * 创建新行程，提取最新数据后同步更新tourHaspMap
+        */
         async createTour() {
           await this.updateTourHashMap();
             this.setData({
@@ -146,7 +162,6 @@ Component({
 
                 this.setData({
                     tourHashMap: tourHashMap,
-                    containsTour: true,
                     creatorVisible: false,
                 });
 
@@ -168,65 +183,71 @@ Component({
                         });
                     })
                 ]).then(() => {
-                    this.updateTourList();
+                    console.log("创建成功");
+                    this.triggerEvent('containsTourUpdate');
                 }).catch((err) => {
                     console.error('存储 tour 数据时出错: ', err);
                 });
             });
         },
-        selectTour(e: any) {
-            const id = e.currentTarget.dataset.index;
-            wx.getStorage({
-                key: 'tour-' + id,
-                success: (res) => {
-                    app.globalData.selectingTour = true;
-                    app.globalData.currentTour = res.data as Tour;
-                },
-            })
-        },
+        /** 
+        //根据hashmap值，更新组件内tourlist，displayTourlist，
+        */
         async updateTourList() {
-          await this.updateTourHashMap();
+            await this.updateTourHashMap(); // 等待 tourHashMap 更新
             const tourHashMap = this.data.tourHashMap;
-
-            if (tourHashMap.size == 0) return;
+          
+            if (tourHashMap.size === 0) {
+              this.setData({
+                tourList: [],
+                displayTourList: [],
+              });
+              this.triggerEvent('containsTourUpdate');
+              return; // 提前返回，外部 await 会立即完成
+            }
+          
             const tourList = [] as any[];
-
             const promises = Array.from(tourHashMap.values()).map(tour_id => {
-                return new Promise((resolve, reject) => {
-                    wx.getStorage({
-                        key: tour_id,
-                        success: (res) => {
-                            const tour = res.data as Tour;
-                            tourList.push({
-                                id: tour.id,
-                                title: tour.title,
-                                startDate: formatDate(tour.startDate),
-                                endDate: formatDate(tour.endDate),
-                            });
-                            resolve(true);
-                        },
-                        fail: (err) => {
-                            reject(err);
-                        }
+              return new Promise((resolve, reject) => {
+                wx.getStorage({
+                  key: tour_id,
+                  success: (res) => {
+                    const tour = res.data as Tour;
+                    tourList.push({
+                      id: tour.id,
+                      title: tour.title,
+                      startDate: formatDate(tour.startDate),
+                      endDate: formatDate(tour.endDate),
                     });
+                    resolve(true);
+                  },
+                  fail: (err) => {
+                    reject(err);
+                  }
                 });
+              });
             });
-
-            Promise.all(promises).then(() => {
+          
+            return Promise.all(promises)
+              .then(() => {
                 const displayTourList = tourList.map((tour: any) => {
-                    return { label: tour.title, value: tour.id };
+                  return { label: tour.title, value: tour.id };
                 });
                 this.setData({
-                    tourList: tourList,
-                    displayTourList: displayTourList,
+                  tourList: tourList,
+                  displayTourList: displayTourList,
                 });
-                app.globalData.tourList = tourList;
-                this.triggerEvent('tourListUpdate', { tourList: tourList });
-            }).catch((err) => {
+                // console.log("tourList updated", this.data.tourList);
+                this.triggerEvent('containsTourUpdate');
+              })
+              .catch((err) => {
                 console.error('读取 tour 数据时出错: ', err);
-            });
-        },
-        onTourSelectorVisibleChange() {
+                throw err; // 抛出错误，让外部 await 能捕获
+              });
+          },
+         async onTourSelectorVisibleChange() {
+            await this.updateTourList();
+            console.log("tourList",this.data.tourList)
             if (this.data.tourList.length == 0) {
                 wx.showToast({
                     title: '没有行程',
@@ -243,12 +264,16 @@ Component({
         onTourColumnChange(e: any) {
             this.setData({ selectingTourId: e.detail.value[0] });
         },
+
+        /**
+         * 复制行程
+         */
         async copyTour() {
           await this.updateTourHashMap();
           const tourHashMap = this.data.tourHashMap;
           const existingIds = Array.from(tourHashMap.keys());
           const newId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 0;
-            const selectingTourId = this.data.selectingTourId;
+          const selectingTourId = this.data.selectingTourId;
 
             wx.getStorage({
                 key: 'tour-' + selectingTourId,
@@ -261,7 +286,6 @@ Component({
 
                     this.setData({
                         tourHashMap: tourHashMap,
-                        containsTour: true,
                     });
 
                     Promise.all([
@@ -282,13 +306,15 @@ Component({
                             });
                         })
                     ]).then(() => {
-                        this.updateTourList();
+                        console.log("复制成功");
+                        this.triggerEvent('containsTourUpdate');
                     }).catch((err) => {
                         console.error('存储 tour 数据时出错: ', err);
                     });
                 },
             });
         },
+        //导入行程
         onImporterVisibleChange() {
             this.setData({
                 importerVisible: !this.data.importerVisible,
@@ -297,6 +323,9 @@ Component({
         handleImporterInput(e: any) {
             this.setData({ importedTourData: e.detail.value });
         },
+        /**
+        //同步更新hashmap
+        */
         async importTour() {
           await this.updateTourHashMap();
             const tourData = Tour.fromString(this.data.importedTourData);
@@ -309,7 +338,7 @@ Component({
 
                 this.setData({
                     tourHashMap: tourHashMap,
-                    containsTour: true,
+
                     importerVisible: false,
                 });
 
@@ -331,7 +360,8 @@ Component({
                         });
                     })
                 ]).then(() => {
-                    this.updateTourList();
+                    console.log("导入成功");
+                    this.triggerEvent('containsTourUpdate');
                 }).catch((err) => {
                     console.error('存储 tour 数据时出错: ', err);
                 });

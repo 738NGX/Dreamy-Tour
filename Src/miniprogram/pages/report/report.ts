@@ -1,6 +1,6 @@
 import { Reporter } from '../../utils/reporter';
-import { Tour, currencyList } from '../../utils/tour/tour';
-
+import { Tour } from '../../utils/tour/tour';
+import { currencyList } from '../../utils/tour/expense'
 const app = getApp<IAppOption>();
 
 Component({
@@ -84,7 +84,6 @@ Component({
         canvas2d: 'true',
         selectingTour: false,
         activeCollapses: [[], [], [], [], [], []],
-        markerDetailVisible: false,
         selectingMarkerId: -1,
 
         // 数据缓存
@@ -99,12 +98,23 @@ Component({
     },
     methods: {
         onShow() {
+            //页面展示时调用initMap刷新子组件report-map的数据
+            const tourListComponent1 = this.selectComponent('#report-map');
+            if (tourListComponent1) {
+            tourListComponent1.initMap();
+            }
+            const tourListComponent2 = this.selectComponent('#report-statistics');
+            if (tourListComponent2) {
+            tourListComponent2.initReport();
+            }
             if (typeof this.getTabBar === 'function' && this.getTabBar()) {
                 const page: any = getCurrentPages().pop();
                 this.getTabBar().setData({
                     value: '/' + page.route
                 })
             }
+            console.log("selectingTour:",app.globalData.selectingTour),
+            console.log("currentTour:",app.globalData.currentTour),
             this.setData({
                 selectingTour: app.globalData.selectingTour,
             });
@@ -123,10 +133,13 @@ Component({
                 const optsInType = this.data.optsInType;
                 const optsInTransportType = this.data.optsInTransportType;
                 const optsColumn = this.data.optsColumn;
-                optsInType.subtitle.name = reporter.expenseCalculator.total.allCurrency + currencyList[reporter.mainCurrency].symbol;
-                optsInTransportType.subtitle.name = reporter.expenseCalculator.totalInType[2].allCurrency + currencyList[reporter.mainCurrency].symbol;
-                optsColumn.yAxis.data[0].title = currencyList[reporter.mainCurrency].symbol;
-                optsColumn.yAxis.data[1].title = currencyList[reporter.subCurrency].symbol;
+                console.log("optsColumn:",optsColumn)
+           
+            optsInType.subtitle.name = reporter.expenseCalculator.total.allCurrency + currencyList[reporter.mainCurrency].symbol;
+            optsInTransportType.subtitle.name = reporter.expenseCalculator.totalInType[2].allCurrency + currencyList[reporter.mainCurrency].symbol; 
+            optsColumn.yAxis.data[0].title = currencyList[reporter.mainCurrency].symbol;
+            optsColumn.yAxis.data[1].title = currencyList[reporter.subCurrency].symbol;
+
 
                 this.setData({
                     reporter: reporter,
@@ -163,13 +176,5 @@ Component({
                 }
             });
         },
-        onMarkerDetailVisibleChange(e: any) {
-            let id = e.detail.markerId;
-            if (id === undefined) { id = -1; }
-            this.setData({
-                markerDetailVisible: !this.data.markerDetailVisible,
-                selectingMarkerId: id,
-            });
-        }
     },
 })

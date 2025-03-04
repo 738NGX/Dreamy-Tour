@@ -19,6 +19,13 @@ const app = getApp<IAppOption>();
 enum DatetimeEditMode { None, StartDate, EndDate };
 
 Component({
+    pageLifetimes: {
+        show() {
+          //  console.log('edit-tourplan pageLifetimes.show 被触发');
+          // edit页面显示时，刷新组件数据
+          this.loadCurrentTourPlan();
+        },
+    },
     data: {
         transiconList: [
             'bus', 'metro', 'train', 'flight', 'walk', 'cycle', 'car', 'taxi', 'ship', 'other'
@@ -69,44 +76,7 @@ Component({
     
             },
             attached() {
-                console.log("加载行程默认设置...");
-                        if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-                            const page: any = getCurrentPages().pop();
-                            this.getTabBar().setData({ value: '/' + page.route })
-                        }
-                        this.setData({
-                            selectingTour: app.globalData.selectingTour,
-                            currentTour: app.globalData.currentTour,
-                        });
-                        if (app.globalData.currentTour) {
-                            const currentTour = app.globalData.currentTour as Tour;
-                            this.setData({
-                                currentStartDateStr: formatDate(currentTour.startDate, currentTour.timeOffset),
-                                currentEndDateStr: formatDate(currentTour.endDate, currentTour.timeOffset),
-                                currentTimezoneStr: timezoneList.find(tz => tz.value === currentTour.timeOffset)?.label || '未知时区',
-                                currentDateRange: [
-                                    new Date(currentTour.startDate).getTime(),
-                                    new Date(currentTour.endDate).getTime() + MILLISECONDS.DAY - MILLISECONDS.MINUTE
-                                ],
-                                currentStartDateStrList: currentTour.locations.map(location => formatTime(
-                                    currentTour.startDate + location.startOffset, location.timeOffset
-                                )),
-                                currentEndDateStrList: currentTour.locations.map(location => formatTime(
-                                    currentTour.startDate + location.endOffset, location.timeOffset
-                                )),
-                                currentTimezoneStrList: currentTour.locations.map(location => {
-                                    const timezone = timezoneList.find(tz => tz.value === location.timeOffset);
-                                    return timezone ? timezone.label : '未知时区'
-                                }),
-                                currentDurationStrList: currentTour.transportations.map(transportation => {
-                                    return new Transportation(transportation).getDurationString();
-                                })
-                            });
-                        }
-                        else {
-                            this.setData({ currentDateRange: null });
-                        }
-                        console.log("加载完毕！")
+                this.loadCurrentTourPlan()
             },
             moved() {
         
@@ -116,6 +86,43 @@ Component({
             },
           },
     methods: {
+            loadCurrentTourPlan(){
+                // console.log("加载具体行程计划...");
+                this.setData({
+                    selectingTour: app.globalData.selectingTour,
+                    currentTour: app.globalData.currentTour,
+                });
+                if (app.globalData.currentTour) {
+                    const currentTour = app.globalData.currentTour as Tour;
+                    this.setData({
+                        currentStartDateStr: formatDate(currentTour.startDate, currentTour.timeOffset),
+                        currentEndDateStr: formatDate(currentTour.endDate, currentTour.timeOffset),
+                        currentTimezoneStr: timezoneList.find(tz => tz.value === currentTour.timeOffset)?.label || '未知时区',
+                        currentDateRange: [
+                            new Date(currentTour.startDate).getTime(),
+                            new Date(currentTour.endDate).getTime() + MILLISECONDS.DAY - MILLISECONDS.MINUTE
+                        ],
+                        currentStartDateStrList: currentTour.locations.map(location => formatTime(
+                            currentTour.startDate + location.startOffset, location.timeOffset
+                        )),
+                        currentEndDateStrList: currentTour.locations.map(location => formatTime(
+                            currentTour.startDate + location.endOffset, location.timeOffset
+                        )),
+                        currentTimezoneStrList: currentTour.locations.map(location => {
+                            const timezone = timezoneList.find(tz => tz.value === location.timeOffset);
+                            return timezone ? timezone.label : '未知时区'
+                        }),
+                        currentDurationStrList: currentTour.transportations.map(transportation => {
+                            return new Transportation(transportation).getDurationString();
+                        })
+                    });
+                }
+                else {
+                    this.setData({ currentDateRange: null });
+                }
+                // console.log("加载完毕！")
+            },
+
             getLatestTour(){
                 //使用最新数据创建实例
                 if (!this.data.currentTour) return;
@@ -556,7 +563,7 @@ Component({
                 if(!currentTour) return;
 
                 currentTour.locations[this.data.editingLocationId].note = this.data.editingNote;
-                console.log(currentTour.locations[this.data.editingLocationId].note);
+                // console.log(currentTour.locations[this.data.editingLocationId].note);
 
                 app.globalData.currentTour = currentTour;
                 this.setData({

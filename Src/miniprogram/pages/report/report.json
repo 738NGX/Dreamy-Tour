@@ -9,6 +9,10 @@
         "t-button": "tdesign-miniprogram/button/button",
         "t-input": "tdesign-miniprogram/input/input",
         "t-textarea": "tdesign-miniprogram/textarea/textarea",
-        "qiun-wx-ucharts": "@qiun/wx-ucharts"
+        "qiun-wx-ucharts": "@qiun/wx-ucharts",
+
+        "report-map": "/pages/report/report-map/report-map",
+        "report-statistics": "/pages/report/report-statistics/report-statistics"
+
     }
 }
