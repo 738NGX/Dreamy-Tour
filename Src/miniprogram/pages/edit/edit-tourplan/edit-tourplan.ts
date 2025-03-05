@@ -654,7 +654,7 @@ Component({
                 const currentTour = this.getLatestTour();
                 if(!currentTour) return;
 
-                currentTour.addLocation();
+                currentTour.pushLocation();
                 
                 const currentStartDateStrList = this.data.currentStartDateStrList;
                 const currentEndDateStrList = this.data.currentEndDateStrList;

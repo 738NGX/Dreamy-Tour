@@ -17,7 +17,7 @@ export const tourList = [
     subCurrency: Currency.JPY,
     currencyExchangeRate: 0.049,
     locations: [
-      {
+      [{
         index: 0,
         title: '东京巨蛋',
         startOffset: 0,
@@ -31,9 +31,9 @@ export const tourList = [
             ariaLabel: ''
           }
         ]
-      }
+      }]
     ],
-    transportations: []
+    transportations: [[]]
   },
   {
     id: 2,
@@ -48,7 +48,7 @@ export const tourList = [
     subCurrency: Currency.JPY,
     currencyExchangeRate: 0.049,
     locations: [
-      {
+      [{
         index: 0,
         title: 'K-Arena 横滨',
         startOffset: MILLISECONDS.DAY * 2,
@@ -93,14 +93,14 @@ export const tourList = [
             ariaLabel: ''
           }
         ]
-      }
+      }]
     ],
     transportations: [
-      {
+      [{
         index: 0,
         startOffset: MILLISECONDS.DAY * 2,
         endOffset: MILLISECONDS.DAY * 3,
-      }
+      }]
     ]
   },
   {
@@ -115,8 +115,8 @@ export const tourList = [
     mainCurrency: Currency.CNY,
     subCurrency: Currency.JPY,
     currencyExchangeRate: 0.049,
-    locations: [],
-    transportations: []
+    locations: [[]],
+    transportations: [[]]
   },
   {
     id: 4,
@@ -130,8 +130,8 @@ export const tourList = [
     mainCurrency: Currency.CNY,
     subCurrency: Currency.JPY,
     currencyExchangeRate: 0.049,
-    locations: [],
-    transportations: []
+    locations: [[]],
+    transportations: [[]]
   },
   {
     id: 5,
@@ -145,8 +145,8 @@ export const tourList = [
     mainCurrency: Currency.CNY,
     subCurrency: Currency.JPY,
     currencyExchangeRate: 0.049,
-    locations: [],
-    transportations: []
+    locations: [[]],
+    transportations: [[]]
   },
   {
     id: 5,
@@ -160,8 +160,8 @@ export const tourList = [
     mainCurrency: Currency.CNY,
     subCurrency: Currency.JPY,
     currencyExchangeRate: 0.049,
-    locations: [],
-    transportations: []
+    locations: [[]],
+    transportations: [[]]
   },
   {
     id: 6,
@@ -175,8 +175,8 @@ export const tourList = [
     mainCurrency: Currency.CNY,
     subCurrency: Currency.JPY,
     currencyExchangeRate: 0.049,
-    locations: [],
-    transportations: []
+    locations: [[]],
+    transportations: [[]]
   },
   {
     id: 7,
@@ -190,8 +190,8 @@ export const tourList = [
     mainCurrency: Currency.CNY,
     subCurrency: Currency.JPY,
     currencyExchangeRate: 0.049,
-    locations: [],
-    transportations: []
+    locations: [[]],
+    transportations: [[]]
   },
   {
     id: 8,
@@ -205,8 +205,8 @@ export const tourList = [
     mainCurrency: Currency.CNY,
     subCurrency: Currency.JPY,
     currencyExchangeRate: 0.049,
-    locations: [],
-    transportations: []
+    locations: [[]],
+    transportations: [[]]
   },
   niji7th,
   {
@@ -221,8 +221,8 @@ export const tourList = [
     mainCurrency: Currency.CNY,
     subCurrency: Currency.JPY,
     currencyExchangeRate: 0.049,
-    locations: [],
-    transportations: []
+    locations: [[]],
+    transportations: [[]]
   },
   {
     id: 11,
@@ -236,7 +236,7 @@ export const tourList = [
     mainCurrency: Currency.CNY,
     subCurrency: Currency.JPY,
     currencyExchangeRate: 0.049,
-    locations: [],
-    transportations: []
+    locations: [[]],
+    transportations: [[]]
   },
 ]

@@ -1,4 +1,4 @@
-import { exchangeCurrency, MILLISECONDS, formatTime, formatDate, timeToMilliseconds, } from '../util';
+import { exchangeCurrency, MILLISECONDS } from '../util';
 import { Currency, currencyList } from './expense';
 import { Location, Transportation } from './tourNode';
 
@@ -25,8 +25,8 @@ export class Tour {
   mainCurrency: Currency;
   subCurrency: Currency;
   currencyExchangeRate: number;
-  locations: Location[];
-  transportations: Transportation[];
+  locations: Location[][];
+  transportations: Transportation[][];
 
   constructor(data: any) {
     this.id = data.id ?? -1;
@@ -42,15 +42,20 @@ export class Tour {
     this.mainCurrency = data.mainCurrency ?? Currency.CNY;
     this.subCurrency = data.subCurrency ?? Currency.JPY;
     this.currencyExchangeRate = data.currencyExchangeRate ?? 1;
-    this.locations = data.locations ? data.locations.map((location: any) => new Location(location)) : [new Location({
-      index: 0,
-      startOffset: 0,
-      endOffset: 0,
-      timeOffset: this.timeOffset,
-      startDate: this.startDate,
-        
-    })];
-    this.transportations = data.transportations ? data.transportations.map((transportation: any) => new Transportation(transportation)) : [];
+    this.locations = (Array.isArray(data.locations) && data.locations.length) ?
+      data.locations.map(
+        (copy: any[]) => copy.map((location: any) => new Location(location))
+      )
+      : [[new Location({
+        index: 0,
+        startOffset: 0,
+        endOffset: 0,
+        timeOffset: this.timeOffset,
+      })]];
+    this.transportations = (Array.isArray(data.transportations) && data.transportations.length) ?
+      data.transportations.map(
+        (copy: any[]) => copy.map((transportation: any) => new Transportation(transportation))
+      ) : [[]];
   }
 
   async getExchangeRate() {
@@ -66,10 +71,10 @@ export class Tour {
     }
   }
 
-  addLocation() {
-    const lastLoaction = this.locations[this.locations.length - 1];
+  pushLocation(copyIndex: number = 0) {
+    const lastLoaction = this.locations[copyIndex][this.locations.length - 1];
     const nextTime = lastLoaction.endOffset + 30 * MILLISECONDS.MINUTE;
-    this.transportations.push(
+    this.transportations[copyIndex].push(
       new Transportation({
         index: this.transportations.length,
         startOffset: lastLoaction.endOffset,
@@ -77,7 +82,7 @@ export class Tour {
         timeOffset: this.timeOffset
       })
     );
-    this.locations.push(
+    this.locations[copyIndex].push(
       new Location({
         index: this.locations.length,
         startOffset: nextTime,
@@ -85,26 +90,43 @@ export class Tour {
         timeOffset: this.timeOffset
       })
     );
-    this.locations[this.locations.length - 1].setPosition(lastLoaction.longitude, lastLoaction.latitude);
+    this.locations[copyIndex][this.locations.length - 1].setPosition(lastLoaction.longitude, lastLoaction.latitude);
   }
 
-  removeLocation(index: number) {
+  insertLocation(index: number, copyIndex: number = 0) {
+    if (index == this.locations.length - 1) {
+      this.pushLocation(copyIndex);
+      return;
+    }
+    this.locations.splice(index + 1, 0, new Array<Location>());
+    this.transportations.splice(index + 1, 0, new Array<Transportation>());
+    for (let i = index + 1; i < this.locations.length; i++) {
+      this.locations[copyIndex][i].index = i;
+      this.transportations[copyIndex][i].index = i;
+    }
+    this.locations[copyIndex][index + 1].startOffset = this.transportations[copyIndex][index].endOffset;
+    this.locations[copyIndex][index + 1].endOffset = this.locations[copyIndex][index + 1].startOffset + 30 * MILLISECONDS.MINUTE;
+    this.transportations[copyIndex][index + 1].startOffset = this.locations[copyIndex][index + 1].startOffset;
+    this.transportations[copyIndex][index + 1].endOffset = this.locations[copyIndex][index + 1].endOffset;
+  }
+
+  removeLocation(index: number, copyIndex: number = 0) {
     if (index == 0 || this.locations.length <= 1) {
       return;
     }
     if (index == this.locations.length - 1) {
-      this.locations.pop();
-      this.transportations.pop();
+      this.locations[copyIndex].pop();
+      this.transportations[copyIndex].pop();
       return;
     }
     this.locations.splice(index, 1);
     this.transportations.splice(index, 1);
     for (let i = index; i < this.transportations.length; i++) {
-      this.locations[i].index = i;
-      this.transportations[i].index = i;
+      this.locations[copyIndex][i].index = i;
+      this.transportations[copyIndex][i].index = i;
     }
-    this.locations[this.locations.length - 1].index = this.locations.length - 1;
-    this.locations[index].startOffset = this.transportations[index - 1].endOffset;
+    this.locations[copyIndex][this.locations.length - 1].index = this.locations.length - 1;
+    this.locations[copyIndex][index].startOffset = this.transportations[copyIndex][index - 1].endOffset;
   }
 
   toString(): string {
