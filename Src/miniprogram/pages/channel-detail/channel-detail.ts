@@ -1,5 +1,6 @@
 import { Channel } from "../../utils/channel/channel";
-import { testData } from "../../utils/testData";
+
+const app = getApp<IAppOption>();
 
 Component({
   data: {
@@ -19,8 +20,8 @@ Component({
   methods: {
     onLoad(options: any) {
       const { channelId } = options;
-      this.setData({ 
-        currentChannel: new Channel(testData.channelList.find(channel => channel.id === parseInt(channelId))),
+      this.setData({
+        currentChannel: new Channel(app.globalData.currentData.channelList.find((channel: Channel) => channel.id === parseInt(channelId))),
       });
     },
     onChildPageChange(e: any) {
