@@ -1,7 +1,7 @@
-import { MILLISECONDS, formatTime, formatDate, timeToMilliseconds, } from "../util";
+import { MILLISECONDS } from "../util";
 import { Currency, Expense, ExpenseType, TransportExpense, TransportType } from "./expense";
 import { Photo } from "./photo";
-import { timezoneList } from './timezone';
+
 /**
  * 行程节点类
  */
@@ -11,14 +11,12 @@ export class TourNode {
   endOffset: number;
   timeOffset: number = -480;
   note: string = '';
-  startDate: number;
 
-  constructor(index: number, startOffset: number, endOffset: number, timeOffset: number, startDate: number) {
+  constructor(index: number, startOffset: number, endOffset: number, timeOffset: number) {
     this.index = index;
     this.startOffset = startOffset;
     this.endOffset = endOffset;
     this.timeOffset = timeOffset;
-    this.startDate = startDate;
   }
 
   getDurationString(): string {
@@ -46,22 +44,15 @@ export class Location extends TourNode {
   latitude: number = 31.307627;
   expenses: Expense[] = [];
   photos: Photo[] = [];
-  startDateStr: string = '';
-  endDateStr: string = '';
-  timezone: string = '';
 
   constructor(data: any) {
-    super(data.index ?? -1, data.startOffset ?? 0, data.endOffset ?? 0, data.timeOffset ?? -480, data.startDate ?? Date.now());
+    super(data.index ?? -1, data.startOffset ?? 0, data.endOffset ?? 0, data.timeOffset ?? -480);
     this.title = data.title ?? '';
     this.longitude = data.longitude ?? 121.496300;
     this.latitude = data.latitude ?? 31.307627;
     this.expenses = data.expenses ? data.expenses.map((expense: any) => new Expense(expense)) : [];
     this.photos = data.photos ? data.photos.map((photo: any) => new Photo(photo)) : [];
     this.note = data.note ?? '';
-    this.startDateStr = formatTime(data.startDate + this.startOffset, this.timeOffset);
-    this.endDateStr = formatTime(data.startDate + this.endOffset, this.timeOffset);
-    const timezone = timezoneList.find(tz => tz.value === this.timeOffset);
-    this.timezone = timezone ? timezone.label : '未知时区'
   }
 
   setPosition(longitude: number, latitude: number) {
@@ -71,7 +62,7 @@ export class Location extends TourNode {
 
   addExpense(currency: Currency) {
     this.expenses.push(
-      new Expense(this.expenses.length, currency, ExpenseType.Other)
+      new Expense({ index: this.expenses.length, currency: currency, type: ExpenseType.Other })
     );
   }
 
@@ -96,17 +87,15 @@ export class Location extends TourNode {
  */
 export class Transportation extends TourNode {
   transportExpenses: TransportExpense[] = [];
-  durationStr: string = '';
-  
+
   constructor(data: any) {
     super(data.index ?? -1, data.startOffset ?? 0, data.endOffset ?? 0, data.timeOffset ?? -480);
     this.transportExpenses = data.transportExpenses ? data.transportExpenses.map((expense: any) => new TransportExpense(expense)) : [];
-    this.durationStr = this.getDurationString();
   }
 
   addTransportExpense(currency: Currency) {
     this.transportExpenses.push(
-      new TransportExpense(this.transportExpenses.length, currency, TransportType.Other)
+      new TransportExpense({ index: this.transportExpenses.length, currency: currency, type: TransportType.Other })
     );
   }
   removeTransportExpense(index: number) {
