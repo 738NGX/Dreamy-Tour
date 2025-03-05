@@ -104,7 +104,7 @@ Component({
         tour.locations.forEach((copy: Location[]) => copy.forEach((location: Location) => {
           if (location.photos.length > 0) {
             acc.push({
-              id: tour.id * 1000000 + copy.indexOf(location) * 10000 + location.index,
+              id: tour.id * 1000000 + tour.locations.indexOf(copy) * 10000 + location.index,
               latitude: location.latitude,
               longitude: location.longitude,
               iconPath: `${CDN_PATH}/Marker1_Activated@3x.png`,
@@ -115,6 +115,7 @@ Component({
                 locationTitle: location.title,
                 time: formatTime(tour.startDate + location.startOffset, location.timeOffset),
                 timezone: timezoneList.find(timezone => timezone.value == location.timeOffset)?.label,
+                photos: location.photos,
               }
             });
           }
@@ -155,9 +156,6 @@ Component({
       if (id != -1) {
         this.setData({
           currentPhotoIndex: 0,
-          photoSwiperList: this.data.tourSaves.find(
-            (tour: any) => tour.id == Math.floor(id / 1000000))?.locations.find(
-              (location: any) => location[Math.floor(id % 1000000 / 10000)].index == id % 10000)?.photos ?? [],
           selectingMarkerInfo: this.data.markers.find((marker: any) => marker.id == id)?.info ?? {},
         });
       }

@@ -60,6 +60,7 @@ Component({
     mapVisible: false,
     expenseVisible: false,
     noteVisible: false,
+    photoVisible: false,
     transExpenseVisible: false,
     priceError: false,
 
@@ -164,6 +165,24 @@ Component({
           width: 30,
           height: 30
         }]
+      });
+    },
+    onPhotoVisibleChange(e: any) {
+      if (!this.data.currentTour) return;
+
+      const currentTour = this.getLatestTour();
+      if (!currentTour) return;
+
+      const id = e.currentTarget.dataset.index;
+      if (id === undefined) {
+        this.setData({ photoVisible: !this.data.photoVisible });
+        return;
+      }
+
+      this.setData({
+        editingLocationId: id,
+        editingLocation: id === -1 ? null : currentTour.locations[this.data.currentTourCopyIndex][id],
+        photoVisible: !this.data.photoVisible
       });
     },
     onExpenseVisibleChange(e: any) {

@@ -1,6 +1,6 @@
 <t-popup visible="{{markerDetailVisible}}" bind:visible-change="onMarkerDetailVisibleChange" placement="bottom" style="height: 50vh;">
   <scroll-view class="scrollarea" scroll-y type="list" style="height: 50vh;">
-    <t-swiper current="{{currentPhotoIndex}}" autoplay="{{true}}" duration="{{500}}" interval="{{5000}}" list="{{photoSwiperList}}" navigation="{{ { type: 'dots-bar' } }}" />
+    <t-swiper current="{{currentPhotoIndex}}" autoplay="{{true}}" duration="{{500}}" interval="{{5000}}" list="{{selectingMarkerInfo.photos}}" navigation="{{ { type: 'dots-bar' } }}" />
     <t-cell title="行程" leftIcon="bookmark" note="{{selectingMarkerInfo.tourTitle}}" />
     <t-cell title="地点" leftIcon="location" note="{{selectingMarkerInfo.locationTitle}}" />
     <t-cell title="时间" leftIcon="time" note="{{selectingMarkerInfo.time}}" />
