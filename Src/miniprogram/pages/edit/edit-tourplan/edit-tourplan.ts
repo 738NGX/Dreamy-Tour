@@ -11,7 +11,7 @@ if (PLUGIN_KEY) {
 }
 import { Location,  Transportation } from '../../../utils/tour/tourNode';
 import { Tour } from '../../../utils/tour/tour';
-import { transportList, expenseList, tagList, TransportExpense } from '../../../utils/tour/expense';
+import { currencyList, transportList, expenseList, tagList, TransportExpense } from '../../../utils/tour/expense';
 import { timezoneList } from '../../../utils/tour/timezone';
 import { MILLISECONDS, formatDate, formatNumber, formatTime, timeToMilliseconds } from '../../../utils/util';
 

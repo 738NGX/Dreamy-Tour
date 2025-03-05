@@ -1,7 +1,5 @@
 import { Channel } from "../../../utils/channel/channel";
-import { User } from "../../../utils/user/user";
-
-const app = getApp<IAppOption>();
+import { testData } from "../../../utils/testData";
 
 Component({
   properties: {
@@ -27,7 +25,7 @@ Component({
   methods: {
     sortPosts() {
       const currentChannel = this.properties.currentChannel as Channel;
-      const sorted = [...app.globalData.currentData.postList]
+      const sorted = [...testData.postList]
         .filter(post => post.linkedChannel == currentChannel.id)
         .sort((a, b) =>
           (b.isSticky ? 1 : 0) - (a.isSticky ? 1 : 0) || b.time - a.time
@@ -38,7 +36,7 @@ Component({
       });
     },
     generateUsernameList() {
-      const usernameList = this.data.searchedPosts.map(post => app.globalData.currentData.userList.find((user: User) => user.id === post.user)?.name ?? '未知用户');
+      const usernameList = this.data.searchedPosts.map(post => testData.userList.find(user => user.id === post.user)?.name ?? '未知用户');
       this.setData({ usernameList: usernameList });
     },
     onSearch(e: any) {

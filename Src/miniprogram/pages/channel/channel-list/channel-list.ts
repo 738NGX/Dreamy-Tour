@@ -1,20 +1,19 @@
-import { ChannelLevel, channelLevelInfo } from '../../../utils/channel/channel';
-
-const app = getApp<IAppOption>();
+import { channelLevelInfo } from '../../../utils/channel/channel';
+import { testData } from '../../../utils/testData';
 
 Component({
   properties: {
 
   },
   data: {
-    channelList: app.globalData.currentData.channelList,
+    channelList: testData.channelList,
     channelLevelList: [''],
   },
   lifetimes: {
     attached() {
       this.setData({
-        channelLevelList: this.data.channelList.map((channel:any) => {
-          return channelLevelInfo[(channel.level as ChannelLevel)].text;
+        channelLevelList: this.data.channelList.map(channel => {
+          return channelLevelInfo[channel.level].text;
         }),
       });
     },

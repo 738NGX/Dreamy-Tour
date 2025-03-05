@@ -29,4 +29,4 @@
     <t-cell bind:click="handleTourView" data-index="{{item.id}}" title="{{item.title}}" description="{{item.startDateStr}}-{{item.endDateStr}}" hover arrow />
   </block>
 </scroll-view>
-<t-fab icon="user-circle" bind:click="onRankingVisibleChange" text="旅行排行" />
+<t-fab icon="user-circle" button-props="{{fabButton}}" bind:click="onRankingVisibleChange" text="旅行排行" />

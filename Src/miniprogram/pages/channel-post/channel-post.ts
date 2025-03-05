@@ -1,4 +1,5 @@
 import { Comment, Post } from "../../utils/channel/post";
+import { testData } from "../../utils/testData";
 import { User } from "../../utils/user/user";
 import { formatPostTime, getUserGroupNameInChannel } from "../../utils/util";
 
@@ -9,7 +10,7 @@ enum InputMode { None, Comment, Reply };
 function getStructuredComments(postId: number, userList: User[], commentList: Comment[]) {
   const userMap = new Map(userList.map(user => [user.id, user.name]));
   const replyMap = new Map<number, Comment[]>();
-  const channelId = app.globalData.currentData.postList.find((post:Post) => post.id == postId)?.linkedChannel;
+  const channelId = testData.postList.find(post => post.id == postId)?.linkedChannel;
 
   // 初始化评论映射
   commentList.forEach(comment => {
@@ -78,23 +79,23 @@ Component({
   methods: {
     onLoad(options: any) {
       const { postId } = options;
-      const currentPost = app.globalData.currentData.postList.find((post:Post) => post.id == postId);
+      const currentPost = testData.postList.find(post => post.id == postId);
       this.setData({ currentPost });
     },
     onShow() {
-      const author = app.globalData.currentData.userList.find((user:User) => user.id == this.data.currentPost?.user)?.name;
+      const author = testData.userList.find(user => user.id == this.data.currentPost?.user)?.name;
       const authorGroup = getUserGroupNameInChannel(
-        new User(app.globalData.currentData.userList.find((user:User) => user.id == this.data.currentPost?.user)!),
+        new User(testData.userList.find(user => user.id == this.data.currentPost?.user)!),
         this.data.currentPost?.linkedChannel!
       );
       const timeStr = this.data.currentPost ? formatPostTime(this.data.currentPost.time) : '';
       const structedComments = getStructuredComments(
         this.data.currentPost.id,
-        app.globalData.currentData.userList.map((user:User) => new User(user)),
-        app.globalData.currentData.commentList.map((comment:User) => new Comment(comment))
+        testData.userList.map(user => new User(user)),
+        testData.commentList.map(comment => new Comment(comment))
       );
       this.setData({
-        commentList: app.globalData.currentData.commentList,
+        commentList: testData.commentList,
         author: author,
         authorGroup: authorGroup,
         timeStr: timeStr,
@@ -169,9 +170,6 @@ Component({
       } else {
         currentPost.likes.push(this.data.currentUserId);
       }
-      const newPostList = app.globalData.currentData.postList.map((post:Post) => new Post(post));
-      newPostList.find((post:Post) => post.id == currentPost.id).likes = currentPost.likes;
-      app.globalData.currentData.postList = newPostList;
       this.setData({ currentPost });
     },
     handleCommentLike(e: any) {
@@ -183,13 +181,7 @@ Component({
       } else {
         comment.likes.push(this.data.currentUserId);
       }
-
-      const newCommentList = this.data.commentList;
-      newCommentList.find((comment: any) => comment.id == commentId).likes = comment.likes;
-      this.setData({ 
-        structedComments: structedComments,
-        commentList: newCommentList
-      });
+      this.setData({ structedComments });
     },
     handleReplyLike(e: any) {
       const commentId = e.currentTarget.dataset.index[0];
@@ -205,15 +197,10 @@ Component({
         reply.likes.push(this.data.currentUserId);
       }
 
-      const newCommentList = this.data.commentList;
-      newCommentList.find((comment: any) => comment.id == replyId).likes = reply.likes;
-
       this.setData({
         structedComments: structedComments,
-        replies: comment.replies,
-        commentList: newCommentList
+        replies: comment.replies
       });
-      app.globalData.currentData.commentList = newCommentList;
     },
     cancelInput() {
       this.setData({ inputVisible: false });
@@ -247,11 +234,10 @@ Component({
           commentList: newCommentList,
           structedComments: getStructuredComments(
             this.data.currentPost.id,
-            app.globalData.currentData.userList.map((user:User) => new User(user)),
+            testData.userList.map(user => new User(user)),
             newCommentList
           ),
         });
-        app.globalData.currentData.commentList = newCommentList;
       } else if (this.data.inputMode === InputMode.Reply) {
         console.log('发送回复');
       }
