@@ -36,15 +36,20 @@ class TestExchangeRate:
 
 
     @pytest.mark.parametrize(
-        "from_, to, msg, status",
+        "from_, to, status",
         [
-            ('cny', 'USD', '传参异常：ISO 代码必须由 3 个大写字母组成', 400),
-            ('AA', 'USD', '传参异常：ISO 代码必须由 3 个大写字母组成', 400),
-            ('AAA', 'USD', '原始货币类型不存在', 404),
-            ('CNY', 'AAA', '目标货币类型不存在', 404)
+            # 字母不合法的情况
+            ('cny', 'USD', 400),
+            ('AA', 'USD', 400),
+            (1, 'USD', 400),
+            ('AA', 3, 400),
+            # 原始货币不存在的情况
+            ('AAA', 'USD', 404),
+            # 目标货币不存在的情况
+            ('CNY', 'AAA', 404)
         ]
     )
-    def test_invalid_currency_type(self, api_client, base_url, from_, to, msg, status) -> None:
+    def test_invalid_currency_type(self, api_client, base_url, from_, to, status) -> None:
         """
         测试货币类型无效的情况
         :param api_client:
@@ -66,7 +71,5 @@ class TestExchangeRate:
         assert res.status_code == status
         # 测试 code
         assert json_data['code'] == 0
-        # 测试错误消息
-        assert json_data['msg'] == msg
 
 

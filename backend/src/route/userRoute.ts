@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:44:15 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-02 23:14:35
+ * @Last Modified time: 2025-03-06 23:38:39
  */
 
 import express, { Request, Response } from "express"
@@ -63,17 +63,25 @@ userRoute.put('/user/nickname', async (req: Request, res: Response) => {
 })
 
 /**
- * [POST] 更改用户头像
+ * @description 更改用户头像
+ * @method POST
  * @path /user/avatar
  */
 userRoute.post('/user/avatar', upload.single('file'), async (req: Request, res: Response) => {
+  // 不能是空文件
   if (!req.file) {
     res.status(StatusCodes.BAD_REQUEST)
       .json(Result.error(MessageConstant.NO_FILE_UPLOADED));
   }
+  // 必须是图片文件
+  if (!FileUtil.isPicture(req.file?.originalname || '')) {
+    res.status(StatusCodes.BAD_REQUEST)
+      .json(Result.error(MessageConstant.ACCEPT_IMAGE_ONLY));
+  }
   // 获取 uid
   const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);  // 经过拦截器处理之后，剩下来的请求中一定包含 token，因此断言为 string
   const file = req.file!.buffer;
+  
   const fileExtension = FileUtil.getFileExtension(req.file!.originalname);
   // 更换头像
   const freshAvatarUrl = await UserService.updateAvatar(file, uid, fileExtension);
