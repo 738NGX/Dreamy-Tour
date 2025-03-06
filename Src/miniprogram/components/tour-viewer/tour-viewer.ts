@@ -29,10 +29,17 @@ Component({
       value: {},
       observer(newVal: any) {
         if (newVal) {
-          this.filterNodeByDate();
+          this.filterNodeByDate(newVal);
         }
       }
     },
+    copyIndex: {
+      type: Number,
+      value: 0,
+      observer(newVal: number) {
+        this.onCopyChange(newVal);
+      }
+    }
   },
   data: {
     transiconList: [
@@ -123,7 +130,7 @@ Component({
       else {
         this.setData({ currentDateRange: null });
       }
-      this.filterNodeByDate();
+      this.filterNodeByDate(this.properties.dateFilter);
     },
     moved() {
 
@@ -254,12 +261,11 @@ Component({
         transExpenseVisible: !this.data.transExpenseVisible
       });
     },
-    filterNodeByDate() {
+    filterNodeByDate(dateFilter: any) {
       if (!this.data.currentTour) return;
       const currentTour = this.getLatestTour();
       if (!currentTour) return;
 
-      const dateFilter = this.properties.dateFilter;
       if (dateFilter.value[0] === 0) {
         this.setData({
           displayingLocationId: currentTour.locations[this.data.currentTourCopyIndex].map(location => location.index),
@@ -278,6 +284,10 @@ Component({
         }).map(transportation => transportation.index);
         this.setData({ displayingLocationId, displayingTransportationId });
       }
-    }
+    },
+    onCopyChange(index: number) {
+      this.setData({ currentTourCopyIndex: index });
+      this.filterNodeByDate(this.properties.dateFilter);
+    },
   },
 })

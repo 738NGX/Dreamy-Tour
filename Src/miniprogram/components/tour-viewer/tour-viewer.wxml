@@ -73,7 +73,7 @@
 </t-popup-headered>
 <!-- 节点显示 -->
 <view class="container" style="align-items: center;">
-  <view class="location">
+  <view wx:if="{{displayingLocationId.length}}" class="location">
     <t-cell title="{{currentTour.locations[currentTourCopyIndex][displayingLocationId[0]].title}}" />
     <view class="row">
       <t-icon name="flight-takeoff" size="32rpx" style="margin:0 10rpx;" />

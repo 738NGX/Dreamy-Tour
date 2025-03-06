@@ -25,6 +25,7 @@ export class Tour {
   mainCurrency: Currency;
   subCurrency: Currency;
   currencyExchangeRate: number;
+  nodeCopyNames: string[];
   locations: Location[][];
   transportations: Transportation[][];
 
@@ -42,6 +43,7 @@ export class Tour {
     this.mainCurrency = data.mainCurrency ?? Currency.CNY;
     this.subCurrency = data.subCurrency ?? Currency.JPY;
     this.currencyExchangeRate = data.currencyExchangeRate ?? 1;
+    this.nodeCopyNames = data.nodeCopyNames ?? ['默认'];
     this.locations = (Array.isArray(data.locations) && data.locations.length) ?
       data.locations.map(
         (copy: any[]) => copy.map((location: any) => new Location(location))
