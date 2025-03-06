@@ -2,7 +2,7 @@
 <block wx:if="{{childPage==0}}">
   <!-- 行程列表页面 -->
   <block wx:if="{{containsTour}}">
-    <index-tourlist id="tour-list-id" bind:tourListUpdate="onTourListUpdate"/>
+    <index-tourlist id="index-tourlist" bind:containsTourUpdate="onContainsTourUpdate"/>
   </block>
   <block wx:else>
     <!-- 没有创建的行程 -->
@@ -17,5 +17,5 @@
   </block>
 </block>
 <block wx:else>
-  <index-newtour bind:tourListUpdate="onTourListUpdate" />
+  <index-newtour bind:containsTourUpdate="onContainsTourUpdate" />
 </block>

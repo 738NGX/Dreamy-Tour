@@ -25,6 +25,14 @@ Component({
             this.setData({
                 selectingTour: app.globalData.selectingTour,
             });
+            const tourplanComponent = this.selectComponent('#edit-tourplan');
+            if (tourplanComponent) {
+                tourplanComponent.loadCurrentTourPlan();
+            }
+            const settingsComponent = this.selectComponent('#edit-settings');
+            if (settingsComponent) {
+                settingsComponent.loadCurrentTourPlan();
+            }
         },
         onChildPageChange(e: any) {
             this.setData({ childPage: e.detail.value })

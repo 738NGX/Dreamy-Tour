@@ -1,11 +1,19 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
-<!-- 位置选择弹窗 -->
-<t-popup-headered visible="{{mapVisible}}" title="选择位置" bind:visible-change="onMapVisibleChange" bindConfirm="changeLocation" bindCancel="onMapVisibleChange" placement="bottom" style="height: 50vh;">
+<!-- 查看位置弹窗 -->
+<t-popup-headered visible="{{mapVisible}}" title="查看位置" bind:visible-change="onMapVisibleChange" bindConfirm="onMapVisibleChange" bindCancel="onMapVisibleChange" placement="bottom" style="height: 50vh;">
   <map style="width:100%;height:500rpx;" latitude="{{mapLocation[0]}}" longitude="{{mapLocation[1]}}" markers="{{markers}}" />
   <view class="column" style="width:90%;">当前位置:{{mapLocation[0]}},{{mapLocation[1]}}</view>
 </t-popup-headered>
+<!-- 查看图片弹窗 -->
+<t-popup-headered visible="{{photoVisible}}" title="查看图片" bind:visible-change="onPhotoVisibleChange" bindConfirm="onPhotoVisibleChange" bindCancel="onPhotoVisibleChange" placement="bottom" style="height: 60vh;">
+  <scroll-view class="scrollarea" scroll-y type="list" style="height: 50vh;">
+    <block wx:for="{{editingLocation.photos}}" wx:key="index">
+      <image src="{{item.value}}" mode="widthFix" style="width:100%;" />
+    </block>
+  </scroll-view>
+</t-popup-headered>
 <!-- 查看消费弹窗 -->
-<t-popup-headered visible="{{expenseVisible}}" title="查看消费" bind:visible-change="onExpenseVisibleChange" bindConfirm="changeExpense" bindCancel="onExpenseVisibleChange" placement="bottom" style="height: 80vh;">
+<t-popup-headered visible="{{expenseVisible}}" title="查看消费" bind:visible-change="onExpenseVisibleChange" bindConfirm="onExpenseVisibleChange" bindCancel="onExpenseVisibleChange" placement="bottom" style="height: 80vh;">
   <scroll-view class="scrollarea" scroll-y type="list" style="height: 70vh;">
     <view class="container" style="padding:0;justify-content:flex-start;">
       <t-collapse value="{{[editingExpenseId]}}" bind:change="onExpenseIdChange" expandMutex expandIcon>
@@ -13,11 +21,11 @@
           <t-swipe-cell>
             <t-collapse-panel header="{{item.title}}" headerRightContent="{{item.amount}}{{currencyList[item.currency].symbol}}" value="{{i}}">
               <t-icon prefix="iconfont" name="{{expenseList[item.type].icon}}" size="32rpx" slot="header-left-icon" />
-              <t-input label="标题" placeholder="请输入标题" value="{{item.title}}" maxcharacter="{{40}}" bind:change="onExpenseTitleInput" />
-              <t-input label="费用" placeholder="0.00" align="right" type="digit" value="{{item.amount}}" bind:change="onExpensePriceInput" tips="{{priceError ? '请输入正确的费用' : ''}}" t-class-tips="tips">
-                <t-button size="large" theme="primary" variant="outline" bind:tap="exchangeExpenseCurrency" style="height:50rpx;" slot="suffix">{{currencyList[item.currency].symbol}}</t-button>
+              <t-input disabled label="标题" value="{{item.title}}" />
+              <t-input disabled label="费用" align="right" type="digit" value="{{item.amount}}" tips="{{priceError ? '请输入正确的费用' : ''}}" t-class-tips="tips">
+                <t-button disabled size="large" theme="primary" variant="outline" style="height:50rpx;" slot="suffix">{{currencyList[item.currency].symbol}}</t-button>
               </t-input>
-              <t-radio-group value="{{item.type}}" borderless t-class="box2" bind:change="handleExpenseTypeChange">
+              <t-radio-group disabled value="{{item.type}}" borderless t-class="box2">
                 <block wx:for="{{expenseList}}" wx:key="label">
                   <t-radio value="{{item.value}}">
                     <view class="row" style="margin:0" slot="label">
@@ -27,15 +35,14 @@
                   </t-radio>
                 </block>
               </t-radio-group>
-              <t-radio-group t-class="horizontal-box" value="{{item.tag}}" bind:change="onExpenseTagChange">
+              <t-radio-group disabled t-class="horizontal-box" value="{{item.tag}}">
                 <view wx:for="{{tagList}}" wx:key="index" wx:for-index="j" class="card {{editingLocation.expenses[i].tag == j ? 'card--active' : ''}}" style="background-color: \#{{item.color}};">
                   <t-icon wx:if="{{editingLocation.expenses[i].tag == j}}" name="check" t-class="card__icon" />
                   <t-radio value="{{item.value}}" label="{{j}}" icon="none" style="background-color: \#{{item.color}};" borderless />
                 </view>
               </t-radio-group>
-              <t-textarea disabled placeholder="备注最多输入500个字" maxlength="500" disableDefaultPadding="{{true}}" value="{{item.note}}" bind:change="onExpenseNoteInput" indicator />
+              <t-textarea disabled maxlength="500" disableDefaultPadding="{{true}}" value="{{item.note}}" indicator />
             </t-collapse-panel>
-            <view slot="right" class="btn2 delete-btn" bind:tap="removeExpense" data-index="{{i}}">删除</view>
           </t-swipe-cell>
         </block>
       </t-collapse>
@@ -44,7 +51,7 @@
 </t-popup-headered>
 <!-- 查看备注弹窗 -->
 <t-popup-headered visible="{{noteVisible}}" title="查看备注" bind:visible-change="onNoteVisibleChange" bindConfirm="changeNote" bindCancel="onNoteVisibleChange" placement="bottom" style="height: 30vh;">
-  <t-textarea style="height: 100%;" placeholder="备注最多输入500个字" maxlength="500" disableDefaultPadding="{{true}}" value="{{editingNote}}" bind:change="onNoteInput" indicator />
+  <t-textarea disabled style="height: 100%;" maxlength="500" disableDefaultPadding="{{true}}" value="{{editingNote}}" bind:change="onNoteInput" indicator />
 </t-popup-headered>
 <!-- 查看交通消费弹窗 -->
 <t-popup-headered visible="{{transExpenseVisible}}" title="查看交通" bind:visible-change="onTransExpenseVisibleChange" bindConfirm="onTransExpenseVisibleChange" bindCancel="onTransExpenseVisibleChange" placement="bottom" style="height: 60vh;">
@@ -66,40 +73,41 @@
 </t-popup-headered>
 <!-- 节点显示 -->
 <view class="container" style="align-items: center;">
-  <view wx:if="{{util.isInArray(displayingLocationId,0)}}" class="location">
-    <t-cell title="{{currentTour.locations[0].title}}" />
+  <view wx:if="{{displayingLocationId.length}}" class="location">
+    <t-cell title="{{currentTour.locations[currentTourCopyIndex][displayingLocationId[0]].title}}" />
     <view class="row">
       <t-icon name="flight-takeoff" size="32rpx" style="margin:0 10rpx;" />
-      <view style="width: 90%;">开始时间:{{currentStartDateStrList[0]}}</view>
-      <t-button disabled size="large" theme="primary" variant="outline" style="width: 10%;height: 50rpx;" bind:tap="handleNodeStartDateSelect" data-index="{{0}}">调整</t-button>
+      <view style="width: 90%;">开始时间:{{currentStartDateStrList[currentTourCopyIndex][displayingLocationId[0]]}}</view>
+      <t-button disabled size="large" theme="primary" variant="outline" style="width: 10%;height: 50rpx;" bind:tap="handleNodeStartDateSelect" data-index="{{displayingLocationId[0]}}">调整</t-button>
     </view>
     <view class="row">
       <t-icon name="flight-landing" size="32rpx" style="margin:0 10rpx;" />
-      <view style="width: 90%;">结束时间:{{currentEndDateStrList[0]}}</view>
-      <t-button disabled size="large" theme="primary" variant="outline" style="width: 10%;height: 50rpx;" bind:tap="handleNodeEndDateSelect" data-index="{{0}}">调整</t-button>
+      <view style="width: 90%;">结束时间:{{currentEndDateStrList[currentTourCopyIndex][displayingLocationId[0]]}}</view>
+      <t-button disabled size="large" theme="primary" variant="outline" style="width: 10%;height: 50rpx;" bind:tap="handleNodeEndDateSelect" data-index="{{displayingLocationId[0]}}">调整</t-button>
     </view>
     <view class="row">
       <t-icon name="time" size="32rpx" style="margin:0 10rpx;" />
-      <view style="width: 90%;">时区:{{currentTimezoneStrList[0]}}</view>
-      <t-button disabled size="large" theme="primary" variant="outline" style="width: 10%;height: 50rpx;" bind:tap="handleNodeTimezoneSelect" data-index="{{0}}">选择</t-button>
+      <view style="width: 90%;">时区:{{currentTimezoneStrList[currentTourCopyIndex][displayingLocationId[0]]}}</view>
+      <t-button disabled size="large" theme="primary" variant="outline" style="width: 10%;height: 50rpx;" bind:tap="handleNodeTimezoneSelect" data-index="{{displayingLocationId[0]}}">选择</t-button>
     </view>
     <view class="row">
       <t-icon name="location" size="32rpx" style="margin:0 10rpx;" />
-      <view style="width: 90%;">位置:{{currentTour.locations[0].latitude}},{{currentTour.locations[0].longitude}}</view>
-      <t-button size="large" theme="primary" variant="outline" style="width: 10%;height: 50rpx;" bind:tap="onMapVisibleChange" data-index="{{0}}">查看</t-button>
+      <view style="width: 90%;">位置:{{currentTour.locations[currentTourCopyIndex][displayingLocationId[0]].latitude}},{{currentTour.locations[currentTourCopyIndex][displayingLocationId[0]].longitude}}</view>
+      <t-button size="large" theme="primary" variant="outline" style="width: 10%;height: 50rpx;" bind:tap="onMapVisibleChange" data-index="{{displayingLocationId[0]}}">查看</t-button>
     </view>
     <view class="row">
-      <t-button size="large" theme="primary" variant="outline" style="width: 49%;height: 50rpx;" bind:tap="onExpenseVisibleChange" data-index="{{0}}">查看消费</t-button>
-      <t-button size="large" theme="primary" variant="outline" style="width: 49%;height: 50rpx;" bind:tap="onNoteVisibleChange" data-index="{{0}}">查看备注</t-button>
+      <t-button size="large" theme="primary" variant="outline" style="width: 33%;height: 50rpx;" bind:tap="onExpenseVisibleChange" data-index="{{displayingLocationId[0]}}">查看消费</t-button>
+        <t-button size="large" theme="primary" variant="outline" style="width: 33%;height: 50rpx;" bind:tap="onPhotoVisibleChange" data-index="{{displayingLocationId[0]}}">查看照片</t-button>
+        <t-button size="large" theme="primary" variant="outline" style="width: 33%;height: 50rpx;" bind:tap="onNoteVisibleChange" data-index="{{displayingLocationId[0]}}">查看备注</t-button>
     </view>
   </view>
   <!-- 遍历节点 -->
-  <block wx:if="{{util.isInArray(displayingTransportationId,i)}}" wx:for="{{currentTour.transportations}}" wx:key="index" wx:for-index="i">
+  <block wx:if="{{util.isInArray(displayingTransportationId,i)}}" wx:for="{{currentTour.transportations[currentTourCopyIndex]}}" wx:key="index" wx:for-index="i">
     <view class="connecter" />
     <view class="transportation">
       <view class="row">
         <t-icon name="time" size="32rpx" style="margin:0 10rpx;" />
-        <view style="width:90%;">交通时长:{{currentDurationStrList[i]}}</view>
+        <view style="width:90%;">交通时长:{{currentDurationStrList[currentTourCopyIndex][i]}}</view>
         <t-button disabled size="large" theme="primary" variant="outline" style="width: 10%;height: 50rpx;" bind:tap="handleDuartionSelect" data-index="{{i}}">调整</t-button>
       </view>
       <block wx:for="{{item.transportExpenses}}" wx:key="index" wx:for-index="j">
@@ -119,30 +127,31 @@
     </view>
     <view wx:if="{{util.isInArray(displayingLocationId,i+1)}}" class="connecter" />
     <view wx:if="{{util.isInArray(displayingLocationId,i+1)}}" class="location">
-      <t-cell title="{{currentTour.locations[i+1].title}}" />
+      <t-cell title="{{currentTour.locations[currentTourCopyIndex][i+1].title}}" />
       <view class="row">
         <t-icon name="flight-takeoff" size="32rpx" style="margin:0 10rpx;" />
-        <view style="width: 90%;">开始时间:{{currentStartDateStrList[i+1]}}</view>
+        <view style="width: 90%;">开始时间:{{currentStartDateStrList[currentTourCopyIndex][i+1]}}</view>
         <t-button disabled size="large" theme="primary" variant="outline" style="width: 10%;height: 50rpx;" bind:tap="handleNodeStartDateSelect" data-index="{{i+1}}">调整</t-button>
       </view>
       <view class="row">
         <t-icon name="flight-landing" size="32rpx" style="margin:0 10rpx;" />
-        <view style="width: 90%;">结束时间:{{currentEndDateStrList[i+1]}}</view>
+        <view style="width: 90%;">结束时间:{{currentEndDateStrList[currentTourCopyIndex][i+1]}}</view>
         <t-button disabled size="large" theme="primary" variant="outline" style="width: 10%;height: 50rpx;" bind:tap="handleNodeEndDateSelect" data-index="{{i+1}}">调整</t-button>
       </view>
       <view class="row">
         <t-icon name="time" size="32rpx" style="margin:0 10rpx;" />
-        <view style="width: 90%;">时区:{{currentTimezoneStrList[i+1]}}</view>
+        <view style="width: 90%;">时区:{{currentTimezoneStrList[currentTourCopyIndex][i+1]}}</view>
         <t-button disabled size="large" theme="primary" variant="outline" style="width: 10%;height: 50rpx;" bind:tap="handleNodeTimezoneSelect" data-index="{{i+1}}">选择</t-button>
       </view>
       <view class="row">
         <t-icon name="location" size="32rpx" style="margin:0 10rpx;" />
-        <view style="width: 90%;">位置:{{currentTour.locations[i+1].latitude}},{{currentTour.locations[i+1].longitude}}</view>
+        <view style="width: 90%;">位置:{{currentTour.locations[currentTourCopyIndex][i+1].latitude}},{{currentTour.locations[currentTourCopyIndex][i+1].longitude}}</view>
         <t-button size="large" theme="primary" variant="outline" style="width: 10%;height: 50rpx;" bind:tap="onMapVisibleChange" data-index="{{i+1}}">查看</t-button>
       </view>
       <view class="row">
-        <t-button size="large" theme="primary" variant="outline" style="width: 49%;height: 50rpx;" bind:tap="onExpenseVisibleChange" data-index="{{i+1}}">查看消费</t-button>
-        <t-button size="large" theme="primary" variant="outline" style="width: 49%;height: 50rpx;" bind:tap="onNoteVisibleChange" data-index="{{i+1}}">查看备注</t-button>
+        <t-button size="large" theme="primary" variant="outline" style="width: 33%;height: 50rpx;" bind:tap="onExpenseVisibleChange" data-index="{{i+1}}">查看消费</t-button>
+        <t-button size="large" theme="primary" variant="outline" style="width: 33%;height: 50rpx;" bind:tap="onPhotoVisibleChange" data-index="{{i+1}}">查看照片</t-button>
+        <t-button size="large" theme="primary" variant="outline" style="width: 33%;height: 50rpx;" bind:tap="onNoteVisibleChange" data-index="{{i+1}}">查看备注</t-button>
       </view>
     </view>
   </block>

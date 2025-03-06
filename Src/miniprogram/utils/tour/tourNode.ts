@@ -62,7 +62,7 @@ export class Location extends TourNode {
 
   addExpense(currency: Currency) {
     this.expenses.push(
-      new Expense(this.expenses.length, currency, ExpenseType.Other)
+      new Expense({ index: this.expenses.length, currency: currency, type: ExpenseType.Other })
     );
   }
 
@@ -95,7 +95,7 @@ export class Transportation extends TourNode {
 
   addTransportExpense(currency: Currency) {
     this.transportExpenses.push(
-      new TransportExpense(this.transportExpenses.length, currency, TransportType.Other)
+      new TransportExpense({ index: this.transportExpenses.length, currency: currency, type: TransportType.Other })
     );
   }
   removeTransportExpense(index: number) {

@@ -1,3 +1,11 @@
+/**
+ * 此组件为主页-行程列表
+ * 负责：
+ * 选中行程
+ * 删除行程
+ * 展示行程（tourlist）
+ * 页面刷新时，自动调用函数从wxstorage的tourhashmap进行数据更新
+ */
 import { Tour } from '../../../utils/tour/tour';
 import { formatDate } from '../../../utils/util';
 
@@ -7,8 +15,8 @@ Component({
   behaviors: [],
   pageLifetimes: {
     show() {
-      console.log('index-tourlist pageLifetimes.show 被触发');
-      // 页面显示时刷新数据
+      // console.log('index-tourlist pageLifetimes.show 被触发');
+      // index页面显示时，刷新组件数据
       this.refreshData();
     },
   },
@@ -18,7 +26,6 @@ Component({
   data: {
     //存储展示的信息
       tourList: [] as { id: number; title: string; startDate: string; endDate: string; }[],
-      containsTour: false,
       tourHashMap: new Map(),
     },
   lifetimes: {
@@ -36,15 +43,20 @@ Component({
     },
   },
   methods: {
-        //更新组件展示信息
+        /**
+         * refreshData()
+         * 更新组件展示信息，在页面显示时调用
+         */
         refreshData(){
           this.updateTourHashMap().then(() => {
           this.updateTourList();
-          this.setData({ tourList: app.globalData.tourList });
           console.log("currenttourlist:",app.globalData.tourList)
-        })
+          })
         },
-        //同步更新组件内tourhashmap
+        /**
+         * updateTourHashMap()
+         * 同步更新组件内tourhashmap
+         */
         updateTourHashMap() {
           return new Promise((resolve, reject) => {
               wx.getStorage({
@@ -60,6 +72,12 @@ Component({
               });
           });
         },
+        /**
+         * selectTour(e: any)
+         * @param e 
+         * 选中组件并存储到app.globalData,等待edit调用
+         */
+
         selectTour(e: any) {
             const id = e.currentTarget.dataset.index;
             wx.getStorage({
@@ -70,6 +88,11 @@ Component({
                 },
             })
         },
+        /**
+         * removeTour(e: any)
+         * @param e 
+         * 将当前行程从globalData中删除，从wxstorage中移除
+         */ 
         removeTour(e: any) {
             const id = e.currentTarget.dataset.index;
             const tourHashMap = this.data.tourHashMap;
@@ -80,43 +103,37 @@ Component({
             }
 
             tourHashMap.delete(id);
-
-            if (tourHashMap.size == 0) {
-                this.setData({ containsTour: false });
-            }
-
             this.setData({ tourHashMap: tourHashMap });
-
             wx.setStorage({
                 key: 'tourHashMap',
                 data: Array.from(tourHashMap),
                });
-               const newContainsTour = tourHashMap.size > 0;
                this.setData({ 
                  tourHashMap,
-                 containsTour: newContainsTour
+
                });
-               wx.setStorage({
-                 key: 'containsTour',
-                 data: newContainsTour,
-               });
+
             wx.removeStorageSync('tour-' + id);
 
             this.updateTourList();
         },
-        //将更新后的tourlist返回到wxstorage并触发index的更新
+        /**
+         * updateTourList()
+         * 在tourhashmap变更后调用
+         * //从tourhashmap更新tourlist，返回给appglobaldata，并触发index-containstour的更新
+         */
+
         updateTourList() {
             const tourHashMap = this.data.tourHashMap;
 
             if (tourHashMap.size == 0 || tourHashMap.size == null) {
-              this.setData({ tourList: [], containsTour: false });
+              this.setData({ tourList: [] });
               app.globalData.tourList = [];
-              console.log("hashmap内容为空")
-              this.triggerEvent('tourListUpdate');
+              // console.log("tourhashmap内容为空")
+              this.triggerEvent('containsTourUpdate');
               return;
             };
             const tourList = [] as any[];
-            console.log("tourhashmapsize:",tourHashMap.size)
             const promises = Array.from(tourHashMap.values()).map(tour_id => {
                 return new Promise((resolve, reject) => {
                     wx.getStorage({
@@ -143,7 +160,7 @@ Component({
                     tourList: tourList,
                 });
                 app.globalData.tourList = tourList;
-                this.triggerEvent('tourListUpdate');
+                this.triggerEvent('containsTourUpdate');
             }).catch((err) => {
                 console.error('读取 tour 数据时出错: ', err);
             });

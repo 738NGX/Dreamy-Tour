@@ -2,11 +2,11 @@
 <block wx:if="{{selectingTour}}">
 
   <block wx:if="{{childPage==0}}">
-      <edit-tourplan/>
+      <edit-tourplan id="edit-tourplan" />
   </block>
 
   <block wx:elif="{{childPage==1}}">
-    <edit-settings/>
+    <edit-settings id="edit-settings" />
   </block>
 
 </block>

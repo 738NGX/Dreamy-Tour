@@ -142,7 +142,7 @@ export function formatPostTime(timestamp: number): string {
   if (diffSeconds < 3) {
     return `刚刚`;
   }
-  
+
   if (diffSeconds < 60) {
     return `${diffSeconds}秒前`;
   }
@@ -167,4 +167,10 @@ export function formatPostTime(timestamp: number): string {
   }
 
   return `${target.getFullYear()}/${(target.getMonth() + 1).toString().padStart(2, '0')}/${target.getDate().toString().padStart(2, '0')}`;
+}
+
+export function isSameDay(date1: number, date2: number): boolean {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
 }

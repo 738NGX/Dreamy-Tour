@@ -10,11 +10,13 @@ if (PLUGIN_KEY) {
   qqmapsdk
 }
 import { Channel } from "../../../utils/channel/channel";
-import { testData } from '../../../utils/testData';
 import { timezoneList } from '../../../utils/tour/timezone';
 import { Tour, TourStatus } from '../../../utils/tour/tour';
 import { Location } from '../../../utils/tour/tourNode';
+import { User } from '../../../utils/user/user';
 import { formatDate, formatTime, MILLISECONDS } from "../../../utils/util";
+
+const app = getApp<IAppOption>();
 
 Component({
   properties: {
@@ -64,7 +66,7 @@ Component({
   methods: {
     generateTourSaves() {
       const currentChannel = this.properties.currentChannel as Channel;
-      const tourSaves = (testData.tourList as unknown as Tour[])
+      const tourSaves = (app.globalData.currentData.tourList as unknown as Tour[])
         .map(tour => new Tour(tour))
         .filter(tour => tour.linkedChannel == currentChannel.id && tour.status == TourStatus.Finished && tour.channelVisible)
         .sort((a: any, b: any) => b.startDate - a.startDate);
@@ -99,10 +101,10 @@ Component({
     },
     generateFullMarkers() {
       const markers = this.data.tourSaves.reduce((acc: any[], tour) => {
-        tour.locations.forEach((location: Location) => {
+        tour.locations.forEach((copy: Location[]) => copy.forEach((location: Location) => {
           if (location.photos.length > 0) {
             acc.push({
-              id: tour.id * 10000 + location.index,
+              id: tour.id * 1000000 + tour.locations.indexOf(copy) * 10000 + location.index,
               latitude: location.latitude,
               longitude: location.longitude,
               iconPath: `${CDN_PATH}/Marker1_Activated@3x.png`,
@@ -113,10 +115,11 @@ Component({
                 locationTitle: location.title,
                 time: formatTime(tour.startDate + location.startOffset, location.timeOffset),
                 timezone: timezoneList.find(timezone => timezone.value == location.timeOffset)?.label,
+                photos: location.photos,
               }
             });
           }
-        });
+        }));
         return acc;
       }, []);
       this.setData({ fullMarkers: markers, markers: markers });
@@ -129,12 +132,12 @@ Component({
           userTourCount.set(userId, (userTourCount.get(userId) || 0) + 1);
         });
       });
-      const rankList = testData.userList.map(user => {
+      const rankList = app.globalData.currentData.userList.map((user: User) => {
         const count = userTourCount.get(user.id) || 0;
         return { rank: 0, name: user.name, count };
-      }).filter(user => user.count > 0);
-      rankList.sort((a, b) => b.count - a.count);
-      rankList.forEach((user, index) => {
+      }).filter((user: any) => user.count > 0);
+      rankList.sort((a: any, b: any) => b.count - a.count);
+      rankList.forEach((user: any, index: any) => {
         user.rank = index + 1;
       });
       this.setData({ userRankings: rankList });
@@ -153,9 +156,6 @@ Component({
       if (id != -1) {
         this.setData({
           currentPhotoIndex: 0,
-          photoSwiperList: this.data.tourSaves.find(
-            (tour: any) => tour.id == Math.floor(id / 10000))?.locations.find(
-              (location: any) => location.index == id % 10000)?.photos ?? [],
           selectingMarkerInfo: this.data.markers.find((marker: any) => marker.id == id)?.info ?? {},
         });
       }
@@ -210,4 +210,3 @@ Component({
     }
   }
 });
-

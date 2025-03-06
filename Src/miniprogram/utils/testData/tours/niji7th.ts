@@ -63,7 +63,7 @@ export const niji7th = {
   mainCurrency: Currency.CNY,
   subCurrency: Currency.JPY,
   currencyExchangeRate: 0.049,
-  locations: [
+  locations: [[
     {
       index: 0,
       title: '上海财经大学',
@@ -271,8 +271,8 @@ export const niji7th = {
       longitude: 121.495612,
       latitude: 31.304187,
     },
-  ],
-  transportations: [
+  ]],
+  transportations: [[
     {
       index: 0,
       startOffset: timestamps[1],
@@ -280,7 +280,7 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '飞猪宋机',
+          title: '飞猪送机',
           amount: 126,
           currency: Currency.CNY,
           type: ExpenseType.Transportation,
@@ -578,31 +578,124 @@ export const niji7th = {
       index: 16,
       startOffset: timestamps[33],
       endOffset: timestamps[34],
+      transportExpenses: [
+        {
+          index: 0,
+          title: 'JR东海道线',
+          amount: 230,
+          currency: Currency.JPY,
+          type: ExpenseType.Transportation,
+          transportType: TransportType.Metro,
+          note: ''
+        },
+      ]
     },
     {
       index: 17,
       startOffset: timestamps[35],
       endOffset: timestamps[36],
+      transportExpenses: [
+        {
+          index: 0,
+          title: 'JR京滨东北线-临海线',
+          amount: 450,
+          currency: Currency.JPY,
+          type: ExpenseType.Transportation,
+          transportType: TransportType.Metro,
+          note: ''
+        },
+      ]
     },
     {
       index: 18,
       startOffset: timestamps[37],
       endOffset: timestamps[38],
+      transportExpenses: [
+        {
+          index: 0,
+          title: '海鸥线',
+          amount: 251,
+          currency: Currency.JPY,
+          type: ExpenseType.Transportation,
+          transportType: TransportType.Metro,
+          note: ''
+        },
+        {
+          index: 1,
+          title: '海鸥线-JR东海道线',
+          amount: 820,
+          currency: Currency.JPY,
+          type: ExpenseType.Transportation,
+          transportType: TransportType.Metro,
+          note: ''
+        },
+        {
+          index: 2,
+          title: '东海道线Green Car',
+          amount: 1010,
+          currency: Currency.JPY,
+          type: ExpenseType.Transportation,
+          transportType: TransportType.Metro,
+          note: ''
+        },
+      ]
     },
     {
       index: 19,
       startOffset: timestamps[39],
       endOffset: timestamps[40],
+      transportExpenses: [
+        {
+          index: 0,
+          title: 'JR东海道线',
+          amount: 230,
+          currency: Currency.JPY,
+          type: ExpenseType.Transportation,
+          transportType: TransportType.Metro,
+          note: ''
+        },
+        {
+          index: 1,
+          title: '京急本线',
+          amount: 283,
+          currency: Currency.JPY,
+          type: ExpenseType.Transportation,
+          transportType: TransportType.Metro,
+          note: ''
+        },
+      ]
     },
     {
       index: 20,
       startOffset: timestamps[41],
       endOffset: timestamps[42],
+      transportExpenses: [
+        {
+          index: 0,
+          title: '9C8516 HND-PVG',
+          amount: 803,
+          currency: Currency.CNY,
+          type: ExpenseType.Transportation,
+          transportType: TransportType.Flight,
+          note: ''
+        },
+      ]
     },
     {
       index: 21,
       startOffset: timestamps[43],
       endOffset: timestamps[44],
+      transportExpenses: [
+        {
+          index: 0,
+          title: '飞猪接机',
+          amount: 140,
+          currency: Currency.CNY,
+          type: ExpenseType.Transportation,
+          transportType: TransportType.Taxi,
+          note: ''
+        },
+      ]
     },
-  ]
+  ]]
 }

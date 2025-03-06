@@ -1,13 +1,21 @@
-import { Location,  Transportation } from '../../../utils/tour/tourNode';
+import { Transportation } from '../../../utils/tour/tourNode';
 import { Tour } from '../../../utils/tour/tour';
-import { currencyList, transportList, expenseList, tagList, TransportExpense } from '../../../utils/tour/expense';
+import { currencyList } from '../../../utils/tour/expense';
 import { timezoneList } from '../../../utils/tour/timezone';
-import { MILLISECONDS, formatDate, formatNumber, formatTime, timeToMilliseconds } from '../../../utils/util';
+import { MILLISECONDS, formatDate, formatTime, } from '../../../utils/util';
 
 const app = getApp<IAppOption>();
 
 
 Component({
+    pageLifetimes: {
+        show() {
+          // console.log('edit-settings pageLifetimes.show 被触发');
+          
+          // edit页面显示时，刷新组件数据
+          this. loadCurrentTourSettings();
+        },
+    },
     data: {
            currencyList: currencyList,
            timezoneList: timezoneList,
@@ -25,44 +33,7 @@ Component({
 
         },
         attached() {
-            console.log("加载行程默认设置...");
-                    if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-                        const page: any = getCurrentPages().pop();
-                        this.getTabBar().setData({ value: '/' + page.route })
-                    }
-                    this.setData({
-                        selectingTour: app.globalData.selectingTour,
-                        currentTour: app.globalData.currentTour,
-                    });
-                    if (app.globalData.currentTour) {
-                        const currentTour = app.globalData.currentTour as Tour;
-                        this.setData({
-                            currentStartDateStr: formatDate(currentTour.startDate, currentTour.timeOffset),
-                            currentEndDateStr: formatDate(currentTour.endDate, currentTour.timeOffset),
-                            currentTimezoneStr: timezoneList.find(tz => tz.value === currentTour.timeOffset)?.label || '未知时区',
-                            currentDateRange: [
-                                new Date(currentTour.startDate).getTime(),
-                                new Date(currentTour.endDate).getTime() + MILLISECONDS.DAY - MILLISECONDS.MINUTE
-                            ],
-                            currentStartDateStrList: currentTour.locations.map(location => formatTime(
-                                currentTour.startDate + location.startOffset, location.timeOffset
-                            )),
-                            currentEndDateStrList: currentTour.locations.map(location => formatTime(
-                                currentTour.startDate + location.endOffset, location.timeOffset
-                            )),
-                            currentTimezoneStrList: currentTour.locations.map(location => {
-                                const timezone = timezoneList.find(tz => tz.value === location.timeOffset);
-                                return timezone ? timezone.label : '未知时区'
-                            }),
-                            currentDurationStrList: currentTour.transportations.map(transportation => {
-                                return new Transportation(transportation).getDurationString();
-                            })
-                        });
-                    }
-                    else {
-                        this.setData({ currentDateRange: null });
-                    }
-                    console.log("加载完毕！")
+            this.loadCurrentTourSettings();
         },
         moved() {
     
@@ -72,13 +43,36 @@ Component({
         },
       },
     methods:{
+            loadCurrentTourSettings(){
+                // console.log("加载行程默认设置...");
+                this.setData({
+                    selectingTour: app.globalData.selectingTour,
+                    currentTour: app.globalData.currentTour,
+                });
+                if (app.globalData.currentTour) {
+                    const currentTour = app.globalData.currentTour as Tour;
+                    this.setData({
+                        currentStartDateStr: formatDate(currentTour.startDate, currentTour.timeOffset),
+                        currentEndDateStr: formatDate(currentTour.endDate, currentTour.timeOffset),
+                        currentTimezoneStr: timezoneList.find(tz => tz.value === currentTour.timeOffset)?.label || '未知时区',
+                        currentDateRange: [
+                            new Date(currentTour.startDate).getTime(),
+                            new Date(currentTour.endDate).getTime() + MILLISECONDS.DAY - MILLISECONDS.MINUTE
+                        ],
+                    });
+                }
+                else {
+                    this.setData({ currentDateRange: null });
+                }
+                // console.log("加载完毕！")
+            },
+            //使用最新数据创建currentTour实例
             getLatestTour(){
-                       //使用最新数据创建实例
-                       if (!this.data.currentTour) return;
-                       const latestTour = app.globalData.currentTour || this.data.currentTour;
-                       const currentTour = new Tour(latestTour);
-                       return currentTour;
-                   },
+                if (!this.data.currentTour) return;
+                const latestTour = app.globalData.currentTour || this.data.currentTour;
+                const currentTour = new Tour(latestTour);
+                return currentTour;
+            },
             /**
              * 行程整体编辑
              */
@@ -99,6 +93,9 @@ Component({
                 this.setData({ currentTour: currentTour });
                 wx.setStorageSync('tour-' + currentTour.id, currentTour);
             },
+            /**
+             * 交换主辅货币
+             */
             exchangeTourCurrency() {
                 if (!this.data.currentTour) return;
 
@@ -115,6 +112,9 @@ Component({
                 this.setData({ currentTour: currentTour });
                 wx.setStorageSync('tour-' + currentTour.id, currentTour);
             },
+            /**
+             * 获取汇率
+             */
             async getCurrencyExchangeRate() {
                 if (!this.data.currentTour) return;
 
@@ -127,6 +127,11 @@ Component({
                 this.setData({ currentTour: currentTour });
                 wx.setStorageSync('tour-' + currentTour.id, currentTour);
             },
+            /**
+             * 手动输入汇率
+             * @param e 
+             * @returns 
+             */
             onTourCurrencyExchangeRateInput(e: any) {
                 if (!this.data.currentTour) return;
 
@@ -149,6 +154,11 @@ Component({
             handleCalendar() {
                 this.setData({ calendarVisible: true });
             },
+            /**
+             * 更改起止日期
+             * @param e 
+             * @returns 
+             */
             handleCalendarConfirm(e: any) {
                 if (!this.data.currentTour) return;
 
@@ -180,6 +190,10 @@ Component({
                 });
                 wx.setStorageSync('tour-' + currentTour.id, currentTour);
             },
+            /**
+             * 更改时区
+             * @returns 
+             */
             handleTourTimezoneSelector() {
                 if (!this.data.currentTour) return;
                 this.setData({
@@ -212,6 +226,10 @@ Component({
                 });
                 wx.setStorageSync('tour-' + currentTour.id, currentTour);
             },
+            /**
+             * 导出行程到剪贴板
+             * @returns 
+             */
             exportTourToClipboard() {
                 if (!this.data.currentTour) return;
 
