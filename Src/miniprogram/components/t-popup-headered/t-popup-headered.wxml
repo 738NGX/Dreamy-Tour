@@ -18,7 +18,7 @@
       aria-role="button"
       bind:tap="onConfirm"
     >
-      确定
+      {{confirmText}}
     </view>
   </view>
   <slot></slot>

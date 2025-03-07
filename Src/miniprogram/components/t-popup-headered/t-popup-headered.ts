@@ -8,6 +8,10 @@ Component({
             type: String,
             value: '',
         },
+        confirmText: {
+            type: String,
+            value: '确定',
+        },
         placement: {
             type: String,
             value: 'bottom',

@@ -63,6 +63,12 @@ export const niji7th = {
   mainCurrency: Currency.CNY,
   subCurrency: Currency.JPY,
   currencyExchangeRate: 0.049,
+  budgets: [
+    { title: "738 Sucia", amount: 5000, currency: Currency.JPY },
+    { title: "预算表1" }, { title: "预算表2" }, { title: "预算表3" },
+    { title: "mmk代购" }, { title: "kkr代购" }, { title: "消除代购" },
+    { title: "738 购物预算" }, { title: "预算表8" }, { title: "希可代购" }
+  ],
   locations: [[
     {
       index: 0,
@@ -134,7 +140,8 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Meal,
           budget: [3, 5],
-          user: [1, 5]
+          user: [1, 5],
+          note: "吃不完要额外收费"
         }
       ]
     },
@@ -296,6 +303,7 @@ export const niji7th = {
           currency: Currency.CNY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Taxi,
+          user: [1],
           note: ""
         }
       ]
@@ -312,6 +320,7 @@ export const niji7th = {
           currency: Currency.CNY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Flight,
+          user: [1, 5],
           note: ""
         }
       ]
@@ -328,6 +337,8 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5],
+          budget: [0],
           note: "京成上野方面 特急"
         },
         {
@@ -337,6 +348,8 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5],
+          budget: [0],
           note: ""
         },
         {
@@ -362,6 +375,8 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5],
+          budget: [0],
           note: "外回 上野·东京·品川·目黑方面"
         }
       ]
@@ -378,6 +393,8 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5],
+          budget: [0],
           note: "京急久里滨方面 快特\n金泽八景 换乘 浦贺方面 普通"
         }
       ]
@@ -458,6 +475,8 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5],
+          budget: [0],
           note: "品川方面 快特"
         }
       ]
@@ -474,6 +493,8 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5],
+          budget: [0],
           note: "元町中华街方面 急行"
         }
       ]
@@ -490,6 +511,8 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5],
+          budget: [0],
           note: "横滨方面 各停"
         }
       ]
@@ -522,6 +545,8 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5],
+          budget: [0],
           note: "和光市方面 急行 横滨站换乘"
         },
         {
@@ -531,6 +556,8 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5],
+          budget: [0],
           note: "宇都宫方面 川崎下"
         },
         {
@@ -540,6 +567,8 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5],
+          budget: [0],
           note: "高崎方面 新桥下"
         },
         {
@@ -549,6 +578,8 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5],
+          budget: [0],
           note: "台场方面"
         }
       ]

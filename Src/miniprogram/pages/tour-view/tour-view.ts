@@ -1,9 +1,13 @@
 import { testData } from "../../utils/testData";
+import { budgetList, currencyList } from "../../utils/tour/expense";
 import { Tour } from "../../utils/tour/tour";
 
 // pages/tour-view/tour-view.ts
 Component({
   data: {
+    budgetList: budgetList,
+    currencyList: currencyList,
+
     currentTour: {} as any,
 
     settingsVisible: false,

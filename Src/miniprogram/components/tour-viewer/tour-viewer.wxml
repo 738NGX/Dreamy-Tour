@@ -59,26 +59,43 @@
   </scroll-view>
 </t-popup-headered>
 <!-- 查看备注弹窗 -->
-<t-popup-headered visible="{{noteVisible}}" title="查看备注" bind:visible-change="onNoteVisibleChange" bindConfirm="changeNote" bindCancel="onNoteVisibleChange" placement="bottom" style="height: 30vh;">
-  <t-textarea disabled style="height: 100%;" maxlength="500" disableDefaultPadding="{{true}}" value="{{editingNote}}" bind:change="onNoteInput" indicator />
+<t-popup-headered visible="{{noteVisible}}" title="查看备注" bind:visible-change="onNoteVisibleChange" bindConfirm="onNoteVisibleChange" bindCancel="onNoteVisibleChange" placement="bottom" style="height: 30vh;">
+  <t-textarea disabled style="height: 100%;" maxlength="500" disableDefaultPadding="{{true}}" value="{{editingNote}}" indicator />
 </t-popup-headered>
 <!-- 查看交通消费弹窗 -->
 <t-popup-headered visible="{{transExpenseVisible}}" title="查看交通" bind:visible-change="onTransExpenseVisibleChange" bindConfirm="onTransExpenseVisibleChange" bindCancel="onTransExpenseVisibleChange" placement="bottom" style="height: 60vh;">
-  <t-input disabled label="标题" value="{{editingTransExpense.title}}" maxcharacter="{{40}}" bind:change="onTransExpenseTitleInput" />
-  <t-input disabled label="费用" align="right" type="digit" value="{{editingTransExpense.amount}}" bind:change="onTransExpensePriceInput" tips="{{priceError ? '请输入正确的费用' : ''}}" t-class-tips="tips">
-    <t-button disabled size="large" theme="primary" variant="outline" style="height:50rpx;" slot="suffix">{{currencyList[editingTransExpense.currency].symbol}}</t-button>
-  </t-input>
-  <t-radio-group value="{{editingTransExpense.transportType}}" borderless t-class="box" bind:change="handleTransExpenseTypeChange">
-    <block wx:for="{{transportList}}" wx:key="label">
-      <t-radio class="radio" disabled value="{{item.value}}">
-        <view class="row" style="margin:0" slot="label">
-          <t-icon prefix="iconfont" name="{{item.icon}}" size="32rpx" style="margin:0 10rpx;" />
-          {{item.label}}
-        </view>
-      </t-radio>
-    </block>
-  </t-radio-group>
-  <t-textarea disabled maxlength="500" disableDefaultPadding="{{true}}" value="{{editingTransExpense.note}}" bind:change="onTransExpenseNoteInput" indicator />
+  <scroll-view class="scrollarea" scroll-y type="list" style="height: 55vh;">
+    <t-input disabled label="标题" value="{{editingTransExpense.title}}" maxcharacter="{{40}}" bind:change="onTransExpenseTitleInput" />
+    <t-input disabled label="费用" align="right" type="digit" value="{{editingTransExpense.amount}}" bind:change="onTransExpensePriceInput" tips="{{priceError ? '请输入正确的费用' : ''}}" t-class-tips="tips">
+      <t-button disabled size="large" theme="primary" variant="outline" style="height:50rpx;" slot="suffix">{{currencyList[editingTransExpense.currency].symbol}}</t-button>
+    </t-input>
+    <t-radio-group value="{{editingTransExpense.transportType}}" borderless t-class="box" bind:change="handleTransExpenseTypeChange">
+      <block wx:for="{{transportList}}" wx:key="label">
+        <t-radio class="radio" disabled value="{{item.value}}">
+          <view class="row" style="margin:0" slot="label">
+            <t-icon prefix="iconfont" name="{{item.icon}}" size="32rpx" style="margin:0 10rpx;" />
+            {{item.label}}
+          </view>
+        </t-radio>
+      </block>
+    </t-radio-group>
+    <t-input disabled label="用户&预算" value="费用类型" align="right">
+      <t-button disabled size="large" theme="primary" variant="outline" style="height:50rpx;" slot="suffix">{{editingTransExpense.amountType ? "人均" : "总价"}}</t-button>
+    </t-input>
+    <t-checkbox-group disabled t-class="horizontal-box2" value="{{item.user}}">
+      <view wx:for="{{currentUserList}}" wx:key="index" class="card {{util.isInArray(editingTransExpense.user, item.id) ? 'card--active' : ''}}">
+        <t-icon wx:if="{{util.isInArray(editingTransExpense.user, item.id)}}" name="check" t-class="card__icon" ariaHidden="{{true}}" />
+        <t-checkbox class="checkbox" value="{{item.id}}" label="{{item.name}}" icon="none" borderless />
+      </view>
+    </t-checkbox-group>
+    <t-checkbox-group disabled t-class="horizontal-box" value="{{item.budget}}">
+      <view wx:for="{{budgetList}}" wx:key="index" wx:for-index="j" class="card {{util.isInArray(editingTransExpense.budget, j) ? 'card--active' : ''}}" style="background-color: \#{{item.color}};">
+        <t-icon wx:if="{{util.isInArray(editingTransExpense.budget, j)}}" name="check" t-class="card__icon" ariaHidden="{{true}}" />
+        <t-checkbox class="checkbox" value="{{j}}" label="{{j}}" icon="none" style="background-color: \#{{item.color}};" borderless />
+      </view>
+    </t-checkbox-group>
+    <t-textarea disabled maxlength="500" disableDefaultPadding="{{true}}" value="{{editingTransExpense.note}}" bind:change="onTransExpenseNoteInput" indicator />
+  </scroll-view>
 </t-popup-headered>
 <!-- 节点显示 -->
 <view class="container" style="align-items: center;">

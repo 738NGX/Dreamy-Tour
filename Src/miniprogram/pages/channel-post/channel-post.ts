@@ -9,7 +9,7 @@ enum InputMode { None, Comment, Reply };
 function getStructuredComments(postId: number, userList: User[], commentList: Comment[]) {
   const userMap = new Map(userList.map(user => [user.id, user.name]));
   const replyMap = new Map<number, Comment[]>();
-  const channelId = app.globalData.currentData.postList.find((post:Post) => post.id == postId)?.linkedChannel;
+  const channelId = app.globalData.currentData.postList.find((post: Post) => post.id == postId)?.linkedChannel;
 
   // 初始化评论映射
   commentList.forEach(comment => {
@@ -73,25 +73,26 @@ Component({
     inputVisible: false,
     inputMode: InputMode.None,
     inputValue: '',
+    replyingComment: -1,
     originFiles: [] as any[],
   },
   methods: {
     onLoad(options: any) {
       const { postId } = options;
-      const currentPost = app.globalData.currentData.postList.find((post:Post) => post.id == postId);
+      const currentPost = app.globalData.currentData.postList.find((post: Post) => post.id == postId);
       this.setData({ currentPost });
     },
     onShow() {
-      const author = app.globalData.currentData.userList.find((user:User) => user.id == this.data.currentPost?.user)?.name;
+      const author = app.globalData.currentData.userList.find((user: User) => user.id == this.data.currentPost?.user)?.name;
       const authorGroup = getUserGroupNameInChannel(
-        new User(app.globalData.currentData.userList.find((user:User) => user.id == this.data.currentPost?.user)!),
+        new User(app.globalData.currentData.userList.find((user: User) => user.id == this.data.currentPost?.user)!),
         this.data.currentPost?.linkedChannel!
       );
       const timeStr = this.data.currentPost ? formatPostTime(this.data.currentPost.time) : '';
       const structedComments = getStructuredComments(
         this.data.currentPost.id,
-        app.globalData.currentData.userList.map((user:User) => new User(user)),
-        app.globalData.currentData.commentList.map((comment:User) => new Comment(comment))
+        app.globalData.currentData.userList.map((user: User) => new User(user)),
+        app.globalData.currentData.commentList.map((comment: User) => new Comment(comment))
       );
       this.setData({
         commentList: app.globalData.currentData.commentList,
@@ -169,8 +170,8 @@ Component({
       } else {
         currentPost.likes.push(this.data.currentUserId);
       }
-      const newPostList = app.globalData.currentData.postList.map((post:Post) => new Post(post));
-      newPostList.find((post:Post) => post.id == currentPost.id).likes = currentPost.likes;
+      const newPostList = app.globalData.currentData.postList.map((post: Post) => new Post(post));
+      newPostList.find((post: Post) => post.id == currentPost.id).likes = currentPost.likes;
       app.globalData.currentData.postList = newPostList;
       this.setData({ currentPost });
     },
@@ -186,7 +187,7 @@ Component({
 
       const newCommentList = this.data.commentList;
       newCommentList.find((comment: any) => comment.id == commentId).likes = comment.likes;
-      this.setData({ 
+      this.setData({
         structedComments: structedComments,
         commentList: newCommentList
       });
@@ -223,7 +224,7 @@ Component({
       this.setData({ inputValue: e.detail.value });
     },
     handleInputSend() {
-      if(this.data.inputValue === '') {
+      if (this.data.inputValue === '') {
         wx.showToast({
           title: '不可发送空白内容',
           icon: 'none'
@@ -248,13 +249,38 @@ Component({
           commentList: newCommentList,
           structedComments: getStructuredComments(
             this.data.currentPost.id,
-            app.globalData.currentData.userList.map((user:User) => new User(user)),
+            app.globalData.currentData.userList.map((user: User) => new User(user)),
             newCommentList
           ),
         });
         app.globalData.currentData.commentList = newCommentList;
       } else if (this.data.inputMode === InputMode.Reply) {
-        console.log('发送回复');
+        const newCommentId = this.data.commentList.length + 1;
+        const newComment = new Comment({
+          id: newCommentId,
+          user: this.data.currentUserId,
+          linkedPost: this.data.currentPost.id,
+          content: this.data.inputValue,
+          time: new Date().getTime(),
+          likes: [],
+          photos: this.data.originFiles.map((file: any) => ({ value: file.url, ariaLabel: file.name })),
+          parentComment: this.data.replyingComment
+        });
+        const newCommentList = this.data.commentList.map((comment: any) => new Comment(comment));
+        newCommentList.push(newComment);
+        this.setData({
+          commentList: newCommentList,
+          structedComments: getStructuredComments(
+            this.data.currentPost.id,
+            app.globalData.currentData.userList.map((user: User) => new User(user)),
+            newCommentList
+          ),
+        });
+        app.globalData.currentData.commentList = newCommentList;
+        if (this.data.repliesParent != -1) {
+          const replies = this.data.structedComments.find((comment: any) => comment.id == this.data.repliesParent).replies;
+          this.setData({ replies });
+        }
       }
       this.setData({
         inputVisible: false,
@@ -267,6 +293,14 @@ Component({
       this.setData({
         inputVisible: true,
         inputMode: InputMode.Comment,
+      });
+    },
+    handleReplyInput(e: any) {
+      const id = e.currentTarget.dataset.index ?? -1;
+      this.setData({
+        inputVisible: true,
+        inputMode: InputMode.Reply,
+        replyingComment: id
       });
     },
     handleImageUploadSuccess(e: any) {

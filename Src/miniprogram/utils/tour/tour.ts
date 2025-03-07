@@ -1,4 +1,5 @@
 import { exchangeCurrency, MILLISECONDS } from '../util';
+import { Budget } from './budget';
 import { Currency, currencyList } from './expense';
 import { Location, Transportation } from './tourNode';
 
@@ -26,6 +27,7 @@ export class Tour {
   subCurrency: Currency;
   currencyExchangeRate: number;
   nodeCopyNames: string[];
+  budgets: Budget[];
   locations: Location[][];
   transportations: Transportation[][];
 
@@ -44,20 +46,15 @@ export class Tour {
     this.subCurrency = data.subCurrency ?? Currency.JPY;
     this.currencyExchangeRate = data.currencyExchangeRate ?? 1;
     this.nodeCopyNames = data.nodeCopyNames ?? ['默认'];
-    this.locations = (Array.isArray(data.locations) && data.locations.length) ?
-      data.locations.map(
-        (copy: any[]) => copy.map((location: any) => new Location(location))
-      )
-      : [[new Location({
-        index: 0,
-        startOffset: 0,
-        endOffset: 0,
-        timeOffset: this.timeOffset,
-      })]];
-    this.transportations = (Array.isArray(data.transportations) && data.transportations.length) ?
-      data.transportations.map(
-        (copy: any[]) => copy.map((transportation: any) => new Transportation(transportation))
-      ) : [[]];
+    this.budgets = (Array.isArray(data.budgets) && data.budgets.length)
+      ? data.budgets.map((budget: any) => new Budget(budget))
+      : Array.from({ length: 10 }, (_, index) => new Budget({ title: `预算表${index}`, currency: this.mainCurrency }));
+    this.locations = (Array.isArray(data.locations) && data.locations.length)
+      ? data.locations.map((copy: any[]) => copy.map((location: any) => new Location(location)))
+      : [[new Location({ index: 0, startOffset: 0, endOffset: 0, timeOffset: this.timeOffset, })]];
+    this.transportations = (Array.isArray(data.transportations) && data.transportations.length)
+      ? data.transportations.map((copy: any[]) => copy.map((transportation: any) => new Transportation(transportation)))
+      : [[]];
   }
 
   async getExchangeRate() {
