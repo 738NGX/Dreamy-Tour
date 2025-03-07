@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 22:13:32 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-03 10:32:09
+ * @Last Modified time: 2025-03-06 23:21:56
  */
 class MessageConstant {
   static readonly SUCCESSFUL_RETURN = '返回成功';
@@ -19,6 +19,7 @@ class MessageConstant {
   static readonly WX_SERVICE_ERROR = "微信接口响应异常";
   static readonly NOT_FOUND_ERROR = "目标不存在";
   static readonly API_UNAVAILABLE = "API 服务不可用";
+  static readonly ACCEPT_IMAGE_ONLY = "只接受图片类型的文件（如 .jpg, .jpeg, .png, .gif, .bmp, .tiff, .webp）。请上传有效的图片文件。"
 }
 
 export default MessageConstant;
