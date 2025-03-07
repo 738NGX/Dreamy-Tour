@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:44:15 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-06 23:38:39
+ * @Last Modified time: 2025-03-07 23:03:05
  */
 
 import express, { Request, Response } from "express"
@@ -24,7 +24,8 @@ import AvatarVo from "@/vo/user/avatarVo";
 const userRoute = express.Router();
 
 /**
- * [POST] 微信登录，如果之前没注册过会自动注册
+ * @description 微信登录，如果之前没注册过会自动注册
+ * @method POST
  * @path /wx-login
  */
 userRoute.post('/wx-login', async (req: Request, res: Response) => {
@@ -37,7 +38,8 @@ userRoute.post('/wx-login', async (req: Request, res: Response) => {
 })
 
 /**
- * [GET] 获取用户的详情信息
+ * @description 获取用户的详情信息
+ * @method GET
  * @path /user/detail
  */
 userRoute.get('/user/detail', async (req: Request, res: Response) => {
@@ -49,7 +51,8 @@ userRoute.get('/user/detail', async (req: Request, res: Response) => {
 })
 
 /**
- * [PUT] 更改用户昵称
+ * @description 更改用户昵称
+ * @method PUT
  * @path /user/nickname
  */
 userRoute.put('/user/nickname', async (req: Request, res: Response) => {
@@ -67,15 +70,17 @@ userRoute.put('/user/nickname', async (req: Request, res: Response) => {
  * @method POST
  * @path /user/avatar
  */
-userRoute.post('/user/avatar', upload.single('file'), async (req: Request, res: Response) => {
+userRoute.post('/user/avatar', upload.single('file'), async (req: Request, res: Response): Promise<any> => {
   // 不能是空文件
   if (!req.file) {
-    res.status(StatusCodes.BAD_REQUEST)
+    // 用 return 关键词终止后续代码的运行
+    return res.status(StatusCodes.BAD_REQUEST)
       .json(Result.error(MessageConstant.NO_FILE_UPLOADED));
   }
   // 必须是图片文件
   if (!FileUtil.isPicture(req.file?.originalname || '')) {
-    res.status(StatusCodes.BAD_REQUEST)
+    // 用 return 关键词终止后续代码的运行
+    return res.status(StatusCodes.BAD_REQUEST)
       .json(Result.error(MessageConstant.ACCEPT_IMAGE_ONLY));
   }
   // 获取 uid
@@ -95,7 +100,8 @@ userRoute.post('/user/avatar', upload.single('file'), async (req: Request, res: 
 })
 
 /**
- * [PUT] 更改用户其他信息（除昵称、头像）
+ * @description 更改用户其他信息（除昵称、头像）
+ * @method PUT
  * @path /user/info
  */
 userRoute.put('/user/info', async (req: Request, res: Response) => {
@@ -109,7 +115,8 @@ userRoute.put('/user/info', async (req: Request, res: Response) => {
 })
 
 /**
- * [DELETE] 用户注销
+ * @description 用户注销
+ * @method DELETE
  * @path /user
  */
 userRoute.delete('/user', async (req: Request, res: Response) => {

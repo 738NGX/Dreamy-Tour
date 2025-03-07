@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-03 19:16:05
+ * @Last Modified time: 2025-03-07 22:55:53
  */
 import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
@@ -154,6 +154,7 @@ class UserService {
    */
   static async updateAvatar(file: Buffer | Readable, uid: number, fileExtension?: string): Promise<string> {
     // 上传新头像
+    console.log(`文件后缀是${fileExtension}`)
     const freshAvatarUrl = await CosUtil.uploadFile(CosConstant.AVATAR_FOLDER, file, fileExtension);
     // 获取旧的头像地址
     const db = await dbPromise;
