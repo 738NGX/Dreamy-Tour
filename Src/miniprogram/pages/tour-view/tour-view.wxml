@@ -1,11 +1,24 @@
 <!-- pages/tour-view/tour-view.wxml -->
 <header class="custom-navbar" title="查看行程" tabList="{{[]}}" />
 <t-popup style="width:80% !important;" visible="{{settingsVisible}}" usingCustomNavbar bind:visible-change="handleSettings" placement="left">
-  <t-cell title="行程版本选择" leftIcon="bookmark"/>
-  <t-radio-group bind:change="onCopyChange" value="{{currentCopyIndex}}" options="{{copyOptions}}" />
-  <t-cell bind:click="handleDateFilterStep" title="日期筛选器" leftIcon="calendar" hover note="{{currentDateFilter.label}}" arrow />
+  <scroll-view class="scrollarea" style="height:90vh" scroll-y type="list">
+    <c-collapse header="行程版本选择">
+      <t-radio-group class="narrow-radio" bind:change="onCopyChange" value="{{currentCopyIndex}}" options="{{copyOptions}}" />
+    </c-collapse>
+    <t-cell bind:click="handleDateFilterStep" title="日期筛选器" hover note="{{currentDateFilter.label}}" arrow />
+    <c-collapse header="预算表信息">
+      <block wx:for="{{currentTour.budgets}}" wx:key="index" wx:for-index="i">
+        <t-input disabled class="narrow-input" value="{{item.title}}">
+          <t-icon slot="prefix-icon" name="table" size="48rpx" color="#{{budgetList[i].color}}" />
+        </t-input>
+        <t-input disabled class="narrow-input" label="数额" value="{{item.amount}}" align="right">
+          <t-button disabled slot="suffix" theme="primary" variant="outline" size="extra-small">{{currencyList[item.currency].symbol}}</t-button>
+        </t-input>
+      </block>
+    </c-collapse>
+  </scroll-view>
 </t-popup>
-<t-cell bind:click="handleSettings" title="{{currentTour?currentTour.title:'行程'}}" hover note="查看设置" arrow />
+<t-cell bind:click="handleSettings" title="{{currentTour?currentTour.title:'行程'}}" hover note="查看更多" arrow />
 <scroll-view class="scrollarea" style="height:80vh" scroll-y type="list">
   <tour-viewer tour="{{currentTour}}" copyIndex="{{currentCopyIndex}}" dateFilter="{{currentDateFilter}}" />
 </scroll-view>

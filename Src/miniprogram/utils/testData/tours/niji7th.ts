@@ -52,8 +52,8 @@ const timestamps = [
 ]
 
 export const niji7th = {
-  id: 9,
-  title: '虹咲7th',
+  id: 10,
+  title: "虹咲7th",
   status: TourStatus.Finished,
   linkedChannel: 3,
   users: [1, 5, 9],
@@ -63,10 +63,16 @@ export const niji7th = {
   mainCurrency: Currency.CNY,
   subCurrency: Currency.JPY,
   currencyExchangeRate: 0.049,
+  budgets: [
+    { title: "738 Sucia", amount: 5000, currency: Currency.JPY },
+    { title: "预算表1" }, { title: "预算表2" }, { title: "预算表3" },
+    { title: "mmk代购" }, { title: "kkr代购" }, { title: "消除代购" },
+    { title: "738 购物预算" }, { title: "预算表8" }, { title: "希可代购" }
+  ],
   locations: [[
     {
       index: 0,
-      title: '上海财经大学',
+      title: "上海财经大学",
       startOffset: timestamps[0],
       endOffset: timestamps[1],
       timeOffset: -480,
@@ -75,7 +81,7 @@ export const niji7th = {
     },
     {
       index: 1,
-      title: '浦东国际机场T2',
+      title: "浦东国际机场T2",
       startOffset: timestamps[2],
       endOffset: timestamps[3],
       timeOffset: -480,
@@ -84,7 +90,7 @@ export const niji7th = {
     },
     {
       index: 2,
-      title: '成田空港T3',
+      title: "成田空港T3",
       startOffset: timestamps[4],
       endOffset: timestamps[5],
       timeOffset: -540,
@@ -93,7 +99,7 @@ export const niji7th = {
     },
     {
       index: 3,
-      title: '日暮里站',
+      title: "日暮里站",
       startOffset: timestamps[6],
       endOffset: timestamps[7],
       timeOffset: -540,
@@ -102,7 +108,7 @@ export const niji7th = {
     },
     {
       index: 4,
-      title: '品川站',
+      title: "品川站",
       startOffset: timestamps[8],
       endOffset: timestamps[9],
       timeOffset: -540,
@@ -111,7 +117,7 @@ export const niji7th = {
     },
     {
       index: 5,
-      title: '汐入站',
+      title: "汐入站",
       startOffset: timestamps[10],
       endOffset: timestamps[11],
       timeOffset: -540,
@@ -120,16 +126,28 @@ export const niji7th = {
     },
     {
       index: 6,
-      title: 'COASKA海湾商店',
+      title: "COASKA海湾商店",
       startOffset: timestamps[12],
       endOffset: timestamps[13],
       timeOffset: -540,
       longitude: 139.662791,
       latitude: 35.281256,
+      expenses: [
+        {
+          index: 0,
+          title: "海军咖喱自助",
+          amount: 2200,
+          currency: Currency.JPY,
+          type: ExpenseType.Meal,
+          budget: [3, 5],
+          user: [1, 5],
+          note: "吃不完要额外收费"
+        }
+      ]
     },
     {
       index: 7,
-      title: '横须贺海军设施',
+      title: "横须贺海军设施",
       startOffset: timestamps[14],
       endOffset: timestamps[15],
       timeOffset: -540,
@@ -138,7 +156,7 @@ export const niji7th = {
     },
     {
       index: 8,
-      title: '三笠公园',
+      title: "三笠公园",
       startOffset: timestamps[16],
       endOffset: timestamps[17],
       timeOffset: -540,
@@ -147,7 +165,7 @@ export const niji7th = {
     },
     {
       index: 9,
-      title: '横须贺中央站',
+      title: "横须贺中央站",
       startOffset: timestamps[18],
       endOffset: timestamps[19],
       timeOffset: -540,
@@ -156,7 +174,7 @@ export const niji7th = {
     },
     {
       index: 10,
-      title: '横滨站',
+      title: "横滨站",
       startOffset: timestamps[20],
       endOffset: timestamps[21],
       timeOffset: -540,
@@ -165,7 +183,7 @@ export const niji7th = {
     },
     {
       index: 11,
-      title: '港未来',
+      title: "港未来",
       startOffset: timestamps[22],
       endOffset: timestamps[23],
       timeOffset: -540,
@@ -174,7 +192,7 @@ export const niji7th = {
     },
     {
       index: 12,
-      title: 'K-Arena 横滨',
+      title: "K-Arena 横滨",
       startOffset: timestamps[24],
       endOffset: timestamps[25],
       timeOffset: -540,
@@ -183,7 +201,7 @@ export const niji7th = {
     },
     {
       index: 13,
-      title: '横滨洲际大酒店',
+      title: "横滨洲际大酒店",
       startOffset: timestamps[26],
       endOffset: timestamps[27],
       timeOffset: -540,
@@ -192,7 +210,7 @@ export const niji7th = {
     },
     {
       index: 14,
-      title: '台场',
+      title: "台场",
       startOffset: timestamps[28],
       endOffset: timestamps[29],
       timeOffset: -540,
@@ -201,7 +219,7 @@ export const niji7th = {
     },
     {
       index: 15,
-      title: '秋叶原',
+      title: "秋叶原",
       startOffset: timestamps[30],
       endOffset: timestamps[31],
       timeOffset: -540,
@@ -210,7 +228,7 @@ export const niji7th = {
     },
     {
       index: 16,
-      title: 'K-Arena 横滨',
+      title: "K-Arena 横滨",
       startOffset: timestamps[32],
       endOffset: timestamps[33],
       timeOffset: -540,
@@ -219,7 +237,7 @@ export const niji7th = {
     },
     {
       index: 17,
-      title: '川崎',
+      title: "川崎",
       startOffset: timestamps[34],
       endOffset: timestamps[35],
       timeOffset: -540,
@@ -228,7 +246,7 @@ export const niji7th = {
     },
     {
       index: 18,
-      title: '台场',
+      title: "台场",
       startOffset: timestamps[36],
       endOffset: timestamps[37],
       timeOffset: -540,
@@ -237,7 +255,7 @@ export const niji7th = {
     },
     {
       index: 19,
-      title: 'K-Arena 横滨',
+      title: "K-Arena 横滨",
       startOffset: timestamps[38],
       endOffset: timestamps[39],
       timeOffset: -540,
@@ -246,7 +264,7 @@ export const niji7th = {
     },
     {
       index: 20,
-      title: '羽田空港T3',
+      title: "羽田空港T3",
       startOffset: timestamps[40],
       endOffset: timestamps[41],
       timeOffset: -540,
@@ -255,7 +273,7 @@ export const niji7th = {
     },
     {
       index: 21,
-      title: '浦东国际机场T2',
+      title: "浦东国际机场T2",
       startOffset: timestamps[42],
       endOffset: timestamps[43],
       timeOffset: -480,
@@ -264,7 +282,7 @@ export const niji7th = {
     },
     {
       index: 22,
-      title: '上海财经大学',
+      title: "上海财经大学",
       startOffset: timestamps[44],
       endOffset: timestamps[45],
       timeOffset: -480,
@@ -280,12 +298,13 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '飞猪送机',
+          title: "飞猪送机",
           amount: 126,
           currency: Currency.CNY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Taxi,
-          note: ''
+          user: [1],
+          note: ""
         }
       ]
     },
@@ -296,12 +315,13 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '9C6129 PVG-NRT',
+          title: "9C6129 PVG-NRT",
           amount: 600,
           currency: Currency.CNY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Flight,
-          note: ''
+          user: [1, 5],
+          note: ""
         }
       ]
     },
@@ -312,30 +332,34 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '京成Skyliner',
+          title: "京成Skyliner",
           amount: 1267,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: '京成上野方面 特急'
+          user: [1, 5],
+          budget: [0],
+          note: "京成上野方面 特急"
         },
         {
           index: 1,
-          title: 'Skyliner特急券',
+          title: "Skyliner特急券",
           amount: 1300,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: ''
+          user: [1, 5],
+          budget: [0],
+          note: ""
         },
         {
           index: 2,
-          title: 'Sucia充值',
+          title: "Sucia充值",
           amount: 74,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Other,
-          note: ''
+          note: ""
         },
       ]
     },
@@ -346,12 +370,14 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: 'JR山手线',
+          title: "JR山手线",
           amount: 208,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: '外回 上野·东京·品川·目黑方面'
+          user: [1, 5],
+          budget: [0],
+          note: "外回 上野·东京·品川·目黑方面"
         }
       ]
     },
@@ -362,12 +388,14 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '京急本线',
+          title: "京急本线",
           amount: 620,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: '京急久里滨方面 快特\n金泽八景 换乘 浦贺方面 普通'
+          user: [1, 5],
+          budget: [0],
+          note: "京急久里滨方面 快特\n金泽八景 换乘 浦贺方面 普通"
         }
       ]
     },
@@ -378,12 +406,12 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '步行',
+          title: "步行",
           amount: 0,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Walk,
-          note: ''
+          note: ""
         }
       ]
     },
@@ -394,12 +422,12 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '步行',
+          title: "步行",
           amount: 0,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Walk,
-          note: ''
+          note: ""
         }
       ]
     },
@@ -410,12 +438,12 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '步行',
+          title: "步行",
           amount: 0,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Walk,
-          note: ''
+          note: ""
         }
       ]
     },
@@ -426,12 +454,12 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '步行',
+          title: "步行",
           amount: 0,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Walk,
-          note: ''
+          note: ""
         }
       ]
     },
@@ -442,12 +470,14 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '京急本线',
+          title: "京急本线",
           amount: 403,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: '品川方面 快特'
+          user: [1, 5],
+          budget: [0],
+          note: "品川方面 快特"
         }
       ]
     },
@@ -458,12 +488,14 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '港未来线',
+          title: "港未来线",
           amount: 193,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: '元町中华街方面 急行'
+          user: [1, 5],
+          budget: [0],
+          note: "元町中华街方面 急行"
         }
       ]
     },
@@ -474,12 +506,14 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '港未来线',
+          title: "港未来线",
           amount: 193,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: '横滨方面 各停'
+          user: [1, 5],
+          budget: [0],
+          note: "横滨方面 各停"
         }
       ]
     },
@@ -490,12 +524,12 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '步行',
+          title: "步行",
           amount: 0,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Walk,
-          note: ''
+          note: ""
         }
       ]
     },
@@ -506,39 +540,47 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '港未来线',
+          title: "港未来线",
           amount: 193,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: '和光市方面 急行 横滨站换乘'
+          user: [1, 5],
+          budget: [0],
+          note: "和光市方面 急行 横滨站换乘"
         },
         {
           index: 1,
-          title: 'JR东海道线',
+          title: "JR东海道线",
           amount: 230,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: '宇都宫方面 川崎下'
+          user: [1, 5],
+          budget: [0],
+          note: "宇都宫方面 川崎下"
         },
         {
           index: 2,
-          title: 'JR东海道线',
+          title: "JR东海道线",
           amount: 318,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: '高崎方面 新桥下'
+          user: [1, 5],
+          budget: [0],
+          note: "高崎方面 新桥下"
         },
         {
           index: 3,
-          title: '海鸥线',
+          title: "海鸥线",
           amount: 321,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: '台场方面'
+          user: [1, 5],
+          budget: [0],
+          note: "台场方面"
         }
       ]
     },
@@ -549,12 +591,12 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '海鸥线-JR山手线',
+          title: "海鸥线-JR山手线",
           amount: 325,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: '秋叶原下'
+          note: "秋叶原下"
         },
       ]
     },
@@ -565,12 +607,12 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: 'JR山手线-JR东海道线',
+          title: "JR山手线-JR东海道线",
           amount: 571,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: '横滨下'
+          note: "横滨下"
         },
       ]
     },
@@ -581,12 +623,12 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: 'JR东海道线',
+          title: "JR东海道线",
           amount: 230,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: ''
+          note: ""
         },
       ]
     },
@@ -597,12 +639,12 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: 'JR京滨东北线-临海线',
+          title: "JR京滨东北线-临海线",
           amount: 450,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: ''
+          note: ""
         },
       ]
     },
@@ -613,30 +655,30 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '海鸥线',
+          title: "海鸥线",
           amount: 251,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: ''
+          note: ""
         },
         {
           index: 1,
-          title: '海鸥线-JR东海道线',
+          title: "海鸥线-JR东海道线",
           amount: 820,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: ''
+          note: ""
         },
         {
           index: 2,
-          title: '东海道线Green Car',
+          title: "东海道线Green Car",
           amount: 1010,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: ''
+          note: ""
         },
       ]
     },
@@ -647,21 +689,21 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: 'JR东海道线',
+          title: "JR东海道线",
           amount: 230,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: ''
+          note: ""
         },
         {
           index: 1,
-          title: '京急本线',
+          title: "京急本线",
           amount: 283,
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
-          note: ''
+          note: ""
         },
       ]
     },
@@ -672,12 +714,12 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '9C8516 HND-PVG',
+          title: "9C8516 HND-PVG",
           amount: 803,
           currency: Currency.CNY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Flight,
-          note: ''
+          note: ""
         },
       ]
     },
@@ -688,12 +730,12 @@ export const niji7th = {
       transportExpenses: [
         {
           index: 0,
-          title: '飞猪接机',
+          title: "飞猪接机",
           amount: 140,
           currency: Currency.CNY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Taxi,
-          note: ''
+          note: ""
         },
       ]
     },

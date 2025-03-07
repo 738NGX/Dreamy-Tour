@@ -1,0 +1,5 @@
+<t-collapse value="{{activeValues}}" bind:change="handleChange">
+  <t-collapse-panel header="{{header}}" value="{{0}}" expandIcon>
+    <slot></slot>
+  </t-collapse-panel>
+</t-collapse>

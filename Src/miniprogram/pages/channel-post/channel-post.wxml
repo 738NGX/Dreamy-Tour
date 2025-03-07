@@ -1,13 +1,13 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
 <header class="custom-navbar" title="帖子" tabList="{{[]}}" />
 <!-- 回复详情 -->
-<t-popup style="height:50vh;" visible="{{repliesVisible}}" usingCustomNavbar bind:visible-change="handleRepliesDetail" placement="bottom">
+<t-popup style="height:60vh;" visible="{{repliesVisible}}" usingCustomNavbar bind:visible-change="handleRepliesDetail" placement="bottom">
   <t-cell bind:click="handleRepliesSort" title="共{{replies.length}}条回复" hover note="{{repliesSortType}}" arrow />
-  <scroll-view class="scrollarea" scroll-y type="list" style="height: 45vh;">
+  <scroll-view class="scrollarea" scroll-y type="list" style="height: 55vh;">
     <block wx:for="{{replies}}" wx:key="id" wx:for-index="i">
       <view class="comment-item">
         <t-avatar style="margin:10rpx 0rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.userName[0] }}</t-avatar>
-        <view style="margin-left:20rpx; width:75%;">
+        <view style="margin-left:20rpx; width:75%;" data-index="{{item.id}}" bindtap="handleReplyInput">
           <view class="username" style="margin:10rpx 0rpx;">
             <text>{{ item.userName }}</text>
             <t-tag style="margin-left:10rpx;" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
@@ -31,13 +31,6 @@
       </view>
     </block>
   </scroll-view>
-</t-popup>
-<!-- 评论/回复输入框 -->
-<t-popup style="height:60vh;" visible="{{inputVisible}}" usingCustomNavbar bind:visible-change="cancelInput" placement="bottom">
-  <t-cell bind:click="handleInputSend" title="发布{{inputMode==1?'评论':'回复'}}" hover note="确认发送" arrow />
-  <t-textarea bind:change="handleInput" value="{{inputValue}}" style="height:30vh;" placeholder="说点什么..." maxlength="1000" disableDefaultPadding="{{true}}" indicator />
-  <view style="height:50rpx; padding:15rpx">上传图片（最多8张）</view>
-  <t-upload draggable max="8" media-type="{{['image']}}" files="{{originFiles}}" bind:success="handleImageUploadSuccess" bind:remove="handleImageUploadRemove" bind:click="handleImageUploadClick" bind:drop="handleImageUploadDrop" />
 </t-popup>
 <!-- 页面内容 -->
 <view>
@@ -70,7 +63,7 @@
     <block wx:for="{{structedComments}}" wx:key="id" wx:for-index="i">
       <view class="comment-item">
         <t-avatar style="margin:10rpx 0rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.userName[0] }}</t-avatar>
-        <view style="margin-left:20rpx; width:75%;">
+        <view style="margin-left:20rpx; width:75%;" data-index="{{item.id}}" bindtap="handleReplyInput">
           <view class="username" style="margin:10rpx 0rpx;">
             <text>{{ item.userName }}</text>
             <t-tag style="margin-left:10rpx;" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
@@ -85,7 +78,7 @@
             <t-icon name="time" size="18" style="margin-right:10rpx;" />
             {{ item.timeStr }}
           </view>
-          <t-button bind:tap="handleRepliesDetail" data-index="{{item}}" style="padding:0;font-weight:normal;" wx:if="{{item.replies.length > 0}}" size="small" theme="primary" variant="text">查看{{item.replies.length}}条回复></t-button>
+          <t-button bind:tap="handleRepliesDetail" data-index="{{item}}" style="padding:0;font-weight:normal;background-color: rgba(0, 0, 0, 0);" wx:if="{{item.replies.length > 0}}" size="small" theme="primary" variant="text">查看{{item.replies.length}}条回复></t-button>
         </view>
         <view class="comment-like">
           <t-icon bind:click="handleCommentLike" data-index="{{item.id}}" wx:if="{{!util.isInArray(item.likes,currentUserId)}}" name="heart" size="24" />
@@ -104,3 +97,9 @@
     </view>
   </view>
 </view>
+<!-- 评论/回复输入框 -->
+<t-popup-headered style="height:60vh;" visible="{{inputVisible}}" title="发布{{inputMode==1?'评论':'回复'}}" confirmText="发送" bind:visible-change="cancelInput" bindConfirm="handleInputSend" bindCancel="cancelInput" placement="bottom">
+  <t-textarea bind:change="handleInput" value="{{inputValue}}" style="height:30vh;" placeholder="说点什么..." maxlength="1000" disableDefaultPadding="{{true}}" indicator />
+  <view style="height:50rpx; padding:15rpx">上传图片（最多8张）</view>
+  <t-upload draggable max="8" media-type="{{['image']}}" files="{{originFiles}}" bind:success="handleImageUploadSuccess" bind:remove="handleImageUploadRemove" bind:click="handleImageUploadClick" bind:drop="handleImageUploadDrop" />
+</t-popup-headered>
