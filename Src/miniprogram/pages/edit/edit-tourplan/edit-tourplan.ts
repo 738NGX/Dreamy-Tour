@@ -11,7 +11,7 @@ if (PLUGIN_KEY) {
 }
 import { Location,  Transportation } from '../../../utils/tour/tourNode';
 import { Tour } from '../../../utils/tour/tour';
-import { currencyList, transportList, expenseList, tagList, TransportExpense } from '../../../utils/tour/expense';
+import { currencyList, transportList, expenseList, budgetList, TransportExpense } from '../../../utils/tour/expense';
 import { timezoneList } from '../../../utils/tour/timezone';
 import { MILLISECONDS, formatDate, formatNumber, formatTime, timeToMilliseconds } from '../../../utils/util';
 
@@ -32,7 +32,7 @@ Component({
         ],
         transportList: transportList,
         expenseList: expenseList,
-        tagList: tagList,
+        tagList: budgetList,
         timezoneList: timezoneList,
         minDate: new Date(new Date().getTime() - 365 * MILLISECONDS.DAY).getTime(),
         maxDate: new Date(new Date().getTime() + 365 * MILLISECONDS.DAY).getTime(),

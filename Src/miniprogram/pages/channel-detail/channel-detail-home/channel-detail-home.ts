@@ -113,6 +113,7 @@ Component({
               info: {
                 tourTitle: tour.title,
                 locationTitle: location.title,
+                timeValue: tour.startDate + location.startOffset,
                 time: formatTime(tour.startDate + location.startOffset, location.timeOffset),
                 timezone: timezoneList.find(timezone => timezone.value == location.timeOffset)?.label,
                 photos: location.photos,
@@ -172,11 +173,7 @@ Component({
       const fullMarkers = this.data.fullMarkers;
       const filterDate = this.data.filterDate;
       const markers = fullMarkers.filter(marker => {
-        const tourId = Math.floor(marker.id / 10000);
-        const locationIndex = marker.id % 10000;
-        const tour = this.data.tourSaves.find((tour: any) => tour.id == tourId);
-        const location = tour?.locations.find((location: any) => location.index == locationIndex);
-        return tour?.startDate + location?.startOffset <= filterDate[1] && tour?.endDate + location?.endOffset >= filterDate[0];
+        return marker.info.timeValue <= filterDate[1] && marker.info.timeValue >= filterDate[0];
       });
       this.setData({ markers: markers });
     },

@@ -11,12 +11,15 @@ if (PLUGIN_KEY) {
 }
 import { Location, Transportation } from '../../utils/tour/tourNode';
 import { Tour } from '../../utils/tour/tour';
-import { transportList, expenseList, tagList, TransportExpense, currencyList } from '../../utils/tour/expense';
+import { transportList, expenseList, budgetList, TransportExpense, currencyList } from '../../utils/tour/expense';
 import { timezoneList } from '../../utils/tour/timezone';
 import { MILLISECONDS, formatDate, formatTime } from '../../utils/util';
 import { isSameDate } from '../../miniprogram_npm/tdesign-miniprogram/common/shared/date';
+import { User } from '../../utils/user/user';
 
 enum DatetimeEditMode { None, StartDate, EndDate };
+
+const app = getApp<IAppOption>();
 
 Component({
   properties: {
@@ -48,8 +51,9 @@ Component({
     transportList: transportList,
     expenseList: expenseList,
     currencyList: currencyList,
-    tagList: tagList,
+    budgetList: budgetList,
     timezoneList: timezoneList,
+    currentUserList: [] as any[],
     minDate: new Date(new Date().getTime() - 365 * MILLISECONDS.DAY).getTime(),
     maxDate: new Date(new Date().getTime() + 365 * MILLISECONDS.DAY).getTime(),
     currentStartDateStr: '',
@@ -124,7 +128,11 @@ Component({
           currentDurationStrList: currentTour.transportations.map(
             copy => copy.map(transportation => {
               return new Transportation(transportation).getDurationString();
-            }))
+            })),
+          currentUserList: app.globalData.currentData.userList.map((user: any) => {
+            if (currentTour.users.includes(user.id)) return new User(user);
+            else return null;
+          }).filter((user: any) => user !== null)
         });
       }
       else {

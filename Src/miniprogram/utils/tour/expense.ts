@@ -1,6 +1,7 @@
 export enum TransportType { Bus, Metro, Train, Flight, Walk, Cycle, Car, Taxi, Ship, Other };
 export enum Currency { CNY, USD, EUR, JPY, HKD, MOP, TWD, GBP, KRW, SGD, THB, RUB, CAD, INR, AUD, VND };
 export enum ExpenseType { Hotel, Meal, Transportation, Ticket, Shopping, Other };
+export enum AmountType { Total, Average };
 
 export const currencyList = [
   { label: '人民币-CNY', symbol: 'CNY', value: Currency.CNY },
@@ -43,7 +44,7 @@ export const expenseList = [
   { label: "其他", icon: 'other', value: ExpenseType.Other },
 ];
 
-export const tagList = [
+export const budgetList = [
   { value: 0, color: 'f0f0f0' },
   { value: 1, color: 'ff9547' },
   { value: 2, color: 'ff9eac' },
@@ -66,16 +67,20 @@ export class Expense {
   currency: Currency;
   type: ExpenseType = ExpenseType.Other;
   note: string = '';
-  tag: number = 0;
+  user: number[] = [];
+  amountType: AmountType = AmountType.Total;
+  budget: number[] = [];
 
   constructor(data: any) {
-    this.index = data.index;
-    this.title = data.title;
-    this.amount = data.amount;
-    this.currency = data.currency;
-    this.type = data.type;
-    this.note = data.note;
-    this.tag = data.tag;
+    this.index = data.index ?? -1;
+    this.title = data.title ?? '';
+    this.amount = data.amount ?? 0;
+    this.currency = data.currency ?? Currency.CNY;
+    this.type = data.type ?? ExpenseType.Other;
+    this.note = data.note ?? '';
+    this.user = data.user ?? [];
+    this.amountType = data.amountType ?? AmountType.Average;
+    this.budget = data.budget ?? [];
   }
 }
 
