@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-28 15:28:26 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-01 21:25:39
+ * @Last Modified time: 2025-03-08 16:15:25
  */
 import AuthConstant from "@/constant/authConstant";
 import UnauthorizedError from "@/exception/unauthorizedError";
@@ -15,10 +15,11 @@ class JwtUtil {
    * @param uid 用户 ID
    * @returns jwt
    */
-  static generateByUid(uid: number): string {
+  static generateByUid(uid: number, roleId: number): string {
     return jwt.sign({
         exp: Math.floor(Date.now() / 1000) + AuthConstant.EXPIRATION_DURATION,  // 一周以后过期
-        uid: uid  // 用户 ID
+        uid: uid,  // 用户 ID
+        roleId: roleId   // 角色 ID（方便鉴权）
       }, 
       AuthConstant.SECRET
     );
@@ -72,6 +73,16 @@ class JwtUtil {
   static getUid(token: string): number {
     const { uid } = jwt.decode(token) as JwtPayload;  // 直接解析载荷部分
     return Number(uid);
+  }
+
+  /**
+   * 
+   * @param token jwt
+   * @return 用户 ID 和角色 ID
+   */
+  static getUidAndRoleId(token: string): { uid: number, roleId: number } {
+    const { uid, roleId } = jwt.decode(token) as JwtPayload;  // 直接解析载荷部分
+    return { uid, roleId };   // 对象属性简写，如果属性名和引用变量名相同时，可以省略
   }
 }
 
