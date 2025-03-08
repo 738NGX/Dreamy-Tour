@@ -5,6 +5,11 @@
     "t-icon": "tdesign-miniprogram/icon/icon",
     "t-avatar": "tdesign-miniprogram/avatar/avatar",
     "t-search": "tdesign-miniprogram/search/search",
-    "t-fab": "tdesign-miniprogram/fab/fab"
+    "t-pull-down-refresh": "tdesign-miniprogram/pull-down-refresh/pull-down-refresh",
+    "t-popup-headered": "/components/t-popup-headered/t-popup-headered",
+    "t-fab": "tdesign-miniprogram/fab/fab",
+    "t-input": "tdesign-miniprogram/input/input",
+    "t-textarea": "tdesign-miniprogram/textarea/textarea",
+    "t-upload": "tdesign-miniprogram/upload/upload"
   }
 }

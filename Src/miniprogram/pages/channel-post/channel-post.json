@@ -10,6 +10,7 @@
     "t-cell": "tdesign-miniprogram/cell/cell",
     "t-tag": "tdesign-miniprogram/tag/tag",
     "t-textarea": "tdesign-miniprogram/textarea/textarea",
+    "t-pull-down-refresh": "tdesign-miniprogram/pull-down-refresh/pull-down-refresh",
     "t-upload": "tdesign-miniprogram/upload/upload"
   }
 }

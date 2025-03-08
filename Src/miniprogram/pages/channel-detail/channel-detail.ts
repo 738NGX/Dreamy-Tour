@@ -24,6 +24,12 @@ Component({
         currentChannel: new Channel(app.globalData.currentData.channelList.find((channel: Channel) => channel.id === parseInt(channelId))),
       });
     },
+    onShow() {
+      const postsComponent = this.selectComponent('#posts');
+      if (postsComponent && typeof postsComponent.sortPosts === 'function') {
+        postsComponent.sortPosts();
+      }
+    },
     onChildPageChange(e: any) {
       this.setData({ childPage: e.detail.value })
     },

@@ -3,5 +3,5 @@
   <channel-detail-home currentChannel="{{currentChannel}}" />
 </block>
 <block wx:if="{{childPage == 1}}">
-  <channel-detail-posts currentChannel="{{currentChannel}}" />
+  <channel-detail-posts id="posts" currentChannel="{{currentChannel}}" />
 </block>
