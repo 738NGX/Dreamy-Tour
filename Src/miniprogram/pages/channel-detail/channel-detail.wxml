@@ -5,3 +5,6 @@
 <block wx:if="{{childPage == 1}}">
   <channel-detail-posts id="posts" currentChannel="{{currentChannel}}" />
 </block>
+<block wx:if="{{childPage == 2}}">
+  <channel-detail-group currentChannel="{{currentChannel}}" />
+</block>

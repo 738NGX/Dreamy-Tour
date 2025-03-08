@@ -12,10 +12,12 @@ export class Channel {
   name: string;
   description: string;
   level: ChannelLevel;
+  userCount: number;
   constructor(data: any) {
     this.id = data.id ?? -1;
     this.name = data.name ?? '新频道';
     this.description = data.description ?? '这是一个新频道';
     this.level = data.level ?? ChannelLevel.C;
+    this.userCount = data.userCount ?? 0;
   }
 }

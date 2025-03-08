@@ -1,0 +1,3 @@
+<view class="example-search">
+  <t-search placeholder="搜索群组" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear"/>
+</view>

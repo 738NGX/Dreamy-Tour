@@ -6,6 +6,7 @@ export const channelList = [
     name: '世界频道',
     description: '大家一起实现梦想的公共频道',
     level: ChannelLevel.S,
+    userCount: 10,
   },
   {
     id: 2,
@@ -18,5 +19,6 @@ export const channelList = [
     name: '上财辣辣人同好会',
     description: 'みんなで叶える物語',
     level: ChannelLevel.B,
+    userCount: 9,
   },
 ]
