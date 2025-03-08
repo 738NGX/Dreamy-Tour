@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-07 22:55:53
+ * @Last Modified time: 2025-03-08 16:55:09
  */
 import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
@@ -30,7 +30,7 @@ class UserService {
     const row = await db.get<Partial<User>>(
       `SELECT 
       uid, nickname, gender, avatarUrl, email,
-      phone, signature, birthday, rank
+      phone, signature, birthday, roleId
       FROM users WHERE uid = ?`, 
       [uid]
     );
@@ -44,7 +44,7 @@ class UserService {
       phone: row.phone,
       signature: row.signature,
       birthday: row.birthday,
-      rank: row.rank
+      roleId: row.roleId
     })
   }
 
@@ -83,24 +83,25 @@ class UserService {
     
     // 查询数据库中是否已经存在该用户
     const db = await dbPromise;
-    let uid = await this.findUserByOpenid(db, openid);
+    let user = await this.findUserByOpenid(db, openid);
 
     // 如果存在，根据 uid 返回 token
-    if (typeof uid !== 'undefined') {
+    if (typeof user !== 'undefined') {
+      const { uid, roleId } = user;
       this.updateLastLoginTime(db, uid);  // 异步更新用户登录时间
       return new WxLoginVo({
         openid: openid,
-        token: JwtUtil.generateByUid(uid)
+        token: JwtUtil.generateByUid(uid, roleId)
       });
     }
 
     // 如果不存在，新增一个用户，返回 token
-    uid = await this.createUser(db, openid);
+    const { uid, roleId } = await this.createUser(db, openid);
     if (typeof uid === 'number') {
       this.updateLastLoginTime(db, uid);  // 异步更新用户登录时间
       return new WxLoginVo({
         openid: openid,
-        token: JwtUtil.generateByUid(uid)
+        token: JwtUtil.generateByUid(uid, roleId)
       })
     } else {
       throw new Error("用户 ID 生成异常");
@@ -195,15 +196,18 @@ class UserService {
    * @param openid 微信 openid
    * @returns 用户id
    */
-  private static async findUserByOpenid(db: Database, openid: string): Promise<number | undefined> {
-    const row = await db.get<Pick<User, 'uid'>>(
-      "SELECT uid FROM users WHERE wxOpenid = ?",
+  private static async findUserByOpenid(db: Database, openid: string): Promise<{ uid: number, roleId: number } | undefined> {
+    const row = await db.get<Pick<User, 'uid' | 'roleId'>>(
+      "SELECT uid, roleId FROM users WHERE wxOpenid = ?",
       [openid]
     );
     if (!row) {
       return undefined;
     }
-    return row.uid;
+    return { 
+      uid: row.uid,
+      roleId: row.roleId
+    };
   }
 
   /**
@@ -212,13 +216,13 @@ class UserService {
    * @param openid 微信 openid
    * @returns 新建用户的用户 id
    */
-  private static async createUser(db: Database, openid: string): Promise<number> {
-    const defaultNickname = `微信用户_${Math.random().toString(36).substr(2, 6)}`;
+  private static async createUser(db: Database, openid: string): Promise<{ uid: number; roleId: number }> {
+    const defaultNickname = `微信用户_${Math.random().toString(36).substr(2, 5)}`;
     
     // 插入新用户，并返回新的用户 id
     const { lastID } = await db.run(
       `INSERT INTO users (
-        nickname, wxOpenid, gender, avatarUrl, rank,
+        nickname, wxOpenid, gender, avatarUrl, roleId,
         status, lastLoginAt, createdAt, updatedAt
       ) VALUES (
        ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'),
@@ -229,13 +233,16 @@ class UserService {
         openid,
         UserConstant.CONFIDENTIAL,
         UserConstant.DEFAULT_AVATAR_URL,
-        UserConstant.DEFAULT_RANK,
+        UserConstant.DEFAULT_ROLE,
         UserConstant.STATUS_ENABLE
       ]
     );
 
     if (!lastID) throw new Error('用户创建失败');
-    return lastID;
+    return {
+      uid: lastID,  // 用户 ID
+      roleId: UserConstant.DEFAULT_ROLE  // 角色 ID
+    };
   }
 
   /**

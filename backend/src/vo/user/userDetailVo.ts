@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 08:00:11 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-01 20:48:53
+ * @Last Modified time: 2025-03-08 16:41:37
  */
 
 import VO from "@/base/vo"
@@ -35,8 +35,8 @@ class UserDetailVo extends VO<UserDetailVo> {
   // 生日
   birthday: string
 
-  // 等级
-  rank: number
+  // 角色
+  roleId: number
 }
 
 export default UserDetailVo;

@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-28 20:12:10 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-01 16:16:02
+ * @Last Modified time: 2025-03-08 16:43:14
  */
 class UserConstant {
   // 女性
@@ -12,8 +12,8 @@ class UserConstant {
   static readonly MALE = 1;
   // 性别保密
   static readonly CONFIDENTIAL = 2;
-  // 默认的用户等级
-  static readonly DEFAULT_RANK = 0;
+  // 默认的用户角色
+  static readonly DEFAULT_ROLE = 0;
   // 默认的用户头像
   static readonly DEFAULT_AVATAR_URL = 'http://default.avatar.com';
   // 启用状态

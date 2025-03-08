@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-25 10:06:25 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-02-25 18:33:27
+ * @Last Modified time: 2025-03-08 16:39:04
  */
 
 class User {
@@ -34,8 +34,8 @@ class User {
   // 生日
   birthday: string
 
-  // 等级
-  rank: number
+  // 角色 ID
+  roleId: number
 
   // 启用 0 / 禁用 1
   status: number

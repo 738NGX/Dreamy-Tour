@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-03 08:32:25 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-03 10:49:59
+ * @Last Modified time: 2025-03-08 15:15:34
  */
 
 import ExchangeRateDto from "@/dto/currency/exchangeRateDto";
@@ -15,7 +15,8 @@ import { StatusCodes } from "http-status-codes";
 const currencyRoute = express.Router();
 
 /**
- * [GET] 获取货币的转化汇率
+ * @description 获取货币的转化汇率
+ * @method GET
  * @path /currency/exchange-rate
  */
 currencyRoute.get('/currency/exchange-rate', async (req: Request, res: Response) => {

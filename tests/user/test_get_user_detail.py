@@ -15,7 +15,7 @@ class TestGetUserDetail:
     json_data = res.json()
     assert json_data['code'] == 1   # code 为 1
     # 必须包含的字段
-    necessary_fields = ['uid', 'nickname', 'gender', 'avatarUrl', 'email', 'phone', 'signature', 'birthday', 'rank']
+    necessary_fields = ['uid', 'nickname', 'gender', 'avatarUrl', 'email', 'phone', 'signature', 'birthday', 'roleId']
     for field in necessary_fields:
       assert field in json_data['data']
 
