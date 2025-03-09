@@ -52,7 +52,10 @@ function getStructuredComments(postId: number, userList: User[], commentList: Co
 
 Component({
   data: {
+    refreshEnable: false,
+
     currentUserId: app.globalData.currentUserId,
+    isChannelAdmin: false,
     currentPost: {} as Post,
     imageProps: { mode: "widthFix" },
 
@@ -81,6 +84,13 @@ Component({
       const { postId } = options;
       const currentPost = app.globalData.currentData.postList.find((post: Post) => post.id == postId);
       this.setData({ currentPost });
+      const userGroup = getUserGroupNameInChannel(
+        app.globalData.currentData.userList.find((user: any) => user.id == app.globalData.currentUserId),
+        currentPost?.linkedChannel!
+      )
+      this.setData({
+        isChannelAdmin: userGroup === '系统管理员' || userGroup === '频道主' || userGroup === '频道管理员',
+      });
     },
     onShow() {
       const author = app.globalData.currentData.userList.find((user: User) => user.id == this.data.currentPost?.user)?.name;
@@ -101,6 +111,13 @@ Component({
         timeStr: timeStr,
         structedComments: structedComments
       });
+    },
+    onRefresh() {
+      this.setData({ refreshEnable: true });
+      setTimeout(() => {
+        this.setData({ refreshEnable: false });
+      }, 500);
+      this.onShow();
     },
     onImageLoad(e: any) {
       const { width, height } = e.detail;
@@ -245,15 +262,8 @@ Component({
         });
         const newCommentList = this.data.commentList.map((comment: any) => new Comment(comment));
         newCommentList.push(newComment);
-        this.setData({
-          commentList: newCommentList,
-          structedComments: getStructuredComments(
-            this.data.currentPost.id,
-            app.globalData.currentData.userList.map((user: User) => new User(user)),
-            newCommentList
-          ),
-        });
         app.globalData.currentData.commentList = newCommentList;
+        this.onRefresh();
       } else if (this.data.inputMode === InputMode.Reply) {
         const newCommentId = this.data.commentList.length + 1;
         const newComment = new Comment({
@@ -268,15 +278,8 @@ Component({
         });
         const newCommentList = this.data.commentList.map((comment: any) => new Comment(comment));
         newCommentList.push(newComment);
-        this.setData({
-          commentList: newCommentList,
-          structedComments: getStructuredComments(
-            this.data.currentPost.id,
-            app.globalData.currentData.userList.map((user: User) => new User(user)),
-            newCommentList
-          ),
-        });
         app.globalData.currentData.commentList = newCommentList;
+        this.onRefresh();
         if (this.data.repliesParent != -1) {
           const replies = this.data.structedComments.find((comment: any) => comment.id == this.data.repliesParent).replies;
           this.setData({ replies });
@@ -320,12 +323,82 @@ Component({
     handleImageUploadClick(e: any) {
       console.log(e.detail.file);
     },
-
     handleImageUploadDrop(e: any) {
       const { files } = e.detail;
       this.setData({
         originFiles: files,
       });
     },
+    onCommentDelete(e: any) {
+      const that = this;
+      wx.showModal({
+        title: '警告',
+        content: '是否确定删除该评论？',
+        success(res) {
+          if (res.confirm) {
+            const comment = e.currentTarget.dataset.index?.id;
+            const replies = e.currentTarget.dataset.index?.replies;
+            const newCommentList = that.data.commentList.filter((c: any) => c.id !== comment && !replies.map((r: any) => r.id).includes(c.id));
+            app.globalData.currentData.commentList = newCommentList;
+            that.onRefresh();
+          } else if (res.cancel) {
+            return;
+          }
+        }
+      });
+    },
+    onReplyDelete(e: any) {
+      const that = this;
+      wx.showModal({
+        title: '警告',
+        content: '是否确定删除该回复？',
+        success(res) {
+          if (res.confirm) {
+            const replyId = e.currentTarget.dataset.index?.id;
+            const parentComment = e.currentTarget.dataset.index?.parentComment;
+            const commentList = that.data.commentList;
+            // 递归获取所有子回复的 id
+            function getAllDescendantIds(parentId: number): number[] {
+              const childReplies = commentList.filter((c: any) => c.parentComment === parentId);
+              return childReplies.reduce((acc: number[], current: any) => {
+                return acc.concat(current.id, getAllDescendantIds(current.id));
+              }, []);
+            }
+            const idsToDelete = [replyId, ...getAllDescendantIds(replyId)];
+            const newCommentList = commentList.filter((c: any) => !idsToDelete.includes(c.id));
+            app.globalData.currentData.commentList = newCommentList;
+            that.onRefresh();
+            const replies = that.data.structedComments.find((comment: any) => comment.id == parentComment).replies;
+            that.setData({ replies });
+          }
+        }
+      });
+    },
+    onPostDelete() {
+      const that = this;
+      wx.showModal({
+        title: '警告',
+        content: '是否确定删除该帖子？',
+        success(res) {
+          if (res.confirm) {
+            const newCommentList = app.globalData.currentData.commentList.filter((comment: any) => comment.linkedPost !== that.data.currentPost.id);
+            const newPostList = app.globalData.currentData.postList.filter((post: any) => post.id !== that.data.currentPost.id);
+            app.globalData.currentData.postList = newPostList;
+            app.globalData.currentData.commentList = newCommentList;
+            wx.navigateBack();
+          } else if (res.cancel) {
+            return;
+          }
+        }
+      });
+    },
+    onPostStickyChange(){
+      const currentPost = new Post(this.data.currentPost);
+      currentPost.isSticky = !currentPost.isSticky;
+      const newPostList = app.globalData.currentData.postList.map((post: Post) => new Post(post));
+      newPostList.find((post: Post) => post.id == currentPost.id).isSticky = currentPost.isSticky;
+      app.globalData.currentData.postList = newPostList;
+      this.setData({ currentPost });
+    }
   }
 });

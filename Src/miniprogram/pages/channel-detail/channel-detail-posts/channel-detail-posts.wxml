@@ -1,30 +1,65 @@
 <view class="example-search">
-  <t-search placeholder="搜索帖子" bind:change="onSearch" />
-</view><scroll-view class="scrollarea" style="height:75vh;" scroll-y type="list">
-  <view class="post-list">
-    <view class="post-grid">
-      <block wx:for="{{searchedPosts}}" wx:key="id" wx:for-index="i">
-        <view class="post-card" bindtap="handlePostDetail" data-index="{{item.id}}">
-          <!-- 文章图片 -->
-          <image class="post-image" wx:if="{{item.photos.length > 0}}" src="{{item.photos[0].value}}" mode="widthFix" />
-          <!-- 文章信息 -->
-          <view class="post-info">
-            <view class="post-title">
-              <text>{{ item.isSticky ? '[置顶]' + item.title : item.title }}</text>
+  <t-search placeholder="搜索帖子" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear"/>
+</view>
+<t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
+  <scroll-view class="scrollarea" style="height:75vh;" scroll-y type="list">
+    <view class="post-list">
+      <view class="post-grid">
+        <view class="column left">
+          <block wx:for="{{leftPosts}}" wx:key="id">
+            <view class="post-card" bindtap="handlePostDetail" data-index="{{item.id}}">
+            <!-- 文章图片 -->
+            <image class="post-image" wx:if="{{item.photos.length > 0}}" src="{{item.photos[0].value}}" mode="widthFix" />
+            <!-- 文章信息 -->
+            <view class="post-info">
+              <view class="post-title">
+                <text>{{ item.isSticky ? '[置顶]' + item.title : item.title }}</text>
+              </view>
+            </view>
+            <!-- 用户信息 + 点赞 -->
+            <view class="post-meta">
+              <t-avatar class="avatar-example" t-class-content="external-class-content" size="24px">{{ item.username[0] }}</t-avatar>
+              <text class="username">{{ item.username }}</text>
+              <view class="likes">
+                <t-icon name="heart" size="16" style="margin-right:10rpx;" />
+                {{ item.likes.length }}
+              </view>
             </view>
           </view>
-          <!-- 用户信息 + 点赞 -->
-          <view class="post-meta">
-            <t-avatar class="avatar-example" t-class-content="external-class-content" size="24px">{{ usernameList[i][0] }}</t-avatar>
-            <text class="username">{{ usernameList[i] }}</text>
-            <view class="likes">
-              <t-icon name="heart" size="16" style="margin-right:10rpx;"/>
-              {{ item.likes.length }}
-            </view>
-          </view>
+          </block>
         </view>
-      </block>
+        <view class="column right">
+          <block wx:for="{{rightPosts}}" wx:key="id">
+            <view class="post-card" bindtap="handlePostDetail" data-index="{{item.id}}">
+            <!-- 文章图片 -->
+            <image class="post-image" wx:if="{{item.photos.length > 0}}" src="{{item.photos[0].value}}" mode="widthFix" />
+            <!-- 文章信息 -->
+            <view class="post-info">
+              <view class="post-title">
+                <text>{{ item.isSticky ? '[置顶]' + item.title : item.title }}</text>
+              </view>
+            </view>
+            <!-- 用户信息 + 点赞 -->
+            <view class="post-meta">
+              <t-avatar class="avatar-example" t-class-content="external-class-content" size="24px">{{ item.username[0] }}</t-avatar>
+              <text class="username">{{ item.username }}</text>
+              <view class="likes">
+                <t-icon name="heart" size="16" style="margin-right:10rpx;" />
+                {{ item.likes.length }}
+              </view>
+            </view>
+          </view>
+          </block>
+        </view>
+      </view>
     </view>
-  </view>
-</scroll-view>
+  </scroll-view>
+</t-pull-down-refresh>
 <t-fab icon="add" bind:click="handlePost"></t-fab>
+<!-- 发帖输入框 -->
+<t-popup-headered style="height:80vh;" visible="{{inputVisible}}" title="发布帖子" confirmText="发布" bind:visible-change="handlePost" bindConfirm="handleInputSend" bindCancel="handlePost" placement="bottom">
+  <t-input placeholder="请输入标题" bind:change="handleTitleInput" value="{{inputTitle}}" maxlength="{{30}}" />
+  <t-textarea bind:change="handleInput" value="{{inputValue}}" style="height:40vh;" placeholder="说点什么..." maxlength="1000" disableDefaultPadding="{{true}}" indicator />
+  <view style="height:50rpx; padding:15rpx">上传图片（最多8张）</view>
+  <t-upload draggable max="8" media-type="{{['image']}}" files="{{originFiles}}" bind:success="handleImageUploadSuccess" bind:remove="handleImageUploadRemove" bind:click="handleImageUploadClick" bind:drop="handleImageUploadDrop" />
+</t-popup-headered>

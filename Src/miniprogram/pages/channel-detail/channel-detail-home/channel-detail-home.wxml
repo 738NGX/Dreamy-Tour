@@ -1,6 +1,6 @@
 <t-popup visible="{{markerDetailVisible}}" bind:visible-change="onMarkerDetailVisibleChange" placement="bottom" style="height: 50vh;">
   <scroll-view class="scrollarea" scroll-y type="list" style="height: 50vh;">
-    <t-swiper current="{{currentPhotoIndex}}" autoplay="{{true}}" duration="{{500}}" interval="{{5000}}" list="{{selectingMarkerInfo.photos}}" navigation="{{ { type: 'dots-bar' } }}" />
+    <t-swiper wx:if="{{selectingMarkerInfo.photos}}" current="{{currentPhotoIndex}}" autoplay="{{true}}" duration="{{500}}" interval="{{5000}}" list="{{selectingMarkerInfo.photos}}" navigation="{{ { type: 'dots-bar' } }}" />
     <t-cell title="行程" leftIcon="bookmark" note="{{selectingMarkerInfo.tourTitle}}" />
     <t-cell title="地点" leftIcon="location" note="{{selectingMarkerInfo.locationTitle}}" />
     <t-cell title="时间" leftIcon="time" note="{{selectingMarkerInfo.time}}" />
@@ -8,8 +8,8 @@
   </scroll-view>
 </t-popup>
 <t-popup style="width:80vw; border-radius: 15rpx; padding:10rpx;" visible="{{rankingVisible}}" usingCustomNavbar bind:visible-change="onRankingVisibleChange" placement="center">
+  <view class="wrapper wrapper__left">旅行排行</view>
   <scroll-view class="scrollarea" style="height:40vh;" scroll-y type="list">
-    <view class="wrapper wrapper__left">旅行排行</view>
     <block wx:if="{{userRankings.length>0}}" wx:for="{{userRankings}}" wx:key="index" wx:for-index="i">
       <t-cell title="{{item.name}}" note="{{item.count}}次" leftIcon="numbers-{{item.rank}}" />
     </block>
