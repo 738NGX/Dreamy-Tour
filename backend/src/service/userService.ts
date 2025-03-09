@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-08 16:55:09
+ * @Last Modified time: 2025-03-09 09:19:19
  */
 import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
@@ -225,8 +225,7 @@ class UserService {
         nickname, wxOpenid, gender, avatarUrl, roleId,
         status, lastLoginAt, createdAt, updatedAt
       ) VALUES (
-       ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'),
-       datetime('now', 'localtime'), datetime('now', 'localtime')
+       ?, ?, ?, ?, ?, ?, ?, ?, ?
        )`,
       [
         defaultNickname,
@@ -234,7 +233,10 @@ class UserService {
         UserConstant.CONFIDENTIAL,
         UserConstant.DEFAULT_AVATAR_URL,
         UserConstant.DEFAULT_ROLE,
-        UserConstant.STATUS_ENABLE
+        UserConstant.STATUS_ENABLE,
+        Date.now(),
+        Date.now(),
+        Date.now()
       ]
     );
 
@@ -252,8 +254,11 @@ class UserService {
   private static async updateLastLoginTime(db: Database, uid: number): Promise<void> {
     console.log(`更新用户 ${uid} 的登录时间`)
     await db.run(
-      `UPDATE users SET lastLoginAt = datetime('now', 'localtime') WHERE uid = ?`,
-      [uid]
+      `UPDATE users SET lastLoginAt = ? WHERE uid = ?`,
+      [
+        Date.now(),
+        uid
+      ]
     )
   }
 }
