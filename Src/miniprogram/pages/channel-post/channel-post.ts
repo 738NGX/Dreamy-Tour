@@ -1,6 +1,6 @@
 import { Comment, Post } from "../../utils/channel/post";
 import { User } from "../../utils/user/user";
-import { formatPostTime, getUserGroupNameInChannel } from "../../utils/util";
+import { formatPostTime, getNewId, getUserGroupNameInChannel } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -248,8 +248,8 @@ Component({
         });
         return;
       }
+      const newCommentId = getNewId(app.globalData.currentData.commentList);
       if (this.data.inputMode === InputMode.Comment) {
-        const newCommentId = this.data.commentList.length + 1;
         const newComment = new Comment({
           id: newCommentId,
           user: this.data.currentUserId,
@@ -265,7 +265,6 @@ Component({
         app.globalData.currentData.commentList = newCommentList;
         this.onRefresh();
       } else if (this.data.inputMode === InputMode.Reply) {
-        const newCommentId = this.data.commentList.length + 1;
         const newComment = new Comment({
           id: newCommentId,
           user: this.data.currentUserId,
@@ -392,7 +391,7 @@ Component({
         }
       });
     },
-    onPostStickyChange(){
+    onPostStickyChange() {
       const currentPost = new Post(this.data.currentPost);
       currentPost.isSticky = !currentPost.isSticky;
       const newPostList = app.globalData.currentData.postList.map((post: Post) => new Post(post));

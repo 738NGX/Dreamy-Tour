@@ -1,0 +1,5 @@
+<wxs module="util" src="../../utils/util.wxs"></wxs>
+<header class="custom-navbar" tabList="{{[]}}" />
+<scroll-view class="scrollarea" style="height:90vh" scroll-y type="list">
+
+</scroll-view>

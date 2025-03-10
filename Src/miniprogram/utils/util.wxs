@@ -11,7 +11,13 @@ var getUserGroupTagTheme = function (userGroup) {
     case '频道主':
       theme = 'warning'
       break
+    case '群主':
+      theme = 'warning'
+      break
     case '频道管理员':
+      theme = 'success'
+      break
+    case '群管理员':
       theme = 'success'
       break
     default:

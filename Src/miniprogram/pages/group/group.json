@@ -1,0 +1,12 @@
+{
+  "usingComponents": {
+    "header": "/components/header/header",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "c-collapse": "/components/c-collapse/c-collapse",
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-picker": "tdesign-miniprogram/picker/picker",
+    "t-picker-item": "tdesign-miniprogram/picker-item/picker-item",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar"
+  }
+}

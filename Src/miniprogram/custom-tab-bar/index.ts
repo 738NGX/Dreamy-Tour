@@ -6,35 +6,30 @@ Component({
         value: '/pages/index/index',
         tabBar: [
             {
-                value: '/pages/index/index',
-                icon: 'home',
-                label: '主页'
-            },
-            {
                 value: '/pages/channel/channel',
                 icon: 'chat-double',
                 label: '频道'
             },
             {
-                value: '/pages/edit/edit',
-                icon: 'map-edit',
-                label: '编辑行程'
+                value: '/pages/public-group/public-group',
+                icon: 'usergroup',
+                label: '群组'
             },
             {
-                value: '/pages/report/report',
-                icon: 'chart-combo',
-                label: '规划结果'
+                value: '/pages/public-post/public-post',
+                icon: 'shutter',
+                label: '讨论'
             },
-            //{
-            //    value: '/pages/calculator/calculator',
-            //    icon: 'calculation',
-            //    label: '计算器'
-            //},
-            //{
-            //    value: '/pages/menu/menu',
-            //    icon: 'app',
-            //    label: '更多'
-            //}
+            {
+                value: '/pages/notice/notice',
+                icon: 'notification',
+                label: '消息'
+            },
+            {
+                value: '/pages/user/user',
+                icon: 'user-1',
+                label: '用户'
+            },
         ]
     },
     //  组件的方法列表

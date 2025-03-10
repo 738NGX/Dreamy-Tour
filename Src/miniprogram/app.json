@@ -1,13 +1,16 @@
 {
   "pages": [
     "pages/channel/channel",
-    "pages/index/index",
+    "pages/public-post/public-post",
+    "pages/public-group/public-group",
+    "pages/notice/notice",
+    "pages/user/user",
     "pages/edit/edit",
     "pages/report/report",
     "pages/calculator/calculator",
-    "pages/menu/menu",
     "pages/channel-detail/channel-detail",
     "pages/channel-post/channel-post",
+    "pages/group/group",
     "pages/tour-view/tour-view"
   ],
   "tabBar": {
@@ -16,20 +19,24 @@
     "selectedColor": "#31869B",
     "list": [
       {
-        "pagePath": "pages/index/index",
-        "text": "主页"
-      },
-      {
         "pagePath": "pages/channel/channel",
         "text": "频道"
       },
       {
-        "pagePath": "pages/edit/edit",
-        "text": "编辑行程"
+        "pagePath": "pages/public-group/public-group",
+        "text": "群组"
       },
       {
-        "pagePath": "pages/report/report",
-        "text": "规划报告"
+        "pagePath": "pages/public-post/public-post",
+        "text": "讨论"
+      },
+      {
+        "pagePath": "pages/notice/notice",
+        "text": "通知"
+      },
+      {
+        "pagePath": "pages/user/user",
+        "text": "用户"
       }
     ]
   },

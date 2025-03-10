@@ -166,7 +166,7 @@ export const tourList = [
   },
   {
     id: 5,
-    title: 'Liella2024FMT爱知公演',
+    title: 'Liella!2024FMT爱知公演',
     status: TourStatus.Finished,
     linkedChannel: 3,
     users: [5],
@@ -197,7 +197,7 @@ export const tourList = [
   },
   {
     id: 6,
-    title: 'Liella2024FMT宫城公演',
+    title: 'Liella!2024FMT宫城公演',
     status: TourStatus.Finished,
     linkedChannel: 3,
     users: [6],
@@ -228,7 +228,7 @@ export const tourList = [
   },
   {
     id: 7,
-    title: 'Liella2024FMT神奈川公演',
+    title: 'Liella!2024FMT神奈川公演',
     status: TourStatus.Finished,
     linkedChannel: 3,
     users: [6],
@@ -298,7 +298,7 @@ export const tourList = [
           endOffset: 0,
           timeOffset: -540,
           longitude: 139.630729,
-          latitude: 35.895042, 
+          latitude: 35.895042,
           photos: [
             {
               value: 'https://llsif.738ngx.site/d/%E7%BE%A4%E7%92%83%E5%A5%88%E8%B5%84%E6%BA%90/%E6%B4%BB%E5%8A%A8%E8%AE%B0%E5%BD%95/2024-10-04-23-36(4).jpg?sign=A9iu2Pu4w9ntfw8qrpvFwLCaWfm8pRV70WM6Zy2ljaY=:0',
@@ -332,7 +332,7 @@ export const tourList = [
           endOffset: 0,
           timeOffset: -540,
           longitude: 113.480027,
-          latitude: 22.941870, 
+          latitude: 22.941870,
           photos: [
             {
               value: 'https://llsif.738ngx.site/d/%E7%BE%A4%E7%92%83%E5%A5%88%E8%B5%84%E6%BA%90/%E6%B4%BB%E5%8A%A8%E8%AE%B0%E5%BD%95/2024-10-04-23-31.jpg?sign=iFy7cTnWjtMjh1hY1GRmLtlnGFNgpoen0A34WHRxQkQ=:0',
@@ -349,7 +349,7 @@ export const tourList = [
           endOffset: 0,
           timeOffset: -540,
           longitude: 121.302468,
-          latitude: 31.189202, 
+          latitude: 31.189202,
           photos: [
             {
               value: 'https://llsif.738ngx.site/d/%E7%BE%A4%E7%92%83%E5%A5%88%E8%B5%84%E6%BA%90/%E6%B4%BB%E5%8A%A8%E8%AE%B0%E5%BD%95/2024-10-06-17-53(1).jpg?sign=DpWOquEwjUtWFPT_worI_6D7CKhvdAiUCb-7h65VI9M=:0',
@@ -383,7 +383,7 @@ export const tourList = [
           endOffset: 0,
           timeOffset: -540,
           longitude: 139.620147,
-          latitude: 35.512202, 
+          latitude: 35.512202,
           photos: [
             {
               value: 'https://llsif.738ngx.site/d/%E7%BE%A4%E7%92%83%E5%A5%88%E8%B5%84%E6%BA%90/%E6%B4%BB%E5%8A%A8%E8%AE%B0%E5%BD%95/2025-01-10-15-46.jpg?sign=mmLIsLGRzUYX32RxFYyaAb7UWi9ktA5OyJB92msSmDs=:0',
@@ -423,6 +423,93 @@ export const tourList = [
               ariaLabel: ''
             }
           ]
+        },
+      ]
+    ],
+    transportations: [[]]
+  },
+  {
+    id: 13,
+    title: 'Liella!6th东京公演',
+    status: TourStatus.Finished,
+    linkedChannel: 3,
+    users: [6, 10],
+    startDate: new Date('2025-03-08').getTime(),
+    endDate: new Date('2025-03-10').getTime(),
+    timeOffset: -540,
+    mainCurrency: Currency.CNY,
+    subCurrency: Currency.JPY,
+    currencyExchangeRate: 0.049,
+    locations: [
+      [
+        {
+          index: 0,
+          title: '国立代々木競技場 第一体育館',
+          startOffset: 0,
+          endOffset: 0,
+          timeOffset: -540,
+          longitude: 139.700148,
+          latitude: 35.667631,
+          photos: [
+            {
+              value: 'https://llsif.738ngx.site/d/%E7%BE%A4%E7%92%83%E5%A5%88%E8%B5%84%E6%BA%90/%E6%B4%BB%E5%8A%A8%E8%AE%B0%E5%BD%95/2025-03-09-16-55.jpg?sign=5yICwacpSNpu1DBi2KHW1DWY_4ATcVUTAsxB0D9nE6o=:0',
+              ariaLabel: ''
+            }
+          ]
+        },
+      ]
+    ],
+    transportations: [[]]
+  },
+  {
+    id: 14,
+    title: 'Aqours Finale LoveLive!',
+    status: TourStatus.Planning,
+    linkedChannel: 3,
+    linkedGroup: 1,
+    users: [1, 2, 4, 5, 6, 7, 10, 11, 12],
+    startDate: new Date(2025, 5, 20).getTime(),
+    endDate: new Date(2025, 5, 22).getTime(),
+    timeOffset: -540,
+    mainCurrency: Currency.CNY,
+    subCurrency: Currency.JPY,
+    currencyExchangeRate: 0.049,
+    locations: [
+      [
+        {
+          index: 0,
+          title: '上海财经大学',
+          startOffset: 0,
+          endOffset: 0,
+          timeOffset: -480,
+          photos: []
+        },
+      ]
+    ],
+    transportations: [[]]
+  },
+  {
+    id: 15,
+    title: '莲之空4th石川公演',
+    status: TourStatus.Planning,
+    linkedChannel: 3,
+    linkedGroup: 2,
+    users: [6],
+    startDate: new Date('2025-04-28').getTime(),
+    endDate: new Date('2025-05-07').getTime(),
+    timeOffset: -540,
+    mainCurrency: Currency.CNY,
+    subCurrency: Currency.JPY,
+    currencyExchangeRate: 0.049,
+    locations: [
+      [
+        {
+          index: 0,
+          title: '上海财经大学',
+          startOffset: 0,
+          endOffset: 0,
+          timeOffset: -480,
+          photos: []
         },
       ]
     ],

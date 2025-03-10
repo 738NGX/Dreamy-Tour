@@ -1,5 +1,5 @@
 import { Channel } from "../../utils/channel/channel";
-import { getUserGroupNameInChannel } from "../../utils/util";
+import { getUser, getUserGroupNameInChannel } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -25,20 +25,23 @@ Component({
         currentChannel: new Channel(app.globalData.currentData.channelList.find((channel: Channel) => channel.id === parseInt(channelId))),
       });
       const userGroup = getUserGroupNameInChannel(
-        app.globalData.currentData.userList.find((user: any) => user.id == app.globalData.currentUserId),
-        channelId
+        getUser(
+          app.globalData.currentData.userList,
+          app.globalData.currentUserId
+        )!,
+        parseInt(channelId)
       )
       this.setData({
         tabList: userGroup === '系统管理员' || userGroup === '频道主' || userGroup === '频道管理员'
           ? [
             { icon: 'map-location', label: '足迹', value: 0 },
-            { icon: 'chat-bubble', label: '讨论', value: 1 },
+            { icon: 'shutter', label: '讨论', value: 1 },
             { icon: 'usergroup', label: '群组', value: 2 },
             { icon: 'setting-1', label: '管理', value: 3 },
           ]
           : [
             { icon: 'map-location', label: '足迹', value: 0 },
-            { icon: 'chat-bubble', label: '讨论', value: 1 },
+            { icon: 'shutter', label: '讨论', value: 1 },
             { icon: 'usergroup', label: '群组', value: 2 },
           ]
       });

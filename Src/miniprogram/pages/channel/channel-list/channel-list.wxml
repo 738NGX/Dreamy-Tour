@@ -1,7 +1,7 @@
-<scroll-view class="scrollarea" scroll-y type="list">
+<scroll-view class="scrollarea" style="height:75vh;" scroll-y type="list">
   <block wx:for="{{channelList}}" wx:key="index" wx:for-index="i">
     <t-swipe-cell>
-      <t-cell title="{{item.name}}" description="{{item.description}}" note="{{channelLevelList[i] || ''}}" data-index="{{item.id}}" bind:click="onChannelClick" hover>
+      <t-cell title="{{item.name}}" description="{{item.description}}" arrow data-index="{{item.id}}" bind:click="onChannelClick" hover>
         <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
       </t-cell>
       <view slot="right" class="btn2 delete-btn" bind:tap="onDelete">退出</view>

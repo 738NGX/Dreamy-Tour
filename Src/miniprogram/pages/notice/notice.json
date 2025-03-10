@@ -1,0 +1,9 @@
+{
+  "usingComponents": {
+    "header": "/components/header/header",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "c-collapse": "/components/c-collapse/c-collapse",
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar"
+  }
+}

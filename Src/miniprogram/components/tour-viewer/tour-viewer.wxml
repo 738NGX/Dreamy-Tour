@@ -100,7 +100,7 @@
 <!-- 节点显示 -->
 <view class="container" style="align-items: center;">
   <view wx:if="{{displayingLocationId.length}}" class="location">
-    <t-cell title="{{currentTour.locations[currentTourCopyIndex][displayingLocationId[0]].title}}" />
+    <t-cell title="{{currentTour.locations[currentTourCopyIndex][displayingLocationId[0]].title||''}}" />
     <view class="row">
       <t-icon name="flight-takeoff" size="32rpx" style="margin:0 10rpx;" />
       <view style="width: 90%;">开始时间:{{currentStartDateStrList[currentTourCopyIndex][displayingLocationId[0]]}}</view>
@@ -153,7 +153,7 @@
     </view>
     <view wx:if="{{util.isInArray(displayingLocationId,i+1)}}" class="connecter" />
     <view wx:if="{{util.isInArray(displayingLocationId,i+1)}}" class="location">
-      <t-cell title="{{currentTour.locations[currentTourCopyIndex][i+1].title}}" />
+      <t-cell title="{{currentTour.locations[currentTourCopyIndex][i+1].title||''}}" />
       <view class="row">
         <t-icon name="flight-takeoff" size="32rpx" style="margin:0 10rpx;" />
         <view style="width: 90%;">开始时间:{{currentStartDateStrList[currentTourCopyIndex][i+1]}}</view>

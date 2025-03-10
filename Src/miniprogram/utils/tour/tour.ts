@@ -40,7 +40,7 @@ export class Tour {
     this.linkedGroup = data.linkedGroup ?? -1;
     this.users = data.users ?? [];
     this.startDate = data.startDate ?? Date.now();
-    this.endDate = data.endDate ?? Date.now();
+    this.endDate = data.endDate ?? Date.now() + MILLISECONDS.DAY;
     this.timeOffset = data.timeOffset ?? -480;
     this.mainCurrency = data.mainCurrency ?? Currency.CNY;
     this.subCurrency = data.subCurrency ?? Currency.JPY;

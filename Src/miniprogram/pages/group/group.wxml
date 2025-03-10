@@ -1,0 +1,29 @@
+<wxs module="util" src="../../utils/util.wxs"></wxs>
+<header class="custom-navbar" title="群组" tabList="{{[]}}" />
+<scroll-view class="scrollarea" style="height:90vh" scroll-y type="list">
+  <t-cell title="{{currentGroup.name||''}}" description="{{currentGroup.description||''}}">
+    <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{currentGroup.name[0]}}</t-avatar>
+  </t-cell>
+  <c-collapse header="群成员">
+    <t-cell wx:for="{{members}}" wx:key="id" title="{{item.name}}" style="--td-cell-vertical-padding:10rpx">
+      <t-avatar slot="image" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
+      <t-tag slot="note" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
+    </t-cell>
+  </c-collapse>
+  <c-collapse header="群行程">
+    <t-cell title="行程详情" hover arrow />
+    <view class="wrapper" bind:tap="handleDateRangeChange">
+      <view class="wrapper__left">{{dateRange[0]}}</view>
+      <t-icon class="wrapper__center" name="swap-right" size="40rpx" />
+      <view class="wrapper__right">{{dateRange[1]}}</view>
+    </view>
+    <t-cell title="时区" arrow hover note="{{timeOffsetStr}}" bind:click="onTimezonePickerClick" />
+  </c-collapse>
+  <c-collapse header="聊天群二维码">
+    <image style="width:100%;" src="{{currentGroup.qrCode}}" mode="widthFix" show-menu-by-longpress="true"></image>
+  </c-collapse>
+</scroll-view>
+<!-- 默认时区选择 -->
+<t-picker visible="{{timezoneVisible}}" value="{{[selectingTimeOffset]}}" title="选择时区" cancelBtn="取消" confirmBtn="确认" usingCustomNavbar bindchange="onTourTimezonePickerChange" bindpick="onTimezoneColumnChange" bindcancel="onTimezonePickerClick">
+  <t-picker-item options="{{timezoneList}}"></t-picker-item>
+</t-picker>

@@ -1,6 +1,7 @@
 import { Channel } from "../../../utils/channel/channel";
 import { Post } from "../../../utils/channel/post";
 import { User } from "../../../utils/user/user";
+import { getNewId } from "../../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -10,6 +11,10 @@ Component({
       type: Object,
       value: {},
     },
+    fabStyle:{
+      type: String,
+      value: 'right: 16px; bottom: 32px;',
+    }
   },
 
   data: {
@@ -129,11 +134,7 @@ Component({
           });
           return;
         }
-        const existingPosts = app.globalData.currentData.postList;
-        const maxId = existingPosts.length > 0
-          ? Math.max(...existingPosts.map((post: any) => post.id))
-          : 0;
-        const newPostId = maxId + 1;
+        const newPostId = getNewId(app.globalData.currentData.postList);
         const newPost = new Post({
           id: newPostId,
           title: inputTitle,

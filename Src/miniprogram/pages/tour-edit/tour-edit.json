@@ -1,0 +1,14 @@
+{
+  "usingComponents": {
+    "header": "/components/header/header",
+    "tour-viewer": "/components/tour-viewer/tour-viewer",
+    "t-popup": "tdesign-miniprogram/popup/popup",
+    "t-cell": "tdesign-miniprogram/cell/cell",
+    "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",
+    "t-radio": "tdesign-miniprogram/radio/radio",
+    "c-collapse": "/components/c-collapse/c-collapse",
+    "t-input": "tdesign-miniprogram/input/input",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-icon": "tdesign-miniprogram/icon/icon"
+  }
+}

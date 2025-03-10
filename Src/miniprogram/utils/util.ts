@@ -134,6 +134,18 @@ export function getUserGroupNameInChannel(user: User, channelId: number): string
   }
 }
 
+export function getUserGroupNameInGroup(user: User, groupId: number): string {
+  if (user.isAdmin) {
+    return '系统管理员';
+  } else if (user.havingGroup.includes(groupId)) {
+    return '群主';
+  } else if (user.adminingGroup.includes(groupId)) {
+    return '群管理员';
+  } else {
+    return getUserGroupName(user);
+  }
+}
+
 export function formatPostTime(timestamp: number): string {
   const now = new Date();
   const target = new Date(timestamp);
@@ -173,4 +185,16 @@ export function isSameDay(date1: number, date2: number): boolean {
   const d1 = new Date(date1);
   const d2 = new Date(date2);
   return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+}
+
+export function getUser(userList: any[], id: number): User | undefined {
+  const result = new User(userList.find(user => user.id === id));
+  return result.id === -1 ? undefined : result;
+}
+
+export function getNewId(arr: any[]): number {
+  const maxId = arr.length > 0
+    ? Math.max(...arr.map((group: any) => group.id))
+    : 0;
+  return maxId + 1;
 }

@@ -7,5 +7,6 @@ interface IAppOption {
     tourList: any;
     currentUserId: number;
     currentData: any;
-  }
+  },
+  updateTour(tour: any): void;
 }
