@@ -1,8 +1,9 @@
 import { Group } from "../../utils/channel/group";
+import { currencyList } from "../../utils/tour/expense";
 import { timezoneList } from "../../utils/tour/timezone";
 import { Tour } from "../../utils/tour/tour";
 import { User } from "../../utils/user/user";
-import { formatDate, getUser, getUserGroupNameInGroup } from "../../utils/util";
+import { formatDate, getUser, getUserGroupNameInGroup, MILLISECONDS } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -12,7 +13,8 @@ Component({
   },
   data: {
     timezoneList: timezoneList,
-    
+    currencyList: currencyList,
+
     groupId: -1,
     currentGroup: {} as Group,
     currentUser: {} as User,
@@ -20,10 +22,21 @@ Component({
     members: [] as any[],
 
     linkedTour: {} as Tour,
-    dateRange: ['',''],
+    calendarVisible: false,
+    dateRange: [0, 0],
+    calendarRange: [0, 0],
+    dateRangeStr: ['', ''],
     timezoneVisible: false,
     selectingTimeOffset: 0,
-    timeOffsetStr: ''
+    timeOffsetStr: '',
+    rateError: false,
+    rateFormat: (v: string) => {
+      const isNumber = /^\d+(\.\d+)?$/.test(v);
+      if (isNumber) {
+        return parseFloat(v).toFixed(2);
+      }
+      return v;
+    },
   },
   methods: {
     onLoad(options: any) {
@@ -51,7 +64,9 @@ Component({
       this.setData({
         currentGroup: currentGroup,
         linkedTour: linkedTour,
-        dateRange: [formatDate(linkedTour.startDate), formatDate(linkedTour.endDate)],
+        dateRange: [linkedTour.startDate, linkedTour.endDate],
+        calendarRange: [linkedTour.startDate - MILLISECONDS.DAY * 365, linkedTour.endDate + MILLISECONDS.DAY * 365],
+        dateRangeStr: [formatDate(linkedTour.startDate), formatDate(linkedTour.endDate)],
         timeOffsetStr: timezoneList.find(tz => tz.value === linkedTour.timeOffset)?.label ?? '未知时区'
       });
       this.getMembers();
@@ -79,10 +94,32 @@ Component({
       });
       this.setData({ members });
     },
+    handleTourEditor(){
+      wx.navigateTo({
+        url: `/pages/tour-edit/tour-edit?tourId=${this.data.linkedTour.id}`,
+      });
+    },
+    handleDateRangeChange() {
+      this.setData({ calendarVisible: true });
+    },
+    handleCalendarConfirm(e: any) {
+      const { value } = e.detail;
+      const linkedTour = this.data.linkedTour;
+      linkedTour.startDate = value[0];
+      linkedTour.endDate = value[1];
+      app.updateTour(linkedTour);
+      this.setData({
+        linkedTour: linkedTour,
+        dateRange: value,
+        calendarRange: [value[0] - MILLISECONDS.DAY * 365, value[1] + MILLISECONDS.DAY * 365],
+        dateRangeStr: [formatDate(value[0]), formatDate(value[1])],
+        calendarVisible: false
+      });
+    },
     onTimezonePickerClick() {
-      this.setData({ 
+      this.setData({
         selectingTimeOffset: this.data.linkedTour.timeOffset,
-        timezoneVisible: !this.data.timezoneVisible 
+        timezoneVisible: !this.data.timezoneVisible
       });
     },
     onTimezoneColumnChange(e: any) {
@@ -91,12 +128,40 @@ Component({
     onTourTimezonePickerChange() {
       const linkedTour = this.data.linkedTour;
       linkedTour.timeOffset = this.data.selectingTimeOffset;
-      this.setData({ 
+      this.setData({
         linkedTour: linkedTour,
         timeOffsetStr: timezoneList.find(tz => tz.value === linkedTour.timeOffset)?.label || '未知时区',
       });
       app.updateTour(linkedTour);
       this.onTimezonePickerClick();
-    }
+    },
+    exchangeTourCurrency() {
+      const linkedTour = this.data.linkedTour;
+      const newMainCurrency = linkedTour.subCurrency;
+      const newSubCurrency = linkedTour.mainCurrency;
+      linkedTour.mainCurrency = newMainCurrency;
+      linkedTour.subCurrency = newSubCurrency;
+      linkedTour.currencyExchangeRate = Number((1 / linkedTour.currencyExchangeRate).toFixed(7));
+      this.setData({ linkedTour });
+      app.updateTour(linkedTour);
+    },
+    onRateInput(e: any) {
+      const { rateError } = this.data;
+      const isNumber = /^\d+(\.\d+)?$/.test(e.detail.value);
+      if (rateError === isNumber) {
+        this.setData({
+          rateError: !isNumber,
+        });
+      }
+    },
+    onRateUpdate(e: any) {
+      if(this.data.rateError) {
+        return;
+      }
+      const linkedTour = this.data.linkedTour;
+      linkedTour.currencyExchangeRate = Number(e.detail.value);
+      this.setData({ linkedTour });
+      app.updateTour(linkedTour);
+    },
   }
 })

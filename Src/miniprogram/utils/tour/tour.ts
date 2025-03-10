@@ -71,11 +71,11 @@ export class Tour {
   }
 
   pushLocation(copyIndex: number = 0) {
-    const lastLoaction = this.locations[copyIndex][this.locations.length - 1];
+    const lastLoaction = this.locations[copyIndex][this.locations[copyIndex].length - 1];
     const nextTime = lastLoaction.endOffset + 30 * MILLISECONDS.MINUTE;
     this.transportations[copyIndex].push(
       new Transportation({
-        index: this.transportations.length,
+        index: this.transportations[copyIndex].length,
         startOffset: lastLoaction.endOffset,
         endOffset: nextTime,
         timeOffset: this.timeOffset
@@ -83,48 +83,106 @@ export class Tour {
     );
     this.locations[copyIndex].push(
       new Location({
-        index: this.locations.length,
+        index: this.locations[copyIndex].length,
         startOffset: nextTime,
         endOffset: nextTime,
         timeOffset: this.timeOffset
       })
     );
-    this.locations[copyIndex][this.locations.length - 1].setPosition(lastLoaction.longitude, lastLoaction.latitude);
+    this.locations[copyIndex][this.locations[copyIndex].length - 1].setPosition(lastLoaction.longitude, lastLoaction.latitude);
   }
 
   insertLocation(index: number, copyIndex: number = 0) {
-    if (index == this.locations.length - 1) {
+    const locArr = this.locations[copyIndex];
+    const transArr = this.transportations[copyIndex];
+
+    if (index === locArr.length - 1) {
       this.pushLocation(copyIndex);
       return;
     }
-    this.locations.splice(index + 1, 0, new Array<Location>());
-    this.transportations.splice(index + 1, 0, new Array<Transportation>());
-    for (let i = index + 1; i < this.locations.length; i++) {
-      this.locations[copyIndex][i].index = i;
-      this.transportations[copyIndex][i].index = i;
+
+    if (index === locArr.length - 2) {
+      const lastTrans = transArr[index];
+      const midOffset = (lastTrans.startOffset + lastTrans.endOffset) / 2;
+
+      const newLoc = new Location({
+        index: index + 1,
+        startOffset: lastTrans.startOffset,
+        endOffset: midOffset,
+        timeOffset: this.timeOffset
+      });
+      lastTrans.endOffset = midOffset;
+      const newTrans = new Transportation({
+        index: index + 1,
+        startOffset: midOffset,
+        endOffset: lastTrans.endOffset,  // 这里使用拆分前的 lastTrans.endOffset 已经被更新，所以可直接使用 midOffset
+        timeOffset: this.timeOffset
+      });
+
+      locArr.splice(index + 1, 0, newLoc);
+      transArr.splice(index + 1, 0, newTrans);
+
+      for (let i = index + 1; i < locArr.length; i++) {
+        locArr[i].index = i;
+      }
+      for (let i = index + 1; i < transArr.length; i++) {
+        transArr[i].index = i;
+      }
+
+      newLoc.setPosition(
+        locArr[index].longitude,
+        locArr[index].latitude
+      );
+      return;
     }
-    this.locations[copyIndex][index + 1].startOffset = this.transportations[copyIndex][index].endOffset;
-    this.locations[copyIndex][index + 1].endOffset = this.locations[copyIndex][index + 1].startOffset + 30 * MILLISECONDS.MINUTE;
-    this.transportations[copyIndex][index + 1].startOffset = this.locations[copyIndex][index + 1].startOffset;
-    this.transportations[copyIndex][index + 1].endOffset = this.locations[copyIndex][index + 1].endOffset;
+
+    if (index + 1 < transArr.length) {
+      const newLoc = new Location({
+        index: index + 1,
+        startOffset: transArr[index].endOffset,
+        endOffset: transArr[index + 1].startOffset,
+        timeOffset: this.timeOffset
+      });
+      const newTrans = new Transportation({
+        index: index + 1,
+        startOffset: transArr[index].endOffset,
+        endOffset: transArr[index + 1].startOffset,
+        timeOffset: this.timeOffset
+      });
+      
+      locArr.splice(index + 1, 0, newLoc);
+      transArr.splice(index + 1, 0, newTrans);
+      
+      for (let i = index + 1; i < locArr.length; i++) {
+        locArr[i].index = i;
+      }
+      for (let i = index + 1; i < transArr.length; i++) {
+        transArr[i].index = i;
+      }
+      
+      newLoc.setPosition(
+        locArr[index].longitude,
+        locArr[index].latitude
+      );
+    }
   }
 
   removeLocation(index: number, copyIndex: number = 0) {
-    if (index == 0 || this.locations.length <= 1) {
+    if (index == 0 || this.locations[copyIndex].length <= 1) {
       return;
     }
-    if (index == this.locations.length - 1) {
+    if (index == this.locations[copyIndex].length - 1) {
       this.locations[copyIndex].pop();
       this.transportations[copyIndex].pop();
       return;
     }
-    this.locations.splice(index, 1);
-    this.transportations.splice(index, 1);
+    this.locations[copyIndex].splice(index, 1);
+    this.transportations[copyIndex].splice(index, 1);
     for (let i = index; i < this.transportations.length; i++) {
       this.locations[copyIndex][i].index = i;
       this.transportations[copyIndex][i].index = i;
     }
-    this.locations[copyIndex][this.locations.length - 1].index = this.locations.length - 1;
+    this.locations[copyIndex][this.locations[copyIndex].length - 1].index = this.locations[copyIndex].length - 1;
     this.locations[copyIndex][index].startOffset = this.transportations[copyIndex][index - 1].endOffset;
   }
 
