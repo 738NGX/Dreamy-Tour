@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:49:46 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-02 16:01:17
+ * @Last Modified time: 2025-03-08 22:00:52
  */
 import { validateOrReject, ValidationError } from "class-validator";
 import ParamsError from "../exception/paramsError";
@@ -33,11 +33,10 @@ class DTO<T> {
     try {
       await validateOrReject(this);
     } catch (error) {
-      if (Array.isArray(error)) {
-        const messages = error
-          .map((err) => Object.values(err.constraints || {}).join(", "))
-          .join("; ");
-        throw new ParamsError(messages);
+      if (Array.isArray(error)) { 
+        // 只回显第一个错误
+        const firstMessage = Object.values(error[0].constraints || {}).join(", ")
+        throw new ParamsError(firstMessage);
       } else {
         throw error;
       }

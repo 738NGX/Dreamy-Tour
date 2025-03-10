@@ -8,6 +8,7 @@ import CosError from "@/exception/cosError";
 import WxServiceError from "@/exception/wxServiceError";
 import NotFoundError from "@/exception/notFoundError";
 import ApiError from "@/exception/apiError";
+import InternalError from "@/exception/internalError";
 
 // 定义错误处理函数类型
 type ErrorHandler = (
@@ -51,6 +52,11 @@ const ERROR_HANDLERS: Map<Function, ErrorHandler> = new Map([
   [
     ApiError,
     (err, req, res) => res.status(StatusCodes.BAD_GATEWAY)
+      .json(Result.error(err.message))
+  ],
+  [
+    InternalError,
+    (err, req, res) => res.status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json(Result.error(err.message))
   ]
 ]);
