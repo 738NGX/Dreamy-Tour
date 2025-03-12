@@ -19,6 +19,7 @@
     "t-checkbox-group": "tdesign-miniprogram/checkbox-group/checkbox-group",
     "t-checkbox": "tdesign-miniprogram/checkbox/checkbox",
     "t-collapse": "tdesign-miniprogram/collapse/collapse",
-    "t-collapse-panel": "tdesign-miniprogram/collapse-panel/collapse-panel"
+    "t-collapse-panel": "tdesign-miniprogram/collapse-panel/collapse-panel",
+    "t-upload": "tdesign-miniprogram/upload/upload"
   }
 }

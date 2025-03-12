@@ -16,6 +16,7 @@ import { timezoneList } from '../../utils/tour/timezone';
 import { MILLISECONDS, formatDate, formatNumber, formatTime, timeToMilliseconds } from '../../utils/util';
 import { isSameDate } from '../../miniprogram_npm/tdesign-miniprogram/common/shared/date';
 import { User } from '../../utils/user/user';
+import { Photo } from '../../utils/tour/photo';
 
 enum DatetimeEditMode { None, StartDate, EndDate };
 
@@ -78,6 +79,7 @@ Component({
     expenseVisible: false,
     noteVisible: false,
     photoVisible: false,
+    photoUploadVisible: false,
     transExpenseVisible: false,
     priceError: false,
 
@@ -98,6 +100,8 @@ Component({
 
     displayingLocationId: [] as number[],
     displayingTransportationId: [] as number[],
+
+    uploadedPhotos: [] as any[],
   },
   lifetimes: {
     created() {
@@ -497,14 +501,67 @@ Component({
 
       const id = e.currentTarget.dataset.index;
       if (id === undefined) {
-        this.setData({ photoVisible: !this.data.photoVisible });
+        this.setData({ 
+          editingLocationId: -1,
+          editingLocation: null,
+          photoVisible: !this.data.photoVisible 
+        });
         return;
       }
 
       this.setData({
         editingLocationId: id,
-        editingLocation: id === -1 ? null : currentTour.locations[this.data.currentTourCopyIndex][id],
+        editingLocation: id === -1 ? null : new Location(currentTour.locations[this.data.currentTourCopyIndex][id]),
         photoVisible: !this.data.photoVisible
+      });
+    },
+    onPhotoUploadVisibleChange() {
+      this.setData({
+        photoUploadVisible: !this.data.photoUploadVisible
+      });
+    },
+    handlePhotoAdd(e: any) {
+      const { uploadedPhotos } = this.data;
+      const { files } = e.detail;
+
+      this.setData({
+        uploadedPhotos: [...uploadedPhotos, ...files],
+      });
+    },
+    handlePhotoRemove(e: any) {
+      const { index } = e.detail;
+      const { uploadedPhotos } = this.data;
+
+      uploadedPhotos.splice(index, 1);
+      this.setData({
+        fileList: uploadedPhotos,
+      });
+    },
+    onPhotoUploadConfirm() {
+      if (this.data.uploadedPhotos.length === 0) return;
+      const { editingLocation } = this.data;
+      if (editingLocation) {
+        editingLocation.photos = editingLocation.photos.concat(
+          this.data.uploadedPhotos.map((photo: any) => new Photo({ value: photo.url, ariaLabel: photo.name }))
+        );
+      }
+      this.setData({
+        editingLocation: editingLocation,
+        uploadedPhotos: [],
+        photoUploadVisible: false,
+      });
+    },
+    onPhotoConfirm() {
+      const { currentTour, currentTourCopyIndex, editingLocationId, editingLocation } = this.data;
+      if (!currentTour || !editingLocation) return;
+      currentTour.locations[currentTourCopyIndex][editingLocationId] = editingLocation
+      app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
+      this.setData({ 
+        currentTour: currentTour, 
+        photoVisible: false, 
+        editingLocationId: -1,
+        editingLocation: null
       });
     },
     /**
@@ -537,10 +594,24 @@ Component({
 
       this.setData({
         editingLocationId: id,
-        editingLocation: id === -1 ? null : currentTour.locations[this.data.currentTourCopyIndex][id],
+        editingLocation: id === -1 ? null : new Location(currentTour.locations[this.data.currentTourCopyIndex][id]),
         editingExpenseId: -1,
         expenseVisible: !this.data.expenseVisible
       });
+    },
+    changeExpense() {
+      if (!this.data.currentTour || !this.data.editingLocation) return;
+
+      const currentTour = this.data.currentTour;
+      if (!currentTour) return;
+
+      const id = this.data.editingLocationId;
+      if (id === -1) return;
+
+      currentTour.locations[this.data.currentTourCopyIndex][id] = this.data.editingLocation;
+      app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
+      this.setData({ currentTour: currentTour, expenseVisible: false });
     },
     onExpenseIdChange(e: any) {
       const id = e.detail.value[0] === undefined ? -1 : e.detail.value[0];
@@ -670,6 +741,25 @@ Component({
         noteVisible: !this.data.noteVisible
       });
     },
+    onNoteInput(e: any) {
+      this.setData({ editingNote: e.detail.value });
+    },
+    changeNote() {
+      if (!this.data.currentTour || this.data.editingLocationId < 0) return;
+
+      const currentTour = this.data.currentTour;
+      if (!currentTour) return;
+
+      currentTour.locations[this.data.currentTourCopyIndex][this.data.editingLocationId].note = this.data.editingNote;
+      this.setData({
+        currentTour: currentTour,
+        noteVisible: false,
+        editingLocationId: -1,
+        editingNote: ''
+      });
+      app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
+    },
     /**
      * 编辑交通花费
      */
@@ -736,7 +826,7 @@ Component({
       const expense_id = this.data.editingExpenseId;
       const editingTransportation = currentTour.transportations[this.data.currentTourCopyIndex][trans_id];
       this.setData({
-        editingTransExpense: editingTransportation.transportExpenses[expense_id],
+        editingTransExpense: new TransportExpense(editingTransportation.transportExpenses[expense_id]),
         transExpenseVisible: !this.data.transExpenseVisible
       });
     },

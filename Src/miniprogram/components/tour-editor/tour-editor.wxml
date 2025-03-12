@@ -13,15 +13,21 @@
   <view class="column" style="width:90%;">当前位置:{{mapLocation[0]}},{{mapLocation[1]}}</view>
 </t-popup-headered>
 <!-- 查看图片弹窗 -->
-<t-popup-headered visible="{{photoVisible}}" title="查看图片" bind:visible-change="onPhotoVisibleChange" bindConfirm="onPhotoVisibleChange" bindCancel="onPhotoVisibleChange" placement="bottom" style="height: 60vh;">
+<t-popup-headered visible="{{photoVisible}}" title="编辑图片" bind:visible-change="onPhotoVisibleChange" bindConfirm="onPhotoConfirm" bindCancel="onPhotoVisibleChange" placement="bottom" style="height: 60vh;">
   <scroll-view class="scrollarea" scroll-y type="list" style="height: 50vh;">
     <block wx:for="{{editingLocation.photos}}" wx:key="index">
       <image src="{{item.value}}" mode="widthFix" style="width:100%;" />
     </block>
+    <t-button theme="primary" style="--td-button-border-radius:0;width:100%;" bind:tap="onPhotoUploadVisibleChange">添加</t-button>
+  </scroll-view>
+</t-popup-headered>
+<t-popup-headered visible="{{photoUploadVisible}}" title="上传图片" bind:visible-change="onPhotoUploadVisibleChange" bindConfirm="onPhotoUploadConfirm" bindCancel="onPhotoUploadVisibleChange" placement="bottom" style="height: 60vh;">
+  <scroll-view class="scrollarea" scroll-y type="list" style="height: 30vh;">
+    <t-upload mediaType="image" max="{{1}}" files="{{uploadedPhotos}}" bind:add="handlePhotoAdd" bind:remove="handlePhotoRemove" />
   </scroll-view>
 </t-popup-headered>
 <!-- 查看消费弹窗 -->
-<t-popup-headered visible="{{expenseVisible}}" title="查看消费" bind:visible-change="onExpenseVisibleChange" bindConfirm="onExpenseVisibleChange" bindCancel="onExpenseVisibleChange" placement="bottom" style="height: 80vh;">
+<t-popup-headered visible="{{expenseVisible}}" title="查看消费" bind:visible-change="onExpenseVisibleChange" bindConfirm="changeExpense" bindCancel="onExpenseVisibleChange" placement="bottom" style="height: 80vh;">
   <scroll-view class="scrollarea" scroll-y type="list" style="height: 70vh;">
     <view class="container" style="padding:0;justify-content:flex-start;">
       <t-collapse value="{{[editingExpenseId]}}" bind:change="onExpenseIdChange" expandMutex expandIcon>
@@ -69,8 +75,8 @@
   </scroll-view>
 </t-popup-headered>
 <!-- 查看备注弹窗 -->
-<t-popup-headered visible="{{noteVisible}}" title="查看备注" bind:visible-change="onNoteVisibleChange" bindConfirm="onNoteVisibleChange" bindCancel="onNoteVisibleChange" placement="bottom" style="height: 30vh;">
-  <t-textarea disabled style="height: 100%;" maxlength="500" disableDefaultPadding="{{true}}" value="{{editingNote}}" indicator />
+<t-popup-headered visible="{{noteVisible}}" title="查看备注" bind:visible-change="onNoteVisibleChange" bindConfirm="changeNote" bindCancel="onNoteVisibleChange" placement="bottom" style="height: 30vh;">
+  <t-textarea bind:change="onNoteInput" style="height: 100%;" maxlength="500" disableDefaultPadding="{{true}}" value="{{editingNote}}" indicator />
 </t-popup-headered>
 <!-- 查看交通消费弹窗 -->
 <t-popup-headered visible="{{transExpenseVisible}}" title="编辑交通" bind:visible-change="onTransExpenseVisibleChange" bindConfirm="changeTransExpense" bindCancel="onTransExpenseVisibleChange" placement="bottom" style="height: 60vh;">

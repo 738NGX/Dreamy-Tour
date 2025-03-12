@@ -1,5 +1,6 @@
 import { budgetList, currencyList } from "../../utils/tour/expense";
 import { Tour } from "../../utils/tour/tour";
+import { Location, Transportation } from "../../utils/tour/tourNode";
 
 const app = getApp<IAppOption>();
 
@@ -66,7 +67,7 @@ Component({
       this.setData({ currentTour, copyOptions });
       app.updateTour(currentTour);
     },
-    updateCopyName(e: any) {
+    changeCopyName(e: any) {
       const { value } = e.detail;
       const index = e.currentTarget.dataset.index;
       const { currentTour, copyOptions } = this.data;
@@ -75,13 +76,55 @@ Component({
       this.setData({ currentTour, copyOptions });
       app.updateTour(currentTour);
     },
+    syncCopy() {
+      const that = this;
+      wx.showModal({
+        title: '警告',
+        content: '是否将当前行程版本同步为默认版本？',
+        success(res) {
+          if (res.confirm) {
+            const index = that.data.currentCopyIndex;
+            const { currentTour } = that.data;
+            currentTour.locations[index] = currentTour.locations[0].map((location: Location) => new Location(location));
+            currentTour.transportations[index] = currentTour.transportations[0].map((transportation: Transportation) => new Transportation(transportation));
+            that.setData({ currentTour });
+            app.updateTour(currentTour);
+          }
+        }
+      });
+    },
     removeCopy(e: any) {
       const index = e.currentTarget.dataset.index;
       const { currentTour } = this.data;
       currentTour.removeCopy(index);
       const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
-      this.setData({ currentTour, copyOptions, currentCopyIndex: 0});
+      this.setData({ currentTour, copyOptions, currentCopyIndex: 0 });
       app.updateTour(currentTour);
     },
+    changeBudgetName(e: any) {
+      const { value } = e.detail;
+      const index = e.currentTarget.dataset.index;
+      const { currentTour } = this.data;
+      currentTour.budgets[index].title = value;
+      this.setData({ currentTour });
+      app.updateTour(currentTour);
+    },
+    changeBudgetAmount(e: any) {
+      const { value } = e.detail;
+      const index = e.currentTarget.dataset.index;
+      const { currentTour } = this.data;
+      currentTour.budgets[index].amount = Number(value);
+      this.setData({ currentTour });
+      app.updateTour(currentTour);
+    },
+    exchangeBudgetCurrency(e: any) {
+      const index = e.currentTarget.dataset.index;
+      const { currentTour } = this.data;
+      const currentCurrency = currentTour.budgets[index].currency;
+      const nextCurrency = currentCurrency == currentTour.mainCurrency ? currentTour.subCurrency : currentTour.mainCurrency;
+      currentTour.budgets[index].currency = nextCurrency;
+      this.setData({ currentTour });
+      app.updateTour(currentTour);
+    }
   }
 })

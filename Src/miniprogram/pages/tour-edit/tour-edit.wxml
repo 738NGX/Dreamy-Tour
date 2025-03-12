@@ -8,24 +8,24 @@
         </t-radio>
         <t-swipe-cell wx:for="{{copyOptions}}" wx:key="index">
           <t-radio wx:if="{{item.value>0}}" value="{{item.value}}">
-            <t-input class="narrow-input" data-index="{{item.value}}" bind:blur="updateCopyName" value="{{item.label}}" placeholder="请输入行程版本名" />
+            <t-input class="narrow-input" data-index="{{item.value}}" bind:blur="changeCopyName" value="{{item.label}}" placeholder="请输入行程版本名" />
           </t-radio>
           <view slot="right" class="btn2 delete-btn" bind:tap="removeCopy" data-index="{{item.value}}">删除</view>
         </t-swipe-cell>
       </t-radio-group>
       <view class="row">
         <t-button bind:tap="addCopy" theme="primary" size="small" variant="text">增加行程版本</t-button>
-        <t-button theme="primary" size="small" variant="text">设置当前选择为默认版本</t-button>
+        <t-button bind:tap="syncCopy" theme="primary" size="small" variant="text">同步当前选择为默认版本</t-button>
       </view>
     </c-collapse>
     <t-cell bind:click="handleDateFilterStep" title="日期筛选器" hover note="{{currentDateFilter.label}}" arrow />
     <c-collapse header="预算表信息">
       <block wx:for="{{currentTour.budgets}}" wx:key="index" wx:for-index="i">
-        <t-input disabled class="narrow-input" value="{{item.title}}">
+        <t-input data-index="{{i}}" bind:blur="changeBudgetName" class="narrow-input" value="{{item.title}}">
           <t-icon slot="prefix-icon" name="table" size="48rpx" color="#{{budgetList[i].color}}" />
         </t-input>
-        <t-input disabled class="narrow-input" label="数额" value="{{item.amount}}" align="right">
-          <t-button disabled slot="suffix" theme="primary" variant="outline" size="extra-small">{{currencyList[item.currency].symbol}}</t-button>
+        <t-input data-index="{{i}}" bind:blur="changeBudgetAmount" class="narrow-input" label="数额" value="{{item.amount}}" align="right">
+          <t-button data-index="{{i}}" bind:tap="exchangeBudgetCurrency" slot="suffix" theme="primary" variant="outline" size="extra-small">{{currencyList[item.currency].symbol}}</t-button>
         </t-input>
       </block>
     </c-collapse>
