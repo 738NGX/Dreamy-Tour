@@ -3,12 +3,21 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-08 15:44:06 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-08 15:59:13
+ * @Last Modified time: 2025-03-10 11:34:33
  */
 
 import express, { Request, Response } from "express";
 
 const postRoute = express.Router();
+
+/**
+ * @description 发布新的帖子
+ * @method POST
+ * @path /post
+ */
+postRoute.post('/post', async (req: Request, res: Response) => {
+  
+})
 
 /**
  * @description 获取公共频道的帖子列表

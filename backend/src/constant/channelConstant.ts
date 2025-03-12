@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-08 15:34:22 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-09 10:18:49
+ * @Last Modified time: 2025-03-10 10:16:48
  */
 class ChannelConstant {
   // S 类频道（不可创建）
@@ -22,6 +22,8 @@ class ChannelConstant {
   static readonly LEVEL_B_LIMIT = 500
   // C 类频道上限 100 人
   static readonly LEVEL_C_LIMIT = 100
+  // 世界频道的频道 ID
+  static readonly WORLD_CHANNEL_ID = 1
   // 启用
   static readonly ENABLED = 0
   // 禁用

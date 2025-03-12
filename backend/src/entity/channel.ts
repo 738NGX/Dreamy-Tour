@@ -16,8 +16,11 @@ class Channel {
   // 频道描述
   description: string
 
-  // 创建该频道的用户 ID
-  uid: number
+  // 频道主 ID
+  masterId: number
+
+  // 频道管理员 ID（每个用逗号隔开）
+  adminIds: string
 
   // 频道状态
   status: number

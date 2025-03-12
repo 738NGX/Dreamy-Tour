@@ -44,22 +44,25 @@ class ChannelUtil {
    * @param channelId 
    */
   static async hasModifyPermission(uid: number, roleId: number, channelId: number): Promise<boolean> {
-    // 只有该频道的频道主和系统管理员可以修改频道信息
+    // 只有该频道的频道主、频道管理员、系统管理员可以修改频道信息
     // 如果是系统管理员，返回 true
     if (roleId === RoleConstant.ADMIN) {
       return true;
     }
-    // 如果是该频道的频道主，返回 true
+    // 如果是该频道的频道主或者频道管理员，返回 true（用联合查询介绍数据库查询次数）
     const db = await dbPromise;
-    const row = await db.get<number>(
-      `SELECT channelId FROM channels
-       WHERE channelId = ? AND uid = ?`,
-      [
-        channelId,
-        uid
-      ]
-    )
-    return !(typeof row === 'undefined');  // !!row
+    const result = await db.get<{ exists: number }>(
+      `SELECT EXISTS (
+        SELECT 1 FROM channels 
+        WHERE channelId = ? AND uid = ?
+        UNION ALL
+        SELECT 1 FROM channel_admins 
+        WHERE channelId = ? AND uid = ?
+      ) AS exists`,
+      [channelId, uid, channelId, uid]
+    );
+  
+    return result?.exists === 1;
   }
 
    /**

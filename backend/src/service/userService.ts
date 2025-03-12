@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-09 09:19:19
+ * @Last Modified time: 2025-03-10 10:20:27
  */
 import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
@@ -23,6 +23,8 @@ import CosConstant from "@/constant/cosConstant";
 import WxServiceError from "@/exception/wxServiceError";
 import ParamsError from "@/exception/paramsError";
 import NotFoundError from "@/exception/notFoundError";
+import ChannelService from "./channelService";
+import ChannelConstant from "@/constant/channelConstant";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
@@ -214,7 +216,7 @@ class UserService {
    * 创建新用户
    * @param db 数据库对象
    * @param openid 微信 openid
-   * @returns 新建用户的用户 id
+   * @returns 新建用户的 uid 和 roleId
    */
   private static async createUser(db: Database, openid: string): Promise<{ uid: number; roleId: number }> {
     const defaultNickname = `微信用户_${Math.random().toString(36).substr(2, 5)}`;
@@ -241,6 +243,10 @@ class UserService {
     );
 
     if (!lastID) throw new Error('用户创建失败');
+    
+    // 新用户自动加入世界频道
+    ChannelService.join(lastID, ChannelConstant.WORLD_CHANNEL_ID);
+    // 返回 uid 和 roleId 用于生成 jwt
     return {
       uid: lastID,  // 用户 ID
       roleId: UserConstant.DEFAULT_ROLE  // 角色 ID

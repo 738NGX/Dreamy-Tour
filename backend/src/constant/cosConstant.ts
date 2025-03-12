@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-02 16:25:06 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-02 18:55:59
+ * @Last Modified time: 2025-03-10 11:12:05
  */
 
 class CosConstant {
@@ -19,6 +19,10 @@ class CosConstant {
   static readonly BASE_URL = 'https://dreamy-tour-1319433252.cos.ap-shanghai.myqcloud.com';
   // 存储用户头像的文件夹名
   static readonly AVATAR_FOLDER = 'avatar';
+  // 存储帖子图片的文件夹名
+  static readonly POST_PICTURES_FOLDER = 'post_pictures';
+  // 存储评论图片的文件夹名
+  static readonly COMMENT_PICTURES_FOLDER = 'comment_pictures';
 }
 
 export default CosConstant
