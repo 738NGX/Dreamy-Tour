@@ -186,6 +186,29 @@ export class Tour {
     this.locations[copyIndex][index].startOffset = this.transportations[copyIndex][index - 1].endOffset;
   }
 
+  addCopy() {
+    this.nodeCopyNames.push(`新行程版本`);
+    this.locations.push(
+      this.locations[0].map(
+        (location: Location) => new Location({ ...location })
+      )
+    );
+    this.transportations.push(
+      this.transportations[0].map(
+        (transportation: Transportation) => new Transportation({ ...transportation })
+      )
+    );
+  }
+
+  removeCopy(index: number) {
+    if (this.nodeCopyNames.length <= 1) {
+      return;
+    }
+    this.nodeCopyNames.splice(index, 1);
+    this.locations.splice(index, 1);
+    this.transportations.splice(index, 1);
+  }
+
   toString(): string {
     return JSON.stringify(this);
   }

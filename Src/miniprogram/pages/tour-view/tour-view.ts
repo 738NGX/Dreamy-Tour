@@ -1,8 +1,8 @@
-import { testData } from "../../utils/testData";
 import { budgetList, currencyList } from "../../utils/tour/expense";
 import { Tour } from "../../utils/tour/tour";
 
-// pages/tour-view/tour-view.ts
+const app = getApp<IAppOption>();
+
 Component({
   data: {
     budgetList: budgetList,
@@ -21,10 +21,18 @@ Component({
   methods: {
     onLoad(options: any) {
       const { tourId } = options;
-      const currentTour = new Tour(testData.tourList.find(tour => tour.id == tourId));
+      const currentTour = new Tour(app.globalData.currentData.tourList.find((tour: any) => tour.id == tourId));
       const dateRange = this.getDateRange(currentTour!.startDate, currentTour!.endDate);
       const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
       this.setData({ currentTour, dateRange, copyOptions });
+      app.watch("currentData.tourList", () => {
+        const tourList = app.globalData.currentData.tourList;
+        console.log("tourList", tourList);
+        const currentTour = new Tour(tourList.find((tour: any) => tour.id == tourId));
+        const dateRange = this.getDateRange(currentTour!.startDate, currentTour!.endDate);
+        const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
+        this.setData({ currentTour, dateRange, copyOptions });
+      });
     },
     getDateRange(startTimestamp: number, endTimestamp: number): number[][] {
       const startDate = new Date(startTimestamp);

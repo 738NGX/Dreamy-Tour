@@ -11,7 +11,7 @@ if (PLUGIN_KEY) {
 }
 import { Location, Transportation } from '../../utils/tour/tourNode';
 import { Tour } from '../../utils/tour/tour';
-import { transportList, expenseList, budgetList, TransportExpense, currencyList } from '../../utils/tour/expense';
+import { transportList, expenseList, budgetList, TransportExpense, currencyList, AmountType } from '../../utils/tour/expense';
 import { timezoneList } from '../../utils/tour/timezone';
 import { MILLISECONDS, formatDate, formatNumber, formatTime, timeToMilliseconds } from '../../utils/util';
 import { isSameDate } from '../../miniprogram_npm/tdesign-miniprogram/common/shared/date';
@@ -26,6 +26,12 @@ Component({
     tour: {
       type: Object,
       value: {},
+      observer(newVal: any) {
+        if (newVal) {
+          this.init(newVal);
+          this.filterNodeByDate(this.properties.dateFilter);
+        }
+      }
     },
     dateFilter: {
       type: Object,
@@ -102,38 +108,7 @@ Component({
         currentTour: new Tour(this.properties.tour),
       });
       if (this.properties.tour) {
-        const currentTour = new Tour(this.properties.tour);
-        this.setData({
-          currentStartDateStr: formatDate(currentTour.startDate, currentTour.timeOffset),
-          currentEndDateStr: formatDate(currentTour.endDate, currentTour.timeOffset),
-          currentTimezoneStr: timezoneList.find(tz => tz.value === currentTour.timeOffset)?.label || '未知时区',
-          currentDateRange: [
-            new Date(currentTour.startDate).getTime(),
-            new Date(currentTour.endDate).getTime() + MILLISECONDS.DAY - MILLISECONDS.MINUTE
-          ],
-          currentStartDateStrList: currentTour.locations.map(
-            copy => copy.map(location => formatTime(
-              currentTour.startDate + location.startOffset, location.timeOffset
-            ))),
-
-          currentEndDateStrList: currentTour.locations.map(
-            copy => copy.map(location => formatTime(
-              currentTour.startDate + location.endOffset, location.timeOffset
-            ))),
-          currentTimezoneStrList: currentTour.locations.map(
-            copy => copy.map(location => {
-              const timezone = timezoneList.find(tz => tz.value === location.timeOffset);
-              return timezone ? timezone.label : '未知时区'
-            })),
-          currentDurationStrList: currentTour.transportations.map(
-            copy => copy.map(transportation => {
-              return new Transportation(transportation).getDurationString();
-            })),
-          currentUserList: app.globalData.currentData.userList.map((user: any) => {
-            if (currentTour.users.includes(user.id)) return new User(user);
-            else return null;
-          }).filter((user: any) => user !== null)
-        });
+        this.init(this.properties.tour);
       }
       else {
         this.setData({ currentDateRange: null });
@@ -148,6 +123,44 @@ Component({
     },
   },
   methods: {
+    init(value: any) {
+      const currentTour = new Tour(value);
+      this.setData({
+        currentTour: currentTour,
+        currentStartDateStr: formatDate(currentTour.startDate, currentTour.timeOffset),
+        currentEndDateStr: formatDate(currentTour.endDate, currentTour.timeOffset),
+        currentTimezoneStr: timezoneList.find(tz => tz.value === currentTour.timeOffset)?.label || '未知时区',
+        currentDateRange: [
+          new Date(currentTour.startDate).getTime(),
+          new Date(currentTour.endDate).getTime() + MILLISECONDS.DAY - MILLISECONDS.MINUTE
+        ],
+        currentStartDateStrList: currentTour.locations.map(
+          copy => copy.map(location => formatTime(
+            currentTour.startDate + location.startOffset, location.timeOffset
+          ))),
+
+        currentEndDateStrList: currentTour.locations.map(
+          copy => copy.map(location => formatTime(
+            currentTour.startDate + location.endOffset, location.timeOffset
+          ))),
+        currentTimezoneStrList: currentTour.locations.map(
+          copy => copy.map(location => {
+            const timezone = timezoneList.find(tz => tz.value === location.timeOffset);
+            return timezone ? timezone.label : '未知时区'
+          })),
+        currentDurationStrList: currentTour.transportations.map(
+          copy => copy.map(transportation => {
+            return new Transportation(transportation).getDurationString();
+          })),
+        currentUserList: app.globalData.currentData.userList.map((user: any) => {
+          if (currentTour.users.includes(user.id)) return new User(user);
+          else return null;
+        }).filter((user: any) => user !== null)
+      });
+    },
+    onCurrentTourChange(value: Tour) {
+      this.triggerEvent('currentTourChange', { value: value });
+    },
     /**
      * 位置节点标题修改
      */
@@ -159,9 +172,9 @@ Component({
       if (id === undefined) return;
 
       currentTour.locations[this.data.currentTourCopyIndex][id].title = e.detail.value;
-      app.globalData.currentTour = currentTour;
       this.setData({ currentTour: currentTour });
       app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
     },
     /**
      * 位置节点起始日期修改
@@ -185,6 +198,7 @@ Component({
         datetimeEditMode: DatetimeEditMode.StartDate
       });
       app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
     },
     /**
      * 位置节点结束日期修改
@@ -208,6 +222,7 @@ Component({
         datetimeEditMode: DatetimeEditMode.EndDate
       });
       app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
     },
     /**
      * 修改datetime的值
@@ -253,7 +268,7 @@ Component({
       }
       else if (this.data.datetimeEditMode === DatetimeEditMode.EndDate) {
         editingLocation.endOffset = selectingDatetime - currentTour.startDate;
-        if (id < currentTour.locations.length - 1) {
+        if (id < currentTour.locations[this.data.currentTourCopyIndex].length - 1) {
           const associatedTransportation = currentTour.transportations[this.data.currentTourCopyIndex][id];
           associatedTransportation.startOffset = editingLocation.endOffset;
           const newDurationStrList = this.data.currentDurationStrList;
@@ -267,7 +282,6 @@ Component({
         this.setData({ currentEndDateStrList: newEndDateStrList });
       }
 
-      app.globalData.currentTour = currentTour;
       this.setData({
         currentTour: currentTour,
         editingLocationId: -1,
@@ -275,6 +289,7 @@ Component({
         datetimeEditMode: DatetimeEditMode.None
       });
       app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
     },
     /**
      * 取消修改datetime
@@ -337,7 +352,6 @@ Component({
         currentTour.locations[this.data.currentTourCopyIndex][id].timeOffset
       );
 
-      app.globalData.currentTour = currentTour;
       this.setData({
         currentTour: currentTour,
         timezoneVisible: false,
@@ -348,6 +362,7 @@ Component({
         currentEndDateStrList: newEndDateStrList
       });
       app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
     },
     /**
      * 交通节点持续时间修改
@@ -401,7 +416,6 @@ Component({
         associatedLocation.timeOffset
       );
 
-      app.globalData.currentTour = currentTour;
       this.setData({
         currentTour: currentTour,
         currentStartDateStrList: currentStartDateStrList,
@@ -410,10 +424,14 @@ Component({
         editingTransportationId: -1
       });
       app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
     },
     onDurationCancel() {
       this.setData({ durationVisible: false, editingTransportationId: -1 });
     },
+    /**
+     * 地图位置修改
+     */
     onMapVisibleChange(e: any) {
       if (!this.data.currentTour) return;
 
@@ -441,6 +459,36 @@ Component({
         }]
       });
     },
+    onTapMap(e: any) {
+      const latitude = e.detail.latitude.toFixed(6);
+      const longitude = e.detail.longitude.toFixed(6);
+      this.setData({
+        mapLocation: [latitude, longitude],
+        markers: [{
+          id: 0,
+          iconPath: `${CDN_PATH}/Marker1_Activated@3x.png`,
+          latitude: latitude,
+          longitude: longitude,
+          width: 30,
+          height: 30
+        }]
+      });
+    },
+    changeLocation() {
+      if (!this.data.currentTour) return;
+
+      const currentTour = this.data.currentTour;
+      if (!currentTour) return;
+
+      const id = this.data.editingLocationId;
+      if (id === -1) return;
+
+      currentTour.locations[this.data.currentTourCopyIndex][id].latitude = this.data.mapLocation[0];
+      currentTour.locations[this.data.currentTourCopyIndex][id].longitude = this.data.mapLocation[1];
+      app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
+      this.setData({ currentTour: currentTour, mapVisible: false });
+    },
     onPhotoVisibleChange(e: any) {
       if (!this.data.currentTour) return;
 
@@ -459,6 +507,27 @@ Component({
         photoVisible: !this.data.photoVisible
       });
     },
+    /**
+     * 消费编辑
+     */
+    addExpense() {
+      if (!this.data.currentTour || !this.data.editingLocation) return;
+
+      const currentTour = this.data.currentTour;
+      if (!currentTour) return;
+
+      const editingLocation = this.data.editingLocation;
+      editingLocation.addExpense(currentTour.mainCurrency);
+      this.setData({ editingLocation: editingLocation });
+    },
+    removeExpense(e: any) {
+      if (!this.data.currentTour || !this.data.editingLocation) return;
+      if (e.currentTarget.dataset.index === undefined) return;
+      const id = e.currentTarget.dataset.index;
+      const editingLocation = this.data.editingLocation;
+      editingLocation.removeExpense(id);
+      this.setData({ editingLocation: editingLocation });
+    },
     onExpenseVisibleChange(e: any) {
       if (!this.data.currentTour) return;
       const id = e.currentTarget.dataset.index === undefined ? -1 : e.currentTarget.dataset.index;
@@ -476,6 +545,108 @@ Component({
     onExpenseIdChange(e: any) {
       const id = e.detail.value[0] === undefined ? -1 : e.detail.value[0];
       this.setData({ editingExpenseId: id });
+    },
+    onExpenseTitleInput(e: any) {
+      if (!this.data.editingLocation) return;
+      this.setData({
+        'editingLocation.expenses': this.data.editingLocation.expenses.map((expense: any, index: number) => {
+          if (index === this.data.editingExpenseId) {
+            expense.title = e.detail.value;
+          }
+          return expense;
+        })
+      });
+    },
+    onExpensePriceInput(e: any) {
+      if (!this.data.editingLocation) return;
+      const { priceError } = this.data;
+      const isNumber = /^\d+(\.\d+)?$/.test(e.detail.value);
+      if (priceError === isNumber) {
+        this.setData({
+          priceError: !isNumber,
+        });
+      }
+      if (isNumber) {
+        this.setData({
+          'editingLocation.expenses': this.data.editingLocation.expenses.map((expense: any, index: number) => {
+            if (index === this.data.editingExpenseId) {
+              expense.amount = Number(e.detail.value);
+            }
+            return expense;
+          })
+        });
+      }
+    },
+    exchangeExpenseCurrency() {
+      if (!this.data.editingLocation) return;
+      if (!this.data.currentTour || this.data.editingLocationId < 0) return;
+      const mainCurrency = this.data.currentTour.mainCurrency;
+      const subCurrency = this.data.currentTour.subCurrency;
+      this.setData({
+        'editingLocation.expenses': this.data.editingLocation.expenses.map((expense: any, index: number) => {
+          if (index === this.data.editingExpenseId) {
+            expense.currency = expense.currency === mainCurrency ? subCurrency : mainCurrency;
+          }
+          return expense;
+        })
+      });
+    },
+    handleExpenseTypeChange(e: any) {
+      if (!this.data.editingLocation) return;
+      this.setData({
+        'editingLocation.expenses': this.data.editingLocation.expenses.map((expense: any, index: number) => {
+          if (index === this.data.editingExpenseId) {
+            expense.type = e.detail.value;
+          }
+          return expense;
+        })
+      });
+    },
+    exchangeExpenseAmountType() {
+      if (!this.data.editingLocation) return;
+      this.setData({
+        'editingLocation.expenses': this.data.editingLocation.expenses.map((expense: any, index: number) => {
+          if (index === this.data.editingExpenseId) {
+            expense.amountType = expense.amountType === AmountType.Total ? AmountType.Average : AmountType.Total;
+          }
+          return expense;
+        })
+      });
+    },
+    handleExpenseUserChange(e: any) {
+      if (!this.data.editingLocation) return;
+      const user = e.detail.value;
+      this.setData({
+        'editingLocation.expenses': this.data.editingLocation.expenses.map((expense: any, index: number) => {
+          if (index === this.data.editingExpenseId) {
+            expense.user = user;
+          }
+          return expense;
+        })
+      });
+    },
+    handleExpenseBudgetChange(e: any) {
+      if (!this.data.editingLocation) return;
+      const budget = e.detail.value;
+      this.setData({
+        'editingLocation.expenses': this.data.editingLocation.expenses.map((expense: any, index: number) => {
+          if (index === this.data.editingExpenseId) {
+            expense.budget = budget;
+          }
+          return expense;
+        })
+      });
+    },
+    onExpenseNoteInput(e: any) {
+      if (!this.data.editingLocation) return;
+      this.setData({
+        'editingLocation.expenses': this.data.editingLocation.expenses.map((expense: any, index: number) => {
+          if (index === this.data.editingExpenseId) {
+            expense.note = e.detail.value;
+          }
+          return expense;
+        })
+      });
     },
     onNoteVisibleChange(e: any) {
       if (!this.data.currentTour) return;
@@ -500,7 +671,7 @@ Component({
       });
     },
     /**
-     * 增减交通花费
+     * 编辑交通花费
      */
     addTransportExpense(e: any) {
       if (e.currentTarget.dataset.index != undefined) {
@@ -517,6 +688,7 @@ Component({
 
       this.setData({ currentTour: currentTour });
       app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
     },
     removeTransportExpense(e: any) {
       if (e.currentTarget.dataset.index != undefined) {
@@ -537,6 +709,7 @@ Component({
 
       this.setData({ currentTour: currentTour });
       app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
     },
     onTransExpenseVisibleChange(e: any) {
       if (e.currentTarget.dataset.index != undefined) {
@@ -567,6 +740,107 @@ Component({
         transExpenseVisible: !this.data.transExpenseVisible
       });
     },
+    onTransExpenseTitleInput(e: any) {
+      if (!this.data.editingTransExpense) return;
+      this.setData({
+        'editingTransExpense.title': e.detail.value
+      });
+    },
+    onTransExpensePriceInput(e: any) {
+      if (!this.data.editingTransExpense) return;
+      const { priceError } = this.data;
+      const isNumber = /^\d+(\.\d+)?$/.test(e.detail.value);
+      if (priceError === isNumber) {
+        this.setData({
+          priceError: !isNumber,
+        });
+      }
+      if (isNumber) {
+        this.setData({
+          'editingTransExpense.amount': Number(e.detail.value)
+        });
+      }
+    },
+    onTransExpenseNoteInput(e: any) {
+      if (!this.data.editingTransExpense) return;
+      this.setData({
+        'editingTransExpense.note': e.detail.value
+      });
+    },
+    handleTransExpenseTypeChange(e: any) {
+      if (!this.data.editingTransExpense) return;
+      this.setData({
+        'editingTransExpense.transportType': e.detail.value
+      });
+    },
+    handleTransExpenseUserChange(e: any) {
+      if (!this.data.editingTransExpense) return;
+      const user = this.data.editingTransExpense.user;
+      if (user.includes(e.detail.value[0])) {
+        user.splice(user.indexOf(e.detail.value[0]), 1);
+      }
+      else {
+        user.push(e.detail.value[0]);
+      }
+      this.setData({
+        'editingTransExpense.user': user
+      });
+    },
+    handleTransExpenseBudgetChange(e: any) {
+      if (!this.data.editingTransExpense) return;
+      const budget = this.data.editingTransExpense.budget;
+      if (budget.includes(e.detail.value[0])) {
+        budget.splice(budget.indexOf(e.detail.value[0]), 1);
+      }
+      else {
+        budget.push(e.detail.value[0]);
+      }
+      this.setData({
+        'editingTransExpense.budget': budget
+      });
+    },
+    exchangeTransExpenseCurrency() {
+      if (!this.data.editingTransExpense) return;
+      if (!this.data.currentTour || this.data.editingTransportationId < 0) return;
+      const mainCurrency = this.data.currentTour.mainCurrency;
+      const subCurrency = this.data.currentTour.subCurrency;
+      this.setData({
+        'editingTransExpense.currency': this.data.editingTransExpense.currency ===
+          mainCurrency ? subCurrency : mainCurrency
+      });
+    },
+    exchangeTransExpenseAmountType() {
+      if (!this.data.editingTransExpense) return;
+      this.setData({
+        'editingTransExpense.amountType': this.data.editingTransExpense.amountType ==
+          AmountType.Average ? AmountType.Total : AmountType.Average
+      });
+    },
+    changeTransExpense() {
+      if (!this.data.editingTransExpense) return;
+      if (!this.data.currentTour || this.data.editingTransportationId < 0) return;
+
+      const currentTour = this.data.currentTour;
+      if (!currentTour) return;
+
+      const trans_id = this.data.editingTransportationId;
+      const expense_id = this.data.editingExpenseId;
+      const editingTransportation = currentTour.transportations[this.data.currentTourCopyIndex][trans_id];
+      editingTransportation.transportExpenses[expense_id] = this.data.editingTransExpense;
+
+      app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
+      this.setData({
+        currentTour: currentTour,
+        editingTransportationId: -1,
+        editingExpenseId: -1,
+        transExpenseVisible: false,
+        editingTransExpense: null
+      });
+    },
+    /**
+     * 日期筛选
+     */
     filterNodeByDate(dateFilter: any) {
       if (!this.data.currentTour) return;
       const currentTour = this.data.currentTour;
@@ -601,6 +875,7 @@ Component({
       if (!currentTour || index === undefined) return;
       currentTour.insertLocation(index, this.data.currentTourCopyIndex);
       app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
       this.setData({
         currentTour: currentTour,
         currentStartDateStrList: currentTour.locations.map(
@@ -637,7 +912,6 @@ Component({
       const currentTour = this.data.currentTour;
       if (!currentTour) return;
 
-
       const currentStartDateStrList = this.data.currentStartDateStrList;
       const currentEndDateStrList = this.data.currentEndDateStrList;
       const currentTimezoneStrList = this.data.currentTimezoneStrList;
@@ -653,8 +927,11 @@ Component({
         currentTour.startDate + currentTour.locations[copyIndex][id].startOffset,
         currentTour.locations[copyIndex][id].timeOffset
       );
-      currentTour.removeLocation(id);
-      app.globalData.currentTour = currentTour;
+      currentTour.removeLocation(id, this.data.currentTourCopyIndex);
+
+      app.updateTour(currentTour);
+      this.onCurrentTourChange(currentTour);
+      this.filterNodeByDate(this.properties.dateFilter);
       this.setData({
         currentTour: currentTour,
         currentStartDateStrList: currentStartDateStrList,
@@ -662,8 +939,6 @@ Component({
         currentTimezoneStrList: currentTimezoneStrList,
         currentDurationStrList: currentDurationStrList
       });
-      app.updateTour(currentTour);
-      this.filterNodeByDate(this.properties.dateFilter);
     },
   },
 })

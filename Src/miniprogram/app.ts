@@ -13,6 +13,19 @@ App<IAppOption>({
   onLaunch() {
 
   },
+  watch: function (variate: any, method: any) {
+    var obj = getApp().globalData;
+    let val = obj[variate];
+    Object.defineProperty(obj, variate, {
+      set: function (value) {
+        val = value;
+        method(variate, value);
+      },
+      get: function () {
+        return val;
+      }
+    })
+  },
   updateTour(tour: Tour) {
     const tourList = this.globalData.currentData.tourList;
     const index = tourList.findIndex((item: any) => item.id == tour.id);

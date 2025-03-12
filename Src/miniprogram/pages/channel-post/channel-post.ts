@@ -1,6 +1,6 @@
 import { Comment, Post } from "../../utils/channel/post";
 import { User } from "../../utils/user/user";
-import { formatPostTime, getNewId, getUserGroupNameInChannel } from "../../utils/util";
+import { formatPostTime, getNewId, getUser, getUserGroupNameInChannel } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -85,7 +85,7 @@ Component({
       const currentPost = app.globalData.currentData.postList.find((post: Post) => post.id == postId);
       this.setData({ currentPost });
       const userGroup = getUserGroupNameInChannel(
-        app.globalData.currentData.userList.find((user: any) => user.id == app.globalData.currentUserId),
+        getUser(app.globalData.currentData.userList, app.globalData.currentUserId)!,
         currentPost?.linkedChannel!
       )
       this.setData({

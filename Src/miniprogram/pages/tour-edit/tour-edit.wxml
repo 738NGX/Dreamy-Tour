@@ -2,7 +2,21 @@
 <t-popup style="width:80% !important;" visible="{{settingsVisible}}" usingCustomNavbar bind:visible-change="handleSettings" placement="left">
   <scroll-view class="scrollarea" style="height:90vh" scroll-y type="list">
     <c-collapse header="行程版本选择">
-      <t-radio-group class="narrow-radio" bind:change="onCopyChange" value="{{currentCopyIndex}}" options="{{copyOptions}}" />
+      <t-radio-group class="narrow-radio" bind:change="onCopyChange" value="{{currentCopyIndex}}">
+        <t-radio value="{{0}}">
+          <t-input disabled class="narrow-input" value="{{copyOptions[0].label}}" />
+        </t-radio>
+        <t-swipe-cell wx:for="{{copyOptions}}" wx:key="index">
+          <t-radio wx:if="{{item.value>0}}" value="{{item.value}}">
+            <t-input class="narrow-input" data-index="{{item.value}}" bind:blur="updateCopyName" value="{{item.label}}" placeholder="请输入行程版本名" />
+          </t-radio>
+          <view slot="right" class="btn2 delete-btn" bind:tap="removeCopy" data-index="{{item.value}}">删除</view>
+        </t-swipe-cell>
+      </t-radio-group>
+      <view class="row">
+        <t-button bind:tap="addCopy" theme="primary" size="small" variant="text">增加行程版本</t-button>
+        <t-button theme="primary" size="small" variant="text">设置当前选择为默认版本</t-button>
+      </view>
     </c-collapse>
     <t-cell bind:click="handleDateFilterStep" title="日期筛选器" hover note="{{currentDateFilter.label}}" arrow />
     <c-collapse header="预算表信息">
@@ -19,5 +33,5 @@
 </t-popup>
 <t-cell bind:click="handleSettings" title="{{currentTour?currentTour.title:'行程'}}" hover note="查看更多" arrow />
 <scroll-view class="scrollarea" style="height:80vh" scroll-y type="list">
-  <tour-editor tour="{{currentTour}}" copyIndex="{{currentCopyIndex}}" dateFilter="{{currentDateFilter}}" />
+  <tour-editor bind:currentTourChange="handleCurrentTourChange" tour="{{currentTour}}" copyIndex="{{currentCopyIndex}}" dateFilter="{{currentDateFilter}}" />
 </scroll-view>

@@ -1,13 +1,14 @@
-import { testData } from "../../utils/testData";
 import { budgetList, currencyList } from "../../utils/tour/expense";
 import { Tour } from "../../utils/tour/tour";
+
+const app = getApp<IAppOption>();
 
 Component({
   data: {
     budgetList: budgetList,
     currencyList: currencyList,
 
-    currentTour: {} as any,
+    currentTour: {} as Tour,
 
     settingsVisible: false,
 
@@ -20,10 +21,14 @@ Component({
   methods: {
     onLoad(options: any) {
       const { tourId } = options;
-      const currentTour = new Tour(testData.tourList.find(tour => tour.id == tourId));
+      const currentTour = new Tour(app.globalData.currentData.tourList.find((tour: any) => tour.id == tourId));
       const dateRange = this.getDateRange(currentTour!.startDate, currentTour!.endDate);
       const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
       this.setData({ currentTour, dateRange, copyOptions });
+    },
+    handleCurrentTourChange(e: any) {
+      const { value } = e.detail;
+      this.setData({ currentTour: new Tour(value) });
     },
     getDateRange(startTimestamp: number, endTimestamp: number): number[][] {
       const startDate = new Date(startTimestamp);
@@ -50,9 +55,33 @@ Component({
       const nextFilter = dateRange[nextFilterIndex] || dateRange[0];
       this.setData({ currentDateFilter: nextFilter });
     },
-    onCopyChange(event: any) {
-      const { value } = event.detail;
+    onCopyChange(e: any) {
+      const { value } = e.detail;
       this.setData({ currentCopyIndex: value });
+    },
+    addCopy() {
+      const { currentTour } = this.data;
+      currentTour.addCopy();
+      const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
+      this.setData({ currentTour, copyOptions });
+      app.updateTour(currentTour);
+    },
+    updateCopyName(e: any) {
+      const { value } = e.detail;
+      const index = e.currentTarget.dataset.index;
+      const { currentTour, copyOptions } = this.data;
+      currentTour.nodeCopyNames[index] = value;
+      copyOptions[index].label = value;
+      this.setData({ currentTour, copyOptions });
+      app.updateTour(currentTour);
+    },
+    removeCopy(e: any) {
+      const index = e.currentTarget.dataset.index;
+      const { currentTour } = this.data;
+      currentTour.removeCopy(index);
+      const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
+      this.setData({ currentTour, copyOptions, currentCopyIndex: 0});
+      app.updateTour(currentTour);
     },
   }
 })

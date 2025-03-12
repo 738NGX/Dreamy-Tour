@@ -9,6 +9,7 @@
     "c-collapse": "/components/c-collapse/c-collapse",
     "t-input": "tdesign-miniprogram/input/input",
     "t-button": "tdesign-miniprogram/button/button",
+    "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
     "t-icon": "tdesign-miniprogram/icon/icon"
   }
 }

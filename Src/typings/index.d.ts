@@ -8,5 +8,6 @@ interface IAppOption {
     currentUserId: number;
     currentData: any;
   },
+  watch(variate: any, method: any): void;
   updateTour(tour: any): void;
 }
