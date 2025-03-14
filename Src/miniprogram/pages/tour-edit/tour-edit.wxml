@@ -24,7 +24,7 @@
         <t-input data-index="{{i}}" bind:blur="changeBudgetName" class="narrow-input" value="{{item.title}}">
           <t-icon slot="prefix-icon" name="table" size="48rpx" color="#{{budgetList[i].color}}" />
         </t-input>
-        <t-input data-index="{{i}}" bind:blur="changeBudgetAmount" class="narrow-input" label="数额" value="{{item.amount}}" align="right">
+        <t-input data-index="{{i}}" bind:blur="changeBudgetAmount" class="narrow-input" label="数额" value="{{item.amount}}" type="digit" align="right">
           <t-button data-index="{{i}}" bind:tap="exchangeBudgetCurrency" slot="suffix" theme="primary" variant="outline" size="extra-small">{{currencyList[item.currency].symbol}}</t-button>
         </t-input>
       </block>

@@ -5,10 +5,20 @@
     <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{currentGroup.name[0]}}</t-avatar>
   </t-cell>
   <c-collapse header="群成员">
-    <t-cell wx:for="{{members}}" wx:key="id" title="{{item.name}}" style="--td-cell-vertical-padding:10rpx">
-      <t-avatar slot="image" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
-      <t-tag slot="note" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
-    </t-cell>
+    <t-swipe-cell wx:for="{{members}}" wx:key="id">
+      <t-cell title="{{item.name}}" style="--td-cell-vertical-padding:10rpx">
+        <t-avatar slot="image" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
+        <t-tag slot="note" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
+      </t-cell>
+      <view slot="right" class="btn-wrapper">
+        <view wx:if="{{isGroupOwner&&item.userGroup=='群管理员'&&item.id!=currentUser.id}}" class="btn2 delete-btn" data-index="{{item.id}}" bind:tap="transferGroupOwner">转让群</view>
+        <view wx:if="{{isGroupOwner&&item.userGroup!='群主'&&item.id!=currentUser.id}}" class="btn2 edit-btn" data-index="{{item.id}}" bind:tap="handleUserAdminChange">{{item.userGroup=="群管理员" ? '解除管理' :'设为管理'}}</view>
+        <view wx:if="{{isGroupAdmin&&item.userGroup!='群主'&&item.userGroup!='群管理员'&&item.id!=currentUser.id}}" class="btn2 delete-btn" data-index="{{item.id}}" bind:tap="removeMember">移除</view>
+      </view>
+    </t-swipe-cell>
+    <t-input wx:if="{{isGroupAdmin}}" bind:change="onNewMemberIdInput" placeholder="输入新成员id" label="新成员id" value="{{newMemberId}}" type="number" align="right">
+      <t-button bind:tap="addMember" slot="suffix" theme="primary" variant="outline" size="extra-small">添加成员</t-button>
+    </t-input>
   </c-collapse>
   <c-collapse header="群行程">
     <t-cell title="行程详情" hover arrow bind:click="handleTourEditor" />

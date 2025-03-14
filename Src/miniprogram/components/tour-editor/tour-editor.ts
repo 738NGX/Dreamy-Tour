@@ -551,6 +551,14 @@ Component({
         photoUploadVisible: false,
       });
     },
+    removePhoto(e: any) {
+      if (!this.data.currentTour || !this.data.editingLocation) return;
+      if (e.currentTarget.dataset.index === undefined) return;
+      const id = e.currentTarget.dataset.index;
+      const editingLocation = this.data.editingLocation;
+      editingLocation.photos.splice(id, 1);
+      this.setData({ editingLocation: editingLocation });
+    },
     onPhotoConfirm() {
       const { currentTour, currentTourCopyIndex, editingLocationId, editingLocation } = this.data;
       if (!currentTour || !editingLocation) return;

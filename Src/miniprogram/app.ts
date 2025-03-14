@@ -1,5 +1,6 @@
 import { testData } from "./utils/testData";
 import { Tour } from "./utils/tour/tour";
+import { User } from "./utils/user/user";
 
 // app.ts
 App<IAppOption>({
@@ -26,6 +27,17 @@ App<IAppOption>({
       }
     })
   },
+  updateUser(user: User) {
+    const userList = this.globalData.currentData.userList;
+    const index = userList.findIndex((item: any) => item.id == user.id);
+    if (index === -1) {
+      console.error('User not found');
+      return;
+    } else {
+      userList[index] = user;
+    }
+    this.globalData.currentData.userList = userList;
+  },
   updateTour(tour: Tour) {
     const tourList = this.globalData.currentData.tourList;
     const index = tourList.findIndex((item: any) => item.id == tour.id);
@@ -35,6 +47,6 @@ App<IAppOption>({
     } else {
       tourList[index] = tour;
     }
-    this.globalData.tourList = tourList;
+    this.globalData.currentData.tourList = tourList;
   }
 })

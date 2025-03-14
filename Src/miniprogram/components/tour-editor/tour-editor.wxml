@@ -15,8 +15,11 @@
 <!-- 查看图片弹窗 -->
 <t-popup-headered visible="{{photoVisible}}" title="编辑图片" bind:visible-change="onPhotoVisibleChange" bindConfirm="onPhotoConfirm" bindCancel="onPhotoVisibleChange" placement="bottom" style="height: 60vh;">
   <scroll-view class="scrollarea" scroll-y type="list" style="height: 50vh;">
-    <block wx:for="{{editingLocation.photos}}" wx:key="index">
-      <image src="{{item.value}}" mode="widthFix" style="width:100%;" />
+    <block wx:for="{{editingLocation.photos}}" wx:key="index" wx:for-index="i">
+      <t-swipe-cell>
+        <image src="{{item.value}}" mode="widthFix" style="width:100%;" />
+        <view slot="right" class="btn2 delete-btn" bind:tap="removePhoto" data-index="{{i}}">删除</view>
+      </t-swipe-cell>
     </block>
     <t-button theme="primary" style="--td-button-border-radius:0;width:100%;" bind:tap="onPhotoUploadVisibleChange">添加</t-button>
   </scroll-view>

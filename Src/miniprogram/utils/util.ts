@@ -1,3 +1,4 @@
+import { Tour } from "./tour/tour";
 import { User } from "./user/user";
 
 export const MILLISECONDS = {
@@ -188,8 +189,13 @@ export function isSameDay(date1: number, date2: number): boolean {
 }
 
 export function getUser(userList: any[], id: number): User | undefined {
-  const result = new User(userList.find(user => user.id === id));
-  return result.id === -1 ? undefined : result;
+  const result = userList.find(user => user.id === id);
+  return !result ? undefined : new User(result);
+}
+
+export function getTour(tourList: any[], id: number): Tour | undefined {
+  const result = tourList.find(tour => tour.id === id);
+  return !result ? undefined : new Tour(result);
 }
 
 export function getNewId(arr: any[]): number {

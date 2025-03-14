@@ -80,6 +80,15 @@ export class Location extends TourNode {
       this.expenses.pop();
     }
   }
+
+  deleteUser(id: number) {
+    for (const expense of this.expenses) {
+      const index = expense.user.indexOf(id);
+      if (index >= 0) {
+        expense.user.splice(index, 1);
+      }
+    }
+  }
 };
 
 /**
@@ -110,6 +119,15 @@ export class Transportation extends TourNode {
     }
     else {
       this.transportExpenses.pop();
+    }
+  }
+
+  deleteUser(id: number) {
+    for (const expense of this.transportExpenses) {
+      const index = expense.user.indexOf(id);
+      if (index >= 0) {
+        expense.user.splice(index, 1);
+      }
     }
   }
 }

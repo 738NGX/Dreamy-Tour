@@ -9,6 +9,8 @@
     "t-popup-headered": "/components/t-popup-headered/t-popup-headered",
     "t-input": "tdesign-miniprogram/input/input",
     "t-textarea": "tdesign-miniprogram/textarea/textarea",
+    "t-picker": "tdesign-miniprogram/picker/picker",
+    "t-picker-item": "tdesign-miniprogram/picker-item/picker-item",
     "t-avatar": "tdesign-miniprogram/avatar/avatar"
   }
 }

@@ -18,8 +18,11 @@ Component({
     groupId: -1,
     currentGroup: {} as Group,
     currentUser: {} as User,
+    isGroupOwner: false,
     isGroupAdmin: false,
     members: [] as any[],
+
+    newMemberId: '',
 
     linkedTour: {} as Tour,
     calendarVisible: false,
@@ -48,11 +51,7 @@ Component({
           app.globalData.currentUserId
         )
       });
-      const userGroup = getUserGroupNameInGroup(
-        this.data.currentUser,
-        parseInt(groupId)
-      );
-      this.setData({ isGroupAdmin: userGroup === "系统管理员" || userGroup === "群主" || userGroup === "群管理员" });
+      this.getAuthority();
     },
     onShow() {
       const currentGroup = new Group(app.globalData.currentData.groupList.find(
@@ -70,6 +69,16 @@ Component({
         timeOffsetStr: timezoneList.find(tz => tz.value === linkedTour.timeOffset)?.label ?? '未知时区'
       });
       this.getMembers();
+    },
+    getAuthority() {
+      const userGroup = getUserGroupNameInGroup(
+        this.data.currentUser,
+        this.data.groupId
+      );
+      this.setData({
+        isGroupOwner: userGroup === "群主",
+        isGroupAdmin: userGroup === "系统管理员" || userGroup === "群主" || userGroup === "群管理员"
+      });
     },
     getMembers() {
       const userList = app.globalData.currentData.userList.map(
@@ -94,7 +103,110 @@ Component({
       });
       this.setData({ members });
     },
-    handleTourEditor(){
+    onNewMemberIdInput(e: any) {
+      this.setData({ newMemberId: e.detail.value });
+    },
+    addMember() {
+      if (this.data.newMemberId === '') {
+        wx.showToast({
+          title: '请输入用户ID',
+          icon: 'none'
+        });
+        return;
+      }
+      const newMemberId = parseInt(this.data.newMemberId, 10);
+      console.log(newMemberId);
+      const user = getUser(app.globalData.currentData.userList, newMemberId);
+      if (!user) {
+        wx.showToast({
+          title: '用户不存在',
+          icon: 'none'
+        });
+        return;
+      }
+      if (user.joinedGroup.includes(this.data.groupId)) {
+        wx.showToast({
+          title: '用户已在群内',
+          icon: 'none'
+        });
+        return;
+      }
+      user.joinedGroup.push(this.data.groupId);
+      app.updateUser(user);
+      this.getMembers();
+    },
+    handleUserAdminChange(e: any) {
+      const userId = e.currentTarget.dataset.index;
+      const currentGroup = this.data.currentGroup;
+      const user = getUser(app.globalData.currentData.userList, userId);
+      if (!user) { return; }
+      const userGroup = getUserGroupNameInGroup(user, currentGroup.id);
+      if (userGroup === "群主") { return; }
+      if (userGroup === "群管理员") {
+        user.adminingGroup = user.adminingGroup.filter(
+          (groupId: number) => groupId !== currentGroup.id
+        );
+      } else {
+        user.adminingGroup.push(currentGroup.id);
+      }
+      app.updateUser(user);
+      this.getMembers();
+    },
+    removeMember(e: any) {
+      const that = this;
+      wx.showModal({
+        title: '警告',
+        content: '确定要移除该成员吗？与该成员相关的行程信息将会一起被移除。',
+        success(res) {
+          if (res.confirm) {
+            const userId = e.currentTarget.dataset.index;
+            const currentGroup = that.data.currentGroup;
+            const user = getUser(app.globalData.currentData.userList, userId);
+            if (!user) { return; }
+            user.joinedGroup = user.joinedGroup.filter(
+              (groupId: number) => groupId !== currentGroup.id
+            );
+            user.adminingGroup = user.adminingGroup.filter(
+              (groupId: number) => groupId !== currentGroup.id
+            );
+            const { linkedTour } = that.data;
+            linkedTour.deleteUser(userId);
+            that.setData({ linkedTour });
+            app.updateTour(linkedTour);
+            app.updateUser(user);
+            that.getMembers();
+          }
+        }
+      });
+    },
+    transferGroupOwner(e: any) {
+      const that = this;
+      wx.showModal({
+        title: '警告',
+        content: '确定要转让群主身份给该成员吗？',
+        success(res) {
+          if (res.confirm) {
+            const userId = e.currentTarget.dataset.index;
+            const newOwner = getUser(app.globalData.currentData.userList, userId);
+            const currentOwner = getUser(app.globalData.currentData.userList, that.data.currentUser.id);
+            if (!newOwner || !currentOwner) { return; }
+            currentOwner.havingGroup = currentOwner.havingGroup.filter(
+              (groupId: number) => groupId !== that.data.groupId
+            );
+            newOwner.adminingGroup = newOwner.adminingGroup.filter(
+              (groupId: number) => groupId !== that.data.groupId
+            );
+            newOwner.havingGroup.push(that.data.groupId);
+            that.setData({ currentUser: currentOwner });
+            app.updateUser(newOwner);
+            app.updateUser(currentOwner);
+            that.getAuthority();
+            that.getMembers();
+          }
+        }
+      });
+    },
+    handleTourEditor() {
       wx.navigateTo({
         url: `/pages/tour-edit/tour-edit?tourId=${this.data.linkedTour.id}`,
       });
@@ -155,7 +267,7 @@ Component({
       }
     },
     onRateUpdate(e: any) {
-      if(this.data.rateError) {
+      if (this.data.rateError) {
         return;
       }
       const linkedTour = this.data.linkedTour;

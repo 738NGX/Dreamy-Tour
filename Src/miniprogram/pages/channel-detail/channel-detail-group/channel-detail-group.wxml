@@ -20,5 +20,14 @@
 <t-fab icon="add" bind:click="handleCreateGroup" style="{{fabStyle}}"></t-fab>
 <t-popup-headered style="height:50vh;" visible="{{createGroupVisible}}" title="创建群组" confirmText="创建" bind:visible-change="handleCreateGroup" bindConfirm="handleCreateGroupConfirm" bindCancel="handleCreateGroup" placement="bottom">
   <t-input placeholder="请输入群组名" bind:change="handleTitleInput" value="{{inputTitle}}" maxcharacter="{{30}}" />
-  <t-textarea bind:change="handleInput" value="{{inputValue}}" style="height:30vh;" placeholder="输入群组描述..." maxlength="30" disableDefaultPadding="{{true}}" indicator />
+  <t-textarea bind:change="handleInput" value="{{inputValue}}" style="height:20vh;" placeholder="输入群组描述..." maxlength="30" disableDefaultPadding="{{true}}" indicator />
+  <t-cell wx:if="{{tourTemplateId[0]==-1}}" title="选择统计货币" description="群组建立后不可更改" arrow hover note="{{currencyText}}" bind:click="handleCurrencyPicker" />
+  <t-picker visible="{{currencySelectorVisible}}" value="{{newTourCurrency}}" title="选择主/辅货币" cancelBtn="取消" confirmBtn="确认" usingCustomNavbar bindchange="onCurrencyPickerChange" bindpick="onCurrencyColumnChange" bindcancel="handleCurrencyPicker">
+    <t-picker-item options="{{mainCurrencies}}"></t-picker-item>
+    <t-picker-item options="{{subCurrencies}}"></t-picker-item>
+  </t-picker>
+  <t-cell title="选择行程模板" description="{{tourTemplateText}}" arrow hover bind:click="handleTourTemplatePicker" />
+  <t-picker visible="{{tourTemplateSelectorVisible}}" value="{{tourTemplateId}}" title="选择行程模板" cancelBtn="取消" confirmBtn="确认" usingCustomNavbar bindchange="onTourTemplatePickerChange" bindcancel="handleTourTemplatePicker">
+    <t-picker-item options="{{tourTemplates}}"></t-picker-item>
+  </t-picker>
 </t-popup-headered>
