@@ -1,6 +1,6 @@
 export enum JoinWay { Free, Approval, Invite }
 
-export const JoinWayText = {
+export const joinWayText = {
   [JoinWay.Free]: '自由加入',
   [JoinWay.Approval]: '需要审核',
   [JoinWay.Invite]: '仅限邀请',

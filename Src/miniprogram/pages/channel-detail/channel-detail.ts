@@ -48,8 +48,13 @@ Component({
     },
     onShow() {
       const postsComponent = this.selectComponent('#posts');
-      if (postsComponent && typeof postsComponent.sortPosts === 'function') {
+      if (postsComponent) {
         postsComponent.sortPosts();
+      }
+      const groupsComponent = this.selectComponent('#groups');
+      if (groupsComponent) {
+        groupsComponent.classifyGroups();
+        groupsComponent.getTourTemplates();
       }
     },
     onChildPageChange(e: any) {

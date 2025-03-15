@@ -1,7 +1,7 @@
 export const userList = [
   {
     id: 0,
-    name: 'admin',
+    name: '莱拉普斯',
     isAdmin: true,
   },
   {
@@ -85,5 +85,11 @@ export const userList = [
     name: '梨梨',
     joinedChannel: [1, 3],
     joinedGroup: [1],
+  },
+  {
+    id: 13,
+    name: '趣味生煎包',
+    joinedChannel: [1, 3],
+    joinedGroup: [],
   },
 ]

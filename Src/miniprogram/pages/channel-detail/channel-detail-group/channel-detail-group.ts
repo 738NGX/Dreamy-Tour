@@ -1,4 +1,4 @@
-import { Channel } from "../../../utils/channel/channel";
+import { Channel, JoinWay, joinWayText } from "../../../utils/channel/channel";
 import { Group } from "../../../utils/channel/group"
 import { Budget } from "../../../utils/tour/budget";
 import { Currency, currencyList } from "../../../utils/tour/expense";
@@ -24,6 +24,7 @@ Component({
     mainCurrencies: currencyList,
     subCurrencies: currencyList.filter(currency => currency.value !== Currency.CNY),
     tourTemplates: [] as any[],
+    joinWayText: joinWayText,
 
     refreshEnable: false,
 
@@ -80,7 +81,7 @@ Component({
       this.classifyGroups();
     },
     classifyGroups(searchValue: string = '') {
-      const groups = app.globalData.currentData.groupList as Group[]
+      const groups = app.globalData.currentData.groupList.map((group: any) => new Group(group)) as Group[];
       const currentChannelId = this.properties.currentChannel.id
       const currentUser = getUser(app.globalData.currentData.userList, app.globalData.currentUserId);
       const joinedGroups = groups.filter(group =>
@@ -137,13 +138,13 @@ Component({
       this.setData({ tourTemplateSelectorVisible: !this.data.tourTemplateSelectorVisible });
     },
     onTourTemplatePickerChange(e: any) {
-      this.setData({ 
+      this.setData({
         tourTemplateId: e.detail.value,
         tourTemplateText: e.detail.label[0],
       });
     },
     onTourTemplateColumnChange(e: any) {
-      this.setData({ 
+      this.setData({
         tourTemplateId: e.detail.value,
         tourTemplateText: e.detail.label[0],
       });
@@ -163,9 +164,8 @@ Component({
         name: inputTitle,
         description: inputValue,
         linkedChannel: this.properties.currentChannel.id
-      })
-      const newUserList = app.globalData.currentData.userList.map((user: any) => new User(user));
-      const thisUser = newUserList.find((user: User) => user.id == this.data.currentUser?.id) as User;
+      });
+      const thisUser = getUser(app.globalData.currentData.userList, app.globalData.currentUserId) as User;
       const tourTemplate = getTour(app.globalData.currentData.tourList, this.data.tourTemplateId[0]);
       const newTour = new Tour({
         id: getNewId(app.globalData.currentData.tourList),
@@ -190,9 +190,9 @@ Component({
       }
       thisUser.joinedGroup.push(newGroupId);
       thisUser.havingGroup.push(newGroupId);
-      app.globalData.currentData.groupList.push(group);
-      app.globalData.currentData.tourList.push(newTour);
-      app.globalData.currentData.userList = newUserList;
+      app.addGroup(group);
+      app.addTour(newTour);
+      app.updateUser(thisUser);
       this.setData({
         createGroupVisible: false,
         inputTitle: '',
@@ -201,5 +201,39 @@ Component({
       })
       this.onRefresh()
     },
+    joinGroup(e: any) {
+      const groupId = parseInt(e.currentTarget.dataset.index);
+      const group = app.getGroup(groupId) as Group;
+      if (group.joinWay == JoinWay.Approval) {
+        if(group.waitingUsers.includes(app.globalData.currentUserId)) {
+          wx.showToast({
+            title: '您已经申请过了,请耐心等待',
+            icon: 'none',
+          });
+          return;
+        }
+        else {
+          group.waitingUsers.push(app.globalData.currentUserId);
+          app.updateGroup(group);
+          wx.showToast({
+            title: '已发送加入申请,请耐心等待',
+            icon: 'none',
+          });
+          return;
+        }
+      }
+      if (group.joinWay == JoinWay.Invite) {
+        wx.showToast({
+          title: '该群组仅限邀请加入',
+          icon: 'none',
+        });
+        return;
+      }
+      const thisUser = app.getUser(this.data.currentUser.id) as User;
+      thisUser.joinedGroup.push(groupId);
+      app.updateUser(thisUser);
+      this.setData({ currentUser: thisUser });
+      this.onRefresh()
+    }
   }
 })

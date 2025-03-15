@@ -25,14 +25,6 @@ Component({
       const dateRange = this.getDateRange(currentTour!.startDate, currentTour!.endDate);
       const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
       this.setData({ currentTour, dateRange, copyOptions });
-      app.watch("currentData.tourList", () => {
-        const tourList = app.globalData.currentData.tourList;
-        console.log("tourList", tourList);
-        const currentTour = new Tour(tourList.find((tour: any) => tour.id == tourId));
-        const dateRange = this.getDateRange(currentTour!.startDate, currentTour!.endDate);
-        const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
-        this.setData({ currentTour, dateRange, copyOptions });
-      });
     },
     getDateRange(startTimestamp: number, endTimestamp: number): number[][] {
       const startDate = new Date(startTimestamp);
