@@ -1,3 +1,6 @@
+/**
+ * 顶部导航栏
+ */
 Component({
   options: {
     multipleSlots: true

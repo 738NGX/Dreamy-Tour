@@ -1,3 +1,6 @@
+/**
+ * 用户状态
+ */
 export class User {
   id: number;
   name: string;

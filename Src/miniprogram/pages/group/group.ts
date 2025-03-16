@@ -1,3 +1,6 @@
+/**
+ * 群组界面，展示群成员、群行程、聊天群二维码信息
+ */
 import { JoinWay } from "../../utils/channel/channel";
 import { Group } from "../../utils/channel/group";
 import { currencyList } from "../../utils/tour/expense";

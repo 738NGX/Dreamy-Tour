@@ -1,3 +1,6 @@
+/**
+ * 行程统计信息
+ */
 import { Reporter } from '../../utils/reporter';
 import { Tour } from '../../utils/tour/tour';
 import { currencyList } from '../../utils/tour/expense'
