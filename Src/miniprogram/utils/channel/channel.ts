@@ -11,10 +11,12 @@ export class Channel {
   name: string;
   description: string;
   joinWay: JoinWay;
+  waitingUsers: number[];
   constructor(data: any) {
     this.id = data.id ?? -1;
     this.name = data.name ?? '新频道';
     this.description = data.description ?? '这是一个新频道';
     this.joinWay = data.joinWay ?? JoinWay.Free;
+    this.waitingUsers = data.waitingUsers ?? [];
   }
 }

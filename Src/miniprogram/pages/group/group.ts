@@ -127,9 +127,8 @@ Component({
         return;
       }
       const newMemberId = parseInt(this.data.newMemberId, 10);
-      console.log(newMemberId);
       const user = app.getUser(newMemberId);
-      if (!user) {
+      if (!user || user.id === 0) {
         wx.showToast({
           title: '用户不存在',
           icon: 'none'
@@ -143,6 +142,13 @@ Component({
         });
         return;
       }
+      if(!user.joinedChannel.includes(this.data.currentGroup.linkedChannel)) {
+        wx.showToast({
+          title: '用户不在频道中',
+          icon: 'none'
+        });
+        return;
+      }
       const { linkedTour } = this.data;
       linkedTour.users.push(newMemberId);
       app.updateTour(linkedTour);
@@ -150,6 +156,7 @@ Component({
       user.joinedGroup.push(this.data.groupId);
       app.updateUser(user);
       this.getMembers();
+      this.setData({ newMemberId: '' });
     },
     approveUser(e: any) {
       const userId = parseInt(e.currentTarget.dataset.index);

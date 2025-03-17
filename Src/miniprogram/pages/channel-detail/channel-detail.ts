@@ -62,5 +62,8 @@ Component({
     onChildPageChange(e: any) {
       this.setData({ childPage: e.detail.value })
     },
+    handleCurrentChannelChange(e: any) {
+      this.setData({ currentChannel: new Channel(e.detail.value) })
+    },
   },
 })

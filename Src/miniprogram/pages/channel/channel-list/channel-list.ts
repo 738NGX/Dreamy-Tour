@@ -7,8 +7,8 @@ Component({
   },
   lifetimes: {
     attached() {
-      const channelList = app.getChannelListCopy().filter(
-        channel => app.currentUser().joinedChannel
+      const channelList = getApp<IAppOption>().getChannelListCopy().filter(
+        channel => getApp<IAppOption>().currentUser().joinedChannel
           .includes(channel.id) && channel.id != 1
       );
       this.setData({ channelList });

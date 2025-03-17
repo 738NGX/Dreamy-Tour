@@ -11,7 +11,7 @@
         <t-tag slot="note" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
       </t-cell>
       <view slot="right" class="btn-wrapper">
-        <view wx:if="{{isGroupOwner&&item.userGroup=='群管理员'&&item.id!=currentUser.id}}" class="btn2 delete-btn" data-index="{{item.id}}" bind:tap="transferGroupOwner">转让群</view>
+        <view wx:if="{{isGroupOwner&&item.userGroup=='群管理员'&&item.id!=currentUser.id}}" class="btn2 delete-btn" data-index="{{item.id}}" bind:tap="transferGroupOwner">转让群组</view>
         <view wx:if="{{isGroupOwner&&item.userGroup!='群主'&&item.id!=currentUser.id}}" class="btn2 edit-btn" data-index="{{item.id}}" bind:tap="handleUserAdminChange">{{item.userGroup=="群管理员" ? '解除管理' :'设为管理'}}</view>
         <view wx:if="{{isGroupAdmin&&item.userGroup!='群主'&&item.userGroup!='群管理员'&&item.id!=currentUser.id}}" class="btn2 delete-btn" data-index="{{item.id}}" bind:tap="removeMember">移除</view>
       </view>

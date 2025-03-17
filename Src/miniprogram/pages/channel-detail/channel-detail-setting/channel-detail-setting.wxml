@@ -1,0 +1,19 @@
+<wxs module="util" src="../../../utils/util.wxs"></wxs>
+<scroll-view class="scrollarea" style="height:90vh" scroll-y type="list">
+  <c-collapse header="频道成员">
+    <t-swipe-cell wx:for="{{members}}" wx:key="id">
+      <t-cell bordered="{{false}}" title="{{item.name}}" class="narrow-cell">
+        <t-avatar slot="image" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
+        <t-tag slot="note" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
+      </t-cell>
+      <view slot="right" class="btn-wrapper">
+        <view wx:if="{{isChannelOwner&&item.userGroup=='频道管理员'&&item.id!=currentUser.id}}" class="btn2 delete-btn" data-index="{{item.id}}" bind:tap="transferChannelOwner">转让频道</view>
+        <view wx:if="{{isChannelOwner&&item.userGroup!='频道主'&&item.id!=currentUser.id}}" class="btn2 edit-btn" data-index="{{item.id}}" bind:tap="handleUserAdminChange">{{item.userGroup=="频道管理员" ? '解除管理' :'设为管理'}}</view>
+        <view wx:if="{{isChannelAdmin&&item.userGroup!='频道主'&&item.userGroup!='频道管理员'&&item.id!=currentUser.id}}" class="btn2 delete-btn" data-index="{{item.id}}" bind:tap="removeMember">移除</view>
+      </view>
+    </t-swipe-cell>
+    <t-input wx:if="{{isChannelAdmin}}" bind:change="onNewMemberIdInput" placeholder="输入新成员id" label="新成员id" value="{{newMemberId}}" type="number" align="right">
+      <t-button bind:tap="addMember" slot="suffix" theme="primary" variant="outline" size="extra-small">添加成员</t-button>
+    </t-input>
+  </c-collapse>
+</scroll-view>
