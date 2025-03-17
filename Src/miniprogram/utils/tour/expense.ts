@@ -92,6 +92,7 @@ export class TransportExpense extends Expense {
 
   constructor(data: any) {
     super(data);
+    this.type = ExpenseType.Transportation;
     if (data.transportType !== undefined) {
       this.transportType = data.transportType;
     }

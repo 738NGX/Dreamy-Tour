@@ -1,4 +1,5 @@
 <!-- report-for-tour.wxml -->
+<header class="custom-navbar" tabList="{{[]}}" title="群组旅程报告"/>
 <scroll-view class="scrollarea" scroll-y type="list">
   <view class="container">
     <view class="column">

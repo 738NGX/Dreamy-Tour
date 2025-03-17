@@ -2,7 +2,8 @@
   "component": true,
   "styleIsolation": "apply-shared",
   "usingComponents": {
-    "ec-canvas": "../ec-canvas/ec-canvas",
+    "header": "../../components/header/header",
+    "ec-canvas": "../../components/ec-canvas/ec-canvas",
     "t-collapse": "tdesign-miniprogram/collapse/collapse",
     "t-collapse-panel": "tdesign-miniprogram/collapse-panel/collapse-panel",
     "t-cell": "tdesign-miniprogram/cell/cell",

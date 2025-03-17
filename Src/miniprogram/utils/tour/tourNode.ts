@@ -104,8 +104,9 @@ export class Transportation extends TourNode {
 
   addTransportExpense(currency: Currency) {
     this.transportExpenses.push(
-      new TransportExpense({ index: this.transportExpenses.length, currency: currency, type: TransportType.Other })
+      new TransportExpense({ index: this.transportExpenses.length, currency: currency, TransportType: TransportType.Other })
     );
+    console.log(this.transportExpenses)
   }
   removeTransportExpense(index: number) {
     if (index < 0 || index >= this.transportExpenses.length) {
