@@ -10,7 +10,7 @@ Component({
     currencyList: currencyList,
 
     currentTour: {} as Tour,
-
+    currentTourId: 0 as number,
     settingsVisible: false,
 
     dateRange: [] as any[],
@@ -27,7 +27,9 @@ Component({
       const currentTour = app.getTour(parseInt(tourId)) as Tour;
       const dateRange = this.getDateRange(currentTour!.startDate, currentTour!.endDate);
       const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
-      this.setData({ currentTour, dateRange, copyOptions });
+      this.setData({ currentTour, dateRange, copyOptions,
+          currentTourId:tourId
+       });
     },
     handleCurrentTourChange(e: any) {
       const { value } = e.detail;
@@ -141,6 +143,15 @@ Component({
           currentChildPage: 0,
         })
       }
+    },
+    
+    showGroupTourReport(){
+      // wx.setStorageSync('currentTour',this.data.currentTour);
+      // wx.setStorageSync('currentTourCopyIndex',this.data.currentCopyIndex);
+      // console.log("currentTour",this.data.currentTour,"currentcopyindex",this.data.currentCopyIndex)
+      wx.navigateTo({
+        url:`/pages/report-for-group/report-for-group?tourId=${this.data.currentTourId}&currentTourCopyIndex=${this.data.currentCopyIndex}`
+      })
     }
   }
 })

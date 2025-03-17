@@ -1,7 +1,7 @@
 /**
  * 行程统计信息
  */
-import * as echarts from '../ec-canvas/echarts'
+import * as echarts from '../../components/ec-canvas/echarts'
 import { Reporter } from '../../utils/reporter';
 import { Tour } from '../../utils/tour/tour';
 import { currencyList } from '../../utils/tour/expense'
@@ -14,12 +14,7 @@ Component({
 
     },
     attached() {
-      this.setData({
-        currentTour: new Tour(this.properties.tour),
-        currentTourCopyIndex: this.properties.copyIndex
-      })
-      this.initReport(this.data.currentTour,this.data.currentTourCopyIndex);
-      this.initCharts();
+    //  this.onLoad(options);
     },
     moved() {
 
@@ -29,27 +24,7 @@ Component({
     },
   },
   properties: {
- //接收行程对象，日期信息和版本信息，初始化行程并处理版本切换和筛选逻辑
-  tour: {                 
-    type: Object,
-    value: {},
-    observer(newVal: any) {
-      if (newVal) {
-        this.onTourUpdate(newVal);
-        this.initReport(this.data.currentTour,this.data.currentTourCopyIndex);
-        this.initCharts();
-      }
-    }
-  }, 
-  copyIndex: {
-    type: Number,
-    value: 0,
-    observer(newVal: number) {
-      this.onCopyChange(newVal);
-      this.initReport(this.data.currentTour,this.data.currentTourCopyIndex);
-      this.initCharts();
-    }
-  }
+
   },
   data: {
     currentTour : null as Tour | null,
@@ -77,6 +52,16 @@ Component({
   },
  
   methods: {
+    onLoad(options:any){
+      const tourId = options.tourId;
+      const currentTourCopyIndex = options.currentTourCopyIndex
+      this.setData({
+        currentTour: app.getTour(parseInt(tourId)) as Tour,
+        currentTourCopyIndex: currentTourCopyIndex
+      })
+      this.initReport(this.data.currentTour,this.data.currentTourCopyIndex);
+      this.initCharts();
+    },
     initCharts(){
       const chartInType = this.selectComponent('#chartInType')
       chartInType.init((canvas:any, width:any,height:any) => {
@@ -149,6 +134,7 @@ Component({
       })
     },
     initReport(value:any,copyIndex:number){
+    //  console.log("beforeinitReport",this.data.currentTour,this.data.currentTourCopyIndex)
       const currentTour = new Tour(value);
       
       const reporter = new Reporter(currentTour,copyIndex);
@@ -167,7 +153,7 @@ Component({
 
         totalTransportCurrency: totalTransportCurrency,
       })
-      console.log("chartdatainhotel",this.data.chartDataInHotel)
+    //  console.log("chartdatainhotel",this.data.chartDataInHotel)
     },
     onTourUpdate(data : Tour){
       this.setData({ currentTour: data})
