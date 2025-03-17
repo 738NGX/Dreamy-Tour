@@ -17,6 +17,8 @@ Component({
 
     copyOptions: [] as any[],
     currentCopyIndex: 0,
+
+    currentChildPage: 0,
   },
   methods: {
     onLoad(options: any) {
@@ -55,5 +57,19 @@ Component({
       const { value } = event.detail;
       this.setData({ currentCopyIndex: value });
     },
+
+    handleChildPageChange(){
+      const currentChildPage = this.data.currentChildPage;
+      if(currentChildPage === 0){
+        this.setData({
+          currentChildPage: 1,
+        })
+      }
+      else { 
+        this.setData({
+          currentChildPage: 0,
+        })
+      }
+    }
   }
 })

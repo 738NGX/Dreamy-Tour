@@ -1,3 +1,6 @@
+/**
+ * 具体的帖子界面
+ */
 import { Comment, Post } from "../../utils/channel/post";
 import { User } from "../../utils/user/user";
 import { formatPostTime, getNewId, getUser, getUserGroupNameInChannel } from "../../utils/util";

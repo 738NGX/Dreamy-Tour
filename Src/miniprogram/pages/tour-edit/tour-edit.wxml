@@ -1,6 +1,7 @@
 <header class="custom-navbar" title="查看行程" tabList="{{[]}}" />
 <t-popup style="width:80% !important;" visible="{{settingsVisible}}" usingCustomNavbar bind:visible-change="handleSettings" placement="left">
   <scroll-view class="scrollarea" style="height:90vh" scroll-y type="list">
+
     <c-collapse header="行程版本选择">
       <t-radio-group class="narrow-radio" bind:change="onCopyChange" value="{{currentCopyIndex}}">
         <t-radio value="{{0}}">
@@ -18,7 +19,9 @@
         <t-button bind:tap="syncCopy" theme="primary" size="small" variant="text">同步当前选择为默认版本</t-button>
       </view>
     </c-collapse>
+
     <t-cell bind:click="handleDateFilterStep" title="日期筛选器" hover note="{{currentDateFilter.label}}" arrow />
+    <t-cell bind:click="handleChildPageChange" title="{{currentChildPage === 1 ? '查看行程详情' : '查看统计报告'}}" hover arrow />
     <c-collapse header="预算表信息">
       <block wx:for="{{currentTour.budgets}}" wx:key="index" wx:for-index="i">
         <t-input data-index="{{i}}" bind:blur="changeBudgetName" class="narrow-input" value="{{item.title}}">
@@ -32,6 +35,9 @@
   </scroll-view>
 </t-popup>
 <t-cell bind:click="handleSettings" title="{{currentTour?currentTour.title:'行程'}}" hover note="查看更多" arrow />
-<scroll-view class="scrollarea" style="height:80vh" scroll-y type="list">
+<scroll-view class="scrollarea" style="height:80vh" scroll-y type="list" wx:if="{{currentChildPage === 0 || !currentChildPage}}">
   <tour-editor bind:currentTourChange="handleCurrentTourChange" tour="{{currentTour}}" copyIndex="{{currentCopyIndex}}" dateFilter="{{currentDateFilter}}" />
+</scroll-view>
+<scroll-view class="scrollarea" style="height:80vh" scroll-y type="list" wx:if="{{currentChildPage === 1}}">
+  <report-for-tour tour="{{currentTour}}" copyIndex="{{currentCopyIndex}}"/>
 </scroll-view>

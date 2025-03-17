@@ -1,3 +1,6 @@
+/**
+ * 小程序全局底部tabbar
+ */
 Component({
     //  组件的属性列表
     properties: {},

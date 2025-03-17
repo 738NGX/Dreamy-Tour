@@ -1,3 +1,7 @@
+/**
+ * （单个）频道主页，下分为频道足迹、讨论区、频道群组
+ * 根据用户群权限加载管理页面
+ */
 import { Channel } from "../../utils/channel/channel";
 import { getUser, getUserGroupNameInChannel } from "../../utils/util";
 

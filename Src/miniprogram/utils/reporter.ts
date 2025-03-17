@@ -1,8 +1,11 @@
+/**
+ * 生成行程的分类列表，存放expenseItem，表示某一统计类别下的总消费
+ */
 import {
   CDN_PATH,
   PLUGIN_KEY
 } from '../config/appConfig';
-import { Currency, currencyList, expenseList, ExpenseType } from './tour/expense';
+import { AmountType, Currency, currencyList, expenseList, ExpenseType } from './tour/expense';
 if (PLUGIN_KEY) {
   const QQMapWX = require('../components/qqmap-wx-jssdk');
   const qqmapsdk = new QQMapWX({
@@ -11,7 +14,8 @@ if (PLUGIN_KEY) {
   qqmapsdk
 }
 import { Tour } from './tour/tour';
-import { formatDate, getChartData } from './util';
+import { formatDate, getEChartData } from './util';
+//import { getUserById } from './util';
 
 export class Reporter {
   tourData: Tour;
@@ -28,10 +32,13 @@ export class Reporter {
   typeList: ExpenseItemList[];
 
   // 分标签列表
-  tagList: ExpenseItemList[];
+  budgetList: ExpenseItemList[];
 
   // 分位置列表
   locationList: ExpenseItemList[];
+
+  //分成员列表
+  userList: ExpenseItemList[];
 
   // 地图路径
   markers: any[] = [];
@@ -49,7 +56,7 @@ export class Reporter {
     }
   };
 
-  constructor(tour: Tour) {
+  constructor(tour: Tour,copyIndex:number) {
     this.tourData = tour;
 
     this.currencyExchangeRate = tour.currencyExchangeRate;
@@ -59,24 +66,28 @@ export class Reporter {
     this.typeList = Array(6).fill(null).map(() =>
       new ExpenseItemList(this.mainCurrency, this.subCurrency)
     );
-    this.tagList = Array(10).fill(null).map(() =>
+    this.budgetList = Array(10).fill(null).map(() =>
       new ExpenseItemList(this.mainCurrency, this.subCurrency)
     );
     this.locationList = Array(tour.locations.length).fill(null).map(() =>
       new ExpenseItemList(this.mainCurrency, this.subCurrency)
     );
+    this.userList = Array(tour.users.length).fill(null).map(() =>
+      new ExpenseItemList(this.mainCurrency, this.subCurrency)
+    )
 
     this.expenseCalculator = new ExpenseCalculator();
+    this.expenseCalculator.setUsers(this.tourData.users);
 
-    this.dealLocations();
-    this.dealTransportations();
+    this.dealLocations(copyIndex);
+    this.dealTransportations(copyIndex);
     this.updateAllLists();
   }
 
-  private dealLocations() {
+  private dealLocations(copyIndex: number) {
     const rate = this.currencyExchangeRate;
 
-    for (const location of this.tourData.locations) {
+    for (const location of this.tourData.locations[copyIndex]) {
       this.polyline.points.push({ latitude: Number(location.latitude), longitude: Number(location.longitude) });
       this.markers.push(
         {
@@ -88,100 +99,201 @@ export class Reporter {
           height: 30,
         }
       );
-
+        //expenseItem存储单笔消费记录，如果为人均，则需要乘以人数来统计
+        //平均存入budgetlist
       for (const expense of location.expenses) {
+    
+        const userNumForCalc = expense.user && expense.amountType == AmountType.Average ? expense.user.length : 1;
+        const budgetNumForCalc = expense.budget ? expense.budget.length : 1;
+
         if (expense.currency === this.mainCurrency) {
-          this.expenseCalculator.total.addMain(expense.amount, rate);
-          this.expenseCalculator.totalInType[expense.type].addMain(expense.amount, rate);
-          this.expenseCalculator.totalInTag[expense.tag].addMain(expense.amount, rate);
 
           const expenseItem = new ExpenseItem(
-            expense.amount,
+            expense.amount * userNumForCalc,
             0,
             rate,
             expense.title,
             location.title,
             formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
-            expense.type
+            expense.type,
           );
+          this.expenseCalculator.total.addMain(expense.amount * userNumForCalc, rate);
+          this.expenseCalculator.totalInType[expense.type].addMain(expense.amount * userNumForCalc, rate);
+          let budgets = new Set(expense.budget)
+          for(let budget of budgets){
+            this.expenseCalculator.totalInBudget[budget].addMain(expense.amount * userNumForCalc / budgetNumForCalc, rate);
+            this.budgetList[budget].data.push(new ExpenseItem(
+              expense.amount * userNumForCalc / budgetNumForCalc,
+              0,
+              rate,
+              expense.title,
+              location.title,
+              formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
+              expense.type,
+            ));
+          //总价平均分摊给每个参与成员
+          for(const userId of expense.user){
+            const userIndex = this.tourData.users.indexOf(userId);
+            const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
+            this.expenseCalculator.totalInUser[userIndex].addMain(userAmount,rate)
+            this.userList[userIndex].data.push(new ExpenseItem(
+              userAmount,
+              0,
+              rate,
+              expense.title,
+              location.title,
+              formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
+              expense.type,
+            ));
+          }
           this.typeList[expense.type].data.push(expenseItem);
-          this.tagList[expense.tag].data.push(expenseItem);
           this.locationList[location.index].data.push(expenseItem);
+          }
         }
         else {
-          this.expenseCalculator.total.addSub(expense.amount, rate);
-          this.expenseCalculator.totalInType[expense.type].addSub(expense.amount, rate);
-          this.expenseCalculator.totalInTag[expense.tag].addSub(expense.amount, rate);
-
           const expenseItem = new ExpenseItem(
             0,
-            expense.amount,
+            expense.amount * userNumForCalc,
             rate,
             expense.title,
             location.title,
             formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
-            expense.type
+            expense.type,
           );
+
+          this.expenseCalculator.total.addSub(expense.amount * userNumForCalc, rate);
+          this.expenseCalculator.totalInType[expense.type].addSub(expense.amount * userNumForCalc, rate);
+          let budgets = new Set(expense.budget)
+          for(let budget of budgets){
+            this.expenseCalculator.totalInBudget[budget].addSub(expense.amount * userNumForCalc / budgetNumForCalc, rate);
+            this.budgetList[budget].data.push(new ExpenseItem(
+                0,
+                expense.amount * userNumForCalc / budgetNumForCalc,
+                rate,
+                expense.title,
+                location.title,
+                formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
+                expense.type,
+              ));
+          }
+
+          for(const userId of expense.user){
+            const userIndex = this.tourData.users.indexOf(userId);
+            const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
+            this.expenseCalculator.totalInUser[userIndex].addSub(userAmount,rate)
+            this.userList[userIndex].data.push(new ExpenseItem(
+              0,
+              userAmount,
+              rate,
+              expense.title,
+              location.title,
+              formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
+              expense.type,
+            ));
+          }
+         
           this.typeList[expense.type].data.push(expenseItem);
-          this.tagList[expense.tag].data.push(expenseItem);
           this.locationList[location.index].data.push(expenseItem);
         }
       }
     }
   }
 
-  private dealTransportations() {
+  private dealTransportations(copyIndex: number) {
     const rate = this.currencyExchangeRate;
 
-    for (const transportation of this.tourData.transportations) {
+    for (const transportation of this.tourData.transportations[copyIndex]) {
       this.polyline.segmentTexts.push({ name: transportation.getDurationString(), startIndex: transportation.index, endIndex: transportation.index + 1 });
 
       for (const expense of transportation.transportExpenses) {
-        if (expense.currency === this.mainCurrency) {
-          this.expenseCalculator.total.addMain(expense.amount, rate);
-          this.expenseCalculator.totalInType[expense.type].addMain(expense.amount, rate);
-          this.expenseCalculator.totalInTransportType[expense.transportType].addMain(expense.amount, rate);
-          this.expenseCalculator.totalInTag[expense.tag].addMain(expense.amount, rate);
+        const userNumForCalc = expense.user && expense.amountType == AmountType.Average ? expense.user.length : 1;
+        const budgetNumForCalc = expense.budget ? expense.budget.length : 1;
 
-          this.typeList[expense.type].data.push(new ExpenseItem(
-            expense.amount,
+        if (expense.currency === this.mainCurrency) {
+          const expenseItem = new ExpenseItem(
+            expense.amount * userNumForCalc,
             0,
             rate,
             expense.title,
             '',
-            formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset)
-          ));
-          this.tagList[expense.tag].data.push(new ExpenseItem(
-            expense.amount,
-            0,
-            rate,
-            expense.title,
-            '',
-            formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset)
-          ));
+            formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
+            expense.type,
+          );
+
+          this.expenseCalculator.total.addMain(expense.amount * userNumForCalc, rate);
+          this.expenseCalculator.totalInType[expense.type].addMain(expense.amount * userNumForCalc, rate);
+          this.expenseCalculator.totalInTransportType[expense.transportType].addMain(expense.amount * userNumForCalc, rate);
+
+          this.typeList[expense.type].data.push(expenseItem);
+          let budgets = new Set(expense.budget)
+          for(let budget of budgets){
+            this.expenseCalculator.totalInBudget[budget].addMain(expense.amount * userNumForCalc / budgetNumForCalc, rate);
+            this.budgetList[budget].data.push(new ExpenseItem(
+              expense.amount * userNumForCalc / budgetNumForCalc,
+              0,
+              rate,
+              expense.title,
+              '',
+              formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
+            ));
+          }
+
+          for(const userId of expense.user){
+            const userIndex = this.tourData.users.indexOf(userId);
+            const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
+            this.expenseCalculator.totalInUser[userIndex].addMain(userAmount,rate)
+            this.userList[userIndex].data.push(new ExpenseItem(
+              0,
+              userAmount,
+              rate,
+              expense.title,
+              '',
+              formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
+            ));
+          }
         }
         else {
-          this.expenseCalculator.total.addSub(expense.amount, rate);
-          this.expenseCalculator.totalInType[expense.type].addSub(expense.amount, rate);
-          this.expenseCalculator.totalInTransportType[expense.transportType].addSub(expense.amount, rate);
-          this.expenseCalculator.totalInTag[expense.tag].addSub(expense.amount, rate);
+          const expenseItem = new ExpenseItem(
+            0,
+            expense.amount * userNumForCalc,
+            rate,
+            expense.title,
+            '',
+            formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
+            expense.type,
+          )
 
-          this.typeList[expense.type].data.push(new ExpenseItem(
-            0,
-            expense.amount,
-            rate,
-            expense.title,
-            '',
-            formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset)
-          ));
-          this.tagList[expense.tag].data.push(new ExpenseItem(
-            0,
-            expense.amount,
-            rate,
-            expense.title,
-            '',
-            formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset)
-          ));
+          this.expenseCalculator.total.addSub(expense.amount * userNumForCalc, rate);
+          this.expenseCalculator.totalInType[expense.type].addSub(expense.amount * userNumForCalc, rate);
+          this.expenseCalculator.totalInTransportType[expense.transportType].addSub(expense.amount * userNumForCalc, rate);
+
+          this.typeList[expense.type].data.push(expenseItem);
+          let budgets = new Set(expense.budget)
+          for(let budget of budgets){
+            this.expenseCalculator.totalInBudget[budget].addSub(expense.amount * userNumForCalc / budgetNumForCalc, rate);
+            this.budgetList[budget].data.push(new ExpenseItem(
+              0,
+              expense.amount * userNumForCalc / budgetNumForCalc,
+              rate,
+              expense.title,
+              '',
+              formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
+            ));
+          }
+
+          for(const userId of expense.user){
+            const userIndex = this.tourData.users.indexOf(userId);
+            const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
+            this.expenseCalculator.totalInUser[userIndex].addSub(userAmount,rate)
+            this.userList[userIndex].data.push(new ExpenseItem(
+              0,
+              userAmount,
+              rate,
+              expense.title,
+              '',
+              formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
+            ));
+          }
         }
       }
     }
@@ -191,10 +303,13 @@ export class Reporter {
     for (const list of this.typeList) {
       list.update();
     }
-    for (const list of this.tagList) {
+    for (const list of this.budgetList) {
       list.update();
     }
     for (const list of this.locationList) {
+      list.update();
+    }
+    for (const list of this.userList){
       list.update();
     }
   }
@@ -215,7 +330,8 @@ export class ExpenseItemList {
   update() {
     this.sort();
     this.updateDisplayData();
-    this.updateChartData();
+  //  this.updateChartData();
+    this.updateEChartData();
   }
 
   private sort() {
@@ -257,23 +373,73 @@ export class ExpenseItemList {
     };
     this.chartData = JSON.parse(JSON.stringify(res));
   }
+
+  private updateEChartData(){
+    const data = this.data.slice(0, 10);
+    let res = [
+        {
+          name: "合计消费",
+          type: 'bar',
+          data: data.map(item => item.allCurrency),
+          emphasis: {
+            focus: 'series'
+          },
+        },
+        {
+          name: this.mainCurrency + "消费",
+          type: 'bar',
+          yAxisIndex: 1,
+          // barWidth: 5,
+          // stack: '合计消费',
+          emphasis: {
+            focus: 'series'
+          },
+          data: data.map(item => item.mainCurrency)
+        },
+        {
+          name: this.subCurrency + "消费",
+          type: 'bar',
+          yAxisIndex: 2,
+          offset: 10,
+          // barWidth: 5,
+          // stack: '合计消费',
+          emphasis: {
+            focus: 'series'
+          },
+          data: data.map(item => item.subCurrency)
+        }
+      ]
+    this.chartData = JSON.parse(JSON.stringify(res));
+  }
 }
 
 export class ExpenseCalculator {
+
+  users: number[] = [];
+
   // 总和
   total: ExpenseItem = new ExpenseItem();
 
   // 按类别分类
   totalInType: ExpenseItem[] = Array(6).fill(null).map(() => new ExpenseItem());
 
-  // 按标签分类
-  totalInTag: ExpenseItem[] = Array(10).fill(null).map(() => new ExpenseItem());
+  // 按预算表分类
+  totalInBudget: ExpenseItem[] = Array(10).fill(null).map(() => new ExpenseItem());
 
   // 按交通类别分类
   totalInTransportType: ExpenseItem[] = Array(10).fill(null).map(() => new ExpenseItem());
 
+  //按用户分类
+  totalInUser: ExpenseItem[] = Array(10).fill(null).map(() => new ExpenseItem())
+
+  setUsers(users: number[]) {
+    this.users = users;
+    if (this.totalInUser.length != users.length) {
+      this.totalInUser = new Array(users.length).fill(null).map(() => new ExpenseItem());
+    }
+  }
   getChartDataInType() {
-    return getChartData([
+    return getEChartData([
       { value: this.totalInType[0].allCurrency, name: '住宿', labelShow: this.totalInType[0].allCurrency > 0 },
       { value: this.totalInType[1].allCurrency, name: '餐饮', labelShow: this.totalInType[1].allCurrency > 0 },
       { value: this.totalInType[2].allCurrency, name: '交通', labelShow: this.totalInType[2].allCurrency > 0 },
@@ -283,23 +449,23 @@ export class ExpenseCalculator {
     ]);
   }
 
-  getChartDataInTag() {
-    return getChartData([
-      { value: this.totalInTag[0].allCurrency, name: '未标签', labelShow: this.totalInTag[0].allCurrency > 0 },
-      { value: this.totalInTag[1].allCurrency, name: '1', labelShow: this.totalInTag[1].allCurrency > 0 },
-      { value: this.totalInTag[2].allCurrency, name: '2', labelShow: this.totalInTag[2].allCurrency > 0 },
-      { value: this.totalInTag[3].allCurrency, name: '3', labelShow: this.totalInTag[3].allCurrency > 0 },
-      { value: this.totalInTag[4].allCurrency, name: '4', labelShow: this.totalInTag[4].allCurrency > 0 },
-      { value: this.totalInTag[5].allCurrency, name: '5', labelShow: this.totalInTag[5].allCurrency > 0 },
-      { value: this.totalInTag[6].allCurrency, name: '6', labelShow: this.totalInTag[6].allCurrency > 0 },
-      { value: this.totalInTag[7].allCurrency, name: '7', labelShow: this.totalInTag[7].allCurrency > 0 },
-      { value: this.totalInTag[8].allCurrency, name: '8', labelShow: this.totalInTag[8].allCurrency > 0 },
-      { value: this.totalInTag[9].allCurrency, name: '9', labelShow: this.totalInTag[9].allCurrency > 0 },
+  getChartDataInBudget() {
+    return getEChartData([
+      { value: this.totalInBudget[0].allCurrency, name: '预算表0', labelShow: this.totalInBudget[0].allCurrency > 0 },
+      { value: this.totalInBudget[1].allCurrency, name: '预算表1', labelShow: this.totalInBudget[1].allCurrency > 0 },
+      { value: this.totalInBudget[2].allCurrency, name: '预算表2', labelShow: this.totalInBudget[2].allCurrency > 0 },
+      { value: this.totalInBudget[3].allCurrency, name: '预算表3', labelShow: this.totalInBudget[3].allCurrency > 0 },
+      { value: this.totalInBudget[4].allCurrency, name: '预算表4', labelShow: this.totalInBudget[4].allCurrency > 0 },
+      { value: this.totalInBudget[5].allCurrency, name: '预算表5', labelShow: this.totalInBudget[5].allCurrency > 0 },
+      { value: this.totalInBudget[6].allCurrency, name: '预算表6', labelShow: this.totalInBudget[6].allCurrency > 0 },
+      { value: this.totalInBudget[7].allCurrency, name: '预算表7', labelShow: this.totalInBudget[7].allCurrency > 0 },
+      { value: this.totalInBudget[8].allCurrency, name: '预算表8', labelShow: this.totalInBudget[8].allCurrency > 0 },
+      { value: this.totalInBudget[9].allCurrency, name: '预算表9', labelShow: this.totalInBudget[9].allCurrency > 0 },
     ]);
   }
 
   getChartDataInTransportType() {
-    return getChartData([
+    return getEChartData([
       { value: this.totalInTransportType[0].allCurrency, name: '公交', labelShow: this.totalInTransportType[0].allCurrency > 0 },
       { value: this.totalInTransportType[1].allCurrency, name: '轨交', labelShow: this.totalInTransportType[1].allCurrency > 0 },
       { value: this.totalInTransportType[2].allCurrency, name: '铁路', labelShow: this.totalInTransportType[2].allCurrency > 0 },
@@ -312,7 +478,29 @@ export class ExpenseCalculator {
       { value: this.totalInTransportType[9].allCurrency, name: '其他', labelShow: this.totalInTransportType[9].allCurrency > 0 },
     ]);
   }
+  
+  calculateTotalTransportCurrency(): number {
+    const total = this.totalInTransportType.reduce((sum, item) => {
+      return sum + item.allCurrency;
+    }, 0); 
+    return total;
+  }
+
+  //待修改
+  /**
+  getChartDataInUser() {
+    const data = [];
+    for (let i = 0; i < this.users.length; i++) {
+      const userId = this.users[i];
+      const user = getUserById(userId)
+      const expenseItemList = this.totalInUser[i];
+      data.push({ value: expenseItemList.allCurrency, name: user.name, labelShow: expenseItemList.allCurrency > 0 });
+    }
+    return getEChartData(data);
+  }
+   */
 }
+
 
 export class ExpenseItem {
   mainCurrency: number = 0;

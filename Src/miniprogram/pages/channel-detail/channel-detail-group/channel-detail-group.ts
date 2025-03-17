@@ -1,3 +1,7 @@
+/**
+ * 频道-群组页面，展示频道内的群组，根据已加入和未加入分类
+ * 搜索群组功能
+ */
 import { Channel, JoinWay, joinWayText } from "../../../utils/channel/channel";
 import { Group } from "../../../utils/channel/group"
 import { Budget } from "../../../utils/tour/budget";

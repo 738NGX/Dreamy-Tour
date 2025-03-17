@@ -1,3 +1,6 @@
+/**
+ * 公共频道讨论区
+ */
 import { Channel } from "../../utils/channel/channel";
 
 const app = getApp<IAppOption>();

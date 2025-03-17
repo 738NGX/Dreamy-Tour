@@ -1,3 +1,6 @@
+/**
+ * 全局外部header容器
+ */
 Component({
   properties: {
     title: {
