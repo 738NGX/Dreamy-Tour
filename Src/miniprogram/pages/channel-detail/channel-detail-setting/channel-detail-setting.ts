@@ -1,7 +1,5 @@
 import { Channel } from "../../../utils/channel/channel";
-import { Group } from "../../../utils/channel/group";
-import { Comment, Post } from "../../../utils/channel/post";
-import { Tour, TourStatus } from "../../../utils/tour/tour";
+import { TourStatus } from "../../../utils/tour/tour";
 import { User } from "../../../utils/user/user"
 
 const app = getApp<IAppOption>()
@@ -19,16 +17,17 @@ Component({
   lifetimes: {
     ready() {
       this.setData({
-        currentUser: app.getUser(app.globalData.currentUserId),
+        currentUser: app.currentUser(),
       });
     },
   },
   methods: {
+    
     quitChannel() {
       const that = this;
       const currentChannel = that.properties.currentChannel as Channel;
       const currentUser = that.data.currentUser;
-      if(currentUser.havingGroup
+      if (currentUser.havingGroup
         .map(group => app.getGroup(group)?.linkedChannel)
         .includes(currentChannel.id)
       ) {
@@ -45,9 +44,9 @@ Component({
           if (res.confirm) {
             currentUser.joinedChannel = currentUser.joinedChannel.filter(channel => channel !== currentChannel.id);
             currentUser.adminingChannel = currentUser.adminingChannel.filter(channel => channel !== currentChannel.id);
-            for(const tour of app.globalData.currentData.tourList as Tour[]) {
-              if(tour.linkedChannel === currentChannel.id && tour.status != TourStatus.Finished) {
-                tour.users= tour.users.filter(user => user !== currentUser.id);
+            for (const tour of app.getTourListCopy()) {
+              if (tour.linkedChannel === currentChannel.id && tour.status != TourStatus.Finished) {
+                tour.users = tour.users.filter(user => user !== currentUser.id);
               }
               app.updateTour(tour);
             }
@@ -67,21 +66,11 @@ Component({
         content: '确定要解散该频道吗？',
         success(res) {
           if (res.confirm) {
-            const userList = app.globalData.currentData.userList.map(
-              (user: any) => new User(user)
-            ) as User[];
-            const groupList = app.globalData.currentData.groupList.map(
-              (group: any) => new Group(group)
-            ) as Group[];
-            const tourList = app.globalData.currentData.tourList.map(
-              (tour: any) => new Tour(tour)
-            ) as Tour[];
-            const postList = app.globalData.currentData.postList.map(
-              (post: any) => new Post(post)
-            ) as Post[];
-            const commentList = app.globalData.currentData.commentList.map(
-              (comment: any) => new Comment(comment)
-            ) as Comment[];
+            const userList = app.getUserListCopy();
+            const groupList = app.getGroupListCopy();
+            const tourList = app.getTourListCopy();
+            const postList = app.getPostListCopy();
+            const commentList = app.getCommentListCopy();
             userList.forEach(user => {
               user.joinedChannel = user.joinedChannel.filter(
                 channelId => channelId !== currentChannel.id
@@ -104,22 +93,22 @@ Component({
               app.updateUser(user);
             });
             groupList.forEach(group => {
-              if(group.linkedChannel === currentChannel.id) {
+              if (group.linkedChannel === currentChannel.id) {
                 app.removeGroup(group);
               }
             });
             tourList.forEach(tour => {
-              if(tour.linkedChannel === currentChannel.id) {
+              if (tour.linkedChannel === currentChannel.id) {
                 app.removeTour(tour);
               }
             });
             commentList.forEach(comment => {
-              if(postList.some(post => post.id === comment.linkedPost)) {
+              if (postList.some(post => post.id === comment.linkedPost)) {
                 app.removeComment(comment);
               }
             });
             postList.forEach(post => {
-              if(post.linkedChannel === currentChannel.id) {
+              if (post.linkedChannel === currentChannel.id) {
                 app.removePost(post);
               }
             });
@@ -129,17 +118,22 @@ Component({
         }
       });
     },
-    transferChannel() {
+    transferChannel(e: any) {
       const that = this;
+      const newOwnerId = e.currentTarget.dataset.index;
       const currentChannel = that.properties.currentChannel as Channel;
       wx.showModal({
         title: '警告',
-        content: '确定要转让频道给该成员吗？',
+        content: '确定要转让频道主身份给该成员吗？',
         success(res) {
           if (res.confirm) {
-            wx.navigateTo({
-              url: `/pages/channel-detail/channel-detail-transfer/channel-detail-transfer?channelId=${currentChannel.id}`,
-            });
+            const currentOwner = that.data.currentUser;
+            const newOwner = app.getUser(newOwnerId) as User;
+            currentOwner.havingChannel = currentOwner.havingChannel.filter(channel => channel !== currentChannel.id);
+            newOwner.adminingChannel = newOwner.adminingChannel.filter(channel => channel !== currentChannel.id);
+            newOwner.havingChannel.push(currentChannel.id);
+            app.updateUser(currentOwner);
+            app.updateUser(newOwner);
           }
         }
       });

@@ -136,7 +136,7 @@ Component({
             copy => copy.map(transportation => {
               return new Transportation(transportation).getDurationString();
             })),
-          currentUserList: app.globalData.currentData.userList.map((user: any) => {
+          currentUserList: app.getUserListCopy().map(user => {
             if (currentTour.users.includes(user.id)) return new User(user);
             else return null;
           }).filter((user: any) => user !== null)

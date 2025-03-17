@@ -59,19 +59,14 @@ Component({
       const { groupId } = options;
       this.setData({
         groupId: parseInt(groupId),
-        currentUser: getUser(
-          app.globalData.currentData.userList,
-          app.globalData.currentUserId
-        )
+        currentUser: app.currentUser(),
       });
       this.getAuthority();
     },
     onShow() {
-      const currentGroup = new Group(app.globalData.currentData.groupList.find(
-        (group: Group) => group.id == this.data.groupId
-      ));
-      const linkedTour = new Tour(app.globalData.currentData.tourList.find(
-        (tour: Tour) => tour.linkedGroup == currentGroup.id
+      const currentGroup = app.getGroup(this.data.groupId) as Group;
+      const linkedTour = new Tour(app.getTourListCopy().find(
+        (tour) => tour.linkedGroup == currentGroup.id
       ));
       this.setData({
         currentGroup: currentGroup,
@@ -94,9 +89,7 @@ Component({
       });
     },
     getMembers() {
-      const userList = app.globalData.currentData.userList.map(
-        (user: any) => new User(user)
-      );
+      const userList = app.getUserListCopy();
       const memberList = userList.filter(
         (user: User) => user.joinedGroup.includes(this.data.groupId)
       );
@@ -135,7 +128,7 @@ Component({
       }
       const newMemberId = parseInt(this.data.newMemberId, 10);
       console.log(newMemberId);
-      const user = getUser(app.globalData.currentData.userList, newMemberId);
+      const user = app.getUser(newMemberId);
       if (!user) {
         wx.showToast({
           title: '用户不存在',
@@ -160,7 +153,7 @@ Component({
     },
     approveUser(e: any) {
       const userId = parseInt(e.currentTarget.dataset.index);
-      const user = getUser(app.globalData.currentData.userList, userId);
+      const user = app.getUser(userId);
       if (!user) { return; }
       user.joinedGroup.push(this.data.groupId);
       app.updateUser(user);
@@ -187,7 +180,7 @@ Component({
     handleUserAdminChange(e: any) {
       const userId = e.currentTarget.dataset.index;
       const currentGroup = this.data.currentGroup;
-      const user = getUser(app.globalData.currentData.userList, userId);
+      const user = app.getUser(userId);
       if (!user) { return; }
       const userGroup = getUserGroupNameInGroup(user, currentGroup.id);
       if (userGroup === "群主") { return; }
@@ -210,7 +203,7 @@ Component({
           if (res.confirm) {
             const userId = e.currentTarget.dataset.index;
             const currentGroup = that.data.currentGroup;
-            const user = getUser(app.globalData.currentData.userList, userId);
+            const user = app.getUser(userId);
             if (!user) { return; }
             user.joinedGroup = user.joinedGroup.filter(
               (groupId: number) => groupId !== currentGroup.id
@@ -236,8 +229,8 @@ Component({
         success(res) {
           if (res.confirm) {
             const userId = e.currentTarget.dataset.index;
-            const newOwner = getUser(app.globalData.currentData.userList, userId);
-            const currentOwner = getUser(app.globalData.currentData.userList, that.data.currentUser.id);
+            const newOwner = app.getUser(userId);
+            const currentOwner = app.getUser(that.data.currentUser.id);
             if (!newOwner || !currentOwner) { return; }
             currentOwner.havingGroup = currentOwner.havingGroup.filter(
               (groupId: number) => groupId !== that.data.groupId
@@ -404,9 +397,7 @@ Component({
         content: '确定要解散该群组吗？',
         success(res) {
           if (res.confirm) {
-            const userList = app.globalData.currentData.userList.map(
-              (user: any) => new User(user)
-            );
+            const userList = app.getUserListCopy();
             userList.forEach((user: User) => {
               user.joinedGroup = user.joinedGroup.filter(
                 (groupId: number) => groupId !== that.data.groupId
@@ -434,9 +425,7 @@ Component({
         content: '确定要结束此次行程吗？行程将会保存到频道足迹,同时解散该群组。',
         success(res) {
           if (res.confirm) {
-            const userList = app.globalData.currentData.userList.map(
-              (user: any) => new User(user)
-            );
+            const userList = app.getUserListCopy();
             userList.forEach((user: User) => {
               user.joinedGroup = user.joinedGroup.filter(
                 (groupId: number) => groupId !== that.data.groupId

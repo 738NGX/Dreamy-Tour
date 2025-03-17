@@ -1,7 +1,3 @@
-import { User } from '../../../utils/user/user';
-
-const app = getApp<IAppOption>();
-
 Component({
   properties: {
 
@@ -11,14 +7,11 @@ Component({
   },
   lifetimes: {
     attached() {
-      const channelList = app.globalData.currentData.channelList
-        .filter((channel: any) => new User(app.globalData.currentData.userList
-          .find((user: any) => user.id == app.globalData.currentUserId)).joinedChannel
+      const channelList = app.getChannelListCopy().filter(
+        channel => app.currentUser().joinedChannel
           .includes(channel.id) && channel.id != 1
-        );
-      this.setData({
-        channelList,
-      });
+      );
+      this.setData({ channelList });
     },
     detached() {
 

@@ -1,16 +1,13 @@
 /**
  * 公共频道下的群组
  */
-import { Channel } from "../../utils/channel/channel";
-
-const app = getApp<IAppOption>();
 
 Component({
   properties: {
 
   },
   data: {
-    currentChannel: new Channel(app.globalData.currentData.channelList[0])
+    currentChannel: app.getChannel(0),
   },
   methods: {
     onShow() {

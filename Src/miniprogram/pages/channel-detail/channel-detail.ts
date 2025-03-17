@@ -3,7 +3,7 @@
  * 根据用户群权限加载管理页面
  */
 import { Channel } from "../../utils/channel/channel";
-import { getUser, getUserGroupNameInChannel } from "../../utils/util";
+import { getUserGroupNameInChannel } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -26,13 +26,10 @@ Component({
     onLoad(options: any) {
       const { channelId } = options;
       this.setData({
-        currentChannel: new Channel(app.globalData.currentData.channelList.find((channel: Channel) => channel.id === parseInt(channelId))),
+        currentChannel: app.getChannel(parseInt(channelId)),
       });
       const userGroup = getUserGroupNameInChannel(
-        getUser(
-          app.globalData.currentData.userList,
-          app.globalData.currentUserId
-        )!,
+        app.currentUser(),
         parseInt(channelId)
       )
       this.setData({

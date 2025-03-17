@@ -3,7 +3,6 @@
  */
 import { Channel } from "../../../utils/channel/channel";
 import { Post } from "../../../utils/channel/post";
-import { User } from "../../../utils/user/user";
 import { getNewId } from "../../../utils/util";
 
 const app = getApp<IAppOption>();
@@ -49,18 +48,18 @@ Component({
     },
     sortPosts(searchValue: string = '') {
       const currentChannel = this.properties.currentChannel;
-      const sorted = app.globalData.currentData.postList
-        .map((post: any) => {
+      const sorted = app.getPostListCopy()
+        .map((post) => {
           return {
             ...post,
-            username: app.globalData.currentData.userList.find((user: User) => user.id == post.user)?.name ?? '未知用户',
+            username: app.getUser(post.user)?.name ?? '未知用户',
           }
         })
-        .filter((post: any) =>
+        .filter((post) =>
           post.linkedChannel == currentChannel.id
           && post.title.includes(searchValue)
         )
-        .sort((a: any, b: any) =>
+        .sort((a, b) =>
           (b.isSticky ? 1 : 0) - (a.isSticky ? 1 : 0) || b.time - a.time
         );
 
@@ -148,7 +147,7 @@ Component({
           isSticky: false,
           photos: originFiles.map((file: any) => ({ value: file.url, ariaLabel: file.name })),
         });
-        app.globalData.currentData.postList.push(newPost);
+        app.addPost(newPost);
         this.setData({
           inputVisible: false,
           inputTitle: '',

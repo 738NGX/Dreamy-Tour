@@ -12,6 +12,13 @@ declare global {
       currentUserId: number;
       currentData: any;
     },
+    currentUser(): User;
+    getUserListCopy(): User[];
+    getTourListCopy(): Tour[];
+    getGroupListCopy(): Group[];
+    getChannelListCopy(): Channel[];
+    getPostListCopy(): Post[];
+    getCommentListCopy(): Comment[];
     getData(dataId: number, dataList: any[]): any;
     addData(data: any, dataList: any[]): any[];
     updateData(data: any, dataList: any[]): any[];
@@ -34,11 +41,11 @@ declare global {
     updateChannel(channel: Channel): void;
     updatePost(post: Post): void;
     updateComment(comment: Comment): void;
-    removeUser(user: User): void;
-    removeTour(tour: Tour): void;
-    removeGroup(group: Group): void;
-    removeChannel(channel: Channel): void;
-    removePost(post: Post): void;
-    removeComment(comment: Comment): void;
+    removeUser(user: User | number): void;
+    removeTour(tour: Tour | number): void;
+    removeGroup(group: Group | number): void;
+    removeChannel(channel: Channel | number): void;
+    removePost(post: Post | number): void;
+    removeComment(comment: Comment | number): void;
   }
 }

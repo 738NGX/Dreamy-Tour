@@ -23,7 +23,7 @@ Component({
   methods: {
     onLoad(options: any) {
       const { tourId } = options;
-      const currentTour = new Tour(app.globalData.currentData.tourList.find((tour: any) => tour.id == tourId));
+      const currentTour = app.getTour(parseInt(tourId)) as Tour;
       const dateRange = this.getDateRange(currentTour!.startDate, currentTour!.endDate);
       const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
       this.setData({ currentTour, dateRange, copyOptions });
