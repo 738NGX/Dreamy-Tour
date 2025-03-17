@@ -1,3 +1,4 @@
+import { Tour } from "./tour/tour";
 import { User } from "./user/user";
 
 export const MILLISECONDS = {
@@ -102,6 +103,12 @@ export function getChartData(data: any) {
   return JSON.parse(JSON.stringify(res));
 }
 
+//返回类型为echarts.opts.series.data的JSON，便于在需要定制series内容时插入数据
+export function getEChartData(data: any) {
+  let res = Array.isArray(data) ? data : [data];
+  return JSON.parse(JSON.stringify(res));
+}
+
 export function getUserGroupName(user: User): string {
   if (user.isAdmin) {
     return '系统管理员';
@@ -188,8 +195,13 @@ export function isSameDay(date1: number, date2: number): boolean {
 }
 
 export function getUser(userList: any[], id: number): User | undefined {
-  const result = new User(userList.find(user => user.id === id));
-  return result.id === -1 ? undefined : result;
+  const result = userList.find(user => user.id === id);
+  return !result ? undefined : new User(result);
+}
+
+export function getTour(tourList: any[], id: number): Tour | undefined {
+  const result = tourList.find(tour => tour.id === id);
+  return !result ? undefined : new Tour(result);
 }
 
 export function getNewId(arr: any[]): number {

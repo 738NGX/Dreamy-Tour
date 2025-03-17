@@ -1,3 +1,6 @@
+/** 
+ * 频道讨论区，用于发布帖子并进行交流
+ */
 import { Channel } from "../../../utils/channel/channel";
 import { Post } from "../../../utils/channel/post";
 import { User } from "../../../utils/user/user";

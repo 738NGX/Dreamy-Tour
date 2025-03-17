@@ -17,6 +17,8 @@ Component({
 
     copyOptions: [] as any[],
     currentCopyIndex: 0,
+
+    currentChildPage: 0,
   },
   methods: {
     onLoad(options: any) {
@@ -25,14 +27,6 @@ Component({
       const dateRange = this.getDateRange(currentTour!.startDate, currentTour!.endDate);
       const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
       this.setData({ currentTour, dateRange, copyOptions });
-      app.watch("currentData.tourList", () => {
-        const tourList = app.globalData.currentData.tourList;
-        console.log("tourList", tourList);
-        const currentTour = new Tour(tourList.find((tour: any) => tour.id == tourId));
-        const dateRange = this.getDateRange(currentTour!.startDate, currentTour!.endDate);
-        const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
-        this.setData({ currentTour, dateRange, copyOptions });
-      });
     },
     getDateRange(startTimestamp: number, endTimestamp: number): number[][] {
       const startDate = new Date(startTimestamp);
@@ -63,5 +57,19 @@ Component({
       const { value } = event.detail;
       this.setData({ currentCopyIndex: value });
     },
+
+    handleChildPageChange(){
+      const currentChildPage = this.data.currentChildPage;
+      if(currentChildPage === 0){
+        this.setData({
+          currentChildPage: 1,
+        })
+      }
+      else { 
+        this.setData({
+          currentChildPage: 0,
+        })
+      }
+    }
   }
 })

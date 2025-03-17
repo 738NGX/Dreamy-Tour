@@ -11,6 +11,12 @@
     "t-swiper": "tdesign-miniprogram/swiper/swiper",
     "t-input": "tdesign-miniprogram/input/input",
     "t-button": "tdesign-miniprogram/button/button",
-    "t-avatar": "tdesign-miniprogram/avatar/avatar"
+    "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
+    "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",
+    "t-radio": "tdesign-miniprogram/radio/radio",
+    "t-textarea": "tdesign-miniprogram/textarea/textarea",
+    "t-popup-headered": "/components/t-popup-headered/t-popup-headered",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar",
+    "t-upload": "tdesign-miniprogram/upload/upload"
   }
 }

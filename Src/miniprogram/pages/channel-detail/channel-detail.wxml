@@ -6,5 +6,5 @@
   <channel-detail-posts id="posts" currentChannel="{{currentChannel}}" />
 </block>
 <block wx:if="{{childPage == 2}}">
-  <channel-detail-group currentChannel="{{currentChannel}}" />
+  <channel-detail-group id="groups" currentChannel="{{currentChannel}}" />
 </block>

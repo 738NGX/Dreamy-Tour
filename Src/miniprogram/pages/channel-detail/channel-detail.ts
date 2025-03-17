@@ -1,3 +1,7 @@
+/**
+ * （单个）频道主页，下分为频道足迹、讨论区、频道群组
+ * 根据用户群权限加载管理页面
+ */
 import { Channel } from "../../utils/channel/channel";
 import { getUser, getUserGroupNameInChannel } from "../../utils/util";
 
@@ -43,13 +47,19 @@ Component({
             { icon: 'map-location', label: '足迹', value: 0 },
             { icon: 'shutter', label: '讨论', value: 1 },
             { icon: 'usergroup', label: '群组', value: 2 },
+            { icon: 'setting-1', label: '选项', value: 3 },
           ]
       });
     },
     onShow() {
       const postsComponent = this.selectComponent('#posts');
-      if (postsComponent && typeof postsComponent.sortPosts === 'function') {
+      if (postsComponent) {
         postsComponent.sortPosts();
+      }
+      const groupsComponent = this.selectComponent('#groups');
+      if (groupsComponent) {
+        groupsComponent.classifyGroups();
+        groupsComponent.getTourTemplates();
       }
     },
     onChildPageChange(e: any) {

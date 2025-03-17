@@ -1,3 +1,10 @@
+//===============================================
+/**
+ * @@@@@@@@@@@@@@ :用以区分模块子功能  
+ * 行程查看模块
+ * 继承自行程编辑模块，删除了编辑功能，在足迹中进行信息展示
+ */
+//===============================================
 import {
   CDN_PATH,
   PLUGIN_KEY
@@ -26,13 +33,6 @@ Component({
     tour: {
       type: Object,
       value: {},
-      observer(newVal: any) {
-        if (newVal) {
-          this.setData({
-            currentTour: new Tour(newVal)
-          });
-        }
-      }
     },
     dateFilter: {
       type: Object,
@@ -155,10 +155,17 @@ Component({
     },
   },
   methods: {
+    getLatestTour() {
+      // 使用最新数据创建实例
+      if (!this.data.currentTour) return;
+      const latestTour = this.properties.tour || this.data.currentTour;
+      const currentTour = new Tour(latestTour);
+      return currentTour;
+    },
     onMapVisibleChange(e: any) {
       if (!this.data.currentTour) return;
 
-      const currentTour = this.data.currentTour;
+      const currentTour = this.getLatestTour();
       if (!currentTour) return;
 
       const id = e.currentTarget.dataset.index;
@@ -185,7 +192,7 @@ Component({
     onPhotoVisibleChange(e: any) {
       if (!this.data.currentTour) return;
 
-      const currentTour = this.data.currentTour;
+      const currentTour = this.getLatestTour();
       if (!currentTour) return;
 
       const id = e.currentTarget.dataset.index;
@@ -204,7 +211,7 @@ Component({
       if (!this.data.currentTour) return;
       const id = e.currentTarget.dataset.index === undefined ? -1 : e.currentTarget.dataset.index;
 
-      const currentTour = this.data.currentTour;
+      const currentTour = this.getLatestTour();
       if (!currentTour) return;
 
       this.setData({
@@ -221,7 +228,7 @@ Component({
     onNoteVisibleChange(e: any) {
       if (!this.data.currentTour) return;
 
-      const currentTour = this.data.currentTour;
+      const currentTour = this.getLatestTour();
       if (!currentTour) return;
 
       const id = e.currentTarget.dataset.index;
@@ -258,7 +265,7 @@ Component({
       }
       if (!this.data.currentTour || this.data.editingTransportationId < 0) return;
 
-      const currentTour = this.data.currentTour;
+      const currentTour = this.getLatestTour();
       if (!currentTour) return;
 
       const trans_id = this.data.editingTransportationId;
@@ -271,7 +278,7 @@ Component({
     },
     filterNodeByDate(dateFilter: any) {
       if (!this.data.currentTour) return;
-      const currentTour = this.data.currentTour;
+      const currentTour = this.getLatestTour();
       if (!currentTour) return;
 
       if (dateFilter.value[0] === 0) {

@@ -1,3 +1,6 @@
+/**
+ * 弹窗header
+ */
 Component({
     properties: {
         visible: {

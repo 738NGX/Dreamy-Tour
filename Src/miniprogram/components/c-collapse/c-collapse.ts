@@ -1,3 +1,6 @@
+/**
+ * 折叠栏组件
+ */
 Component({
   properties: {
     header: {

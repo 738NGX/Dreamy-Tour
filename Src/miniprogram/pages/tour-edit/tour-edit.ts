@@ -18,6 +18,8 @@ Component({
 
     copyOptions: [] as any[],
     currentCopyIndex: 0,
+
+    currentChildPage: 0,
   },
   methods: {
     onLoad(options: any) {
@@ -125,6 +127,20 @@ Component({
       currentTour.budgets[index].currency = nextCurrency;
       this.setData({ currentTour });
       app.updateTour(currentTour);
+    },
+
+    handleChildPageChange(){
+      const currentChildPage = this.data.currentChildPage;
+      if(currentChildPage === 0){
+        this.setData({
+          currentChildPage: 1,
+        })
+      }
+      else { 
+        this.setData({
+          currentChildPage: 0,
+        })
+      }
     }
   }
 })

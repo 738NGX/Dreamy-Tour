@@ -149,17 +149,17 @@ export class Tour {
         endOffset: transArr[index + 1].startOffset,
         timeOffset: this.timeOffset
       });
-      
+
       locArr.splice(index + 1, 0, newLoc);
       transArr.splice(index + 1, 0, newTrans);
-      
+
       for (let i = index + 1; i < locArr.length; i++) {
         locArr[i].index = i;
       }
       for (let i = index + 1; i < transArr.length; i++) {
         transArr[i].index = i;
       }
-      
+
       newLoc.setPosition(
         locArr[index].longitude,
         locArr[index].latitude
@@ -207,6 +207,19 @@ export class Tour {
     this.nodeCopyNames.splice(index, 1);
     this.locations.splice(index, 1);
     this.transportations.splice(index, 1);
+  }
+
+  deleteUser(id: number) {
+    const index = this.users.indexOf(id);
+    if (index >= 0) {
+      this.users.splice(index, 1);
+    }
+    for (const locArr of this.locations) {
+      for (const loc of locArr) { loc.deleteUser(id); }
+    }
+    for (const transArr of this.transportations) {
+      for (const trans of transArr) { trans.deleteUser(id); }
+    }
   }
 
   toString(): string {

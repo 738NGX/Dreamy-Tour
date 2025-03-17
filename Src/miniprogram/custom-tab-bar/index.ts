@@ -1,3 +1,6 @@
+/**
+ * 小程序全局底部tabbar
+ */
 Component({
     //  组件的属性列表
     properties: {},
@@ -20,11 +23,11 @@ Component({
                 icon: 'shutter',
                 label: '讨论'
             },
-            {
-                value: '/pages/notice/notice',
-                icon: 'notification',
-                label: '消息'
-            },
+            //{
+            //    value: '/pages/notice/notice',
+            //    icon: 'notification',
+            //    label: '消息'
+            //},
             {
                 value: '/pages/user/user',
                 icon: 'user-1',

@@ -1,3 +1,20 @@
+//===============================================
+/**
+ * @@@@@@@@@@@@@@ :用以区分模块子功能  
+ * 行程编辑模块
+ * 群组内对行程进行编辑
+ * 功能列表：
+ * 1.位置节点（时间、时区）
+ * 2.交通节点（持续时间、交通编辑）
+ * 3.位置节点（地图坐标修改）
+ * 4.位置节点照片编辑
+ * 5.位置节点消费编辑
+ * 6.交通节点消费编辑
+ * 7.日期筛选
+ * 8.行程版本切换
+ * 9.位置节点（新增、插入与删除）
+ */
+//===============================================
 import {
   CDN_PATH,
   PLUGIN_KEY
@@ -24,7 +41,8 @@ const app = getApp<IAppOption>();
 
 Component({
   properties: {
-    tour: {
+    //接收行程对象，日期信息和版本信息，初始化行程并处理版本切换和筛选逻辑
+    tour: {                 
       type: Object,
       value: {},
       observer(newVal: any) {
@@ -33,7 +51,7 @@ Component({
           this.filterNodeByDate(this.properties.dateFilter);
         }
       }
-    },
+    }, 
     dateFilter: {
       type: Object,
       value: {},
@@ -52,21 +70,28 @@ Component({
     }
   },
   data: {
+    //静态数据
     transiconList: [
       'bus', 'metro', 'train', 'flight', 'walk', 'cycle', 'car', 'taxi', 'ship', 'other'
-    ],
+    ],  
     transportList: transportList,
     expenseList: expenseList,
     currencyList: currencyList,
     budgetList: budgetList,
     timezoneList: timezoneList,
+
+    //关联用户
     currentUserList: [] as any[],
+    //起止日期选择限制
     minDate: new Date(new Date().getTime() - 365 * MILLISECONDS.DAY).getTime(),
     maxDate: new Date(new Date().getTime() + 365 * MILLISECONDS.DAY).getTime(),
+    //日期、时区数据
     currentStartDateStr: '',
     currentEndDateStr: '',
     currentTimezoneStr: '',
+    //起止时间
     currentDateRange: null as number[] | null,
+    //节点时间数据结构，一级表示版本索引，二级表示行程内各节点
     currentStartDateStrList: null as string[][] | null,
     currentEndDateStrList: null as string[][] | null,
     currentTimezoneStrList: null as string[][] | null,
@@ -84,22 +109,23 @@ Component({
     priceError: false,
 
     // 数据缓存
-    currentTour: null as Tour | null,
-    selectingDatetime: new Date().getTime(),
-    selectingTimeOffset: -480,
-    selectingDuration: '',
-    editingNote: '',
-    editingLocationId: -1,
-    editingTransportationId: -1,
-    editingExpenseId: -1,
-    editingLocation: null as Location | null,
-    editingTransExpense: null as TransportExpense | null,
-    datetimeEditMode: DatetimeEditMode.None,
-    markers: [] as any[],
-    mapLocation: [] as number[],
-
-    displayingLocationId: [] as number[],
-    displayingTransportationId: [] as number[],
+    currentTour: null as Tour | null,     // 当前行程对象，类型为 Tour 或 null，表示当前选中的行程信息
+    selectingDatetime: new Date().getTime(),      // 当前选中的日期时间戳（毫秒），默认值为当前时间，用于选择行程或费用的时间点
+    selectingTimeOffset: -480,           // 当前选中的时区/时间偏移量，默认值为 -480（东八区）
+    selectingDuration: '',               // 当前选中的持续时间
+    editingNote: '',                     // 当前正在编辑的备注内容（字符串），用于记录行程或费用的附加说明
+    editingLocationId: -1,               // 当前正在编辑的位置节点ID（数字）
+    editingTransportationId: -1,         // 当前正在编辑的交通节点ID（数字）
+    editingExpenseId: -1,                // 当前正在编辑的费用ID（数字）
+    editingLocation: null as Location | null,     // 当前正在编辑的位置节点对象
+    editingTransExpense: null as TransportExpense | null,  // 当前正在编辑的交通费用对象
+    datetimeEditMode: DatetimeEditMode.None,      // 日期时间编辑模式，区分起止时间
+    markers: [] as any[],                 // 地图标记数组，存储标记点信息
+    mapLocation: [] as number[],          // 地图中心点位置坐标
+    
+    //日期筛选
+    displayingLocationId: [] as number[], // 当前显示的地点ID数组，类型为 number[]，用于存储需要显示的多个位置节点ID
+    displayingTransportationId: [] as number[],  // 当前显示的交通工具ID数组，类型为 number[]，用于存储需要显示的多个交通节点ID
 
     uploadedPhotos: [] as any[],
   },
@@ -108,6 +134,7 @@ Component({
 
     },
     ready() {
+      //采用传入的tour初始化行程信息
       this.setData({
         currentTour: new Tour(this.properties.tour),
       });
@@ -127,6 +154,10 @@ Component({
     },
   },
   methods: {
+    /**
+     * 初始化行程信息与关联用户到缓存
+     * @param value 
+     */
     init(value: any) {
       const currentTour = new Tour(value);
       this.setData({
@@ -162,9 +193,16 @@ Component({
         }).filter((user: any) => user !== null)
       });
     },
+    /**
+     * 对接tour-edit页面的触发器，更新当前行程信息
+      */ 
     onCurrentTourChange(value: Tour) {
       this.triggerEvent('currentTourChange', { value: value });
     },
+
+    //@@@@@@@@@@@@@
+    //位置节点（时间、时区）
+    //@@@@@@@@@@@@@
     /**
      * 位置节点标题修改
      */
@@ -323,7 +361,7 @@ Component({
       this.setData({ selectingTimeOffset: Number(e.detail.value[0]) });
     },
     /**
-     * 更换时区后切换datetime
+     * 更换时区后更新datetime
      */
     onTimezonePickerChange() {
       if (
@@ -368,6 +406,10 @@ Component({
       app.updateTour(currentTour);
       this.onCurrentTourChange(currentTour);
     },
+
+    //@@@@@@@@@@@@@
+    //交通节点（持续时间、交通编辑）
+    //@@@@@@@@@@@@@
     /**
      * 交通节点持续时间修改
      */
@@ -433,8 +475,12 @@ Component({
     onDurationCancel() {
       this.setData({ durationVisible: false, editingTransportationId: -1 });
     },
+
+    //@@@@@@@@@@@@@
+    //位置节点（地图坐标修改）
+    //@@@@@@@@@@@@@
     /**
-     * 地图位置修改
+     * 显示地图
      */
     onMapVisibleChange(e: any) {
       if (!this.data.currentTour) return;
@@ -463,6 +509,10 @@ Component({
         }]
       });
     },
+    /**
+     * 点击地图、更改位置
+     * @param e 
+     */
     onTapMap(e: any) {
       const latitude = e.detail.latitude.toFixed(6);
       const longitude = e.detail.longitude.toFixed(6);
@@ -478,6 +528,10 @@ Component({
         }]
       });
     },
+    /**
+     * 更新节点位置信息
+     * @returns 
+     */
     changeLocation() {
       if (!this.data.currentTour) return;
 
@@ -493,6 +547,15 @@ Component({
       this.onCurrentTourChange(currentTour);
       this.setData({ currentTour: currentTour, mapVisible: false });
     },
+
+    //@@@@@@@@@@@@@
+    //位置节点照片编辑
+    //@@@@@@@@@@@@@
+    /**
+     * 照片编辑弹窗
+     * @param e 
+     * @returns 
+     */
     onPhotoVisibleChange(e: any) {
       if (!this.data.currentTour) return;
 
@@ -551,6 +614,14 @@ Component({
         photoUploadVisible: false,
       });
     },
+    removePhoto(e: any) {
+      if (!this.data.currentTour || !this.data.editingLocation) return;
+      if (e.currentTarget.dataset.index === undefined) return;
+      const id = e.currentTarget.dataset.index;
+      const editingLocation = this.data.editingLocation;
+      editingLocation.photos.splice(id, 1);
+      this.setData({ editingLocation: editingLocation });
+    },
     onPhotoConfirm() {
       const { currentTour, currentTourCopyIndex, editingLocationId, editingLocation } = this.data;
       if (!currentTour || !editingLocation) return;
@@ -564,8 +635,11 @@ Component({
         editingLocation: null
       });
     },
+    //@@@@@@@@@@@@@
+    //位置节点消费编辑
+    //@@@@@@@@@@@@@
     /**
-     * 消费编辑
+     * 添加消费
      */
     addExpense() {
       if (!this.data.currentTour || !this.data.editingLocation) return;
@@ -577,6 +651,9 @@ Component({
       editingLocation.addExpense(currentTour.mainCurrency);
       this.setData({ editingLocation: editingLocation });
     },
+    /**
+     * 删除消费
+     */
     removeExpense(e: any) {
       if (!this.data.currentTour || !this.data.editingLocation) return;
       if (e.currentTarget.dataset.index === undefined) return;
@@ -585,6 +662,9 @@ Component({
       editingLocation.removeExpense(id);
       this.setData({ editingLocation: editingLocation });
     },
+    /**
+     * 消费编辑弹窗
+     */
     onExpenseVisibleChange(e: any) {
       if (!this.data.currentTour) return;
       const id = e.currentTarget.dataset.index === undefined ? -1 : e.currentTarget.dataset.index;
@@ -599,6 +679,10 @@ Component({
         expenseVisible: !this.data.expenseVisible
       });
     },
+    /**
+     * 主辅货币切换金额显示更新
+     * @returns 
+     */
     changeExpense() {
       if (!this.data.currentTour || !this.data.editingLocation) return;
 
@@ -613,10 +697,18 @@ Component({
       this.onCurrentTourChange(currentTour);
       this.setData({ currentTour: currentTour, expenseVisible: false });
     },
+    /**
+     * 切换消费
+     */
     onExpenseIdChange(e: any) {
       const id = e.detail.value[0] === undefined ? -1 : e.detail.value[0];
       this.setData({ editingExpenseId: id });
     },
+    /**
+     * 消费标题更改
+     * @param e 
+     * @returns 
+     */
     onExpenseTitleInput(e: any) {
       if (!this.data.editingLocation) return;
       this.setData({
@@ -628,6 +720,9 @@ Component({
         })
       });
     },
+    /**
+     * 消费金额更改
+     */
     onExpensePriceInput(e: any) {
       if (!this.data.editingLocation) return;
       const { priceError } = this.data;
@@ -648,6 +743,10 @@ Component({
         });
       }
     },
+    /**
+     * 更换主辅货币
+     * @returns 
+     */
     exchangeExpenseCurrency() {
       if (!this.data.editingLocation) return;
       if (!this.data.currentTour || this.data.editingLocationId < 0) return;
@@ -662,6 +761,11 @@ Component({
         })
       });
     },
+    /**
+     * 消费类型变更
+     * @param e 
+     * @returns 
+     */
     handleExpenseTypeChange(e: any) {
       if (!this.data.editingLocation) return;
       this.setData({
@@ -673,6 +777,10 @@ Component({
         })
       });
     },
+    /**
+     * 消费金额显示类型（总价/人均）
+     * @returns 
+     */
     exchangeExpenseAmountType() {
       if (!this.data.editingLocation) return;
       this.setData({
@@ -684,6 +792,11 @@ Component({
         })
       });
     },
+    /**
+     * 消费关联用户更改
+     * @param e 
+     * @returns 
+     */
     handleExpenseUserChange(e: any) {
       if (!this.data.editingLocation) return;
       const user = e.detail.value;
@@ -696,6 +809,11 @@ Component({
         })
       });
     },
+    /**
+     * 消费关联预算表更改
+     * @param e 
+     * @returns 
+     */
     handleExpenseBudgetChange(e: any) {
       if (!this.data.editingLocation) return;
       const budget = e.detail.value;
@@ -708,6 +826,11 @@ Component({
         })
       });
     },
+    /**
+     * 消费备注更改
+     * @param e 
+     * @returns 
+     */
     onExpenseNoteInput(e: any) {
       if (!this.data.editingLocation) return;
       this.setData({
@@ -719,6 +842,11 @@ Component({
         })
       });
     },
+    /**
+     * 消费备注弹窗
+     * @param e 
+     * @returns 
+     */
     onNoteVisibleChange(e: any) {
       if (!this.data.currentTour) return;
 
@@ -741,6 +869,10 @@ Component({
         noteVisible: !this.data.noteVisible
       });
     },
+    /**
+     * 填写备注
+     * @param e 
+     */
     onNoteInput(e: any) {
       this.setData({ editingNote: e.detail.value });
     },
@@ -760,8 +892,12 @@ Component({
       app.updateTour(currentTour);
       this.onCurrentTourChange(currentTour);
     },
+
+    //@@@@@@@@@@@@@
+    //交通节点消费编辑
+    //@@@@@@@@@@@@@
     /**
-     * 编辑交通花费
+     * 添加消费
      */
     addTransportExpense(e: any) {
       if (e.currentTarget.dataset.index != undefined) {
@@ -780,6 +916,11 @@ Component({
       app.updateTour(currentTour);
       this.onCurrentTourChange(currentTour);
     },
+    /**
+     * 删除消费
+     * @param e 
+     * @returns 
+     */
     removeTransportExpense(e: any) {
       if (e.currentTarget.dataset.index != undefined) {
         this.setData({
@@ -801,6 +942,11 @@ Component({
       app.updateTour(currentTour);
       this.onCurrentTourChange(currentTour);
     },
+    /**
+     * 消费编辑弹窗
+     * @param e 
+     * @returns 
+     */
     onTransExpenseVisibleChange(e: any) {
       if (e.currentTarget.dataset.index != undefined) {
         this.setData({
@@ -830,12 +976,18 @@ Component({
         transExpenseVisible: !this.data.transExpenseVisible
       });
     },
+    /**
+     * 消费标题更改
+     */
     onTransExpenseTitleInput(e: any) {
       if (!this.data.editingTransExpense) return;
       this.setData({
         'editingTransExpense.title': e.detail.value
       });
     },
+    /**
+     * 消费金额更改
+     */
     onTransExpensePriceInput(e: any) {
       if (!this.data.editingTransExpense) return;
       const { priceError } = this.data;
@@ -851,18 +1003,33 @@ Component({
         });
       }
     },
+    /**
+     * 消费备注更改
+     * @param e 
+     * @returns 
+     */
     onTransExpenseNoteInput(e: any) {
       if (!this.data.editingTransExpense) return;
       this.setData({
         'editingTransExpense.note': e.detail.value
       });
     },
+    /**
+     * 消费类型更改
+     * @param e 
+     * @returns 
+     */
     handleTransExpenseTypeChange(e: any) {
       if (!this.data.editingTransExpense) return;
       this.setData({
         'editingTransExpense.transportType': e.detail.value
       });
     },
+    /**
+     * 消费关联用户更改
+     * @param e 
+     * @returns 
+     */
     handleTransExpenseUserChange(e: any) {
       if (!this.data.editingTransExpense) return;
       const user = this.data.editingTransExpense.user;
@@ -876,6 +1043,11 @@ Component({
         'editingTransExpense.user': user
       });
     },
+    /**
+     * 消费关联预算表更改
+     * @param e 
+     * @returns 
+     */
     handleTransExpenseBudgetChange(e: any) {
       if (!this.data.editingTransExpense) return;
       const budget = this.data.editingTransExpense.budget;
@@ -889,6 +1061,10 @@ Component({
         'editingTransExpense.budget': budget
       });
     },
+    /**
+     * 消费主辅货币切换
+     * @returns 
+     */
     exchangeTransExpenseCurrency() {
       if (!this.data.editingTransExpense) return;
       if (!this.data.currentTour || this.data.editingTransportationId < 0) return;
@@ -899,6 +1075,10 @@ Component({
           mainCurrency ? subCurrency : mainCurrency
       });
     },
+    /**
+     * 消费金额显示切换（总体/平均）
+     * @returns 
+     */
     exchangeTransExpenseAmountType() {
       if (!this.data.editingTransExpense) return;
       this.setData({
@@ -906,6 +1086,9 @@ Component({
           AmountType.Average ? AmountType.Total : AmountType.Average
       });
     },
+    /**
+     * 切换消费
+     */ 
     changeTransExpense() {
       if (!this.data.editingTransExpense) return;
       if (!this.data.currentTour || this.data.editingTransportationId < 0) return;
@@ -928,6 +1111,10 @@ Component({
         editingTransExpense: null
       });
     },
+
+    //@@@@@@@@@@@@@
+    //日期筛选
+    //@@@@@@@@@@@@@
     /**
      * 日期筛选
      */
@@ -955,10 +1142,21 @@ Component({
         this.setData({ displayingLocationId, displayingTransportationId });
       }
     },
+    //@@@@@@@@@@@@@
+    //行程版本切换
+    //@@@@@@@@@@@@@
     onCopyChange(index: number) {
       this.setData({ currentTourCopyIndex: index });
       this.filterNodeByDate(this.properties.dateFilter);
     },
+    //@@@@@@@@@@@@@
+    //位置节点（新增、插入与删除）
+    //@@@@@@@@@@@@@
+    /**
+     * 插入位置节点
+     * @param e 
+     * @returns 
+     */
     handleLocationInsert(e: any) {
       const currentTour = this.data.currentTour;
       const index = e.currentTarget.dataset.index;
@@ -989,6 +1187,11 @@ Component({
       });
       this.filterNodeByDate(this.properties.dateFilter);
     },
+    /**
+     * 删除位置节点
+     * @param e 
+     * @returns 
+     */
     handleLocationRemove(e: any) {
       if (!this.data.currentTour
         || !this.data.currentStartDateStrList
