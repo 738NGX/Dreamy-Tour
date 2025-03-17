@@ -150,4 +150,22 @@ channelRoute.delete('/channel/:channelId', async (req: Request, res: Response) =
   res.json(Result.success(MessageConstant.SUCCESSFUL_DISSOLVE));
 });
 
+/**
+ * @description 频道主赋予某用户频道管理员身份
+ * @method POST
+ * @path /channel/:channelId/authorize
+ */
+channelRoute.post('/channel/:channelId/authorize', async (req: Request, res: Response) => {
+
+});
+
+/**
+ * @description 频道主赋予某用户频道管理员身份
+ * @method DELETE
+ * @path /channel/:channelId/authorize
+ */
+channelRoute.delete('/channel/:channelId/authorize', async (req: Request, res: Response) => {
+
+})
+
 export default channelRoute;

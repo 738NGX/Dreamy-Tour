@@ -66,7 +66,24 @@ class PostService {
    * @param postId 
    */
   static async like(uid: number, postId: number): Promise<void> {
-
+    const db = await dbPromise;
+    // 如果存在点赞记录，不重复插入；如果不存在点赞记录，插入点赞记录（使用子查询减少数据库查询次数）
+    await db.run(
+      `
+      INSERT INTO post_likes (uid, postId, createdAt, updatedAt)
+      SELECT ?1, ?2, ?3, ?4
+      WHERE NOT EXISTS (
+        SELECT 1 FROM post_likes
+        WHERE user_id = ?1 AND post_id = ?2
+      )
+      `,
+      [
+        uid,
+        postId,
+        Date.now(),
+        Date.now()
+      ]
+    )
   }
 
   /**
@@ -75,7 +92,14 @@ class PostService {
    * @param postId 
    */
   static async unLike(uid: number, postId: number): Promise<void> {
-
+    const db = await dbPromise;
+    await db.run(
+      `DELETE FROM post_likes WHERE uid = ? AND postId = ?`,
+      [
+        uid,
+        postId
+      ]
+    )
   }
 
   /**

@@ -25,6 +25,8 @@ import ParamsError from "@/exception/paramsError";
 import NotFoundError from "@/exception/notFoundError";
 import ChannelService from "./channelService";
 import ChannelConstant from "@/constant/channelConstant";
+import axios from "axios";
+import { StatusCodes } from "http-status-codes";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
@@ -56,17 +58,19 @@ class UserService {
    * @returns token
    */
   static async wxLogin(wxLoginDto: WxLoginDto): Promise<WxLoginVo> {
-    // 调用微信接口，获取用户的 openid
-    const url = new URL('https://api.weixin.qq.com/sns/jscode2session');
-    url.searchParams.append('appid', AppConstant.APP_ID);
-    url.searchParams.append('secret', AppConstant.APP_SECRET);
-    url.searchParams.append('js_code', wxLoginDto.code);
-    url.searchParams.append('grant_type', 'authorization_code');
-    const res = await fetch(url.toString());
+    // 调用微信接口，获取用户的 openid（改成 axios）
+    const url = 'https://api.weixin.qq.com/sns/jscode2session';
+    const params = {
+      appid: AppConstant.APP_ID,
+      secret: AppConstant.APP_SECRET,
+      js_code: wxLoginDto.code,
+      grant_type: 'authorization_code',
+    };
+    const res = await axios.get(url, { params })
     
     // 先检查状态码是否正常
-    if (!res.ok) throw new WxServiceError();
-    const resJson = await res.json();
+    if (res.status != StatusCodes.OK) throw new WxServiceError();
+    const resJson = await res.data;
     
     // 获取错误码，如果错误码不是 0，抛出异常
     const errcode = resJson.errcode;
