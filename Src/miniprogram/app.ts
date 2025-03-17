@@ -6,16 +6,13 @@ import { User } from "./utils/user/user";
 // app.ts
 App<IAppOption>({
   globalData: {
-    selectingTour: false,
-    currentTour: null,
-    tourList: [] as { id: number; title: string; startDate: string; endDate: string; }[],
     currentUserId: 1,
     currentData: testData,
   },
   onLaunch() {
 
   },
-  getData(dataId, dataList) {
+  getData(dataId: any, dataList: any[]): any {
     return dataList.find((item: any) => item.id == dataId);
   },
   addData(data: any, dataList: any[]): any[] {
@@ -75,6 +72,22 @@ App<IAppOption>({
       return undefined;
     }
   },
+  getPost(postId: number) {
+    const result = this.getData(postId, this.globalData.currentData.postList);
+    if (result) {
+      return result;
+    } else {
+      return undefined;
+    }
+  },
+  getComment(commentId: number) {
+    const result = this.getData(commentId, this.globalData.currentData.commentList);
+    if (result) {
+      return result;
+    } else {
+      return undefined;
+    }
+  },
   addUser(user: User) {
     const userList = this.globalData.currentData.userList;
     this.globalData.currentData.userList = this.addData(user, userList);
@@ -90,6 +103,14 @@ App<IAppOption>({
   addChannel(channel: any) {
     const channelList = this.globalData.currentData.channelList;
     this.globalData.currentData.channelList = this.addData(channel, channelList);
+  },
+  addPost(post: any) {
+    const postList = this.globalData.currentData.postList;
+    this.globalData.currentData.postList = this.addData(post, postList);
+  },
+  addComment(comment: any) {
+    const commentList = this.globalData.currentData.commentList;
+    this.globalData.currentData.commentList = this.addData(comment, commentList);
   },
   updateUser(user: User) {
     const userList = this.globalData.currentData.userList;
@@ -107,6 +128,14 @@ App<IAppOption>({
     const channelList = this.globalData.currentData.channelList;
     this.globalData.currentData.channelList = this.updateData(channel, channelList);
   },
+  updatePost(post: any) {
+    const postList = this.globalData.currentData.postList;
+    this.globalData.currentData.postList = this.updateData(post, postList);
+  },
+  updateComment(comment: any) {
+    const commentList = this.globalData.currentData.commentList;
+    this.globalData.currentData.commentList = this.updateData(comment, commentList);
+  },
   removeUser(user: User) {
     const userList = this.globalData.currentData.userList;
     this.globalData.currentData.userList = this.removeData(user, userList);
@@ -122,5 +151,13 @@ App<IAppOption>({
   removeChannel(channel: any) {
     const channelList = this.globalData.currentData.channelList;
     this.globalData.currentData.channelList = this.removeData(channel, channelList);
-  }
+  },
+  removePost(post: any) {
+    const postList = this.globalData.currentData.postList;
+    this.globalData.currentData.postList = this.removeData(post, postList);
+  },
+  removeComment(comment: any) {
+    const commentList = this.globalData.currentData.commentList;
+    this.globalData.currentData.commentList = this.removeData(comment, commentList);
+  },
 })

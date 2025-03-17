@@ -43,6 +43,7 @@ Component({
             { icon: 'map-location', label: '足迹', value: 0 },
             { icon: 'shutter', label: '讨论', value: 1 },
             { icon: 'usergroup', label: '群组', value: 2 },
+            { icon: 'setting-1', label: '选项', value: 3 },
           ]
       });
     },
