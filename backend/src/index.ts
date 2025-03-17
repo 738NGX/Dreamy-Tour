@@ -8,7 +8,7 @@
 import app from "./app";
 
 // 端口号
-const PORT: number = Number(process.env.PORT) || 80;
+const PORT: number = Number(process.env.PORT) || 8080;
 // 监听端口
 app.listen(PORT, () => {
   console.log(`
