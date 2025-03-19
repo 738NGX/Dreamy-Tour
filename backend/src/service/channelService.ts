@@ -33,7 +33,7 @@ class ChannelService {
     // 插入新频道
     const newChannel = await db.run(
       `INSERT INTO channels(
-        name, description, uid, status, 
+        name, description, masterId, status, 
         humanCount, level, createdAt, updatedAt
       ) VALUES (
         ?, ?, ?, ?, ?, ?, ?, ? 
@@ -87,7 +87,7 @@ class ChannelService {
     // 更新数据库
     const db = await dbPromise;
     await db.run(
-      `UPDATE channels SET uid = ? WHERE channelId = ?`,
+      `UPDATE channels SET masterId = ? WHERE channelId = ?`,
       [
         ChannelTransferDto.masterId,
         ChannelTransferDto.channelId
@@ -120,12 +120,17 @@ class ChannelService {
    */
   static async getJoinedChannelList(uid: number): Promise<ChannelListVo[]> {
     const db = await dbPromise;
+    // 使用 EXISTS 代替 JOIN，性能更好
     const rows = await db.all<Partial<Channel>[]>(
-      `SELECT channels.channelId, name, description, level, 
-       humanCount, channels.createdAt, channels.updatedAt
-       FROM channels
-       JOIN channel_users ON channels.channelId = channel_users.channelId
-       WHERE channel_users.uid = ?`,
+      `
+      SELECT channels.channelId, name, description, level, 
+        humanCount, channels.createdAt, channels.updatedAt
+      FROM channels
+      WHERE EXISTS (
+        SELECT 1 FROM channel_users 
+        WHERE channel_users.channelId = channels.channelId AND channel_users.uid = ?
+      )
+      `,
       [uid]
     );
     // 定义一个 VO 列表作为返回值

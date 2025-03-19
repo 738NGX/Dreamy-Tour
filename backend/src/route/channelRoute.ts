@@ -156,7 +156,7 @@ channelRoute.delete('/channel/:channelId', async (req: Request, res: Response) =
  * @path /channel/:channelId/authorize
  */
 channelRoute.post('/channel/:channelId/authorize', async (req: Request, res: Response) => {
-
+  
 });
 
 /**

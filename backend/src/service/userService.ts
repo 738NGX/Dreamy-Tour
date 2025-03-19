@@ -104,7 +104,7 @@ class UserService {
     // 如果不存在，新增一个用户，返回 token
     const { uid, roleId } = await this.createUser(db, openid);
     if (typeof uid === 'number') {
-      this.updateLastLoginTime(db, uid);  // 异步更新用户登录时间
+      this.init(db, uid); // 用户初始化操作
       return new WxLoginVo({
         openid: openid,
         token: JwtUtil.generateByUid(uid, roleId)
@@ -259,10 +259,10 @@ class UserService {
 
   /**
    * 更新用户的登录时间
+   * @param db 数据库对象
    * @param uid 用户 ID
    */
   private static async updateLastLoginTime(db: Database, uid: number): Promise<void> {
-    console.log(`更新用户 ${uid} 的登录时间`)
     await db.run(
       `UPDATE users SET lastLoginAt = ? WHERE uid = ?`,
       [
@@ -270,6 +270,16 @@ class UserService {
         uid
       ]
     )
+  }
+
+  /**
+   * 创建用户后的一些初始化操作（异步初始化）
+   * @param db 数据库对象
+   * @param uid 用户 ID
+   */
+  private static async init(db: Database, uid: number): Promise<void> {
+    this.updateLastLoginTime(db, uid);  // 更新登录时间
+    ChannelService.join(uid, ChannelConstant.WORLD_CHANNEL_ID)  // 加入世界频道
   }
 }
 
