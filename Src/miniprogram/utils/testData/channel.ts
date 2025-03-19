@@ -13,5 +13,12 @@ export const channelList = [
     id: 3,
     name: '上财辣辣人同好会',
     description: 'みんなで叶える物語',
+    waitingUsers: [14],
+  },
+  {
+    id: 4,
+    name: '莲之空喜欢喜欢俱乐部',
+    description: '万代你妈什么时候死啊',
+    waitingUsers: [],
   },
 ]

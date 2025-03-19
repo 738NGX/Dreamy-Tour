@@ -1,0 +1,12 @@
+<scroll-view class="scrollarea" style="height:75vh;" scroll-y type="list">
+  <block wx:for="{{channelList}}" wx:key="index" wx:for-index="i">
+    <t-cell title="{{item.name}}" description="{{item.description}}" arrow data-index="{{item.id}}" bind:click="joinChannel" hover>
+      <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
+    </t-cell>
+  </block>
+</scroll-view>
+<t-fab icon="add" bind:click="handleCreateChannel" style="right: 16px; bottom: 200rpx;"></t-fab>
+<t-popup-headered style="height:50vh;" visible="{{createChannelVisible}}" title="创建群组" confirmText="创建" bind:visible-change="handleCreateChannel" bindConfirm="handleCreateChannelConfirm" bindCancel="handleCreateChannel" placement="bottom">
+  <t-input placeholder="请输入群组名" bind:change="handleTitleInput" value="{{inputTitle}}" maxcharacter="{{30}}" />
+  <t-textarea bind:change="handleInput" value="{{inputValue}}" style="height:20vh;" placeholder="输入群组描述..." maxlength="30" disableDefaultPadding="{{true}}" indicator />
+</t-popup-headered>

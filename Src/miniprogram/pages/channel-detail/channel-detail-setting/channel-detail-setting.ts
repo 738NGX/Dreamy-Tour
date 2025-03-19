@@ -1,4 +1,4 @@
-import { Channel } from "../../../utils/channel/channel";
+import { Channel, JoinWay } from "../../../utils/channel/channel";
 import { TourStatus } from "../../../utils/tour/tour";
 import { User } from "../../../utils/user/user"
 import { getUser, getUserGroupName, getUserGroupNameInChannel } from "../../../utils/util";
@@ -13,6 +13,12 @@ Component({
     },
   },
   data: {
+    joinWays: [
+      { value: JoinWay.Free, label: '自由加入' },
+      { value: JoinWay.Approval, label: '需要审核' },
+      { value: JoinWay.Invite, label: '仅限邀请' }
+    ],
+
     currentUser: {} as User,
     members: [] as any[],
     waitingUsers: [] as any[],
@@ -102,6 +108,24 @@ Component({
       app.updateUser(user);
       this.getMembers();
       this.setData({ newMemberId: '' });
+    },
+    handleTitleUpdate(e: any) {
+      const currentChannel = new Channel(this.properties.currentChannel);
+      currentChannel.name = e.detail.value;
+      app.updateChannel(currentChannel);
+      this.onCurrentChannelChange(currentChannel);
+    },
+    handleDescriptionUpdate(e: any) {
+      const currentChannel = new Channel(this.properties.currentChannel);
+      currentChannel.description = e.detail.value;
+      app.updateChannel(currentChannel);
+      this.onCurrentChannelChange(currentChannel);
+    },
+    onJoinWayChange(e: any) {
+      const currentChannel = new Channel(this.properties.currentChannel);
+      currentChannel.joinWay = e.detail.value;
+      app.updateChannel(currentChannel);
+      this.onCurrentChannelChange(currentChannel);
     },
     approveUser(e: any) {
       const userId = parseInt(e.currentTarget.dataset.index);

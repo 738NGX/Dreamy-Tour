@@ -8,7 +8,7 @@ export const userList = [
     id: 1,
     name: '738NGX',
     isAdmin: false,
-    exp: 9999,
+    exp: 12345,
     havingChannel: [2],
     adminingChannel: [3],
     joinedChannel: [1, 2, 3],
@@ -18,7 +18,7 @@ export const userList = [
   {
     id: 2,
     name: '明曌',
-    exp: 1314,
+    exp: 9999,
     havingChannel: [3],
     joinedChannel: [1, 3],
     joinedGroup: [1],
@@ -33,7 +33,7 @@ export const userList = [
   {
     id: 4,
     name: '可可乐',
-    exp: 2333,
+    exp: 8888,
     adminingChannel: [3],
     joinedChannel: [1, 3],
     joinedGroup: [1],
@@ -41,7 +41,7 @@ export const userList = [
   {
     id: 5,
     name: 'CZ',
-    exp: 8888,
+    exp: 18888,
     adminingChannel: [3],
     joinedChannel: [1, 3],
     adminingGroup: [1],
@@ -50,7 +50,7 @@ export const userList = [
   {
     id: 6,
     name: '消除',
-    exp: 7575,
+    exp: 17575,
     adminingChannel: [3],
     joinedChannel: [1, 3],
     havingGroup: [2],
@@ -104,5 +104,13 @@ export const userList = [
     exp: 514,
     joinedChannel: [1, 3],
     joinedGroup: [],
+  },
+  {
+    id: 14,
+    name: '二进制',
+    exp: 5,
+    joinedChannel: [1, 4],
+    joinedGroup: [],
+    havingChannel: [1, 4],
   },
 ]

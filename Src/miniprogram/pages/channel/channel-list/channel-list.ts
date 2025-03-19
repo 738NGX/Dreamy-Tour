@@ -1,5 +1,3 @@
-const app = getApp<IAppOption>();
-
 Component({
   properties: {
 
@@ -9,11 +7,7 @@ Component({
   },
   lifetimes: {
     attached() {
-      const channelList = getApp<IAppOption>().getChannelListCopy().filter(
-        channel => getApp<IAppOption>().currentUser().joinedChannel
-          .includes(channel.id) && channel.id != 1
-      );
-      this.setData({ channelList });
+      this.loadChannelList();
     },
     detached() {
 
@@ -25,6 +19,13 @@ Component({
       wx.navigateTo({
         url: `/pages/channel-detail/channel-detail?channelId=${channelId}`,
       });
+    },
+    loadChannelList() {
+      const channelList = getApp<IAppOption>().getChannelListCopy().filter(
+        channel => getApp<IAppOption>().currentUser().joinedChannel
+          .includes(channel.id) && channel.id != 1
+      );
+      this.setData({ channelList });
     },
   }
 });

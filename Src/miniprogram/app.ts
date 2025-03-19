@@ -92,7 +92,7 @@ App<IAppOption>({
   getChannel(channelId: number) {
     const result = this.getData(channelId, this.globalData.currentData.channelList);
     if (result) {
-      return result;
+      return new Channel(result);
     } else {
       return undefined;
     }
@@ -100,7 +100,7 @@ App<IAppOption>({
   getPost(postId: number) {
     const result = this.getData(postId, this.globalData.currentData.postList);
     if (result) {
-      return result;
+      return new Post(result);
     } else {
       return undefined;
     }
@@ -108,7 +108,7 @@ App<IAppOption>({
   getComment(commentId: number) {
     const result = this.getData(commentId, this.globalData.currentData.commentList);
     if (result) {
-      return result;
+      return new Comment(result);
     } else {
       return undefined;
     }

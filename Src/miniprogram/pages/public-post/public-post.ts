@@ -7,7 +7,7 @@ Component({
 
   },
   data: {
-    currentChannel: app.getChannel(0),
+    currentChannel: getApp().getChannel(1),
   },
   methods: {
     onShow() {

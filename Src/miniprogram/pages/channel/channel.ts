@@ -14,12 +14,18 @@ Component({
   },
   methods: {
     onLoad() {
-      
+
     },
     onShow() {
       if (typeof this.getTabBar === 'function' && this.getTabBar()) {
         const page: any = getCurrentPages().pop();
         this.getTabBar().setData({ value: '/' + page.route })
+      }
+      if (this.data.childPage === 0) {
+        this.selectComponent('#list').loadChannelList();
+      }
+      else {
+        this.selectComponent('#adder').loadChannelList();
       }
     },
     onChildPageChange(e: any) {
