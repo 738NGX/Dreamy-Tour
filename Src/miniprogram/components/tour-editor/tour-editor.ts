@@ -187,7 +187,7 @@ Component({
           copy => copy.map(transportation => {
             return new Transportation(transportation).getDurationString();
           })),
-        currentUserList: app.globalData.currentData.userList.map((user: any) => {
+        currentUserList: app.getUserListCopy().map(user => {
           if (currentTour.users.includes(user.id)) return new User(user);
           else return null;
         }).filter((user: any) => user !== null)
@@ -776,6 +776,7 @@ Component({
           return expense;
         })
       });
+     // console.log("editinglocexpenses",this.data.editingLocation.expenses)
     },
     /**
      * 消费金额显示类型（总价/人均）
@@ -915,6 +916,7 @@ Component({
       this.setData({ currentTour: currentTour });
       app.updateTour(currentTour);
       this.onCurrentTourChange(currentTour);
+    //  console.log("editingtrans", editingTransportation)
     },
     /**
      * 删除消费
@@ -975,6 +977,7 @@ Component({
         editingTransExpense: new TransportExpense(editingTransportation.transportExpenses[expense_id]),
         transExpenseVisible: !this.data.transExpenseVisible
       });
+    //  console.log("editingtrans", editingTransportation)
     },
     /**
      * 消费标题更改

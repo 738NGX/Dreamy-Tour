@@ -11,7 +11,7 @@
         <t-tag slot="note" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
       </t-cell>
       <view slot="right" class="btn-wrapper">
-        <view wx:if="{{isGroupOwner&&item.userGroup=='群管理员'&&item.id!=currentUser.id}}" class="btn2 delete-btn" data-index="{{item.id}}" bind:tap="transferGroupOwner">转让群</view>
+        <view wx:if="{{isGroupOwner&&item.userGroup=='群管理员'&&item.id!=currentUser.id}}" class="btn2 delete-btn" data-index="{{item.id}}" bind:tap="transferGroupOwner">转让群组</view>
         <view wx:if="{{isGroupOwner&&item.userGroup!='群主'&&item.id!=currentUser.id}}" class="btn2 edit-btn" data-index="{{item.id}}" bind:tap="handleUserAdminChange">{{item.userGroup=="群管理员" ? '解除管理' :'设为管理'}}</view>
         <view wx:if="{{isGroupAdmin&&item.userGroup!='群主'&&item.userGroup!='群管理员'&&item.id!=currentUser.id}}" class="btn2 delete-btn" data-index="{{item.id}}" bind:tap="removeMember">移除</view>
       </view>
@@ -53,11 +53,11 @@
     <view wx:if="{{isGroupAdmin}}">
       <t-input placeholder="请输入群组名" bind:blur="handleTitleUpdate" value="{{currentGroup.name}}" maxcharacter="{{30}}" />
       <t-textarea bind:blur="handleDescriptionUpdate" value="{{currentGroup.description}}" style="height:15vh;" placeholder="输入群组描述..." maxlength="30" disableDefaultPadding="{{true}}" indicator />
-      <t-cell class="narrow-cell" title="加群方式" />
+      <t-cell class="narrow-cell" title="加入方式" />
       <t-radio-group bind:change="onJoinWayChange" value="{{currentGroup.joinWay}}" borderless t-class="radio-box">
         <t-radio wx:for="{{joinWays}}" block="{{false}}" wx:key="index" label="{{item.label}}" value="{{item.value}}" />
       </t-radio-group>
-      <t-cell class="narrow-cell" wx:if="{{currentGroup.joinWay==1}}" title="加群审批" />
+      <t-cell class="narrow-cell" wx:if="{{currentGroup.joinWay==1}}" title="加入审批" />
       <t-swipe-cell wx:if="{{currentGroup.joinWay==1}}" wx:for="{{waitingUsers}}" wx:key="id">
         <t-cell bordered="{{false}}" title="{{item.name}}" class="narrow-cell">
           <t-avatar slot="image" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>

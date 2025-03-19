@@ -1,4 +1,6 @@
+import { Channel } from "./utils/channel/channel";
 import { Group } from "./utils/channel/group";
+import { Comment, Post } from "./utils/channel/post";
 import { testData } from "./utils/testData";
 import { Tour } from "./utils/tour/tour";
 import { User } from "./utils/user/user";
@@ -11,6 +13,27 @@ App<IAppOption>({
   },
   onLaunch() {
 
+  },
+  currentUser() {
+    return this.getUser(this.globalData.currentUserId) as User;
+  },
+  getUserListCopy() {
+    return this.globalData.currentData.userList.map((item: any) => new User(item));
+  },
+  getTourListCopy() {
+    return this.globalData.currentData.tourList.map((item: any) => new Tour(item));
+  },
+  getGroupListCopy() {
+    return this.globalData.currentData.groupList.map((item: any) => new Group(item));
+  },
+  getChannelListCopy() {
+    return this.globalData.currentData.channelList.map((item: any) => new Channel(item));
+  },
+  getPostListCopy() {
+    return this.globalData.currentData.postList.map((item: any) => new Post(item));
+  },
+  getCommentListCopy() {
+    return this.globalData.currentData.commentList.map((item: any) => new Comment(item));
   },
   getData(dataId: any, dataList: any[]): any {
     return dataList.find((item: any) => item.id == dataId);
@@ -32,7 +55,9 @@ App<IAppOption>({
   },
   removeData(data: any, dataList: any[]): any[] {
     const newDataList = dataList;
-    const index = newDataList.findIndex((item: any) => item.id == data.id);
+    const index = typeof data === 'number'
+      ? newDataList.findIndex((item: any) => item.id == data)
+      : newDataList.findIndex((item: any) => item.id == data.id);
     if (index === -1) {
       console.error('Data not found');
     } else {
@@ -67,7 +92,7 @@ App<IAppOption>({
   getChannel(channelId: number) {
     const result = this.getData(channelId, this.globalData.currentData.channelList);
     if (result) {
-      return result;
+      return new Channel(result);
     } else {
       return undefined;
     }
@@ -75,7 +100,7 @@ App<IAppOption>({
   getPost(postId: number) {
     const result = this.getData(postId, this.globalData.currentData.postList);
     if (result) {
-      return result;
+      return new Post(result);
     } else {
       return undefined;
     }
@@ -83,7 +108,7 @@ App<IAppOption>({
   getComment(commentId: number) {
     const result = this.getData(commentId, this.globalData.currentData.commentList);
     if (result) {
-      return result;
+      return new Comment(result);
     } else {
       return undefined;
     }
@@ -100,15 +125,15 @@ App<IAppOption>({
     const groupList = this.globalData.currentData.groupList;
     this.globalData.currentData.groupList = this.addData(group, groupList);
   },
-  addChannel(channel: any) {
+  addChannel(channel: Channel) {
     const channelList = this.globalData.currentData.channelList;
     this.globalData.currentData.channelList = this.addData(channel, channelList);
   },
-  addPost(post: any) {
+  addPost(post: Post) {
     const postList = this.globalData.currentData.postList;
     this.globalData.currentData.postList = this.addData(post, postList);
   },
-  addComment(comment: any) {
+  addComment(comment: Comment) {
     const commentList = this.globalData.currentData.commentList;
     this.globalData.currentData.commentList = this.addData(comment, commentList);
   },
@@ -124,39 +149,39 @@ App<IAppOption>({
     const groupList = this.globalData.currentData.groupList;
     this.globalData.currentData.groupList = this.updateData(group, groupList);
   },
-  updateChannel(channel: any) {
+  updateChannel(channel: Channel) {
     const channelList = this.globalData.currentData.channelList;
     this.globalData.currentData.channelList = this.updateData(channel, channelList);
   },
-  updatePost(post: any) {
+  updatePost(post: Post) {
     const postList = this.globalData.currentData.postList;
     this.globalData.currentData.postList = this.updateData(post, postList);
   },
-  updateComment(comment: any) {
+  updateComment(comment: Comment) {
     const commentList = this.globalData.currentData.commentList;
     this.globalData.currentData.commentList = this.updateData(comment, commentList);
   },
-  removeUser(user: User) {
+  removeUser(user: User | number) {
     const userList = this.globalData.currentData.userList;
     this.globalData.currentData.userList = this.removeData(user, userList);
   },
-  removeTour(tour: Tour) {
+  removeTour(tour: Tour | number) {
     const tourList = this.globalData.currentData.tourList;
     this.globalData.currentData.tourList = this.removeData(tour, tourList);
   },
-  removeGroup(group: Group) {
+  removeGroup(group: Group | number) {
     const groupList = this.globalData.currentData.groupList;
     this.globalData.currentData.groupList = this.removeData(group, groupList);
   },
-  removeChannel(channel: any) {
+  removeChannel(channel: Channel | number) {
     const channelList = this.globalData.currentData.channelList;
     this.globalData.currentData.channelList = this.removeData(channel, channelList);
   },
-  removePost(post: any) {
+  removePost(post: Post | number) {
     const postList = this.globalData.currentData.postList;
     this.globalData.currentData.postList = this.removeData(post, postList);
   },
-  removeComment(comment: any) {
+  removeComment(comment: Comment | number) {
     const commentList = this.globalData.currentData.commentList;
     this.globalData.currentData.commentList = this.removeData(comment, commentList);
   },

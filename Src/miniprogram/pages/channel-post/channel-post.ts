@@ -3,7 +3,7 @@
  */
 import { Comment, Post } from "../../utils/channel/post";
 import { User } from "../../utils/user/user";
-import { formatPostTime, getNewId, getUser, getUserGroupNameInChannel } from "../../utils/util";
+import { formatPostTime, getNewId, getUserGroupNameInChannel } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -12,7 +12,7 @@ enum InputMode { None, Comment, Reply };
 function getStructuredComments(postId: number, userList: User[], commentList: Comment[]) {
   const userMap = new Map(userList.map(user => [user.id, user.name]));
   const replyMap = new Map<number, Comment[]>();
-  const channelId = app.globalData.currentData.postList.find((post: Post) => post.id == postId)?.linkedChannel;
+  const channelId = app.getPost(postId)?.linkedChannel;
 
   // 初始化评论映射
   commentList.forEach(comment => {
@@ -66,8 +66,6 @@ Component({
     author: '',
     authorGroup: '',
     timeStr: '',
-
-    commentList: [] as any[],
     structedComments: [] as any[],
     commentsSortType: '热度排序',
 
@@ -85,10 +83,10 @@ Component({
   methods: {
     onLoad(options: any) {
       const { postId } = options;
-      const currentPost = app.globalData.currentData.postList.find((post: Post) => post.id == postId);
+      const currentPost = app.getPost(parseInt(postId));
       this.setData({ currentPost });
       const userGroup = getUserGroupNameInChannel(
-        getUser(app.globalData.currentData.userList, app.globalData.currentUserId)!,
+        app.currentUser(),
         currentPost?.linkedChannel!
       )
       this.setData({
@@ -96,19 +94,19 @@ Component({
       });
     },
     onShow() {
-      const author = app.globalData.currentData.userList.find((user: User) => user.id == this.data.currentPost?.user)?.name;
+      const author = app.getUser(this.data.currentPost.user)?.name;
       const authorGroup = getUserGroupNameInChannel(
-        new User(app.globalData.currentData.userList.find((user: User) => user.id == this.data.currentPost?.user)!),
+        app.getUser(this.data.currentPost.user)!,
         this.data.currentPost?.linkedChannel!
       );
       const timeStr = this.data.currentPost ? formatPostTime(this.data.currentPost.time) : '';
       const structedComments = getStructuredComments(
         this.data.currentPost.id,
-        app.globalData.currentData.userList.map((user: User) => new User(user)),
-        app.globalData.currentData.commentList.map((comment: User) => new Comment(comment))
+        app.getUserListCopy(),
+        app.getCommentListCopy()
       );
       this.setData({
-        commentList: app.globalData.currentData.commentList,
+        commentList: app.getCommentListCopy(),
         author: author,
         authorGroup: authorGroup,
         timeStr: timeStr,
@@ -190,9 +188,7 @@ Component({
       } else {
         currentPost.likes.push(this.data.currentUserId);
       }
-      const newPostList = app.globalData.currentData.postList.map((post: Post) => new Post(post));
-      newPostList.find((post: Post) => post.id == currentPost.id).likes = currentPost.likes;
-      app.globalData.currentData.postList = newPostList;
+      app.updatePost(currentPost);
       this.setData({ currentPost });
     },
     handleCommentLike(e: any) {
@@ -204,14 +200,10 @@ Component({
       } else {
         comment.likes.push(this.data.currentUserId);
       }
-
-      const newCommentList = this.data.commentList;
-      newCommentList.find((comment: any) => comment.id == commentId).likes = comment.likes;
-      this.setData({
-        structedComments: structedComments,
-        commentList: newCommentList
-      });
-      app.globalData.currentData.commentList = newCommentList;
+      const newComment = app.getComment(commentId) as Comment;
+      newComment.likes = comment.likes;
+      app.updateComment(newComment);
+      this.setData({ structedComments });
     },
     handleReplyLike(e: any) {
       const commentId = e.currentTarget.dataset.index[0];
@@ -227,15 +219,14 @@ Component({
         reply.likes.push(this.data.currentUserId);
       }
 
-      const newCommentList = this.data.commentList;
-      newCommentList.find((comment: any) => comment.id == replyId).likes = reply.likes;
+      const newComment = app.getComment(replyId) as Comment;
+      newComment.likes = reply.likes;
+      app.updateComment(newComment);
 
       this.setData({
         structedComments: structedComments,
         replies: comment.replies,
-        commentList: newCommentList
       });
-      app.globalData.currentData.commentList = newCommentList;
     },
     cancelInput() {
       this.setData({ inputVisible: false });
@@ -263,9 +254,7 @@ Component({
           photos: this.data.originFiles.map((file: any) => ({ value: file.url, ariaLabel: file.name })),
           parentComment: -1
         });
-        const newCommentList = this.data.commentList.map((comment: any) => new Comment(comment));
-        newCommentList.push(newComment);
-        app.globalData.currentData.commentList = newCommentList;
+        app.addComment(newComment);
         this.onRefresh();
       } else if (this.data.inputMode === InputMode.Reply) {
         const newComment = new Comment({
@@ -278,9 +267,7 @@ Component({
           photos: this.data.originFiles.map((file: any) => ({ value: file.url, ariaLabel: file.name })),
           parentComment: this.data.replyingComment
         });
-        const newCommentList = this.data.commentList.map((comment: any) => new Comment(comment));
-        newCommentList.push(newComment);
-        app.globalData.currentData.commentList = newCommentList;
+        app.addComment(newComment);
         this.onRefresh();
         if (this.data.repliesParent != -1) {
           const replies = this.data.structedComments.find((comment: any) => comment.id == this.data.repliesParent).replies;
@@ -339,9 +326,14 @@ Component({
         success(res) {
           if (res.confirm) {
             const comment = e.currentTarget.dataset.index?.id;
-            const replies = e.currentTarget.dataset.index?.replies;
-            const newCommentList = that.data.commentList.filter((c: any) => c.id !== comment && !replies.map((r: any) => r.id).includes(c.id));
-            app.globalData.currentData.commentList = newCommentList;
+            // 递归移除指定评论及其所有回复
+            function removeRecursively(commentId: number) {
+              const commentList = app.getCommentListCopy();
+              const childReplies = commentList.filter((c: any) => c.parentComment === commentId);
+              childReplies.forEach(reply => removeRecursively(reply.id));
+              app.removeComment(commentId);
+            }
+            removeRecursively(comment);
             that.onRefresh();
           } else if (res.cancel) {
             return;
@@ -358,17 +350,16 @@ Component({
           if (res.confirm) {
             const replyId = e.currentTarget.dataset.index?.id;
             const parentComment = e.currentTarget.dataset.index?.parentComment;
-            const commentList = that.data.commentList;
+            const commentList = app.getCommentListCopy();
             // 递归获取所有子回复的 id
             function getAllDescendantIds(parentId: number): number[] {
-              const childReplies = commentList.filter((c: any) => c.parentComment === parentId);
-              return childReplies.reduce((acc: number[], current: any) => {
+              const childReplies = commentList.filter((c) => c.parentComment === parentId);
+              return childReplies.reduce((acc: number[], current) => {
                 return acc.concat(current.id, getAllDescendantIds(current.id));
               }, []);
             }
             const idsToDelete = [replyId, ...getAllDescendantIds(replyId)];
-            const newCommentList = commentList.filter((c: any) => !idsToDelete.includes(c.id));
-            app.globalData.currentData.commentList = newCommentList;
+            idsToDelete.forEach(id => { app.removeComment(id); });
             that.onRefresh();
             const replies = that.data.structedComments.find((comment: any) => comment.id == parentComment).replies;
             that.setData({ replies });
@@ -383,10 +374,12 @@ Component({
         content: '是否确定删除该帖子？',
         success(res) {
           if (res.confirm) {
-            const newCommentList = app.globalData.currentData.commentList.filter((comment: any) => comment.linkedPost !== that.data.currentPost.id);
-            const newPostList = app.globalData.currentData.postList.filter((post: any) => post.id !== that.data.currentPost.id);
-            app.globalData.currentData.postList = newPostList;
-            app.globalData.currentData.commentList = newCommentList;
+            app.getCommentListCopy().forEach((comment: any) => {
+              if (comment.linkedPost === that.data.currentPost.id) {
+                app.removeComment(comment.id);
+              }
+            });
+            app.removePost(that.data.currentPost);
             wx.navigateBack();
           } else if (res.cancel) {
             return;
@@ -397,9 +390,7 @@ Component({
     onPostStickyChange() {
       const currentPost = new Post(this.data.currentPost);
       currentPost.isSticky = !currentPost.isSticky;
-      const newPostList = app.globalData.currentData.postList.map((post: Post) => new Post(post));
-      newPostList.find((post: Post) => post.id == currentPost.id).isSticky = currentPost.isSticky;
-      app.globalData.currentData.postList = newPostList;
+      app.updatePost(currentPost);
       this.setData({ currentPost });
     }
   }

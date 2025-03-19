@@ -9,7 +9,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@qiun/wx-ucharts": "^2.5.0-20230101",
     "tdesign-miniprogram": "^1.6.1"
   }
 }

@@ -9,7 +9,6 @@
     "c-collapse": "/components/c-collapse/c-collapse",
     "t-input": "tdesign-miniprogram/input/input",
     "t-button": "tdesign-miniprogram/button/button",
-    "t-icon": "tdesign-miniprogram/icon/icon",
-    "report-for-tour": "/components/report-for-tour/report-for-tour"
+    "t-icon": "tdesign-miniprogram/icon/icon"
   }
 }

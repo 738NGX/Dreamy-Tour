@@ -3,6 +3,7 @@
     "header": "/components/header/header",
     "channel-detail-home": "/pages/channel-detail/channel-detail-home/channel-detail-home",
     "channel-detail-posts": "/pages/channel-detail/channel-detail-posts/channel-detail-posts",
-    "channel-detail-group": "/pages/channel-detail/channel-detail-group/channel-detail-group"
+    "channel-detail-group": "/pages/channel-detail/channel-detail-group/channel-detail-group",
+    "channel-detail-setting": "/pages/channel-detail/channel-detail-setting/channel-detail-setting"
   }
 }

@@ -1,0 +1,80 @@
+<!-- report-for-tour.wxml -->
+<header class="custom-navbar" tabList="{{[]}}" title="群组旅程报告"/>
+<scroll-view class="scrollarea" scroll-y type="list">
+  <view class="container">
+    <view class="column">
+      <view style="font-weight:bold;">行程名称："{{reporter.tourData.title}}"</view>
+      <view style="font-weight:bold;">行程版本号：{{ currentTourCopyIndex }}</view>
+      <view style="font-weight:bold;">本次行程总消费：</view>
+
+      <view class="row" style="margin:0">
+        <view>{{currencyList[reporter.mainCurrency].label}}:</view>
+        <view>{{reporter.expenseCalculator.total.mainCurrency}}</view>
+      </view>
+      <view class="row" style="margin:0">
+        <view>{{currencyList[reporter.subCurrency].label}}:</view>
+        <view>{{reporter.expenseCalculator.total.subCurrency}}</view>
+      </view>
+      <view class="row" style="margin:0">
+        <view style="font-weight:bold;">合计{{currencyList[reporter.mainCurrency].label}}:</view>
+        <view style="font-weight:bold;">{{reporter.expenseCalculator.total.allCurrency}}</view>
+      </view>
+      <view class="row" style="margin:0">
+        <view>参考汇率:</view>
+        <view>1{{currencyList[reporter.subCurrency].symbol}}=
+          {{reporter.currencyExchangeRate}}
+          {{currencyList[reporter.mainCurrency].symbol}}</view>
+      </view>
+    </view>
+
+    <view class="row" style="font-weight:bold;">分类统计(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <ec-canvas id="chartInType" canvas-id="chartInType" ec="{{ec}}" canvas2d force-use-old-canvas="true"/>
+
+    <view class="row" style="font-weight:bold;">分预算表统计(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <ec-canvas id="chartInBudget" canvas-id="chartInBudget" ec="{{ec}}" canvas2d force-use-old-canvas="true"/>
+  
+    <view class="row" style="font-weight:bold;">交通统计(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <ec-canvas id="chartInTransportType" canvas-id="chartInTransportType" ec="{{ec}}" canvas2d force-use-old-canvas="true"/>
+    <view class="row" style="font-weight:bold;">交通消费总计(in {{currencyList[reporter.mainCurrency].symbol}}): {{ totalTransportCurrency }}</view>
+    <view class="row" style="font-weight:bold;">住宿统计(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <ec-canvas id="chartInHotel" canvas-id="chartInHotel" ec="{{ec}}" canvas2d force-use-old-canvas="true"/>
+    <t-collapse value="{{activeCollapses[0]}}" bind:change="handleCollapsesChange" data-index="{{0}}">
+      <t-collapse-panel header="住宿消费合计" header-right-content="{{reporter.expenseCalculator.totalInType[0].allCurrency}}{{currencyList[reporter.mainCurrency].symbol}}" value="{{0}}" expandIcon>
+        <view wx:for="{{reporter.typeList[0].data}}" wx:key="index">
+          <t-cell title="{{item.title}}" description="at {{item.from}},\n {{item.time}}" note="{{item.subCurrency === 0 ? item.mainCurrency : item.subCurrency}}{{item.subCurrency === 0 ? currencyList[reporter.mainCurrency].symbol : currencyList[reporter.subCurrency].symbol}}/{{item.allCurrency}}{{currencyList[reporter.mainCurrency].symbol}}" />
+        </view>
+      </t-collapse-panel>
+    </t-collapse>
+  
+    <view class="row" style="font-weight:bold;">餐饮统计(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <ec-canvas id="chartInMeal" canvas-id="chartInMeal" ec="{{ec}}" canvas2d force-use-old-canvas="true"/>
+    <t-collapse value="{{activeCollapses[1]}}" bind:change="handleCollapsesChange" data-index="{{1}}">
+      <t-collapse-panel header="餐饮消费合计" header-right-content="{{reporter.expenseCalculator.totalInType[1].allCurrency}}{{currencyList[reporter.mainCurrency].symbol}}" value="{{0}}" expandIcon>
+        <view wx:for="{{reporter.typeList[1].data}}" wx:key="index">
+          <t-cell title="{{item.title}}" description="at {{item.from}},\n {{item.time}}" note="{{item.subCurrency === 0 ? item.mainCurrency : item.subCurrency}}{{item.subCurrency === 0 ? currencyList[reporter.mainCurrency].symbol : currencyList[reporter.subCurrency].symbol}}/{{item.allCurrency}}{{currencyList[reporter.mainCurrency].symbol}}" />
+        </view>
+      </t-collapse-panel>
+    </t-collapse>
+  
+    <view class="row" style="font-weight:bold;">门票统计(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <ec-canvas id="chartInTicket" canvas-id="chartInTicket" ec="{{ec}}" canvas2d force-use-old-canvas="true"/>
+    <t-collapse value="{{activeCollapses[2]}}" bind:change="handleCollapsesChange" data-index="{{2}}">
+      <t-collapse-panel header="门票消费合计" header-right-content="{{reporter.expenseCalculator.totalInType[3].allCurrency}}{{currencyList[reporter.mainCurrency].symbol}}" value="{{0}}" expandIcon>
+        <view wx:for="{{reporter.typeList[3].data}}" wx:key="index">
+          <t-cell title="{{item.title}}" description="at {{item.from}},\n {{item.time}}" note="{{item.subCurrency === 0 ? item.mainCurrency : item.subCurrency}}{{item.subCurrency === 0 ? currencyList[reporter.mainCurrency].symbol : currencyList[reporter.subCurrency].symbol}}/{{item.allCurrency}}{{currencyList[reporter.mainCurrency].symbol}}" />
+        </view>
+      </t-collapse-panel>
+    </t-collapse>
+  
+    <view class="row" style="font-weight:bold;">购物统计(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <ec-canvas id="chartInShopping" canvas-id="chartInShopping" ec="{{ec}}" canvas2d force-use-old-canvas="true"/>
+    <t-collapse value="{{activeCollapses[3]}}" bind:change="handleCollapsesChange" data-index="{{3}}">
+      <t-collapse-panel header="购物消费合计" header-right-content="{{reporter.expenseCalculator.totalInType[4].allCurrency}}{{currencyList[reporter.mainCurrency].symbol}}" value="{{0}}" expandIcon>
+        <view wx:for="{{reporter.typeList[4].data}}" wx:key="index">
+          <t-cell title="{{item.title}}" description="at {{item.from}},\n {{item.time}}" note="{{item.subCurrency === 0 ? item.mainCurrency : item.subCurrency}}{{item.subCurrency === 0 ? currencyList[reporter.mainCurrency].symbol : currencyList[reporter.subCurrency].symbol}}/{{item.allCurrency}}{{currencyList[reporter.mainCurrency].symbol}}" />
+        </view>
+      </t-collapse-panel>
+    </t-collapse>
+  
+  </view>
+</scroll-view>

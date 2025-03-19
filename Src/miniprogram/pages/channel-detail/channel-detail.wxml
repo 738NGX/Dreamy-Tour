@@ -8,3 +8,6 @@
 <block wx:if="{{childPage == 2}}">
   <channel-detail-group id="groups" currentChannel="{{currentChannel}}" />
 </block>
+<block wx:if="{{childPage == 3}}">
+  <channel-detail-setting bind:currentChannelChange="handleCurrentChannelChange" id="settings" currentChannel="{{currentChannel}}" />
+</block>

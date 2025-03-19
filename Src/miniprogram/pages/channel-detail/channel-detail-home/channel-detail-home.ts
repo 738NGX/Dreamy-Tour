@@ -20,7 +20,6 @@ import { Channel } from "../../../utils/channel/channel";
 import { timezoneList } from '../../../utils/tour/timezone';
 import { Tour, TourStatus } from '../../../utils/tour/tour';
 import { Location } from '../../../utils/tour/tourNode';
-import { User } from '../../../utils/user/user';
 import { formatDate, formatTime, MILLISECONDS } from "../../../utils/util";
 
 const app = getApp<IAppOption>();
@@ -73,7 +72,7 @@ Component({
   methods: {
     generateTourSaves() {
       const currentChannel = this.properties.currentChannel as Channel;
-      const tourSaves = (app.globalData.currentData.tourList as unknown as Tour[])
+      const tourSaves = app.getTourListCopy()
         .map(tour => new Tour(tour))
         .filter(tour => tour.linkedChannel == currentChannel.id && tour.status == TourStatus.Finished && tour.channelVisible)
         .sort((a: any, b: any) => b.startDate - a.startDate);
@@ -140,7 +139,7 @@ Component({
           userTourCount.set(userId, (userTourCount.get(userId) || 0) + 1);
         });
       });
-      const rankList = app.globalData.currentData.userList.map((user: User) => {
+      const rankList = app.getUserListCopy().map(user => {
         const count = userTourCount.get(user.id) || 0;
         return { rank: 0, name: user.name, count };
       }).filter((user: any) => user.count > 0);

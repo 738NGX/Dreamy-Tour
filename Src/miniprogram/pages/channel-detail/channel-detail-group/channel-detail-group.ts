@@ -9,7 +9,7 @@ import { Currency, currencyList } from "../../../utils/tour/expense";
 import { Tour, TourStatus } from "../../../utils/tour/tour";
 import { Location, Transportation } from "../../../utils/tour/tourNode";
 import { User } from "../../../utils/user/user";
-import { getNewId, getTour, getUser } from "../../../utils/util"
+import { getNewId } from "../../../utils/util"
 
 const app = getApp<IAppOption>()
 
@@ -63,7 +63,7 @@ Component({
     },
     getTourTemplates() {
       const currentChannel = this.properties.currentChannel as Channel;
-      const tourSaves = (app.globalData.currentData.tourList as unknown as Tour[])
+      const tourSaves = app.getTourListCopy()
         .map(tour => new Tour(tour))
         .filter(tour => tour.linkedChannel == currentChannel.id && tour.status == TourStatus.Finished && tour.channelVisible)
         .sort((a: any, b: any) => b.startDate - a.startDate);
@@ -85,9 +85,9 @@ Component({
       this.classifyGroups();
     },
     classifyGroups(searchValue: string = '') {
-      const groups = app.globalData.currentData.groupList.map((group: any) => new Group(group)) as Group[];
+      const groups = app.getGroupListCopy();
       const currentChannelId = this.properties.currentChannel.id
-      const currentUser = getUser(app.globalData.currentData.userList, app.globalData.currentUserId);
+      const currentUser = app.currentUser();
       const joinedGroups = groups.filter(group =>
         group.linkedChannel == currentChannelId &&
         group.name.includes(searchValue) &&
@@ -96,7 +96,7 @@ Component({
       const unJoinedGroups = groups.filter(group =>
         group.linkedChannel == currentChannelId &&
         group.name.includes(searchValue) &&
-        !currentUser?.joinedGroup.includes(group.id)
+        !currentUser.joinedGroup.includes(group.id)
       )
       this.setData({ currentUser, joinedGroups, unJoinedGroups })
     },
@@ -169,8 +169,8 @@ Component({
         description: inputValue,
         linkedChannel: this.properties.currentChannel.id
       });
-      const thisUser = getUser(app.globalData.currentData.userList, app.globalData.currentUserId) as User;
-      const tourTemplate = getTour(app.globalData.currentData.tourList, this.data.tourTemplateId[0]);
+      const thisUser = app.currentUser();
+      const tourTemplate = app.getTour(this.data.tourTemplateId[0]);
       const newTour = new Tour({
         id: getNewId(app.globalData.currentData.tourList),
         title: inputTitle,

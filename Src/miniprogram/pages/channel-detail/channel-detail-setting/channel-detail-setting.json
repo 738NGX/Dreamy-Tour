@@ -11,6 +11,15 @@
     "t-textarea": "tdesign-miniprogram/textarea/textarea",
     "t-picker": "tdesign-miniprogram/picker/picker",
     "t-picker-item": "tdesign-miniprogram/picker-item/picker-item",
+    "c-collapse": "/components/c-collapse/c-collapse",
+    "header": "/components/header/header",
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-calendar": "tdesign-miniprogram/calendar/calendar",
+    "t-swiper": "tdesign-miniprogram/swiper/swiper",
+    "t-button": "tdesign-miniprogram/button/button",
+    "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",
+    "t-radio": "tdesign-miniprogram/radio/radio",
     "t-avatar": "tdesign-miniprogram/avatar/avatar"
   }
 }

@@ -1,6 +1,7 @@
 {
-    "usingComponents": {
-        "header": "/components/header/header",
-        "channel-list": "/pages/channel/channel-list/channel-list"
-    }
+  "usingComponents": {
+    "header": "/components/header/header",
+    "channel-list": "/pages/channel/channel-list/channel-list",
+    "channel-adder": "/pages/channel/channel-adder/channel-adder"
+  }
 }

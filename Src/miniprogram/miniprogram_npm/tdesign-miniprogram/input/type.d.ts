@@ -7,6 +7,10 @@ export interface TdInputProps {
         type: StringConstructor;
         value?: 'left' | 'center' | 'right';
     };
+    allowInputOverMax?: {
+        type: BooleanConstructor;
+        value?: boolean;
+    };
     alwaysEmbed?: {
         type: BooleanConstructor;
         value?: boolean;
@@ -39,6 +43,10 @@ export interface TdInputProps {
         type: NumberConstructor;
         value?: number;
         required?: boolean;
+    };
+    cursorColor?: {
+        type: StringConstructor;
+        value?: string;
     };
     cursorSpacing?: {
         type: NumberConstructor;
