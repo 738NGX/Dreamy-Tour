@@ -51,18 +51,18 @@ class ChannelUtil {
     }
     // 如果是该频道的频道主或者频道管理员，返回 true（用联合查询介绍数据库查询次数）
     const db = await dbPromise;
-    const result = await db.get<{ exists: number }>(
-      `SELECT EXISTS (
+    const exists = await db.get<number>(
+      `SELECT 1 WHERE EXISTS (
         SELECT 1 FROM channels 
-        WHERE channelId = ? AND uid = ?
+        WHERE channelId = ? AND masterId = ?
         UNION ALL
         SELECT 1 FROM channel_admins 
         WHERE channelId = ? AND uid = ?
-      ) AS exists`,
+      )`,
       [channelId, uid, channelId, uid]
     );
-  
-    return result?.exists === 1;
+
+    return typeof exists !== 'undefined';
   }
 
    /**
@@ -81,13 +81,13 @@ class ChannelUtil {
     const db = await dbPromise;
     const row = await db.get<number>(
       `SELECT channelId FROM channels
-       WHERE channelId = ? AND uid = ?`,
+       WHERE channelId = ? AND masterId = ?`,
       [
         channelId,
         uid
       ]
     )
-    return !(typeof row === 'undefined');  // !!row
+    return typeof row !== 'undefined';  
   }
 
    /**
@@ -106,13 +106,13 @@ class ChannelUtil {
     const db = await dbPromise;
     const row = await db.get<number>(
       `SELECT channelId FROM channels
-       WHERE channelId = ? AND uid = ?`,
+       WHERE channelId = ? AND masterId = ?`,
       [
         channelId,
         uid
       ]
     )
-    return !(typeof row === 'undefined');  // !!row
+    return typeof row !== 'undefined'; 
   }
 
   /**
@@ -125,7 +125,7 @@ class ChannelUtil {
     const db = await dbPromise;
     const row = await db.get<number>(
       `SELECT channelId FROM channels
-       WHERE channelId = ? AND uid = ?`,
+       WHERE channelId = ? AND masterId = ?`,
       [
         channelId,
         uid

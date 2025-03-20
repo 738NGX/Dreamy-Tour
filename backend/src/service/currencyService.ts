@@ -9,6 +9,7 @@ import ExchangeRateDto from "@/dto/currency/exchangeRateDto";
 import ApiError from "@/exception/apiError";
 import NotFoundError from "@/exception/notFoundError";
 import ExchangeRateVo from "@/vo/currency/exchangeRateVo";
+import axios from "axios";
 import { StatusCodes } from "http-status-codes";
 
 class CurrencyService {
@@ -17,9 +18,9 @@ class CurrencyService {
    * @param exchangeRateDto 原始货币类型和目标货币类型
    */
   static async getExchangeRate(exchangeRateDto: ExchangeRateDto): Promise<ExchangeRateVo> {
-    let res: Response;
+    let res;
     try {
-      res = await fetch(`https://api.exchangerate-api.com/v4/latest/${exchangeRateDto.fromCurrencyISO}`);
+      res = await axios.get(`https://api.exchangerate-api.com/v4/latest/${exchangeRateDto.fromCurrencyISO}`);
     } catch(err) {
       throw new ApiError("汇率转化接口不可用");
     }
@@ -27,7 +28,7 @@ class CurrencyService {
       throw new NotFoundError("原始货币类型不存在");
     }
     
-    const resJson = await res.json();
+    const resJson = res.data;
     // 上次汇率更新的时间戳
     const timeLastUpdated: number = resJson["time_last_updated"];
     // 汇率
