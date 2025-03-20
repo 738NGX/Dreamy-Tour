@@ -1,10 +1,10 @@
 <!-- report-for-tour.wxml -->
-<header class="custom-navbar" tabList="{{[]}}" title="群组旅程报告"/>
 <scroll-view class="scrollarea" scroll-y type="list">
   <view class="container">
     <view class="column">
       <view style="font-weight:bold;">行程名称："{{reporter.tourData.title}}"</view>
       <view style="font-weight:bold;">行程版本号：{{ currentTourCopyIndex }}</view>
+      <view style="font-weight:bold;">当前视图：个人</view>
       <view style="font-weight:bold;">本次行程总消费：</view>
 
       <view class="row" style="margin:0">

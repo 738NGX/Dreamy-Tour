@@ -11,7 +11,7 @@
     </block>
     <t-cell title="未加入" style="--td-cell-vertical-padding:10rpx;" />
     <block wx:for="{{unJoinedGroups}}" wx:key="index">
-      <t-cell title="{{item.name}}" description="{{item.description}}" note="{{joinWayText[item.joinWay]}}" data-index="{{item.id}}" bind:click="joinGroup" hover>
+      <t-cell title="{{item.name}}" description="{{item.description}}" note="{{joinWayText[item.joinWay]}}" data-index="{{item.id}}" bind:click="joinGroup" hover style="white-space: nowrap;">
         <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
       </t-cell>
     </block>

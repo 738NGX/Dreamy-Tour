@@ -204,3 +204,9 @@ export function getNewId(arr: any[]): number {
     : 0;
   return maxId + 1;
 }
+
+export function displayNumber(num:number): String{
+  const number = num;
+  if(number < 1000) return number.toString()
+  return (number / 1000).toString() + 'k'
+}
