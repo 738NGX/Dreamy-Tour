@@ -29,6 +29,7 @@ Component({
       }
     },
     onChildPageChange(e: any) {
+      console.log(e.detail.value)
       this.setData({ childPage: e.detail.value })
     },
   },
