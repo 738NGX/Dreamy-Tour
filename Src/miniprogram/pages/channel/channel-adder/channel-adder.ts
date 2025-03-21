@@ -32,6 +32,15 @@ Component({
       );
       this.setData({ channelList });
     },
+    onSearch(e: any) {
+      const { value } = e.detail;
+      this.setData({ searchingValue: value });
+      this.loadChannelList();
+    },
+    onSearchClear() {
+      this.setData({ searchingValue: '' });
+      this.loadChannelList();
+    },
     handleCreateChannel() {
       this.setData({ createChannelVisible: !this.data.createChannelVisible })
     },

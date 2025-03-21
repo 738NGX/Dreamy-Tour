@@ -1,3 +1,6 @@
+<view class="example-search">
+  <t-search placeholder="搜索频道" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" />
+</view>
 <scroll-view class="scrollarea" style="height:75vh;" scroll-y type="list">
   <block wx:for="{{channelList}}" wx:key="index" wx:for-index="i">
     <t-cell title="{{item.name}}" description="{{item.description}}" arrow data-index="{{item.id}}" bind:click="onChannelClick" hover>

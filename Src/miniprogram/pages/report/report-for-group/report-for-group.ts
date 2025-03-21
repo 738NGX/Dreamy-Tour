@@ -1,10 +1,11 @@
 /**
  * 行程统计信息
  */
-import * as echarts from '../../components/ec-canvas/echarts'
-import { Reporter } from '../../utils/reporter';
-import { Tour } from '../../utils/tour/tour';
-import { currencyList } from '../../utils/tour/expense'
+import * as echarts from '../../../components/ec-canvas/echarts'
+import { Reporter } from '../../../utils/reporter';
+import { Tour } from '../../../utils/tour/tour';
+import { currencyList } from '../../../utils/tour/expense'
+import { displayNumber } from '../../../utils/util';
 const app = getApp<IAppOption>();
 
 Component({
@@ -14,7 +15,7 @@ Component({
 
     },
     attached() {
-    //  this.onLoad(options);
+
     },
     moved() {
 
@@ -24,12 +25,29 @@ Component({
     },
   },
   properties: {
-
+    currentTour: {
+      // 类型
+      type: Object,
+      // 默认值
+      value: {}
+    },
+    currentTourCopyIndex:{
+      type: Number,
+      value: 0,
+    }
+  },
+  observers: {     
+    'currentTour, currentTourCopyIndex': function (currentTour, currentTourCopyIndex) {
+      if (currentTour && currentTourCopyIndex !== undefined) {
+        // 参数就绪后执行初始化
+        this.onLoad();
+      }
+    }
   },
   data: {
-    currentTour : null as Tour | null,
+    // currentTour : null as Tour | null,
 
-    currentTourCopyIndex : 0,
+   // currentTourCopyIndex : 0,
 
     currencyList:currencyList,
     ec:{
@@ -52,14 +70,15 @@ Component({
   },
  
   methods: {
-    onLoad(options:any){
-      const tourId = options.tourId;
-      const currentTourCopyIndex = options.currentTourCopyIndex
-      this.setData({
-        currentTour: app.getTour(parseInt(tourId)) as Tour,
-        currentTourCopyIndex: currentTourCopyIndex
-      })
-      this.initReport(this.data.currentTour,this.data.currentTourCopyIndex);
+    onLoad(){
+      // const tourId = options.tourId;
+      // const currentTourCopyIndex = options.currentTourCopyIndex
+      // this.setData({
+      //   currentTour: app.getTour(parseInt(tourId)) as Tour,
+      //   currentTourCopyIndex: currentTourCopyIndex
+      // })
+     // console.log(this.properties.currentTour)
+      this.initReport(this.properties.currentTour,this.properties.currentTourCopyIndex);
       this.initCharts();
     },
     initCharts(){
@@ -134,7 +153,7 @@ Component({
       })
     },
     initReport(value:any,copyIndex:number){
-    //  console.log("beforeinitReport",this.data.currentTour,this.data.currentTourCopyIndex)
+    //  console.log("beforeinitReport",this.properties.currentTour,this.properties.currentTourCopyIndex)
       const currentTour = new Tour(value);
       
       const reporter = new Reporter(currentTour,copyIndex);
@@ -372,7 +391,7 @@ Component({
                 }
               },
               axisLabel: {
-                formatter: '{value}'
+                formatter: displayNumber
               }
             },
             {
@@ -387,14 +406,14 @@ Component({
                 }
               },
               axisLabel: {
-                formatter: '{value}'
+                formatter: displayNumber
               }
             },
             {
               type: 'value',
               name: currencyList[this.data.reporter.subCurrency].symbol,
               position: 'right',
-              offset: 50,
+              offset: 30,
               alignTicks: true,
               axisLine: {
                 show: true,
@@ -403,7 +422,7 @@ Component({
                 }
               },
               axisLabel: {
-                formatter: '{value}'
+                formatter: displayNumber
               }
             }
           ],

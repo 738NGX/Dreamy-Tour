@@ -10,7 +10,7 @@
     "pages/group/group",
     "pages/tour-view/tour-view",
     "pages/tour-edit/tour-edit",
-    "pages/report-for-group/report-for-group"
+    "pages/report/report"
   ],
   "tabBar": {
     "custom": true,

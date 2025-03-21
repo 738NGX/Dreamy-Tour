@@ -1,0 +1,8 @@
+<header tabList="{{tabList}}" bind:childPageChange="onChildPageChange" title="旅行报告"/>
+<block wx:if="{{childPage == 0}}">
+  <report-for-group currentTour="{{ currentTour }}" currentTourCopyIndex="{{currentTourCopyIndex}}"></report-for-group>
+</block>
+
+<block wx:if="{{childPage == 1}}">
+  <report-for-user currentTour="{{ currentTour }}" currentTourCopyIndex="{{currentTourCopyIndex}}"></report-for-user>
+</block>

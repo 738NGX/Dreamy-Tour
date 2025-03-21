@@ -149,8 +149,11 @@ Component({
       // wx.setStorageSync('currentTour',this.data.currentTour);
       // wx.setStorageSync('currentTourCopyIndex',this.data.currentCopyIndex);
       // console.log("currentTour",this.data.currentTour,"currentcopyindex",this.data.currentCopyIndex)
+      // wx.navigateTo({
+      //   url:`/pages/report-for-group/report-for-group?tourId=${this.data.currentTourId}&currentTourCopyIndex=${this.data.currentCopyIndex}`
+      // })
       wx.navigateTo({
-        url:`/pages/report-for-group/report-for-group?tourId=${this.data.currentTourId}&currentTourCopyIndex=${this.data.currentCopyIndex}`
+        url:`/pages/report/report?tourId=${this.data.currentTourId}&currentTourCopyIndex=${this.data.currentCopyIndex}`
       })
     }
   }
