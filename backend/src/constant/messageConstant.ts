@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 22:13:32 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-09 19:58:40
+ * @Last Modified time: 2025-03-21 22:07:00
  */
 class MessageConstant {
   static readonly SUCCESSFUL_RETURN = '返回成功';
@@ -17,6 +17,7 @@ class MessageConstant {
   static readonly SUCCESSFUL_UNREGISTER = "注销成功";
   static readonly SUCCESSFUL_TRANSFER = "转让成功";
   static readonly SUCCESSFUL_DISSOLVE = "解散成功";
+  static readonly SUCCESSFUL_GRANT = "授权成果";
   static readonly SUCCESSFUL_JOIN = "加入成功";
   static readonly SUCCESSFUL_EXIT = "退出成功";
   static readonly FAILED_UPLOAD = "文件上传失败";

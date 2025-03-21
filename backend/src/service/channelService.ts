@@ -3,13 +3,14 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-08 20:09:17 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-09 19:53:48
+ * @Last Modified time: 2025-03-21 22:21:50
  */
 import dbPromise from "@/config/databaseConfig";
 import ChannelConstant from "@/constant/channelConstant";
 import ChannelDto from "@/dto/channel/channelDto";
 import ChannelModifyDto from "@/dto/channel/channelModifyDto";
 import ChannelTransferDto from "@/dto/channel/channelTransferDto";
+import GrantAdminDto from "@/dto/channel/grantAdminDto";
 import Channel from "@/entity/channel";
 import ForbiddenError from "@/exception/forbiddenError";
 import ChannelUtil from "@/util/channelUtil";
@@ -201,6 +202,71 @@ class ChannelService {
     await db.run(
       `DELETE FROM channels WHERE channelId = ?`,
       [channelId]
+    )
+  }
+
+  /**
+   * 赋予某用户频道管理员身份
+   * @param grantorId 授权者
+   * @param granteeId 被授权者
+   * @param channelId 频道 ID
+   */
+  static async grantAdminstrator(
+    grantorId: number, 
+    grantorRoleId: number,
+    grantAdminDto: GrantAdminDto,
+  ): Promise<void> {
+    // 获取参数
+    const { granteeId, channelId } = grantAdminDto;
+    // 只有频道主和系统管理员有这个权限
+    if (!await ChannelUtil.hasGrantAdminstratorPermission(grantorId, grantorRoleId, channelId)) {
+      throw new ForbiddenError("您没有权限授予其他成为用户频道管理员！");
+    }
+    // 在频道管理员表添加记录，如果之前添加过了，就更新 updated_at 字段
+    const db = await dbPromise;
+    await db.run(
+      `
+        INSERT INTO channel_admins (uid, channelId, createdAt, updatedAt)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(uid, channelId) DO UPDATE SET updatedAt = excluded.updatedAt
+      `,
+      [
+        granteeId,
+        channelId,
+        Date.now(),
+        Date.now()
+      ]
+    )
+  }
+  
+  /**
+   * 收回频道管理员权限
+   * @param grantorId 授权者用户 ID
+   * @param grantorRoleId 授权者角色 ID
+   * @param grantAdminDto 授权需要的传参（被授权者和频道 ID）
+   */
+  static async revokeAdminstrator(
+    grantorId: number, 
+    grantorRoleId: number,
+    grantAdminDto: GrantAdminDto,
+  ): Promise<void> {
+    // 获取参数
+    const { granteeId, channelId } = grantAdminDto;
+    // 只有该频道的频道主和系统管理员有这个权限
+    if(!await ChannelUtil.hasRevokeAdminstratorPermission(grantorId, grantorRoleId, channelId)) {
+      throw new ForbiddenError("您没有权限授予收回其他用户频道管理员的身份！");
+    }
+    // 在 channel_admins 中删除记录
+    const db = await dbPromise;
+    await db.run(
+      `
+        DELETE FROM channel_admins
+        WHERE uid = ? AND channelId = ?
+      `,
+      [
+        granteeId,
+        channelId
+      ]
     )
   }
 }

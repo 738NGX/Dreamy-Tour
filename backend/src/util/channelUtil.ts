@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-08 20:31:05 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-09 19:27:20
+ * @Last Modified time: 2025-03-21 22:14:19
  */
 
 import dbPromise from "@/config/databaseConfig";
@@ -132,6 +132,66 @@ class ChannelUtil {
       ]
     )
     return typeof row === 'undefined';
+  }
+
+  /**
+   * 判断该用户是否有权限授予其他用户频道管理员的身份
+   * @param grantorId 授权者 ID
+   * @param grantorRoleId 授权者角色 ID
+   * @param channelId 频道 ID
+   */
+  static async hasGrantAdminstratorPermission(
+    grantorId: number, 
+    grantorRoleId: number, 
+    channelId: number,
+  ): Promise<boolean> {
+    // 只有该频道的频道主和系统管理员可以授权其他用户成为频道管理员
+    if (grantorRoleId === RoleConstant.ADMIN) {
+      return true;
+    }
+    const db = await dbPromise;
+    const exists = await db.get<number>(
+      `SELECT 1 WHERE EXISTS (
+        SELECT 1 FROM channels 
+        WHERE channelId = ? AND masterId = ?
+        UNION ALL
+        SELECT 1 FROM channel_admins 
+        WHERE channelId = ? AND uid = ?
+      )`,
+      [channelId, grantorId, channelId, grantorId]
+    );
+
+    return typeof exists !== 'undefined';
+  }
+
+   /**
+   * 判断该用户是否有权限收回其他用户频道管理员的身份
+   * @param grantorId 授权者 ID
+   * @param grantorRoleId 授权者角色 ID
+   * @param channelId 频道 ID
+   */
+   static async hasRevokeAdminstratorPermission(
+    grantorId: number, 
+    grantorRoleId: number, 
+    channelId: number,
+  ): Promise<boolean> {
+    // 只有该频道的频道主和系统管理员可以授权其他用户成为频道管理员
+    if (grantorRoleId === RoleConstant.ADMIN) {
+      return true;
+    }
+    const db = await dbPromise;
+    const exists = await db.get<number>(
+      `SELECT 1 WHERE EXISTS (
+        SELECT 1 FROM channels 
+        WHERE channelId = ? AND masterId = ?
+        UNION ALL
+        SELECT 1 FROM channel_admins 
+        WHERE channelId = ? AND uid = ?
+      )`,
+      [channelId, grantorId, channelId, grantorId]
+    );
+
+    return typeof exists !== 'undefined';
   }
 
   /**

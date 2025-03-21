@@ -3,13 +3,14 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-25 19:02:30 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-09 19:58:44
+ * @Last Modified time: 2025-03-21 22:22:10
  */
 import AuthConstant from "@/constant/authConstant";
 import MessageConstant from "@/constant/messageConstant";
 import ChannelDto from "@/dto/channel/channelDto";
 import ChannelModifyDto from "@/dto/channel/channelModifyDto";
 import ChannelTransferDto from "@/dto/channel/channelTransferDto";
+import GrantAdminDto from "@/dto/channel/grantAdminDto";
 import ChannelService from "@/service/channelService";
 import JwtUtil from "@/util/jwtUtil";
 import Result from "@/vo/result";
@@ -151,21 +152,41 @@ channelRoute.delete('/channel/:channelId', async (req: Request, res: Response) =
 });
 
 /**
- * @description 频道主赋予某用户频道管理员身份
+ * @description 赋予某用户频道管理员身份（只能频道主或者系统管理员）
  * @method POST
- * @path /channel/:channelId/authorize
+ * @path /channel/:channelId/grant-admin
  */
-channelRoute.post('/channel/:channelId/authorize', async (req: Request, res: Response) => {
-  
+channelRoute.post('/channel/:channelId/grant-admin', async (req: Request, res: Response) => {
+  // 获取用户 ID 和角色 ID
+  const { uid: grantorId, roleId: grantorRoleId } = JwtUtil.getUidAndRoleId(
+    req.header(AuthConstant.TOKEN_HEADER) as string
+  );
+  // 获取 body 传参
+  const grantAdminDto = await GrantAdminDto.from(req.body);
+  await ChannelService.grantAdminstrator(grantorId, grantorRoleId, grantAdminDto);
+  // 响应结果
+  res.json(
+    Result.success(MessageConstant.SUCCESSFUL_GRANT)
+  );
 });
 
 /**
- * @description 频道主赋予某用户频道管理员身份
+ * @description 收回某用户频道管理员身份（只有频道住或者系统管理员）
  * @method DELETE
- * @path /channel/:channelId/authorize
+ * @path /channel/:channelId/grant-admin
  */
-channelRoute.delete('/channel/:channelId/authorize', async (req: Request, res: Response) => {
-
+channelRoute.delete('/channel/:channelId/grant-admin', async (req: Request, res: Response) => {
+   // 获取用户 ID 和角色 ID
+   const { uid: grantorId, roleId: grantorRoleId } = JwtUtil.getUidAndRoleId(
+    req.header(AuthConstant.TOKEN_HEADER) as string
+  );
+  // 获取 body 传参
+  const grantAdminDto = await GrantAdminDto.from(req.body);
+  await ChannelService.revokeAdminstrator(grantorId, grantorRoleId, grantAdminDto);
+  // 响应结果
+  res.json(
+    Result.success(MessageConstant.SUCCESSFUL_MODIFIED)
+  );
 })
 
 export default channelRoute;
