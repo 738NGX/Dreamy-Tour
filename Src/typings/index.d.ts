@@ -61,13 +61,25 @@ declare global {
      * @returns 当前用户未加入的频道列表
      */
     getCurrentUserUnjoinedChannels(): Channel[];
-    
+    /**
+     * 创建一个新频道
+     * @param name 新频道的名称
+     * @param description 新频道的描述
+     */
+    createChannel(name: string, description: string): void;
+    /**
+     * 加入一个频道
+     * @param channelId 频道ID
+     * @returns 是否需要刷新页面
+     */
+    joinChannel(channelId: number): boolean;
+
     // for channel-list.ts
     /**
      * @returns 当前用户加入的频道列表, 不包括世界频道
      */
     getCurrentUserJoinedChannels(): Channel[];
-    
+
     // for channel-detail-home.ts
     /**
      * @param channelId 频道ID
@@ -79,7 +91,7 @@ declare global {
      * @returns 一个频道中的用户行程次数排名
      */
     generateUserRankings(footprints: FootPrint[]): UserRanking[];
-    
+
     // for channel-detail-setting.ts
     /**
      * 解散目标频道

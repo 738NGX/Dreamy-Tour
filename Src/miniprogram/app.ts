@@ -1,4 +1,4 @@
-import { Channel } from "./utils/channel/channel";
+import { Channel, JoinWay } from "./utils/channel/channel";
 import { Group } from "./utils/channel/group";
 import { Comment, Post } from "./utils/channel/post";
 import { UserRanking } from "./utils/channel/userRanking";
@@ -6,6 +6,7 @@ import { testData } from "./utils/testData";
 import { FootPrint } from "./utils/tour/footprint";
 import { Tour, TourStatus } from "./utils/tour/tour";
 import { User } from "./utils/user/user";
+import { getNewId } from "./utils/util";
 
 // app.ts
 App<IAppOption>({
@@ -196,7 +197,7 @@ App<IAppOption>({
   },
 
   // for channel-adder.ts
-  getCurrentUserUnjoinedChannels(): Channel[]{
+  getCurrentUserUnjoinedChannels(): Channel[] {
     /** 后端逻辑 */
 
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
@@ -206,7 +207,64 @@ App<IAppOption>({
     );
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
-  
+  createChannel(name: string, description: string): void {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const newChannelId = getNewId(this.globalData.currentData.channelList);
+    const channel = new Channel({
+      id: newChannelId,
+      name: name,
+      description: description,
+    });
+    const thisUser = this.currentUser();
+    thisUser.joinedChannel.push(newChannelId);
+    thisUser.havingChannel.push(newChannelId);
+    this.addChannel(channel);
+    this.updateUser(thisUser);
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  joinChannel(channelId: number): boolean {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const channel = this.getChannel(channelId) as Channel;
+    if (channel.joinWay == JoinWay.Approval) {
+      if (channel.waitingUsers.includes(this.globalData.currentUserId)) {
+        wx.showToast({
+          title: '您已经申请过了,请耐心等待',
+          icon: 'none',
+        });
+        return false;
+      }
+      else {
+        channel.waitingUsers.push(this.globalData.currentUserId);
+        this.updateChannel(channel);
+        wx.showToast({
+          title: '已发送加入申请,请耐心等待',
+          icon: 'none',
+        });
+        return false;
+      }
+    }
+    if (channel.joinWay == JoinWay.Invite) {
+      wx.showToast({
+        title: '该频道仅限邀请加入',
+        icon: 'none',
+      });
+      return false;
+    }
+    const thisUser = this.currentUser();
+    thisUser.joinedChannel.push(channelId);
+    this.updateUser(thisUser);
+    wx.showToast({
+      title: '加入成功,请返回频道列表查看',
+      icon: 'none',
+    });
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+
   // for channel-list.ts
   getCurrentUserJoinedChannels(): Channel[] {
     /** 后端逻辑 */
@@ -224,7 +282,7 @@ App<IAppOption>({
     /** 后端逻辑 */
 
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const tourSaves = this.getTourListCopy()
+    const tourSaves = (this.globalData.currentData.tourList as Tour[])
       .filter(tour => tour.linkedChannel == channelId && tour.status == TourStatus.Finished && tour.channelVisible)
       .sort((a, b) => b.startDate - a.startDate);
     return tourSaves;
@@ -241,7 +299,7 @@ App<IAppOption>({
         userTourCount.set(userId, (userTourCount.get(userId) || 0) + 1);
       });
     });
-    const rankList = this.getUserListCopy().map(user => {
+    const rankList = (this.globalData.currentData.userList as User[]).map(user => {
       const count = userTourCount.get(user.id) || 0;
       return { rank: 0, name: user.name, count } as UserRanking;
     }).filter((user) => user.count > 0);
