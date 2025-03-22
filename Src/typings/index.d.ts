@@ -13,6 +13,7 @@ declare global {
     globalData: {
       currentUserId: number;
       currentData: any;
+      baseUrl: string;
     },
     currentUser(): User;
 
@@ -60,7 +61,7 @@ declare global {
     /**
      * @returns 当前用户未加入的频道列表
      */
-    getCurrentUserUnjoinedChannels(): Channel[];
+    getCurrentUserUnjoinedChannels(callback: (channels: Channel[]) => void): void;
     /**
      * 创建一个新频道
      * @param name 新频道的名称
@@ -78,7 +79,7 @@ declare global {
     /**
      * @returns 当前用户加入的频道列表, 不包括世界频道
      */
-    getCurrentUserJoinedChannels(): Channel[];
+    getCurrentUserJoinedChannels(callback: (channels: Channel[]) => void): void;
 
     // for channel-detail-home.ts
     /**

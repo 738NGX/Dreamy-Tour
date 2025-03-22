@@ -13,11 +13,14 @@ App<IAppOption>({
   globalData: {
     currentUserId: 1,
     currentData: testData,
+    baseUrl: "http://117.72.15.170/api",
   },
   onLaunch() {
-
+    // 开屏进入登录页面
+    wx.redirectTo({
+      url: "/pages/login/login"
+    })
   },
-
   currentUser() {
     return this.getUser(this.globalData.currentUserId) as User;
   },
@@ -197,14 +200,32 @@ App<IAppOption>({
   },
 
   // for channel-adder.ts
-  getCurrentUserUnjoinedChannels(): Channel[] {
+  getCurrentUserUnjoinedChannels(callback: (channels: Channel[]) => void): void {
     /** 后端逻辑 */
-
+    // 获取 token
+    const token = wx.getStorageSync("token");
+    wx.request({
+      url: `${this.globalData.baseUrl}/channel/list`,
+      header: {
+        "Authorization": token
+      },
+      success(res: any) {
+        const channels = res.data.data as Channel[];
+        callback(channels);
+      },
+      fail() {
+        wx.showToast({
+          title: "请求失败",
+          icon: "error"
+        });
+        callback([]);
+      }
+    });
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    return this.getChannelListCopy().filter(
-      channel => !this.currentUser().joinedChannel
-        .includes(channel.id) && channel.id != 1
-    );
+    // return this.getChannelListCopy().filter(
+    //   channel => !this.currentUser().joinedChannel
+    //     .includes(channel.id) && channel.id != 1
+    // );
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   createChannel(name: string, description: string): void {
@@ -266,14 +287,32 @@ App<IAppOption>({
   },
 
   // for channel-list.ts
-  getCurrentUserJoinedChannels(): Channel[] {
+  getCurrentUserJoinedChannels(callback: (channels: Channel[]) => void): void {
     /** 后端逻辑 */
-
+    // 获取 token
+    const token = wx.getStorageSync("token");
+    wx.request({
+      url: `${this.globalData.baseUrl}/channel/joined/list`,
+      header: {
+        "Authorization": token
+      },
+      success(res: any) {
+        const channels = res.data.data as Channel[];
+        callback(channels);
+      },
+      fail() {
+        wx.showToast({
+          title: "请求失败",
+          icon: "error"
+        });
+        callback([]);
+      }
+    });
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    return this.getChannelListCopy().filter(
-      channel => this.currentUser().joinedChannel
-        .includes(channel.id) && channel.id != 1
-    );
+    // return this.getChannelListCopy().filter(
+    //   channel => this.currentUser().joinedChannel
+    //     .includes(channel.id) && channel.id != 1
+    // );
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
 

@@ -1,0 +1,8 @@
+<!--pages/login/login.wxml-->
+<view class="main">
+  <t-image src="{{image}}" mode="heightFix" height="100"/>
+  <text class="app-name">梦·旅</text>
+  <t-button theme="primary" size="large" shape="round" class="wx-login-btn" bind:tap="wxLogin">
+    微信授权登录
+  </t-button> 
+</view>

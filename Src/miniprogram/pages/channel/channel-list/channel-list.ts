@@ -40,8 +40,9 @@ Component({
       });
     },
     loadChannelList() {
-      const channelList = app.getCurrentUserJoinedChannels();
-      this.setData({ channelList, fullChannelList: channelList });
+      app.getCurrentUserJoinedChannels(channelList => {
+        this.setData({ channelList, fullChannelList: channelList });
+      });
     },
     onSearch(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
