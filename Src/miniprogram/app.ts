@@ -6,7 +6,7 @@ import { testData } from "./utils/testData";
 import { FootPrint } from "./utils/tour/footprint";
 import { Tour, TourStatus } from "./utils/tour/tour";
 import { User } from "./utils/user/user";
-import { getNewId } from "./utils/util";
+import { getNewId, getUserGroupNameInChannel } from "./utils/util";
 
 // app.ts
 App<IAppOption>({
@@ -228,7 +228,7 @@ App<IAppOption>({
     // );
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
-  createChannel(name: string, description: string): void {
+  async createChannel(name: string, description: string): Promise<void> {
     /** 后端逻辑 */
 
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
@@ -245,7 +245,7 @@ App<IAppOption>({
     this.updateUser(thisUser);
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
-  joinChannel(channelId: number): boolean {
+  async joinChannel(channelId: number): Promise<boolean> {
     /** 后端逻辑 */
 
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
@@ -317,7 +317,7 @@ App<IAppOption>({
   },
 
   // for channel-detail-home.ts
-  generateTourSaves(channelId: number): Tour[] {
+  async generateTourSaves(channelId: number): Promise<Tour[]> {
     /** 后端逻辑 */
 
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
@@ -327,7 +327,7 @@ App<IAppOption>({
     return tourSaves;
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
-  generateUserRankings(footprints: FootPrint[]): UserRanking[] {
+  async generateUserRankings(footprints: FootPrint[]): Promise<UserRanking[]> {
     /** 后端逻辑 */
 
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
@@ -350,57 +350,201 @@ App<IAppOption>({
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
 
-  disbandChannel(channelId: number) {
+  // for channel-detail-setting.ts
+  async userAdminChangeInChannel(channelId: number, userId: number): Promise<boolean> {
     /** 后端逻辑 */
 
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const userList = this.globalData.currentData.userList as User[];
-    const groupList = this.globalData.currentData.groupList as Group[];
-    const tourList = this.globalData.currentData.tourList as Tour[];
-    const postList = this.globalData.currentData.postList as Post[];
-    const commentList = this.globalData.currentData.commentList as Comment[];
-    userList.forEach(user => {
-      user.joinedChannel = user.joinedChannel.filter(
-        channelId => channelId !== channelId
-      );
+    const user = this.getUser(userId);
+    if (!user) { return false; }
+    const userGroup = getUserGroupNameInChannel(user, channelId);
+    if (userGroup === "频道主") { return false; }
+    if (userGroup === "频道管理员") {
       user.adminingChannel = user.adminingChannel.filter(
-        channelId => channelId !== channelId
+        (_channelId: number) => _channelId !== channelId
       );
-      user.havingChannel = user.havingChannel.filter(
-        channelId => channelId !== channelId
-      );
-      user.joinedGroup = user.joinedGroup.filter(
-        groupId => this.getGroup(groupId)?.linkedChannel !== channelId
-      );
-      user.adminingGroup = user.adminingGroup.filter(
-        groupId => this.getGroup(groupId)?.linkedChannel !== channelId
-      );
-      user.havingGroup = user.havingGroup.filter(
-        groupId => this.getGroup(groupId)?.linkedChannel !== channelId
-      );
-      this.updateUser(user);
+    } else {
+      user.adminingChannel.push(channelId);
+    }
+    this.updateUser(user);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async removeMemberInChannel(channelId: number, userId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const that = this;
+    return new Promise((resolve) => {
+      wx.showModal({
+        title: '警告',
+        content: '确定要移除该成员吗？与该成员相关的行程信息将会一起被移除。',
+        success(res) {
+          if (res.confirm) {
+            const user = that.getUser(userId);
+            if (!user) { resolve(false); return; }
+            user.joinedChannel = user.joinedChannel.filter(
+              (_channelId) => _channelId !== channelId
+            );
+            user.adminingChannel = user.adminingChannel.filter(
+              (_channelId) => _channelId !== channelId
+            );
+            that.updateUser(user);
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        },
+        fail() {
+          resolve(false);
+        }
+      });
     });
-    groupList.forEach(group => {
-      if (group.linkedChannel === channelId) {
-        this.removeGroup(group);
-      }
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async transferChannelOwner(channelId: number, newOwnerId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const that = this;
+    return new Promise((resolve) => {
+      wx.showModal({
+        title: '警告',
+        content: '确定要转让频道主身份给该成员吗？',
+        success(res) {
+          if (res.confirm) {
+            const currentOwner = that.currentUser();
+            const newOwner = that.getUser(newOwnerId) as User;
+            currentOwner.havingChannel = currentOwner.havingChannel.filter(channel => channel !== channelId);
+            newOwner.adminingChannel = newOwner.adminingChannel.filter(channel => channel !== channelId);
+            newOwner.havingChannel.push(channelId);
+            that.updateUser(currentOwner);
+            that.updateUser(newOwner);
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        },
+        fail() {
+          resolve(false);
+        }
+      });
     });
-    tourList.forEach(tour => {
-      if (tour.linkedChannel === channelId) {
-        this.removeTour(tour);
-      }
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async quitChannel(channelId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const that = this;
+    const currentUser = that.currentUser();
+    if (currentUser.havingGroup
+      .map(group => that.getGroup(group)?.linkedChannel)
+      .includes(channelId)
+    ) {
+      wx.showToast({
+        title: '你还在频道中拥有群组，请先结束行程、解散或转让群组',
+        icon: 'none',
+      });
+      return false;
+    }
+    return new Promise((resolve) => {
+      wx.showModal({
+        title: '警告',
+        content: '确定要退出该频道吗？同时将退出频道中你加入的所有群组',
+        success(res) {
+          if (res.confirm) {
+            currentUser.joinedChannel = currentUser.joinedChannel.filter(channel => channel !== channelId);
+            currentUser.adminingChannel = currentUser.adminingChannel.filter(channel => channel !== channelId);
+            for (const tour of that.getTourListCopy()) {
+              if (tour.linkedChannel === channelId && tour.status != TourStatus.Finished) {
+                tour.users = tour.users.filter(user => user !== currentUser.id);
+              }
+              that.updateTour(tour);
+            }
+            currentUser.joinedGroup = currentUser.joinedGroup.filter(group => that.getGroup(group)?.linkedChannel !== channelId);
+            currentUser.adminingGroup = currentUser.adminingGroup.filter(group => that.getGroup(group)?.linkedChannel !== channelId);
+            that.updateUser(currentUser);
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        },
+        fail() {
+          resolve(false);
+        }
+      });
     });
-    commentList.forEach(comment => {
-      if (postList.some(post => post.id === comment.linkedPost)) {
-        this.removeComment(comment);
-      }
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async disbandChannel(channelId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const that = this;
+    return new Promise((resolve) => {
+      wx.showModal({
+        title: '警告',
+        content: '确定要解散该频道吗？',
+        success(res) {
+          if (res.confirm) {
+            const userList = that.globalData.currentData.userList as User[];
+            const groupList = that.globalData.currentData.groupList as Group[];
+            const tourList = that.globalData.currentData.tourList as Tour[];
+            const postList = that.globalData.currentData.postList as Post[];
+            const commentList = that.globalData.currentData.commentList as Comment[];
+            userList.forEach(user => {
+              user.joinedChannel = user.joinedChannel.filter(
+                channelId => channelId !== channelId
+              );
+              user.adminingChannel = user.adminingChannel.filter(
+                channelId => channelId !== channelId
+              );
+              user.havingChannel = user.havingChannel.filter(
+                channelId => channelId !== channelId
+              );
+              user.joinedGroup = user.joinedGroup.filter(
+                groupId => that.getGroup(groupId)?.linkedChannel !== channelId
+              );
+              user.adminingGroup = user.adminingGroup.filter(
+                groupId => that.getGroup(groupId)?.linkedChannel !== channelId
+              );
+              user.havingGroup = user.havingGroup.filter(
+                groupId => that.getGroup(groupId)?.linkedChannel !== channelId
+              );
+              that.updateUser(user);
+            });
+            groupList.forEach(group => {
+              if (group.linkedChannel === channelId) {
+                that.removeGroup(group);
+              }
+            });
+            tourList.forEach(tour => {
+              if (tour.linkedChannel === channelId) {
+                that.removeTour(tour);
+              }
+            });
+            commentList.forEach(comment => {
+              if (postList.some(post => post.id === comment.linkedPost)) {
+                that.removeComment(comment);
+              }
+            });
+            postList.forEach(post => {
+              if (post.linkedChannel === channelId) {
+                that.removePost(post);
+              }
+            });
+            that.removeChannel(channelId);
+            resolve(true);
+          } else {
+            resolve(false);
+          }
+        },
+        fail() {
+          resolve(false);
+        }
+      });
     });
-    postList.forEach(post => {
-      if (post.linkedChannel === channelId) {
-        this.removePost(post);
-      }
-    });
-    this.removeChannel(channelId);
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   }
 })

@@ -90,8 +90,8 @@ Component({
   },
 
   methods: {
-    generateTourSaves() {
-      const tourSaves = app.generateTourSaves(this.properties.currentChannel.id);
+    async generateTourSaves() {
+      const tourSaves = await app.generateTourSaves(this.properties.currentChannel.id);
       this.setData({ tourSaves: tourSaves });
     },
     generateFullFootprints() {
@@ -147,8 +147,8 @@ Component({
       }, []);
       this.setData({ fullMarkers: markers, markers: markers });
     },
-    generateUserRankings() {
-      const rankList = app.generateUserRankings(this.data.footprints);
+    async generateUserRankings() {
+      const rankList = await app.generateUserRankings(this.data.footprints);
       this.setData({ userRankings: rankList });
     },
     onRankingVisibleChange() {
