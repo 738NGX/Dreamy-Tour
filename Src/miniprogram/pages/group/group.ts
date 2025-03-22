@@ -115,7 +115,7 @@ Component({
       });
       this.setData({ members, waitingUsers });
     },
-    onNewMemberIdInput(e: any) {
+    onNewMemberIdInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ newMemberId: e.detail.value });
     },
     addMember() {
@@ -158,7 +158,7 @@ Component({
       this.getMembers();
       this.setData({ newMemberId: '' });
     },
-    approveUser(e: any) {
+    approveUser(e: WechatMiniprogram.CustomEvent) {
       const userId = parseInt(e.currentTarget.dataset.index);
       const user = app.getUser(userId);
       if (!user) { return; }
@@ -174,7 +174,7 @@ Component({
       this.setData({ currentGroup, linkedTour });
       this.getMembers();
     },
-    rejectUser(e: any) {
+    rejectUser(e: WechatMiniprogram.CustomEvent) {
       const userId = parseInt(e.currentTarget.dataset.index);
       const { currentGroup } = this.data;
       currentGroup.waitingUsers = currentGroup.waitingUsers.filter(
@@ -184,7 +184,7 @@ Component({
       this.setData({ currentGroup });
       this.getMembers();
     },
-    handleUserAdminChange(e: any) {
+    handleUserAdminChange(e: WechatMiniprogram.CustomEvent) {
       const userId = e.currentTarget.dataset.index;
       const currentGroup = this.data.currentGroup;
       const user = app.getUser(userId);
@@ -201,7 +201,7 @@ Component({
       app.updateUser(user);
       this.getMembers();
     },
-    removeMember(e: any) {
+    removeMember(e: WechatMiniprogram.CustomEvent) {
       const that = this;
       wx.showModal({
         title: '警告',
@@ -228,7 +228,7 @@ Component({
         }
       });
     },
-    transferGroupOwner(e: any) {
+    transferGroupOwner(e: WechatMiniprogram.CustomEvent) {
       const that = this;
       wx.showModal({
         title: '警告',
@@ -263,7 +263,7 @@ Component({
     handleDateRangeChange() {
       this.setData({ calendarVisible: true });
     },
-    handleCalendarConfirm(e: any) {
+    handleCalendarConfirm(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
       const linkedTour = this.data.linkedTour;
       linkedTour.startDate = value[0];
@@ -283,7 +283,7 @@ Component({
         timezoneVisible: !this.data.timezoneVisible
       });
     },
-    onTimezoneColumnChange(e: any) {
+    onTimezoneColumnChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({ selectingTimeOffset: Number(e.detail.value[0]) });
     },
     onTourTimezonePickerChange() {
@@ -306,7 +306,7 @@ Component({
       this.setData({ linkedTour });
       app.updateTour(linkedTour);
     },
-    onRateInput(e: any) {
+    onRateInput(e: WechatMiniprogram.CustomEvent) {
       const { rateError } = this.data;
       const isNumber = /^\d+(\.\d+)?$/.test(e.detail.value);
       if (rateError === isNumber) {
@@ -315,7 +315,7 @@ Component({
         });
       }
     },
-    onRateUpdate(e: any) {
+    onRateUpdate(e: WechatMiniprogram.CustomEvent) {
       if (this.data.rateError) {
         return;
       }
@@ -329,7 +329,7 @@ Component({
         photoUploadVisible: !this.data.photoUploadVisible
       });
     },
-    handlePhotoAdd(e: any) {
+    handlePhotoAdd(e: WechatMiniprogram.CustomEvent) {
       const { uploadedPhotos } = this.data;
       const { files } = e.detail;
 
@@ -337,7 +337,7 @@ Component({
         uploadedPhotos: [...uploadedPhotos, ...files],
       });
     },
-    handlePhotoRemove(e: any) {
+    handlePhotoRemove(e: WechatMiniprogram.CustomEvent) {
       const { index } = e.detail;
       const { uploadedPhotos } = this.data;
 
@@ -353,7 +353,7 @@ Component({
       this.setData({ currentGroup, photoUploadVisible: false });
       app.updateGroup(currentGroup);
     },
-    handleTitleUpdate(e: any) {
+    handleTitleUpdate(e: WechatMiniprogram.CustomEvent) {
       const { currentGroup, linkedTour } = this.data;
       currentGroup.name = e.detail.value;
       linkedTour.title = e.detail.value;
@@ -361,13 +361,13 @@ Component({
       app.updateGroup(currentGroup);
       app.updateTour(linkedTour);
     },
-    handleDescriptionUpdate(e: any) {
+    handleDescriptionUpdate(e: WechatMiniprogram.CustomEvent) {
       const { currentGroup } = this.data;
       currentGroup.description = e.detail.value;
       this.setData({ currentGroup });
       app.updateGroup(currentGroup);
     },
-    onJoinWayChange(e: any) {
+    onJoinWayChange(e: WechatMiniprogram.CustomEvent) {
       const { currentGroup } = this.data;
       currentGroup.joinWay = e.detail.value;
       this.setData({ currentGroup });

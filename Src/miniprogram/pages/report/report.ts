@@ -45,7 +45,7 @@ Component({
         })
         console.log("currenttourinreport",this.data.currentTour)
     },
-    onChildPageChange(e: any) {
+    onChildPageChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({ childPage: e.detail.value })
   },
 

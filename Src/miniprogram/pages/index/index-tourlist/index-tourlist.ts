@@ -73,12 +73,12 @@ Component({
           });
         },
         /**
-         * selectTour(e: any)
+         * selectTour(e: WechatMiniprogram.CustomEvent)
          * @param e 
          * 选中组件并存储到app.globalData,等待edit调用
          */
 
-        selectTour(e: any) {
+        selectTour(e: WechatMiniprogram.CustomEvent) {
             const id = e.currentTarget.dataset.index;
             wx.getStorage({
                 key: 'tour-' + id,
@@ -89,11 +89,11 @@ Component({
             })
         },
         /**
-         * removeTour(e: any)
+         * removeTour(e: WechatMiniprogram.CustomEvent)
          * @param e 
          * 将当前行程从globalData中删除，从wxstorage中移除
          */ 
-        removeTour(e: any) {
+        removeTour(e: WechatMiniprogram.CustomEvent) {
             const id = e.currentTarget.dataset.index;
             const tourHashMap = this.data.tourHashMap;
 

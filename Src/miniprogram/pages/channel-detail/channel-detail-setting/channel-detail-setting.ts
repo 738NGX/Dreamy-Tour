@@ -77,7 +77,7 @@ Component({
         isChannelAdmin: userGroup === "系统管理员" || userGroup === "频道主" || userGroup === "频道管理员"
       });
     },
-    onNewMemberIdInput(e: any) {
+    onNewMemberIdInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ newMemberId: e.detail.value });
     },
     addMember() {
@@ -109,25 +109,25 @@ Component({
       this.getMembers();
       this.setData({ newMemberId: '' });
     },
-    handleTitleUpdate(e: any) {
+    handleTitleUpdate(e: WechatMiniprogram.CustomEvent) {
       const currentChannel = new Channel(this.properties.currentChannel);
       currentChannel.name = e.detail.value;
       app.updateChannel(currentChannel);
       this.onCurrentChannelChange(currentChannel);
     },
-    handleDescriptionUpdate(e: any) {
+    handleDescriptionUpdate(e: WechatMiniprogram.CustomEvent) {
       const currentChannel = new Channel(this.properties.currentChannel);
       currentChannel.description = e.detail.value;
       app.updateChannel(currentChannel);
       this.onCurrentChannelChange(currentChannel);
     },
-    onJoinWayChange(e: any) {
+    onJoinWayChange(e: WechatMiniprogram.CustomEvent) {
       const currentChannel = new Channel(this.properties.currentChannel);
       currentChannel.joinWay = e.detail.value;
       app.updateChannel(currentChannel);
       this.onCurrentChannelChange(currentChannel);
     },
-    approveUser(e: any) {
+    approveUser(e: WechatMiniprogram.CustomEvent) {
       const userId = parseInt(e.currentTarget.dataset.index);
       const user = app.getUser(userId);
       if (!user) { return; }
@@ -141,7 +141,7 @@ Component({
       this.onCurrentChannelChange(currentChannel);
       this.getMembers();
     },
-    rejectUser(e: any) {
+    rejectUser(e: WechatMiniprogram.CustomEvent) {
       const userId = parseInt(e.currentTarget.dataset.index);
       const currentChannel = new Channel(this.properties.currentChannel);
       currentChannel.waitingUsers = currentChannel.waitingUsers.filter(
@@ -151,7 +151,7 @@ Component({
       this.onCurrentChannelChange(currentChannel);
       this.getMembers();
     },
-    handleUserAdminChange(e: any) {
+    handleUserAdminChange(e: WechatMiniprogram.CustomEvent) {
       const userId = e.currentTarget.dataset.index;
       const currentChannelId = this.properties.currentChannel.id as number;
       const user = app.getUser(userId);
@@ -168,7 +168,7 @@ Component({
       app.updateUser(user);
       this.getMembers();
     },
-    removeMember(e: any) {
+    removeMember(e: WechatMiniprogram.CustomEvent) {
       const that = this;
       wx.showModal({
         title: '警告',
@@ -191,7 +191,7 @@ Component({
         }
       });
     },
-    transferChannelOwner(e: any) {
+    transferChannelOwner(e: WechatMiniprogram.CustomEvent) {
       const that = this;
       const newOwnerId = e.currentTarget.dataset.index;
       const currentChannel = that.properties.currentChannel as Channel;
@@ -257,53 +257,7 @@ Component({
         content: '确定要解散该频道吗？',
         success(res) {
           if (res.confirm) {
-            const userList = app.getUserListCopy();
-            const groupList = app.getGroupListCopy();
-            const tourList = app.getTourListCopy();
-            const postList = app.getPostListCopy();
-            const commentList = app.getCommentListCopy();
-            userList.forEach(user => {
-              user.joinedChannel = user.joinedChannel.filter(
-                channelId => channelId !== currentChannel.id
-              );
-              user.adminingChannel = user.adminingChannel.filter(
-                channelId => channelId !== currentChannel.id
-              );
-              user.havingChannel = user.havingChannel.filter(
-                channelId => channelId !== currentChannel.id
-              );
-              user.joinedGroup = user.joinedGroup.filter(
-                groupId => app.getGroup(groupId)?.linkedChannel !== currentChannel.id
-              );
-              user.adminingGroup = user.adminingGroup.filter(
-                groupId => app.getGroup(groupId)?.linkedChannel !== currentChannel.id
-              );
-              user.havingGroup = user.havingGroup.filter(
-                groupId => app.getGroup(groupId)?.linkedChannel !== currentChannel.id
-              );
-              app.updateUser(user);
-            });
-            groupList.forEach(group => {
-              if (group.linkedChannel === currentChannel.id) {
-                app.removeGroup(group);
-              }
-            });
-            tourList.forEach(tour => {
-              if (tour.linkedChannel === currentChannel.id) {
-                app.removeTour(tour);
-              }
-            });
-            commentList.forEach(comment => {
-              if (postList.some(post => post.id === comment.linkedPost)) {
-                app.removeComment(comment);
-              }
-            });
-            postList.forEach(post => {
-              if (post.linkedChannel === currentChannel.id) {
-                app.removePost(post);
-              }
-            });
-            app.removeChannel(currentChannel);
+            app.disbandChannel(currentChannel.id);
             wx.navigateBack();
           }
         }

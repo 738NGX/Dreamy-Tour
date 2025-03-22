@@ -3,7 +3,6 @@
  * 根据用户群权限加载管理页面
  */
 import { Channel } from "../../utils/channel/channel";
-import { getUserGroupNameInChannel } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -12,8 +11,9 @@ Component({
     // 页面显示内容
     tabList: [
       { icon: 'map-location', label: '足迹', value: 0 },
-      { icon: 'chat-bubble', label: '讨论', value: 1 },
+      { icon: 'shutter', label: '讨论', value: 1 },
       { icon: 'usergroup', label: '群组', value: 2 },
+      { icon: 'setting-1', label: '选项', value: 3 },
     ],
 
     // 页面状态
@@ -28,25 +28,6 @@ Component({
       this.setData({
         currentChannel: app.getChannel(parseInt(channelId)),
       });
-      const userGroup = getUserGroupNameInChannel(
-        app.currentUser(),
-        parseInt(channelId)
-      )
-      this.setData({
-        tabList: userGroup === '系统管理员' || userGroup === '频道主' || userGroup === '频道管理员'
-          ? [
-            { icon: 'map-location', label: '足迹', value: 0 },
-            { icon: 'shutter', label: '讨论', value: 1 },
-            { icon: 'usergroup', label: '群组', value: 2 },
-            { icon: 'setting-1', label: '管理', value: 3 },
-          ]
-          : [
-            { icon: 'map-location', label: '足迹', value: 0 },
-            { icon: 'shutter', label: '讨论', value: 1 },
-            { icon: 'usergroup', label: '群组', value: 2 },
-            { icon: 'setting-1', label: '选项', value: 3 },
-          ]
-      });
     },
     onShow() {
       const postsComponent = this.selectComponent('#posts');
@@ -59,10 +40,10 @@ Component({
         groupsComponent.getTourTemplates();
       }
     },
-    onChildPageChange(e: any) {
+    onChildPageChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({ childPage: e.detail.value })
     },
-    handleCurrentChannelChange(e: any) {
+    handleCurrentChannelChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({ currentChannel: new Channel(e.detail.value) })
     },
   },

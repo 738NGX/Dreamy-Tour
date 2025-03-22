@@ -78,7 +78,7 @@ Component({
         rightPosts: rightPosts,
       });
     },
-    onSearch(e: any) {
+    onSearch(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
       this.setData({ searchingValue: value });
       this.sortPosts(value);
@@ -90,19 +90,19 @@ Component({
     handlePost() {
       this.setData({ inputVisible: !this.data.inputVisible });
     },
-    handleTitleInput(e: any) {
+    handleTitleInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ inputTitle: e.detail.value });
     },
-    handleInput(e: any) {
+    handleInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ inputValue: e.detail.value });
     },
-    handleImageUploadSuccess(e: any) {
+    handleImageUploadSuccess(e: WechatMiniprogram.CustomEvent) {
       const { files } = e.detail;
       this.setData({
         originFiles: files,
       });
     },
-    handleImageUploadRemove(e: any) {
+    handleImageUploadRemove(e: WechatMiniprogram.CustomEvent) {
       const { index } = e.detail;
       const { originFiles } = this.data;
       originFiles.splice(index, 1);
@@ -110,16 +110,16 @@ Component({
         originFiles,
       });
     },
-    handleImageUploadClick(e: any) {
+    handleImageUploadClick(e: WechatMiniprogram.CustomEvent) {
       console.log(e.detail.file);
     },
-    handleImageUploadDrop(e: any) {
+    handleImageUploadDrop(e: WechatMiniprogram.CustomEvent) {
       const { files } = e.detail;
       this.setData({
         originFiles: files,
       });
     },
-    handlePostDetail(e: any) {
+    handlePostDetail(e: WechatMiniprogram.CustomEvent) {
       const id = e.currentTarget.dataset.index;
       wx.navigateTo({
         url: `/pages/channel-post/channel-post?postId=${id}`,

@@ -31,7 +31,7 @@ Component({
           currentTourId:tourId
        });
     },
-    handleCurrentTourChange(e: any) {
+    handleCurrentTourChange(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
       this.setData({ currentTour: new Tour(value) });
     },
@@ -60,7 +60,7 @@ Component({
       const nextFilter = dateRange[nextFilterIndex] || dateRange[0];
       this.setData({ currentDateFilter: nextFilter });
     },
-    onCopyChange(e: any) {
+    onCopyChange(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
       this.setData({ currentCopyIndex: value });
     },
@@ -71,7 +71,7 @@ Component({
       this.setData({ currentTour, copyOptions });
       app.updateTour(currentTour);
     },
-    changeCopyName(e: any) {
+    changeCopyName(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
       const index = e.currentTarget.dataset.index;
       const { currentTour, copyOptions } = this.data;
@@ -97,7 +97,7 @@ Component({
         }
       });
     },
-    removeCopy(e: any) {
+    removeCopy(e: WechatMiniprogram.CustomEvent) {
       const index = e.currentTarget.dataset.index;
       const { currentTour } = this.data;
       currentTour.removeCopy(index);
@@ -105,7 +105,7 @@ Component({
       this.setData({ currentTour, copyOptions, currentCopyIndex: 0 });
       app.updateTour(currentTour);
     },
-    changeBudgetName(e: any) {
+    changeBudgetName(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
       const index = e.currentTarget.dataset.index;
       const { currentTour } = this.data;
@@ -113,7 +113,7 @@ Component({
       this.setData({ currentTour });
       app.updateTour(currentTour);
     },
-    changeBudgetAmount(e: any) {
+    changeBudgetAmount(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
       const index = e.currentTarget.dataset.index;
       const { currentTour } = this.data;
@@ -121,7 +121,7 @@ Component({
       this.setData({ currentTour });
       app.updateTour(currentTour);
     },
-    exchangeBudgetCurrency(e: any) {
+    exchangeBudgetCurrency(e: WechatMiniprogram.CustomEvent) {
       const index = e.currentTarget.dataset.index;
       const { currentTour } = this.data;
       const currentCurrency = currentTour.budgets[index].currency;

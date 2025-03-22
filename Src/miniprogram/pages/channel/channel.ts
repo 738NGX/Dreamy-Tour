@@ -28,7 +28,7 @@ Component({
         this.selectComponent('#adder').loadChannelList();
       }
     },
-    onChildPageChange(e: any) {
+    onChildPageChange(e: WechatMiniprogram.CustomEvent) {
       console.log(e.detail.value)
       this.setData({ childPage: e.detail.value })
     },

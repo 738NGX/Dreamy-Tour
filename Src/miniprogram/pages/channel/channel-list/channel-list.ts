@@ -1,9 +1,16 @@
+import { Channel } from "../../../utils/channel/channel";
+
+const app = getApp<IAppOption>();
+
 Component({
   properties: {
 
   },
   data: {
-    channelList: [] as any[],
+    refreshEnable: false,
+    
+    fullChannelList: [] as Channel[],
+    channelList: [] as Channel[],
     searchingValue: '',
   },
   lifetimes: {
@@ -15,27 +22,39 @@ Component({
     },
   },
   methods: {
-    onChannelClick(e: any) {
+    onRefresh() {
+      this.setData({ refreshEnable: true });
+      setTimeout(() => {
+        this.setData({ refreshEnable: false });
+      }, 500);
+      this.loadChannelList();
+      this.setData({
+        channelList: this.data.fullChannelList.filter(
+          channel => channel.name.includes(this.data.searchingValue))
+      });
+    },
+    onChannelClick(e: WechatMiniprogram.CustomEvent) {
       const channelId = e.currentTarget.dataset.index;
       wx.navigateTo({
         url: `/pages/channel-detail/channel-detail?channelId=${channelId}`,
       });
     },
     loadChannelList() {
-      const channelList = getApp<IAppOption>().getChannelListCopy().filter(
-        channel => getApp<IAppOption>().currentUser().joinedChannel
-          .includes(channel.id) && channel.id != 1 && channel.name.includes(this.data.searchingValue)
-      );
-      this.setData({ channelList });
+      const channelList = app.getCurrentUserJoinedChannels();
+      this.setData({ channelList, fullChannelList: channelList });
     },
-    onSearch(e: any) {
+    onSearch(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
-      this.setData({ searchingValue: value });
-      this.loadChannelList();
+      this.setData({
+        searchingValue: value,
+        channelList: this.data.fullChannelList.filter(channel => channel.name.includes(value)),
+      });
     },
     onSearchClear() {
-      this.setData({ searchingValue: '' });
-      this.loadChannelList();
+      this.setData({
+        searchingValue: '',
+        channelList: this.data.fullChannelList,
+      });
     },
   }
 });

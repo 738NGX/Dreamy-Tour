@@ -77,7 +77,7 @@ Component({
             //console.log("index-containsTourUpdate触发")
             this.loadTourHashMap();  //更新containsTour
         },
-        onChildPageChange(e: any) {
+        onChildPageChange(e: WechatMiniprogram.CustomEvent) {
             this.setData({ childPage: e.detail.value })
         },
     },

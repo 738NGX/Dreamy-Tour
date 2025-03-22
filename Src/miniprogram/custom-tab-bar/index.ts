@@ -37,7 +37,7 @@ Component({
     },
     //  组件的方法列表
     methods: {
-        onChange(e: any) {
+        onChange(e: WechatMiniprogram.CustomEvent) {
             wx.switchTab({
                 url: e.detail.value
             });

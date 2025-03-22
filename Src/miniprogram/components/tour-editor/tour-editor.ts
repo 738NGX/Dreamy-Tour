@@ -206,7 +206,7 @@ Component({
     /**
      * 位置节点标题修改
      */
-    handleLocationTitleInput(e: any) {
+    handleLocationTitleInput(e: WechatMiniprogram.CustomEvent) {
       const currentTour = this.data.currentTour;
       if (!currentTour) return;
 
@@ -221,7 +221,7 @@ Component({
     /**
      * 位置节点起始日期修改
      */
-    handleNodeStartDateSelect(e: any) {
+    handleNodeStartDateSelect(e: WechatMiniprogram.CustomEvent) {
       const currentTour = this.data.currentTour;
       if (!currentTour) return;
       if (e.currentTarget.dataset.index != undefined) {
@@ -245,7 +245,7 @@ Component({
     /**
      * 位置节点结束日期修改
      */
-    handleNodeEndDateSelect(e: any) {
+    handleNodeEndDateSelect(e: WechatMiniprogram.CustomEvent) {
       const currentTour = this.data.currentTour;
       if (!currentTour) return;
       if (e.currentTarget.dataset.index != undefined) {
@@ -269,7 +269,7 @@ Component({
     /**
      * 修改datetime的值
      */
-    onDatetimeColumnChange(e: any) {
+    onDatetimeColumnChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({ selectingDatetime: new Date(e.detail.value + ":00").getTime() });
     },
     /**
@@ -346,7 +346,7 @@ Component({
     /**
      * 时区修改
      */
-    handleNodeTimezoneSelect(e: any) {
+    handleNodeTimezoneSelect(e: WechatMiniprogram.CustomEvent) {
       if (e.currentTarget.dataset.index != undefined) {
         this.setData({ editingLocationId: e.currentTarget.dataset.index });
       }
@@ -357,7 +357,7 @@ Component({
         selectingTimeOffset: editingLocation.timeOffset
       });
     },
-    onTimezoneColumnChange(e: any) {
+    onTimezoneColumnChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({ selectingTimeOffset: Number(e.detail.value[0]) });
     },
     /**
@@ -413,7 +413,7 @@ Component({
     /**
      * 交通节点持续时间修改
      */
-    handleDuartionSelect(e: any) {
+    handleDuartionSelect(e: WechatMiniprogram.CustomEvent) {
       if (e.currentTarget.dataset.index != undefined) {
         this.setData({ editingTransportationId: e.currentTarget.dataset.index });
       }
@@ -431,7 +431,7 @@ Component({
         selectingDuration: durationStr,
       });
     },
-    onDurationColumnChange(e: any) {
+    onDurationColumnChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({ selectingDuration: e.detail.value });
     },
     onDurationConfirm() {
@@ -482,7 +482,7 @@ Component({
     /**
      * 显示地图
      */
-    onMapVisibleChange(e: any) {
+    onMapVisibleChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.currentTour) return;
 
       const currentTour = this.data.currentTour;
@@ -513,7 +513,7 @@ Component({
      * 点击地图、更改位置
      * @param e 
      */
-    onTapMap(e: any) {
+    onTapMap(e: WechatMiniprogram.CustomEvent) {
       const latitude = e.detail.latitude.toFixed(6);
       const longitude = e.detail.longitude.toFixed(6);
       this.setData({
@@ -556,7 +556,7 @@ Component({
      * @param e 
      * @returns 
      */
-    onPhotoVisibleChange(e: any) {
+    onPhotoVisibleChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.currentTour) return;
 
       const currentTour = this.data.currentTour;
@@ -583,7 +583,7 @@ Component({
         photoUploadVisible: !this.data.photoUploadVisible
       });
     },
-    handlePhotoAdd(e: any) {
+    handlePhotoAdd(e: WechatMiniprogram.CustomEvent) {
       const { uploadedPhotos } = this.data;
       const { files } = e.detail;
 
@@ -591,7 +591,7 @@ Component({
         uploadedPhotos: [...uploadedPhotos, ...files],
       });
     },
-    handlePhotoRemove(e: any) {
+    handlePhotoRemove(e: WechatMiniprogram.CustomEvent) {
       const { index } = e.detail;
       const { uploadedPhotos } = this.data;
 
@@ -614,7 +614,7 @@ Component({
         photoUploadVisible: false,
       });
     },
-    removePhoto(e: any) {
+    removePhoto(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.currentTour || !this.data.editingLocation) return;
       if (e.currentTarget.dataset.index === undefined) return;
       const id = e.currentTarget.dataset.index;
@@ -654,7 +654,7 @@ Component({
     /**
      * 删除消费
      */
-    removeExpense(e: any) {
+    removeExpense(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.currentTour || !this.data.editingLocation) return;
       if (e.currentTarget.dataset.index === undefined) return;
       const id = e.currentTarget.dataset.index;
@@ -665,7 +665,7 @@ Component({
     /**
      * 消费编辑弹窗
      */
-    onExpenseVisibleChange(e: any) {
+    onExpenseVisibleChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.currentTour) return;
       const id = e.currentTarget.dataset.index === undefined ? -1 : e.currentTarget.dataset.index;
 
@@ -700,7 +700,7 @@ Component({
     /**
      * 切换消费
      */
-    onExpenseIdChange(e: any) {
+    onExpenseIdChange(e: WechatMiniprogram.CustomEvent) {
       const id = e.detail.value[0] === undefined ? -1 : e.detail.value[0];
       this.setData({ editingExpenseId: id });
     },
@@ -709,7 +709,7 @@ Component({
      * @param e 
      * @returns 
      */
-    onExpenseTitleInput(e: any) {
+    onExpenseTitleInput(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.editingLocation) return;
       this.setData({
         'editingLocation.expenses': this.data.editingLocation.expenses.map((expense: any, index: number) => {
@@ -723,7 +723,7 @@ Component({
     /**
      * 消费金额更改
      */
-    onExpensePriceInput(e: any) {
+    onExpensePriceInput(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.editingLocation) return;
       const { priceError } = this.data;
       const isNumber = /^\d+(\.\d+)?$/.test(e.detail.value);
@@ -766,7 +766,7 @@ Component({
      * @param e 
      * @returns 
      */
-    handleExpenseTypeChange(e: any) {
+    handleExpenseTypeChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.editingLocation) return;
       this.setData({
         'editingLocation.expenses': this.data.editingLocation.expenses.map((expense: any, index: number) => {
@@ -798,7 +798,7 @@ Component({
      * @param e 
      * @returns 
      */
-    handleExpenseUserChange(e: any) {
+    handleExpenseUserChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.editingLocation) return;
       const user = e.detail.value;
       this.setData({
@@ -815,7 +815,7 @@ Component({
      * @param e 
      * @returns 
      */
-    handleExpenseBudgetChange(e: any) {
+    handleExpenseBudgetChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.editingLocation) return;
       const budget = e.detail.value;
       this.setData({
@@ -832,7 +832,7 @@ Component({
      * @param e 
      * @returns 
      */
-    onExpenseNoteInput(e: any) {
+    onExpenseNoteInput(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.editingLocation) return;
       this.setData({
         'editingLocation.expenses': this.data.editingLocation.expenses.map((expense: any, index: number) => {
@@ -848,7 +848,7 @@ Component({
      * @param e 
      * @returns 
      */
-    onNoteVisibleChange(e: any) {
+    onNoteVisibleChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.currentTour) return;
 
       const currentTour = this.data.currentTour;
@@ -874,7 +874,7 @@ Component({
      * 填写备注
      * @param e 
      */
-    onNoteInput(e: any) {
+    onNoteInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ editingNote: e.detail.value });
     },
     changeNote() {
@@ -900,7 +900,7 @@ Component({
     /**
      * 添加消费
      */
-    addTransportExpense(e: any) {
+    addTransportExpense(e: WechatMiniprogram.CustomEvent) {
       if (e.currentTarget.dataset.index != undefined) {
         this.setData({ editingTransportationId: e.currentTarget.dataset.index });
       }
@@ -923,7 +923,7 @@ Component({
      * @param e 
      * @returns 
      */
-    removeTransportExpense(e: any) {
+    removeTransportExpense(e: WechatMiniprogram.CustomEvent) {
       if (e.currentTarget.dataset.index != undefined) {
         this.setData({
           editingTransportationId: e.currentTarget.dataset.index[0],
@@ -949,7 +949,7 @@ Component({
      * @param e 
      * @returns 
      */
-    onTransExpenseVisibleChange(e: any) {
+    onTransExpenseVisibleChange(e: WechatMiniprogram.CustomEvent) {
       if (e.currentTarget.dataset.index != undefined) {
         this.setData({
           editingTransportationId: e.currentTarget.dataset.index[0],
@@ -982,7 +982,7 @@ Component({
     /**
      * 消费标题更改
      */
-    onTransExpenseTitleInput(e: any) {
+    onTransExpenseTitleInput(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.editingTransExpense) return;
       this.setData({
         'editingTransExpense.title': e.detail.value
@@ -991,7 +991,7 @@ Component({
     /**
      * 消费金额更改
      */
-    onTransExpensePriceInput(e: any) {
+    onTransExpensePriceInput(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.editingTransExpense) return;
       const { priceError } = this.data;
       const isNumber = /^\d+(\.\d+)?$/.test(e.detail.value);
@@ -1011,7 +1011,7 @@ Component({
      * @param e 
      * @returns 
      */
-    onTransExpenseNoteInput(e: any) {
+    onTransExpenseNoteInput(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.editingTransExpense) return;
       this.setData({
         'editingTransExpense.note': e.detail.value
@@ -1022,7 +1022,7 @@ Component({
      * @param e 
      * @returns 
      */
-    handleTransExpenseTypeChange(e: any) {
+    handleTransExpenseTypeChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.editingTransExpense) return;
       this.setData({
         'editingTransExpense.transportType': e.detail.value
@@ -1033,7 +1033,7 @@ Component({
      * @param e 
      * @returns 
      */
-    handleTransExpenseUserChange(e: any) {
+    handleTransExpenseUserChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.editingTransExpense) return;
       const user = this.data.editingTransExpense.user;
       if (user.includes(e.detail.value[0])) {
@@ -1051,7 +1051,7 @@ Component({
      * @param e 
      * @returns 
      */
-    handleTransExpenseBudgetChange(e: any) {
+    handleTransExpenseBudgetChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.editingTransExpense) return;
       const budget = this.data.editingTransExpense.budget;
       if (budget.includes(e.detail.value[0])) {
@@ -1160,7 +1160,7 @@ Component({
      * @param e 
      * @returns 
      */
-    handleLocationInsert(e: any) {
+    handleLocationInsert(e: WechatMiniprogram.CustomEvent) {
       const currentTour = this.data.currentTour;
       const index = e.currentTarget.dataset.index;
       if (!currentTour || index === undefined) return;
@@ -1195,7 +1195,7 @@ Component({
      * @param e 
      * @returns 
      */
-    handleLocationRemove(e: any) {
+    handleLocationRemove(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.currentTour
         || !this.data.currentStartDateStrList
         || !this.data.currentEndDateStrList

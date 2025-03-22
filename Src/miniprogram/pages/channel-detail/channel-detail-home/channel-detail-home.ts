@@ -16,13 +16,33 @@ if (PLUGIN_KEY) {
   });
   qqmapsdk
 }
-import { Channel } from "../../../utils/channel/channel";
+import { UserRanking } from '../../../utils/channel/userRanking';
+import { FootPrint } from '../../../utils/tour/footprint';
+import { Photo } from '../../../utils/tour/photo';
 import { timezoneList } from '../../../utils/tour/timezone';
-import { Tour, TourStatus } from '../../../utils/tour/tour';
-import { Location } from '../../../utils/tour/tourNode';
+import { Tour } from '../../../utils/tour/tour';
 import { formatDate, formatTime, MILLISECONDS } from "../../../utils/util";
 
 const app = getApp<IAppOption>();
+
+interface Marker {
+  id: number;
+  latitude: number;
+  longitude: number;
+  iconPath: string;
+  width: number;
+  height: number;
+  info: MarkerInfo;
+}
+
+interface MarkerInfo {
+  tourTitle: string;
+  locationTitle: string;
+  timeValue: number;
+  time: string;
+  timezone: string;
+  photos: Photo[];
+}
 
 Component({
   properties: {
@@ -33,12 +53,12 @@ Component({
   },
 
   data: {
-    tourSaves: [] as any[],
-    fullFootprints: [] as any[],
-    fullMarkers: [] as any[],
-    footprints: [] as any[],
-    markers: [] as any[],
-    photoSwiperList: [] as any[],
+    tourSaves: [] as Tour[],
+    fullFootprints: [] as FootPrint[],
+    fullMarkers: [] as Marker[],
+    footprints: [] as FootPrint[],
+    markers: [] as Marker[],
+    photoSwiperList: [] as Marker[],
 
     filterVisible: false,
     filterDate: [0, 0],
@@ -55,9 +75,9 @@ Component({
       locationTitle: '',
       time: '',
       timezone: '',
-    } as any,
+    } as MarkerInfo,
 
-    userRankings: [] as any[],
+    userRankings: [] as UserRanking[],
   },
 
   lifetimes: {
@@ -71,11 +91,7 @@ Component({
 
   methods: {
     generateTourSaves() {
-      const currentChannel = this.properties.currentChannel as Channel;
-      const tourSaves = app.getTourListCopy()
-        .map(tour => new Tour(tour))
-        .filter(tour => tour.linkedChannel == currentChannel.id && tour.status == TourStatus.Finished && tour.channelVisible)
-        .sort((a: any, b: any) => b.startDate - a.startDate);
+      const tourSaves = app.generateTourSaves(this.properties.currentChannel.id);
       this.setData({ tourSaves: tourSaves });
     },
     generateFullFootprints() {
@@ -106,8 +122,8 @@ Component({
       });
     },
     generateFullMarkers() {
-      const markers = this.data.tourSaves.reduce((acc: any[], tour) => {
-        tour.locations.forEach((copy: Location[]) => copy.forEach((location: Location) => {
+      const markers = this.data.tourSaves.reduce((acc: Marker[], tour) => {
+        tour.locations.forEach((copy) => copy.forEach((location) => {
           if (location.photos.length > 0) {
             acc.push({
               id: tour.id * 1000000 + tour.locations.indexOf(copy) * 10000 + location.index,
@@ -121,7 +137,7 @@ Component({
                 locationTitle: location.title,
                 timeValue: tour.startDate + location.startOffset,
                 time: formatTime(tour.startDate + location.startOffset, location.timeOffset),
-                timezone: timezoneList.find(timezone => timezone.value == location.timeOffset)?.label,
+                timezone: timezoneList.find(timezone => timezone.value == location.timeOffset)?.label ?? '未知时区',
                 photos: location.photos,
               }
             });
@@ -132,21 +148,7 @@ Component({
       this.setData({ fullMarkers: markers, markers: markers });
     },
     generateUserRankings() {
-      const userTourCount: Map<number, number> = new Map();
-
-      this.data.footprints.forEach(tour => {
-        tour.users.forEach((userId: any) => {
-          userTourCount.set(userId, (userTourCount.get(userId) || 0) + 1);
-        });
-      });
-      const rankList = app.getUserListCopy().map(user => {
-        const count = userTourCount.get(user.id) || 0;
-        return { rank: 0, name: user.name, count };
-      }).filter((user: any) => user.count > 0);
-      rankList.sort((a: any, b: any) => b.count - a.count);
-      rankList.forEach((user: any, index: any) => {
-        user.rank = index + 1;
-      });
+      const rankList = app.generateUserRankings(this.data.footprints);
       this.setData({ userRankings: rankList });
     },
     onRankingVisibleChange() {
@@ -154,7 +156,7 @@ Component({
         rankingVisible: !this.data.rankingVisible,
       });
     },
-    onMarkerDetailVisibleChange(e: any) {
+    onMarkerDetailVisibleChange(e: WechatMiniprogram.CustomEvent) {
       let id = e.detail.markerId;
       if (id === undefined) { id = -1; }
       this.setData({
@@ -163,7 +165,7 @@ Component({
       if (id != -1) {
         this.setData({
           currentPhotoIndex: 0,
-          selectingMarkerInfo: this.data.markers.find((marker: any) => marker.id == id)?.info ?? {},
+          selectingMarkerInfo: this.data.markers.find((marker) => marker.id == id)?.info ?? {} as MarkerInfo,
         });
       }
     },
@@ -186,7 +188,7 @@ Component({
     handleFilter() {
       this.setData({ filterVisible: true });
     },
-    handleFilterConfirm(e: any) {
+    handleFilterConfirm(e: WechatMiniprogram.CustomEvent) {
       const filterDate = e.detail.value;
       this.setData({
         filterDate: filterDate,
@@ -205,7 +207,7 @@ Component({
       this.filterMarkers();
       this.generateUserRankings();
     },
-    handleTourView(e: any) {
+    handleTourView(e: WechatMiniprogram.CustomEvent) {
       const tourId = e.currentTarget.dataset.index;
       wx.navigateTo({
         url: `/pages/tour-view/tour-view?tourId=${tourId}`,

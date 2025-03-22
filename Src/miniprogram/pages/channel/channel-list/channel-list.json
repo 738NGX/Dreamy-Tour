@@ -5,6 +5,7 @@
     "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
     "t-cell": "tdesign-miniprogram/cell/cell",
     "t-search": "tdesign-miniprogram/search/search",
+    "t-pull-down-refresh": "tdesign-miniprogram/pull-down-refresh/pull-down-refresh",
     "t-avatar": "tdesign-miniprogram/avatar/avatar"
   }
 }

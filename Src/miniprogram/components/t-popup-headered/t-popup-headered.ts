@@ -25,7 +25,7 @@ Component({
         },
     },
     methods: {
-        onVisibleChange(e: any) {
+        onVisibleChange(e: WechatMiniprogram.CustomEvent) {
             this.triggerEvent('visible-change', e.detail);
         },
         onCancel() {

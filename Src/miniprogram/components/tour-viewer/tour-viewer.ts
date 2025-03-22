@@ -162,7 +162,7 @@ Component({
       const currentTour = new Tour(latestTour);
       return currentTour;
     },
-    onMapVisibleChange(e: any) {
+    onMapVisibleChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.currentTour) return;
 
       const currentTour = this.getLatestTour();
@@ -189,7 +189,7 @@ Component({
         }]
       });
     },
-    onPhotoVisibleChange(e: any) {
+    onPhotoVisibleChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.currentTour) return;
 
       const currentTour = this.getLatestTour();
@@ -207,7 +207,7 @@ Component({
         photoVisible: !this.data.photoVisible
       });
     },
-    onExpenseVisibleChange(e: any) {
+    onExpenseVisibleChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.currentTour) return;
       const id = e.currentTarget.dataset.index === undefined ? -1 : e.currentTarget.dataset.index;
 
@@ -221,11 +221,11 @@ Component({
         expenseVisible: !this.data.expenseVisible
       });
     },
-    onExpenseIdChange(e: any) {
+    onExpenseIdChange(e: WechatMiniprogram.CustomEvent) {
       const id = e.detail.value[0] === undefined ? -1 : e.detail.value[0];
       this.setData({ editingExpenseId: id });
     },
-    onNoteVisibleChange(e: any) {
+    onNoteVisibleChange(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.currentTour) return;
 
       const currentTour = this.getLatestTour();
@@ -247,7 +247,7 @@ Component({
         noteVisible: !this.data.noteVisible
       });
     },
-    onTransExpenseVisibleChange(e: any) {
+    onTransExpenseVisibleChange(e: WechatMiniprogram.CustomEvent) {
       if (e.currentTarget.dataset.index != undefined) {
         this.setData({
           editingTransportationId: e.currentTarget.dataset.index[0],

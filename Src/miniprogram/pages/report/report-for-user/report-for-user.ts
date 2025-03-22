@@ -180,7 +180,7 @@ Component({
     onCopyChange(index: number) {
       this.setData({ currentTourCopyIndex: index });
     },
-    handleCollapsesChange(e: any) {
+    handleCollapsesChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({
           activeCollapses: {
               ...this.data.activeCollapses,

@@ -75,7 +75,7 @@ Component({
       }));
       this.setData({ tourTemplates });
     },
-    onSearch(e: any) {
+    onSearch(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
       this.setData({ searchingValue: value });
       this.classifyGroups(value);
@@ -100,7 +100,7 @@ Component({
       )
       this.setData({ currentUser, joinedGroups, unJoinedGroups })
     },
-    onGroupClick(e: any) {
+    onGroupClick(e: WechatMiniprogram.CustomEvent) {
       const id = e.currentTarget.dataset.index
       wx.navigateTo({
         url: `/pages/group/group?groupId=${id}`,
@@ -109,14 +109,14 @@ Component({
     handleCreateGroup() {
       this.setData({ createGroupVisible: !this.data.createGroupVisible })
     },
-    handleTitleInput(e: any) {
+    handleTitleInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ inputTitle: e.detail.value })
     },
-    handleInput(e: any) {
+    handleInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ inputValue: e.detail.value })
     },
     // 控制货币变更
-    onCurrencyColumnChange(e: any) {
+    onCurrencyColumnChange(e: WechatMiniprogram.CustomEvent) {
       const { column, index } = e.detail;
       const newTourMainCurrency = currencyList[index].value;
 
@@ -125,7 +125,7 @@ Component({
         this.setData({ subCurrencies: subCurrencies });
       }
     },
-    onCurrencyPickerChange(e: any) {
+    onCurrencyPickerChange(e: WechatMiniprogram.CustomEvent) {
       const { value, label } = e.detail;
 
       this.setData({
@@ -141,13 +141,13 @@ Component({
     handleTourTemplatePicker() {
       this.setData({ tourTemplateSelectorVisible: !this.data.tourTemplateSelectorVisible });
     },
-    onTourTemplatePickerChange(e: any) {
+    onTourTemplatePickerChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({
         tourTemplateId: e.detail.value,
         tourTemplateText: e.detail.label[0],
       });
     },
-    onTourTemplateColumnChange(e: any) {
+    onTourTemplateColumnChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({
         tourTemplateId: e.detail.value,
         tourTemplateText: e.detail.label[0],
@@ -205,7 +205,7 @@ Component({
       })
       this.onRefresh()
     },
-    joinGroup(e: any) {
+    joinGroup(e: WechatMiniprogram.CustomEvent) {
       const groupId = parseInt(e.currentTarget.dataset.index);
       const group = app.getGroup(groupId) as Group;
       if (group.joinWay == JoinWay.Approval) {

@@ -98,7 +98,7 @@ Component({
             this.setData({ calendarVisible: true });
         },
         //控制日历弹窗的确定，给组件存储的newTour赋值
-        handleCalendarConfirm(e: any) {
+        handleCalendarConfirm(e: WechatMiniprogram.CustomEvent) {
             this.setData({
                 newTourDate: e.detail.value,
                 newTourStartDateStr: formatDate(new Date(e.detail.value[0])),
@@ -106,11 +106,11 @@ Component({
             });
         },
         //行程名字变更
-        handleTitleInput(e: any) {
+        handleTitleInput(e: WechatMiniprogram.CustomEvent) {
             this.setData({ newTourName: e.detail.value, });
         },
         //控制货币变更
-        onCurrencyColumnChange(e: any) {
+        onCurrencyColumnChange(e: WechatMiniprogram.CustomEvent) {
             const { column, index } = e.detail;
             const newTourMainCurrency = currencyList[index].value;
 
@@ -120,7 +120,7 @@ Component({
             }
         },
         //确定，更新主/辅货币
-        onCurrencyPickerChange(e: any) {
+        onCurrencyPickerChange(e: WechatMiniprogram.CustomEvent) {
             const { value, label } = e.detail;
 
             this.setData({
@@ -261,7 +261,7 @@ Component({
                 selectingTourId: this.data.tourList[0].id,
             });
         },
-        onTourColumnChange(e: any) {
+        onTourColumnChange(e: WechatMiniprogram.CustomEvent) {
             this.setData({ selectingTourId: e.detail.value[0] });
         },
 
@@ -320,7 +320,7 @@ Component({
                 importerVisible: !this.data.importerVisible,
             });
         },
-        handleImporterInput(e: any) {
+        handleImporterInput(e: WechatMiniprogram.CustomEvent) {
             this.setData({ importedTourData: e.detail.value });
         },
         /**

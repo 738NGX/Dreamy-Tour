@@ -8,7 +8,10 @@ Component({
 
   },
   data: {
-    channelList: [] as any[],
+    refreshEnable: false,
+
+    channelList: [] as Channel[],
+    fullChannelList: [] as Channel[],
 
     createChannelVisible: false,
 
@@ -25,29 +28,41 @@ Component({
     },
   },
   methods: {
-    loadChannelList() {
-      const channelList = app.getChannelListCopy().filter(
-        channel => !app.currentUser().joinedChannel
-          .includes(channel.id) && channel.id != 1
-      );
-      this.setData({ channelList });
-    },
-    onSearch(e: any) {
-      const { value } = e.detail;
-      this.setData({ searchingValue: value });
+    onRefresh() {
+      this.setData({ refreshEnable: true });
+      setTimeout(() => {
+        this.setData({ refreshEnable: false });
+      }, 500);
       this.loadChannelList();
+      this.setData({
+        channelList: this.data.fullChannelList.filter(
+          channel => channel.name.includes(this.data.searchingValue))
+      });
+    },
+    loadChannelList() {
+      const channelList = app.getCurrentUserUnjoinedChannels();
+      this.setData({ channelList, fullChannelList: channelList });
+    },
+    onSearch(e: WechatMiniprogram.CustomEvent) {
+      const { value } = e.detail;
+      this.setData({
+        searchingValue: value,
+        channelList: this.data.fullChannelList.filter(channel => channel.name.includes(value)),
+      });
     },
     onSearchClear() {
-      this.setData({ searchingValue: '' });
-      this.loadChannelList();
+      this.setData({
+        searchingValue: '',
+        channelList: this.data.fullChannelList,
+      });
     },
     handleCreateChannel() {
       this.setData({ createChannelVisible: !this.data.createChannelVisible })
     },
-    handleTitleInput(e: any) {
+    handleTitleInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ inputTitle: e.detail.value })
     },
-    handleInput(e: any) {
+    handleInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ inputValue: e.detail.value })
     },
     handleCreateChannelConfirm() {
@@ -81,7 +96,7 @@ Component({
         icon: 'none',
       });
     },
-    joinChannel(e: any) {
+    joinChannel(e: WechatMiniprogram.CustomEvent) {
       const channelId = parseInt(e.currentTarget.dataset.index);
       const channel = app.getChannel(channelId) as Channel;
       if (channel.joinWay == JoinWay.Approval) {

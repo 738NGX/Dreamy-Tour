@@ -1,8 +1,10 @@
 import { Channel } from "./utils/channel/channel";
 import { Group } from "./utils/channel/group";
 import { Comment, Post } from "./utils/channel/post";
+import { UserRanking } from "./utils/channel/userRanking";
 import { testData } from "./utils/testData";
-import { Tour } from "./utils/tour/tour";
+import { FootPrint } from "./utils/tour/footprint";
+import { Tour, TourStatus } from "./utils/tour/tour";
 import { User } from "./utils/user/user";
 
 // app.ts
@@ -14,9 +16,11 @@ App<IAppOption>({
   onLaunch() {
 
   },
+
   currentUser() {
     return this.getUser(this.globalData.currentUserId) as User;
   },
+
   getUserListCopy() {
     return this.globalData.currentData.userList.map((item: any) => new User(item));
   },
@@ -35,6 +39,7 @@ App<IAppOption>({
   getCommentListCopy() {
     return this.globalData.currentData.commentList.map((item: any) => new Comment(item));
   },
+
   getData(dataId: any, dataList: any[]): any {
     return dataList.find((item: any) => item.id == dataId);
   },
@@ -65,6 +70,7 @@ App<IAppOption>({
     }
     return newDataList;
   },
+
   getUser(userId: number) {
     const result = this.getData(userId, this.globalData.currentData.userList);
     if (result) {
@@ -113,6 +119,7 @@ App<IAppOption>({
       return undefined;
     }
   },
+
   addUser(user: User) {
     const userList = this.globalData.currentData.userList;
     this.globalData.currentData.userList = this.addData(user, userList);
@@ -137,6 +144,7 @@ App<IAppOption>({
     const commentList = this.globalData.currentData.commentList;
     this.globalData.currentData.commentList = this.addData(comment, commentList);
   },
+
   updateUser(user: User) {
     const userList = this.globalData.currentData.userList;
     this.globalData.currentData.userList = this.updateData(user, userList);
@@ -161,6 +169,7 @@ App<IAppOption>({
     const commentList = this.globalData.currentData.commentList;
     this.globalData.currentData.commentList = this.updateData(comment, commentList);
   },
+
   removeUser(user: User | number) {
     const userList = this.globalData.currentData.userList;
     this.globalData.currentData.userList = this.removeData(user, userList);
@@ -185,4 +194,116 @@ App<IAppOption>({
     const commentList = this.globalData.currentData.commentList;
     this.globalData.currentData.commentList = this.removeData(comment, commentList);
   },
+
+  // for channel-adder.ts
+  getCurrentUserUnjoinedChannels(): Channel[]{
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    return this.getChannelListCopy().filter(
+      channel => !this.currentUser().joinedChannel
+        .includes(channel.id) && channel.id != 1
+    );
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  
+  // for channel-list.ts
+  getCurrentUserJoinedChannels(): Channel[] {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    return this.getChannelListCopy().filter(
+      channel => this.currentUser().joinedChannel
+        .includes(channel.id) && channel.id != 1
+    );
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+
+  // for channel-detail-home.ts
+  generateTourSaves(channelId: number): Tour[] {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const tourSaves = this.getTourListCopy()
+      .filter(tour => tour.linkedChannel == channelId && tour.status == TourStatus.Finished && tour.channelVisible)
+      .sort((a, b) => b.startDate - a.startDate);
+    return tourSaves;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  generateUserRankings(footprints: FootPrint[]): UserRanking[] {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const userTourCount: Map<number, number> = new Map();
+
+    footprints.forEach(tour => {
+      tour.users.forEach((userId) => {
+        userTourCount.set(userId, (userTourCount.get(userId) || 0) + 1);
+      });
+    });
+    const rankList = this.getUserListCopy().map(user => {
+      const count = userTourCount.get(user.id) || 0;
+      return { rank: 0, name: user.name, count } as UserRanking;
+    }).filter((user) => user.count > 0);
+    rankList.sort((a, b) => b.count - a.count);
+    rankList.forEach((user, index) => {
+      user.rank = index + 1;
+    });
+    return rankList;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+
+  disbandChannel(channelId: number) {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const userList = this.globalData.currentData.userList as User[];
+    const groupList = this.globalData.currentData.groupList as Group[];
+    const tourList = this.globalData.currentData.tourList as Tour[];
+    const postList = this.globalData.currentData.postList as Post[];
+    const commentList = this.globalData.currentData.commentList as Comment[];
+    userList.forEach(user => {
+      user.joinedChannel = user.joinedChannel.filter(
+        channelId => channelId !== channelId
+      );
+      user.adminingChannel = user.adminingChannel.filter(
+        channelId => channelId !== channelId
+      );
+      user.havingChannel = user.havingChannel.filter(
+        channelId => channelId !== channelId
+      );
+      user.joinedGroup = user.joinedGroup.filter(
+        groupId => this.getGroup(groupId)?.linkedChannel !== channelId
+      );
+      user.adminingGroup = user.adminingGroup.filter(
+        groupId => this.getGroup(groupId)?.linkedChannel !== channelId
+      );
+      user.havingGroup = user.havingGroup.filter(
+        groupId => this.getGroup(groupId)?.linkedChannel !== channelId
+      );
+      this.updateUser(user);
+    });
+    groupList.forEach(group => {
+      if (group.linkedChannel === channelId) {
+        this.removeGroup(group);
+      }
+    });
+    tourList.forEach(tour => {
+      if (tour.linkedChannel === channelId) {
+        this.removeTour(tour);
+      }
+    });
+    commentList.forEach(comment => {
+      if (postList.some(post => post.id === comment.linkedPost)) {
+        this.removeComment(comment);
+      }
+    });
+    postList.forEach(post => {
+      if (post.linkedChannel === channelId) {
+        this.removePost(post);
+      }
+    });
+    this.removeChannel(channelId);
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  }
 })

@@ -120,7 +120,7 @@ Component({
       }, 500);
       this.onShow();
     },
-    onImageLoad(e: any) {
+    onImageLoad(e: WechatMiniprogram.CustomEvent) {
       const { width, height } = e.detail;
 
       // 获取屏幕宽度，计算自适应后的高度
@@ -132,7 +132,7 @@ Component({
         }
       });
     },
-    handleRepliesDetail(e: any) {
+    handleRepliesDetail(e: WechatMiniprogram.CustomEvent) {
       const repliesParent = e.currentTarget.dataset.index?.id;
       const replies = e.currentTarget.dataset.index?.replies;
       this.setData({
@@ -191,7 +191,7 @@ Component({
       app.updatePost(currentPost);
       this.setData({ currentPost });
     },
-    handleCommentLike(e: any) {
+    handleCommentLike(e: WechatMiniprogram.CustomEvent) {
       const commentId = e.currentTarget.dataset.index;
       const structedComments = JSON.parse(JSON.stringify(this.data.structedComments));
       const comment = structedComments.find((comment: any) => comment.id == commentId);
@@ -205,7 +205,7 @@ Component({
       app.updateComment(newComment);
       this.setData({ structedComments });
     },
-    handleReplyLike(e: any) {
+    handleReplyLike(e: WechatMiniprogram.CustomEvent) {
       const commentId = e.currentTarget.dataset.index[0];
       const replyId = e.currentTarget.dataset.index[1];
 
@@ -231,7 +231,7 @@ Component({
     cancelInput() {
       this.setData({ inputVisible: false });
     },
-    handleInput(e: any) {
+    handleInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ inputValue: e.detail.value });
     },
     handleInputSend() {
@@ -287,7 +287,7 @@ Component({
         inputMode: InputMode.Comment,
       });
     },
-    handleReplyInput(e: any) {
+    handleReplyInput(e: WechatMiniprogram.CustomEvent) {
       const id = e.currentTarget.dataset.index ?? -1;
       this.setData({
         inputVisible: true,
@@ -295,13 +295,13 @@ Component({
         replyingComment: id
       });
     },
-    handleImageUploadSuccess(e: any) {
+    handleImageUploadSuccess(e: WechatMiniprogram.CustomEvent) {
       const { files } = e.detail;
       this.setData({
         originFiles: files,
       });
     },
-    handleImageUploadRemove(e: any) {
+    handleImageUploadRemove(e: WechatMiniprogram.CustomEvent) {
       const { index } = e.detail;
       const { originFiles } = this.data;
       originFiles.splice(index, 1);
@@ -309,16 +309,16 @@ Component({
         originFiles,
       });
     },
-    handleImageUploadClick(e: any) {
+    handleImageUploadClick(e: WechatMiniprogram.CustomEvent) {
       console.log(e.detail.file);
     },
-    handleImageUploadDrop(e: any) {
+    handleImageUploadDrop(e: WechatMiniprogram.CustomEvent) {
       const { files } = e.detail;
       this.setData({
         originFiles: files,
       });
     },
-    onCommentDelete(e: any) {
+    onCommentDelete(e: WechatMiniprogram.CustomEvent) {
       const that = this;
       wx.showModal({
         title: '警告',
@@ -341,7 +341,7 @@ Component({
         }
       });
     },
-    onReplyDelete(e: any) {
+    onReplyDelete(e: WechatMiniprogram.CustomEvent) {
       const that = this;
       wx.showModal({
         title: '警告',
