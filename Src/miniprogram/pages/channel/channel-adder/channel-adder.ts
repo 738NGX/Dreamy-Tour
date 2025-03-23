@@ -64,7 +64,7 @@ Component({
     handleInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ inputValue: e.detail.value })
     },
-    handleCreateChannelConfirm() {
+    async handleCreateChannelConfirm() {
       const { inputTitle, inputValue } = this.data
       if (!inputTitle || !inputValue) {
         wx.showToast({
@@ -73,7 +73,7 @@ Component({
         })
         return;
       }
-      app.createChannel(inputTitle, inputValue);
+      await app.createChannel(inputTitle, inputValue);
       this.setData({
         createChannelVisible: false,
         inputTitle: '',
@@ -85,9 +85,9 @@ Component({
         icon: 'none',
       });
     },
-    joinChannel(e: WechatMiniprogram.CustomEvent) {
+    async joinChannel(e: WechatMiniprogram.CustomEvent) {
       const channelId = parseInt(e.currentTarget.dataset.index);
-      if(app.joinChannel(channelId)) { this.onRefresh(); }
+      if (await app.joinChannel(channelId)) { this.onRefresh(); }
     }
   }
 });

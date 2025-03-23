@@ -1,5 +1,4 @@
 import { Channel, JoinWay } from "../../../utils/channel/channel";
-import { TourStatus } from "../../../utils/tour/tour";
 import { User } from "../../../utils/user/user"
 import { getUser, getUserGroupName, getUserGroupNameInChannel } from "../../../utils/util";
 
@@ -19,7 +18,6 @@ Component({
       { value: JoinWay.Invite, label: '仅限邀请' }
     ],
 
-    currentUser: {} as User,
     members: [] as any[],
     waitingUsers: [] as any[],
 
@@ -29,9 +27,6 @@ Component({
   },
   lifetimes: {
     ready() {
-      this.setData({
-        currentUser: app.currentUser(),
-      });
       this.getMembers();
       this.getAuthority();
     },
@@ -69,7 +64,7 @@ Component({
     },
     getAuthority() {
       const userGroup = getUserGroupNameInChannel(
-        this.data.currentUser,
+        app.currentUser(),
         this.properties.currentChannel.id
       );
       this.setData({
@@ -151,117 +146,39 @@ Component({
       this.onCurrentChannelChange(currentChannel);
       this.getMembers();
     },
-    handleUserAdminChange(e: WechatMiniprogram.CustomEvent) {
+    async handleUserAdminChange(e: WechatMiniprogram.CustomEvent) {
       const userId = e.currentTarget.dataset.index;
-      const currentChannelId = this.properties.currentChannel.id as number;
-      const user = app.getUser(userId);
-      if (!user) { return; }
-      const userGroup = getUserGroupNameInChannel(user, currentChannelId);
-      if (userGroup === "频道主") { return; }
-      if (userGroup === "频道管理员") {
-        user.adminingChannel = user.adminingChannel.filter(
-          (channelId: number) => channelId !== currentChannelId
-        );
-      } else {
-        user.adminingChannel.push(currentChannelId);
+      const currentChannel = this.properties.currentChannel as Channel;
+      if (await app.userAdminChangeInChannel(currentChannel.id, userId)) {
+        this.getMembers();
       }
-      app.updateUser(user);
-      this.getMembers();
     },
-    removeMember(e: WechatMiniprogram.CustomEvent) {
-      const that = this;
-      wx.showModal({
-        title: '警告',
-        content: '确定要移除该成员吗？与该成员相关的行程信息将会一起被移除。',
-        success(res) {
-          if (res.confirm) {
-            const userId = e.currentTarget.dataset.index;
-            const currentChannelId = that.properties.currentChannel.id as number;
-            const user = app.getUser(userId);
-            if (!user) { return; }
-            user.joinedChannel = user.joinedChannel.filter(
-              (channelId: number) => channelId !== currentChannelId
-            );
-            user.adminingChannel = user.adminingChannel.filter(
-              (channelId: number) => channelId !== currentChannelId
-            );
-            app.updateUser(user);
-            that.getMembers();
-          }
-        }
-      });
-    },
-    transferChannelOwner(e: WechatMiniprogram.CustomEvent) {
-      const that = this;
-      const newOwnerId = e.currentTarget.dataset.index;
-      const currentChannel = that.properties.currentChannel as Channel;
-      wx.showModal({
-        title: '警告',
-        content: '确定要转让频道主身份给该成员吗？',
-        success(res) {
-          if (res.confirm) {
-            const currentOwner = that.data.currentUser;
-            const newOwner = app.getUser(newOwnerId) as User;
-            currentOwner.havingChannel = currentOwner.havingChannel.filter(channel => channel !== currentChannel.id);
-            newOwner.adminingChannel = newOwner.adminingChannel.filter(channel => channel !== currentChannel.id);
-            newOwner.havingChannel.push(currentChannel.id);
-            app.updateUser(currentOwner);
-            app.updateUser(newOwner);
-            that.setData({ currentUser: currentOwner });
-            that.getMembers();
-            that.getAuthority();
-          }
-        }
-      });
-    },
-    quitChannel() {
-      const that = this;
-      const currentChannel = that.properties.currentChannel as Channel;
-      const currentUser = that.data.currentUser;
-      if (currentUser.havingGroup
-        .map(group => app.getGroup(group)?.linkedChannel)
-        .includes(currentChannel.id)
-      ) {
-        wx.showToast({
-          title: '你还在频道中拥有群组，请先结束行程、解散或转让群组',
-          icon: 'none',
-        });
-        return;
+    async removeMember(e: WechatMiniprogram.CustomEvent) {
+      const currentChannel = this.properties.currentChannel as Channel;
+      const userId = parseInt(e.currentTarget.dataset.index);
+      if(await app.removeMemberInChannel(currentChannel.id, userId)) {
+        this.getMembers();
       }
-      wx.showModal({
-        title: '警告',
-        content: '确定要退出该频道吗？同时将退出频道中你加入的所有群组',
-        success(res) {
-          if (res.confirm) {
-            currentUser.joinedChannel = currentUser.joinedChannel.filter(channel => channel !== currentChannel.id);
-            currentUser.adminingChannel = currentUser.adminingChannel.filter(channel => channel !== currentChannel.id);
-            for (const tour of app.getTourListCopy()) {
-              if (tour.linkedChannel === currentChannel.id && tour.status != TourStatus.Finished) {
-                tour.users = tour.users.filter(user => user !== currentUser.id);
-              }
-              app.updateTour(tour);
-            }
-            currentUser.joinedGroup = currentUser.joinedGroup.filter(group => app.getGroup(group)?.linkedChannel !== currentChannel.id);
-            currentUser.adminingGroup = currentUser.adminingGroup.filter(group => app.getGroup(group)?.linkedChannel !== currentChannel.id);
-            app.updateUser(currentUser);
-            wx.navigateBack();
-          }
-        }
-      });
     },
-    disbandChannel() {
-      const that = this;
-      const currentChannel = that.properties.currentChannel as Channel;
-      wx.showModal({
-        title: '警告',
-        content: '确定要解散该频道吗？',
-        success(res) {
-          if (res.confirm) {
-            app.disbandChannel(currentChannel.id);
-            wx.navigateBack();
-          }
-        }
-      });
+    async transferChannelOwner(e: WechatMiniprogram.CustomEvent) {
+      const newOwnerId = parseInt(e.currentTarget.dataset.index);
+      const currentChannel = this.properties.currentChannel as Channel;
+      if (await app.transferChannelOwner(currentChannel.id, newOwnerId)) {
+        this.getMembers();
+        this.getAuthority();
+      }
+    },
+    async quitChannel() {
+      const currentChannel = this.properties.currentChannel as Channel;
+      if (await app.quitChannel(currentChannel.id)) {
+        wx.navigateBack();
+      }
+    },
+    async disbandChannel() {
+      const currentChannel = this.properties.currentChannel as Channel;
+      if (await app.disbandChannel(currentChannel.id)) {
+        wx.navigateBack();
+      }
     },
   }
 })

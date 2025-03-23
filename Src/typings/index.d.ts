@@ -15,6 +15,9 @@ declare global {
       currentData: any;
       baseUrl: string;
     },
+    /**
+     * 获取当前用户的实例（目前仅供前端测试）
+     */
     currentUser(): User;
 
     getUserListCopy(): User[];
@@ -67,13 +70,13 @@ declare global {
      * @param name 新频道的名称
      * @param description 新频道的描述
      */
-    createChannel(name: string, description: string): void;
+    createChannel(name: string, description: string): Promise<void>;
     /**
      * 加入一个频道
      * @param channelId 频道ID
      * @returns 是否需要刷新页面
      */
-    joinChannel(channelId: number): boolean;
+    joinChannel(channelId: number): Promise<boolean>;
 
     // for channel-list.ts
     /**
@@ -86,18 +89,46 @@ declare global {
      * @param channelId 频道ID
      * @returns 生成频道中的行程列表
      */
-    generateTourSaves(channelId: number): Tour[];
+    generateTourSaves(channelId: number): Promise<Tour[]>;
     /**
      * @param footprints 行程足迹列表
      * @returns 一个频道中的用户行程次数排名
      */
-    generateUserRankings(footprints: FootPrint[]): UserRanking[];
+    generateUserRankings(footprints: FootPrint[]): Promise<UserRanking[]>;
 
     // for channel-detail-setting.ts
     /**
+     * 改变目标用户的频道管理员权限
+     * @param channelId 频道ID
+     * @param userId 目标用户ID
+     * @returns 是否成功改变目标用户的频道管理员权限
+     */
+    userAdminChangeInChannel(channelId: number, userId: number): Promise<boolean>;
+    /**
+     * 从频道移除目标用户
+     * @param channelId 频道ID
+     * @param userId 目标用户ID
+     * * @returns 是否成功从频道移除目标用户
+     */
+    removeMemberInChannel(channelId: number, userId: number): Promise<boolean>;
+    /**
+     * 转让当前频道
+     * @param channelId 频道ID
+     * @param newOwnerId 新频道主ID
+     * @returns 是否转让成功
+     */
+    transferChannelOwner(channelId: number, newOwnerId: number): Promise<boolean>;
+    /**
+     * 退出当前频道
+     * @param channelId 频道ID
+     * @returns 是否退出成功
+     */
+    quitChannel(channelId: number): Promise<boolean>;
+    /**
      * 解散目标频道
      * @param channelId 频道ID
+     * @returns 是否解散成功
      */
-    disbandChannel(channelId: number): void;
+    disbandChannel(channelId: number): Promise<boolean>;
   }
 }
