@@ -1,7 +1,8 @@
 import { Channel, ChannelBasic } from "../miniprogram/utils/channel/channel";
-import { Group } from "../miniprogram/utils/channel/group";
+import { Group, GroupBasic } from "../miniprogram/utils/channel/group";
 import { Comment, Post } from "../miniprogram/utils/channel/post";
 import { UserRanking } from "../miniprogram/utils/channel/userRanking";
+import { Currency } from "../miniprogram/utils/tour/expense";
 import { FootPrint } from "../miniprogram/utils/tour/footprint";
 import { Tour } from "../miniprogram/utils/tour/tour";
 import { Member, User } from "../miniprogram/utils/user/user";
@@ -95,6 +96,30 @@ declare global {
      * @returns 一个频道中的用户行程次数排名
      */
     generateUserRankings(footprints: FootPrint[]): Promise<UserRanking[]>;
+
+    // for channel-detail-group.ts
+    /**
+     * 对频道中当前用户已加入和未加入的群组进行分类
+     * @param channelId 频道ID
+     * @returns 一个频道中的群组列表
+     */
+    classifyGroups(channelId:number): Promise<{joinedGroups: GroupBasic[], unJoinedGroups: GroupBasic[]}>;
+    /**
+     * 创建一个群组
+     * @param channelId 新群组所属的频道ID
+     * @param name 新群组名称
+     * @param description 新群组描述
+     * @param newTourCurrency 新群组使用的货币列表(与行程模板互斥)
+     * @param tourTemplateId 新群组吗使用的行程模板ID(与货币列表互斥)
+     * @returns 是否需要刷新页面
+     */
+    createGroup(channelId: number, name: string, description:string,newTourCurrency:Currency[],tourTemplateId:number): Promise<boolean>;
+    /**
+     * 加入一个群组
+     * @param groupId 群组ID
+     * @returns 是否需要刷新页面
+     */
+    joinGroup(groupId: number): Promise<boolean>;
 
     // for channel-detail-setting.ts
     /**

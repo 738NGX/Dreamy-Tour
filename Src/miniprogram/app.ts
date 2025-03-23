@@ -1,11 +1,14 @@
 import { Channel, ChannelBasic, JoinWay } from "./utils/channel/channel";
-import { Group } from "./utils/channel/group";
+import { Group, GroupBasic } from "./utils/channel/group";
 import { Comment, Post } from "./utils/channel/post";
 import { UserRanking } from "./utils/channel/userRanking";
 import HttpUtil from "./utils/httpUtil";
 import { testData } from "./utils/testData";
+import { Budget } from "./utils/tour/budget";
+import { Currency } from "./utils/tour/expense";
 import { FootPrint } from "./utils/tour/footprint";
 import { Tour, TourStatus } from "./utils/tour/tour";
+import { Location, Transportation } from "./utils/tour/tourNode";
 import { Member, User } from "./utils/user/user";
 import { getNewId, getUser, getUserGroupName, getUserGroupNameInChannel } from "./utils/util";
 
@@ -338,6 +341,102 @@ App<IAppOption>({
     });
     return rankList;
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+
+  // for channel-detail-group.ts
+  async classifyGroups(channelId: number): Promise<{ joinedGroups: GroupBasic[], unJoinedGroups: GroupBasic[] }> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const groups = this.getGroupListCopy();
+    const currentUser = this.currentUser();
+    const joinedGroups = groups.filter(group =>
+      group.linkedChannel == channelId &&
+      currentUser?.joinedGroup.includes(group.id)
+    ).map(group => new GroupBasic(group));
+    const unJoinedGroups = groups.filter(group =>
+      group.linkedChannel == channelId &&
+      !currentUser.joinedGroup.includes(group.id)
+    ).map(group => new GroupBasic(group));
+    return { joinedGroups, unJoinedGroups };
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async createGroup(channelId: number, name: string, description: string, newTourCurrency: Currency[], tourTemplateId: number): Promise<boolean> {
+    if (!name || !description) {
+      wx.showToast({
+        title: '请填写完整信息',
+        icon: 'none',
+      })
+      return false;
+    }
+    const newGroupId = getNewId(this.globalData.currentData.groupList);
+    const group = new Group({
+      id: newGroupId,
+      name: name,
+      description: description,
+      linkedChannel: channelId
+    });
+    const thisUser = this.currentUser();
+    const tourTemplate = this.getTour(tourTemplateId);
+    const newTour = new Tour({
+      id: getNewId(this.globalData.currentData.tourList),
+      title: name,
+      linkedChannel: channelId,
+      linkedGroup: newGroupId,
+      users: [thisUser.id],
+      mainCurrency: newTourCurrency[0],
+      subCurrency: newTourCurrency[1],
+    })
+    if (tourTemplate) {
+      newTour.startDate = tourTemplate.startDate;
+      newTour.endDate = tourTemplate.endDate;
+      newTour.timeOffset = tourTemplate.timeOffset;
+      newTour.mainCurrency = tourTemplate.mainCurrency;
+      newTour.subCurrency = tourTemplate.subCurrency;
+      newTour.currencyExchangeRate = tourTemplate.currencyExchangeRate;
+      newTour.nodeCopyNames = tourTemplate.nodeCopyNames.map((name: string) => name);
+      newTour.budgets = tourTemplate.budgets.map((budget: Budget) => new Budget(budget));
+      newTour.locations = tourTemplate.locations.map((copy: Location[]) => copy.map((location: Location) => new Location(location)));
+      newTour.transportations = tourTemplate.transportations.map((copy: Transportation[]) => copy.map((transportation: Transportation) => new Transportation(transportation)));
+    }
+    thisUser.joinedGroup.push(newGroupId);
+    thisUser.havingGroup.push(newGroupId);
+    this.addGroup(group);
+    this.addTour(newTour);
+    this.updateUser(thisUser);
+    return true;
+  },
+  async joinGroup(groupId: number): Promise<boolean> {
+    const group = this.getGroup(groupId) as Group;
+    if (group.joinWay == JoinWay.Approval) {
+      if (group.waitingUsers.includes(this.globalData.currentUserId)) {
+        wx.showToast({
+          title: '您已经申请过了,请耐心等待',
+          icon: 'none',
+        });
+        return false;
+      }
+      else {
+        group.waitingUsers.push(this.globalData.currentUserId);
+        this.updateGroup(group);
+        wx.showToast({
+          title: '已发送加入申请,请耐心等待',
+          icon: 'none',
+        });
+        return false;
+      }
+    }
+    if (group.joinWay == JoinWay.Invite) {
+      wx.showToast({
+        title: '该群组仅限邀请加入',
+        icon: 'none',
+      });
+      return false;
+    }
+    const thisUser = this.currentUser() as User;
+    thisUser.joinedGroup.push(groupId);
+    this.updateUser(thisUser);
+    return true;
   },
 
   // for channel-detail-setting.ts
