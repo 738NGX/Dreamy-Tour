@@ -1,4 +1,4 @@
-import { Channel, JoinWay } from "./utils/channel/channel";
+import { Channel, ChannelBasic, JoinWay } from "./utils/channel/channel";
 import { Group } from "./utils/channel/group";
 import { Comment, Post } from "./utils/channel/post";
 import { UserRanking } from "./utils/channel/userRanking";
@@ -6,8 +6,8 @@ import HttpUtil from "./utils/httpUtil";
 import { testData } from "./utils/testData";
 import { FootPrint } from "./utils/tour/footprint";
 import { Tour, TourStatus } from "./utils/tour/tour";
-import { User } from "./utils/user/user";
-import { getNewId, getUserGroupNameInChannel } from "./utils/util";
+import { Member, User } from "./utils/user/user";
+import { getNewId, getUser, getUserGroupName, getUserGroupNameInChannel } from "./utils/util";
 
 // app.ts
 App<IAppOption>({
@@ -207,9 +207,9 @@ App<IAppOption>({
    */
   async getCurrentUserUnjoinedChannels(): Promise<Channel[]> {
     /** 后端逻辑 */
-   const res = await HttpUtil.get({ url: "/channel/list" });
-   const channelList = res.data.data as Channel[];
-   return channelList;
+    const res = await HttpUtil.get({ url: "/channel/list" });
+    const channelList = res.data.data as Channel[];
+    return channelList;
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
     // return this.getChannelListCopy().filter(
     //   channel => !this.currentUser().joinedChannel
@@ -217,7 +217,7 @@ App<IAppOption>({
     // );
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
-  async createChannel(name: string, description: string): Promise<void> {
+  async createChannel(name: string, description: string): Promise<boolean> {
     /** 后端逻辑 */
 
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
@@ -232,6 +232,7 @@ App<IAppOption>({
     thisUser.havingChannel.push(newChannelId);
     this.addChannel(channel);
     this.updateUser(thisUser);
+    return true;
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async joinChannel(channelId: number): Promise<boolean> {
@@ -324,6 +325,120 @@ App<IAppOption>({
   },
 
   // for channel-detail-setting.ts
+  async getMembersInChannel(channelId: number): Promise<{ members: Member[], waitingUsers: Member[] }> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const userList = this.getUserListCopy();
+    const memberList = userList.filter(
+      (user: User) => user.joinedChannel.includes(channelId)
+    );
+    const waitingUsersList = (this.getChannel(channelId) as Channel).waitingUsers.map(
+      (userId: number) => getUser(userList, userId)
+    ).filter((user: any) => user != undefined) as User[];
+    const members = memberList.map((member: User) => {
+      return new Member({
+        ...member,
+        userGroup: getUserGroupNameInChannel(member, channelId),
+      });
+    }).sort((a, b) => {
+      const getPriority = (group: string) => {
+        if (group === "系统管理员") return 0;
+        if (group === "频道主") return 1;
+        if (group === "频道管理员") return 2;
+        return 3;
+      };
+      return getPriority(a.userGroup) - getPriority(b.userGroup);
+    });
+    const waitingUsers = waitingUsersList.map((user) => {
+      return new Member({ ...user, userGroup: getUserGroupName(user) });
+    });
+    return { members, waitingUsers };
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async getUserGroupNameInChannel(channelId: number): Promise<{ isChannelOwner: boolean, isChannelAdmin: boolean }> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const userGroup = getUserGroupNameInChannel(this.currentUser(), channelId);
+    return {
+      isChannelOwner: userGroup === "频道主",
+      isChannelAdmin: userGroup === "系统管理员" || userGroup === "频道主" || userGroup === "频道管理员"
+    };
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async addMemberInChannel(channelId: number, newMemberIdInput: string): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    if (newMemberIdInput === '') {
+      wx.showToast({
+        title: '请输入用户ID',
+        icon: 'none'
+      });
+      return false;
+    }
+    const newMemberId = parseInt(newMemberIdInput, 10);
+    const user = this.getUser(newMemberId);
+    if (!user || user.id === 0) {
+      wx.showToast({
+        title: '用户不存在',
+        icon: 'none'
+      });
+      return false;
+    }
+    if (user.joinedChannel.includes(channelId)) {
+      wx.showToast({
+        title: '用户已在频道内',
+        icon: 'none'
+      });
+      return false;
+    }
+    user.joinedChannel.push(channelId);
+    this.updateUser(user);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async changeChannelBasic(channel: ChannelBasic): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const currentChannel = this.getChannel(channel.id) as Channel;
+    currentChannel.name = channel.name;
+    currentChannel.description = channel.description;
+    currentChannel.joinWay = channel.joinWay;
+    this.updateChannel(currentChannel);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async approveUserInChannel(channelId: number, userId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const user = this.getUser(userId);
+    if (!user) { return false; }
+    user.joinedChannel.push(channelId);
+    this.updateUser(user);
+    const currentChannel = this.getChannel(channelId) as Channel;
+    currentChannel.waitingUsers = currentChannel.waitingUsers.filter(
+      (id: number) => id !== userId
+    );
+    this.updateChannel(currentChannel);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async rejectUserInChannel(channelId: number, userId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const currentChannel = this.getChannel(channelId) as Channel;
+    currentChannel.waitingUsers = currentChannel.waitingUsers.filter(
+      (id: number) => id !== userId
+    );
+    this.updateChannel(currentChannel);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
   async userAdminChangeInChannel(channelId: number, userId: number): Promise<boolean> {
     /** 后端逻辑 */
 

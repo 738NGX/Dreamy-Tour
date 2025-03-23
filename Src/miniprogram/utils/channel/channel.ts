@@ -6,17 +6,23 @@ export const joinWayText = {
   [JoinWay.Invite]: '仅限邀请',
 }
 
-export class Channel {
+export class ChannelBasic {
   id: number;
   name: string;
   description: string;
   joinWay: JoinWay;
-  waitingUsers: number[];
   constructor(data: any) {
     this.id = data.id ?? -1;
     this.name = data.name ?? '新频道';
     this.description = data.description ?? '这是一个新频道';
     this.joinWay = data.joinWay ?? JoinWay.Free;
+  }
+}
+
+export class Channel extends ChannelBasic {
+  waitingUsers: number[];
+  constructor(data: any) {
+    super(data);
     this.waitingUsers = data.waitingUsers ?? [];
   }
 }

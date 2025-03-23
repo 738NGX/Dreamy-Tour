@@ -25,7 +25,7 @@ import { formatDate, formatTime, MILLISECONDS } from "../../../utils/util";
 
 const app = getApp<IAppOption>();
 
-interface Marker {
+type Marker = {
   id: number;
   latitude: number;
   longitude: number;
@@ -35,7 +35,7 @@ interface Marker {
   info: MarkerInfo;
 }
 
-interface MarkerInfo {
+type MarkerInfo = {
   tourTitle: string;
   locationTitle: string;
   timeValue: number;
