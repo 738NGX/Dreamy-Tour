@@ -363,24 +363,6 @@ App<IAppOption>({
       );
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
-  async searchPosts(fullPosts: PostCard[], searchValue: string): Promise<{ leftPosts: PostCard[], rightPosts: PostCard[] }> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const leftPosts = [] as PostCard[];
-    const rightPosts = [] as PostCard[];
-    fullPosts.forEach((post, index) => {
-      if (post.title.includes(searchValue) || post.content.includes(searchValue)) {
-        if (index % 2 === 0) {
-          leftPosts.push(post);
-        } else {
-          rightPosts.push(post);
-        }
-      }
-    });
-    return { leftPosts, rightPosts };
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
-  },
   async createPost(channelId: number, title: string, content: string, originFiles: any[]): Promise<boolean> {
     /** 后端逻辑 */
 

@@ -105,12 +105,6 @@ declare global {
     getFullPostsInChannel(channelId: number): Promise<PostCard[]>;
     /**
      * 
-     * @param fullPosts 
-     * @param searchValue 
-     */
-    searchPosts(fullPosts: PostCard[], searchValue: string): Promise<{ leftPosts: PostCard[], rightPosts: PostCard[] }>;
-    /**
-     * 
      * @param channelId 
      * @param title 
      * @param content 

@@ -164,13 +164,13 @@ Component({
           inputTitle: '',
           inputValue: '',
         })
-        this.onRefresh()
+        await this.onRefresh()
       }
     },
     async joinGroup(e: WechatMiniprogram.CustomEvent) {
       const groupId = parseInt(e.currentTarget.dataset.index);
       if (await app.joinGroup(groupId)) {
-        this.onRefresh();
+        await this.onRefresh();
       }
     }
   }

@@ -39,21 +39,31 @@ Component({
   },
 
   methods: {
-    onRefresh() {
+    async onRefresh() {
       this.setData({ refreshEnable: true });
       setTimeout(() => {
         this.setData({ refreshEnable: false });
       }, 500);
-      this.getFullPosts();
+      await this.getFullPosts();
       this.searchPosts(this.data.searchingValue);
     },
     async getFullPosts() {
       const fullPosts = await app.getFullPostsInChannel(this.properties.currentChannel.id);
       this.setData({ fullPosts });
     },
-    async searchPosts(searchValue: string = '') {
+    searchPosts(searchValue: string = '') {
       const { fullPosts } = this.data;
-      const { leftPosts, rightPosts } = await app.searchPosts(fullPosts, searchValue);
+      const leftPosts = [] as PostCard[];
+      const rightPosts = [] as PostCard[];
+      fullPosts.forEach((post, index) => {
+        if (post.title.includes(searchValue) || post.content.includes(searchValue)) {
+          if (index % 2 === 0) {
+            leftPosts.push(post);
+          } else {
+            rightPosts.push(post);
+          }
+        }
+      });
       this.setData({ leftPosts, rightPosts });
     },
     onSearch(e: WechatMiniprogram.CustomEvent) {
@@ -109,7 +119,7 @@ Component({
           inputValue: '',
           originFiles: [],
         });
-        this.onRefresh();
+        await this.onRefresh();
       }
     }
   }

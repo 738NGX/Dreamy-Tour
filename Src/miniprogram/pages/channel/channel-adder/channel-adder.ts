@@ -27,12 +27,12 @@ Component({
     },
   },
   methods: {
-    onRefresh() {
+    async onRefresh() {
       this.setData({ refreshEnable: true });
       setTimeout(() => {
         this.setData({ refreshEnable: false });
       }, 500);
-      this.loadChannelList();
+      await this.loadChannelList();
       this.setData({
         channelList: this.data.fullChannelList.filter(
           channel => channel.name.includes(this.data.searchingValue))
@@ -79,7 +79,7 @@ Component({
         inputTitle: '',
         inputValue: '',
       })
-      this.onRefresh();
+      await this.onRefresh();
       wx.showToast({
         title: '创建成功,请返回频道列表查看',
         icon: 'none',
@@ -87,7 +87,7 @@ Component({
     },
     async joinChannel(e: WechatMiniprogram.CustomEvent) {
       const channelId = parseInt(e.currentTarget.dataset.index);
-      if (await app.joinChannel(channelId)) { this.onRefresh(); }
+      if (await app.joinChannel(channelId)) { await this.onRefresh(); }
     }
   }
 });
