@@ -9,6 +9,10 @@ export interface IPost {
   photos: Photo[];
 }
 
+export type PostCard = Post & {
+  username: string;
+}
+
 export class Post implements IPost {
   id: number;
   title: string;

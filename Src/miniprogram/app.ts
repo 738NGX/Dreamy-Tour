@@ -1,6 +1,6 @@
 import { Channel, ChannelBasic, JoinWay } from "./utils/channel/channel";
 import { Group, GroupBasic } from "./utils/channel/group";
-import { Comment, Post } from "./utils/channel/post";
+import { Comment, Post, PostCard } from "./utils/channel/post";
 import { UserRanking } from "./utils/channel/userRanking";
 import HttpUtil from "./utils/httpUtil";
 import { testData } from "./utils/testData";
@@ -343,6 +343,74 @@ App<IAppOption>({
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
 
+  // for channel-detail-post.ts
+  async getFullPostsInChannel(channelId: number): Promise<PostCard[]> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    return this.getPostListCopy()
+      .map((post) => {
+        return {
+          ...post,
+          username: this.getUser(post.user)?.name ?? '未知用户',
+        }
+      })
+      .filter((post) =>
+        post.linkedChannel == channelId
+      )
+      .sort((a, b) =>
+        (b.isSticky ? 1 : 0) - (a.isSticky ? 1 : 0) || b.time - a.time
+      );
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async searchPosts(fullPosts: PostCard[], searchValue: string): Promise<{ leftPosts: PostCard[], rightPosts: PostCard[] }> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const leftPosts = [] as PostCard[];
+    const rightPosts = [] as PostCard[];
+    fullPosts.forEach((post, index) => {
+      if (post.title.includes(searchValue) || post.content.includes(searchValue)) {
+        if (index % 2 === 0) {
+          leftPosts.push(post);
+        } else {
+          rightPosts.push(post);
+        }
+      }
+    });
+    return { leftPosts, rightPosts };
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async createPost(channelId: number, title: string, content: string, originFiles: any[]): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    if (title !== null && content !== null) {
+      if (title.length === 0) {
+        wx.showToast({
+          title: '标题不能为空',
+          icon: 'none',
+        });
+        return false;
+      }
+      const newPostId = getNewId(this.globalData.currentData.postList);
+      const newPost = new Post({
+        id: newPostId,
+        title: title,
+        content: content,
+        linkedChannel: channelId,
+        user: this.globalData.currentUserId,
+        time: Date.now(),
+        isSticky: false,
+        photos: originFiles.map((file: any) => ({ value: file.url, ariaLabel: file.name })),
+      });
+      this.addPost(newPost);
+      return true;
+    }
+    return false;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+
   // for channel-detail-group.ts
   async classifyGroups(channelId: number): Promise<{ joinedGroups: GroupBasic[], unJoinedGroups: GroupBasic[] }> {
     /** 后端逻辑 */
@@ -362,6 +430,9 @@ App<IAppOption>({
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async createGroup(channelId: number, name: string, description: string, newTourCurrency: Currency[], tourTemplateId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
     if (!name || !description) {
       wx.showToast({
         title: '请填写完整信息',
@@ -405,8 +476,12 @@ App<IAppOption>({
     this.addTour(newTour);
     this.updateUser(thisUser);
     return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async joinGroup(groupId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
     const group = this.getGroup(groupId) as Group;
     if (group.joinWay == JoinWay.Approval) {
       if (group.waitingUsers.includes(this.globalData.currentUserId)) {
@@ -437,6 +512,7 @@ App<IAppOption>({
     thisUser.joinedGroup.push(groupId);
     this.updateUser(thisUser);
     return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
 
   // for channel-detail-setting.ts
@@ -471,7 +547,7 @@ App<IAppOption>({
     return { members, waitingUsers };
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
-  async getUserGroupNameInChannel(channelId: number): Promise<{ isChannelOwner: boolean, isChannelAdmin: boolean }> {
+  async getUserAuthorityInChannel(channelId: number): Promise<{ isChannelOwner: boolean, isChannelAdmin: boolean }> {
     /** 后端逻辑 */
 
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */

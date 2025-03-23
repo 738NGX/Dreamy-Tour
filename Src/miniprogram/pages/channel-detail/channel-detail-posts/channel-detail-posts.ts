@@ -2,8 +2,7 @@
  * 频道讨论区，用于发布帖子并进行交流
  */
 import { Channel } from "../../../utils/channel/channel";
-import { Post } from "../../../utils/channel/post";
-import { getNewId } from "../../../utils/util";
+import { PostCard } from "../../../utils/channel/post";
 
 const app = getApp<IAppOption>();
 
@@ -13,16 +12,17 @@ Component({
       type: Object,
       value: {},
     },
-    fabStyle:{
+    fabStyle: {
       type: String,
       value: 'right: 16px; bottom: 32px;',
     }
   },
 
   data: {
-    leftPosts: [] as any[],
-    rightPosts: [] as any[],
-    searchedPosts: [] as any[],
+    fullPosts: [] as PostCard[],
+    leftPosts: [] as PostCard[],
+    rightPosts: [] as PostCard[],
+    searchedPosts: [] as PostCard[],
     searchingValue: '',
     refreshEnable: false,
 
@@ -34,7 +34,7 @@ Component({
 
   lifetimes: {
     ready() {
-      this.sortPosts();
+      this.searchPosts();
     },
   },
 
@@ -44,48 +44,26 @@ Component({
       setTimeout(() => {
         this.setData({ refreshEnable: false });
       }, 500);
-      this.sortPosts(this.data.searchingValue);
+      this.getFullPosts();
+      this.searchPosts(this.data.searchingValue);
     },
-    sortPosts(searchValue: string = '') {
-      const currentChannel = this.properties.currentChannel;
-      const sorted = app.getPostListCopy()
-        .map((post) => {
-          return {
-            ...post,
-            username: app.getUser(post.user)?.name ?? '未知用户',
-          }
-        })
-        .filter((post) =>
-          post.linkedChannel == currentChannel.id
-          && post.title.includes(searchValue)
-        )
-        .sort((a, b) =>
-          (b.isSticky ? 1 : 0) - (a.isSticky ? 1 : 0) || b.time - a.time
-        );
-
-      const leftPosts = [] as any[];
-      const rightPosts = [] as any[];
-      sorted.forEach((post: any, index: number) => {
-        if (index % 2 === 0) {
-          leftPosts.push(post);
-        } else {
-          rightPosts.push(post);
-        }
-      });
-
-      this.setData({
-        leftPosts: leftPosts,
-        rightPosts: rightPosts,
-      });
+    async getFullPosts() {
+      const fullPosts = await app.getFullPostsInChannel(this.properties.currentChannel.id);
+      this.setData({ fullPosts });
+    },
+    async searchPosts(searchValue: string = '') {
+      const { fullPosts } = this.data;
+      const { leftPosts, rightPosts } = await app.searchPosts(fullPosts, searchValue);
+      this.setData({ leftPosts, rightPosts });
     },
     onSearch(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
       this.setData({ searchingValue: value });
-      this.sortPosts(value);
+      this.searchPosts(value);
     },
     onSearchClear() {
       this.setData({ searchingValue: '' });
-      this.sortPosts();
+      this.searchPosts();
     },
     handlePost() {
       this.setData({ inputVisible: !this.data.inputVisible });
@@ -106,18 +84,14 @@ Component({
       const { index } = e.detail;
       const { originFiles } = this.data;
       originFiles.splice(index, 1);
-      this.setData({
-        originFiles,
-      });
+      this.setData({ originFiles });
     },
     handleImageUploadClick(e: WechatMiniprogram.CustomEvent) {
       console.log(e.detail.file);
     },
     handleImageUploadDrop(e: WechatMiniprogram.CustomEvent) {
       const { files } = e.detail;
-      this.setData({
-        originFiles: files,
-      });
+      this.setData({ originFiles: files });
     },
     handlePostDetail(e: WechatMiniprogram.CustomEvent) {
       const id = e.currentTarget.dataset.index;
@@ -125,29 +99,10 @@ Component({
         url: `/pages/channel-post/channel-post?postId=${id}`,
       });
     },
-    handleInputSend() {
+    async handleInputSend() {
       const currentChannel = this.properties.currentChannel as Channel;
       const { inputTitle, inputValue, originFiles } = this.data;
-      if (inputTitle !== null && inputValue !== null) {
-        if (inputTitle.length === 0) {
-          wx.showToast({
-            title: '标题不能为空',
-            icon: 'none',
-          });
-          return;
-        }
-        const newPostId = getNewId(app.globalData.currentData.postList);
-        const newPost = new Post({
-          id: newPostId,
-          title: inputTitle,
-          content: inputValue,
-          linkedChannel: currentChannel.id,
-          user: app.globalData.currentUserId,
-          time: Date.now(),
-          isSticky: false,
-          photos: originFiles.map((file: any) => ({ value: file.url, ariaLabel: file.name })),
-        });
-        app.addPost(newPost);
+      if (await app.createPost(currentChannel.id, inputTitle, inputValue, originFiles)) {
         this.setData({
           inputVisible: false,
           inputTitle: '',

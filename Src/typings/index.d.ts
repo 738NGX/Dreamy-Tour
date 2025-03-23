@@ -1,6 +1,6 @@
 import { Channel, ChannelBasic } from "../miniprogram/utils/channel/channel";
 import { Group, GroupBasic } from "../miniprogram/utils/channel/group";
-import { Comment, Post } from "../miniprogram/utils/channel/post";
+import { Comment, Post, PostCard } from "../miniprogram/utils/channel/post";
 import { UserRanking } from "../miniprogram/utils/channel/userRanking";
 import { Currency } from "../miniprogram/utils/tour/expense";
 import { FootPrint } from "../miniprogram/utils/tour/footprint";
@@ -97,13 +97,34 @@ declare global {
      */
     generateUserRankings(footprints: FootPrint[]): Promise<UserRanking[]>;
 
+    // for channel-detail-post.ts
+    /**
+     * 
+     * @param channelId 
+     */
+    getFullPostsInChannel(channelId: number): Promise<PostCard[]>;
+    /**
+     * 
+     * @param fullPosts 
+     * @param searchValue 
+     */
+    searchPosts(fullPosts: PostCard[], searchValue: string): Promise<{ leftPosts: PostCard[], rightPosts: PostCard[] }>;
+    /**
+     * 
+     * @param channelId 
+     * @param title 
+     * @param content 
+     * @param originFiles 
+     */
+    createPost(channelId: number, title: string, content: string, originFiles: any[]): Promise<boolean>;
+
     // for channel-detail-group.ts
     /**
      * 对频道中当前用户已加入和未加入的群组进行分类
      * @param channelId 频道ID
      * @returns 一个频道中的群组列表
      */
-    classifyGroups(channelId:number): Promise<{joinedGroups: GroupBasic[], unJoinedGroups: GroupBasic[]}>;
+    classifyGroups(channelId: number): Promise<{ joinedGroups: GroupBasic[], unJoinedGroups: GroupBasic[] }>;
     /**
      * 创建一个群组
      * @param channelId 新群组所属的频道ID
@@ -113,7 +134,7 @@ declare global {
      * @param tourTemplateId 新群组吗使用的行程模板ID(与货币列表互斥)
      * @returns 是否需要刷新页面
      */
-    createGroup(channelId: number, name: string, description:string,newTourCurrency:Currency[],tourTemplateId:number): Promise<boolean>;
+    createGroup(channelId: number, name: string, description: string, newTourCurrency: Currency[], tourTemplateId: number): Promise<boolean>;
     /**
      * 加入一个群组
      * @param groupId 群组ID
@@ -133,7 +154,7 @@ declare global {
      * @param channelId 频道ID
      * @returns 当前用户在频道中的权限
      */
-    getUserGroupNameInChannel(channelId: number): Promise<{isChannelOwner: boolean, isChannelAdmin: boolean}>;
+    getUserAuthorityInChannel(channelId: number): Promise<{ isChannelOwner: boolean, isChannelAdmin: boolean }>;
     /**
      * 添加一个新成员
      * @param channelId 频道ID

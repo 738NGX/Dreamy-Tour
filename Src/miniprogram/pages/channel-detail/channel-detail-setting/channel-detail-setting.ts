@@ -41,7 +41,7 @@ Component({
       this.setData({ members, waitingUsers });
     },
     async getAuthority() {
-      const { isChannelOwner, isChannelAdmin } = await app.getUserGroupNameInChannel(this.data.channelId);
+      const { isChannelOwner, isChannelAdmin } = await app.getUserAuthorityInChannel(this.data.channelId);
       this.setData({ isChannelOwner, isChannelAdmin });
     },
     onNewMemberIdInput(e: WechatMiniprogram.CustomEvent) {
