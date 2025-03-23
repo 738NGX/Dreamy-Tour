@@ -64,6 +64,10 @@ Page({
 
   },
   wxLogin() {
+    // 先加载提示
+    wx.showLoading({
+      title: "加载中…"
+    })
     wx.login({
       success(res) {
         if (res.code) {
@@ -74,6 +78,8 @@ Page({
               "code": res.code
             },
             success(res: any) {
+              // 关闭加载
+              wx.hideLoading();
               const token = res.data.data.token;
               // 将 token 存到微信缓存
               wx.setStorageSync("token", token);
@@ -83,13 +89,19 @@ Page({
               });
             },
             fail() {
-              console.log("登录失败")
+              wx.showToast({
+                title: "登录失败",
+                icon: "error"
+              })
             }
           })
         }
       },
       fail() {
-
+        wx.showToast({
+          title: "登录失败",
+          icon: "error"
+        })
       }
     })
   }

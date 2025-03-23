@@ -129,7 +129,39 @@ class ChannelService {
       FROM channels
       WHERE EXISTS (
         SELECT 1 FROM channel_users 
-        WHERE channel_users.channelId = channels.channelId AND channel_users.uid = ?
+        WHERE
+          channels.channelId <> 1 AND
+          channel_users.channelId = channels.channelId AND
+          channel_users.uid = ?
+      )
+      `,
+      [uid]
+    );
+    // 定义一个 VO 列表作为返回值
+    const channelListVos = rows.map(row => ({
+      ...row,
+      level: ChannelUtil.levelNumberToLetter(row.level as number)
+    })) as ChannelListVo[];
+    // 返回结果
+    return channelListVos;
+  }
+
+  /**
+   * 获取用户没有参加过的频道列表
+   * @param uid 用户 ID
+   */
+  static async getUnjoinedChannelList(uid: number): Promise<ChannelListVo[]> {
+    const db = await dbPromise;
+    const rows = await db.all<Partial<Channel>[]>(
+      `
+      SELECT channels.channelId, name, description, level, 
+        humanCount, channels.createdAt, channels.updatedAt
+      FROM channels
+      WHERE NOT EXISTS (
+        SELECT 1 FROM channel_users
+        WHERE
+          channel_users.channelId = channels.channelId AND
+          channel_users.uid = ?
       )
       `,
       [uid]

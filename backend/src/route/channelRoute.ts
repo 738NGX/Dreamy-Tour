@@ -20,7 +20,7 @@ import { StatusCodes } from "http-status-codes";
 const channelRoute = express.Router();
 
 /**
- * @description 获取用户加入的频道列表（暂时不分页）
+ * @description 获取用户加入的频道列表（暂时不分页；不包括世界频道）
  * @method GET
  * @path /channel/joined/list
  */
@@ -31,6 +31,19 @@ channelRoute.get('/channel/joined/list', async (req: Request, res: Response) => 
   // 返回结果
   res.json(Result.success(channelListVos));
 });
+
+/**
+ * @description 获取用户没有加入的频道列表
+ * @method GET
+ * @path /channel/unjoined/list
+ */
+channelRoute.get('/channel/unjoined/list', async (req: Request, res: Response) => {
+  // 获取用户 ID
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  const channelListVos = await ChannelService.getUnjoinedChannelList(uid);
+  // 返回结果
+  res.json(Result.success(channelListVos));
+})
 
 /**
  * @description 获取所有的频道列表（暂时不分页）

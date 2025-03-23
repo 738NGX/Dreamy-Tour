@@ -64,7 +64,7 @@ declare global {
     /**
      * @returns 当前用户未加入的频道列表
      */
-    async getCurrentUserUnjoinedChannels(): Promise<Channel[]>;
+    getCurrentUserUnjoinedChannels(): Promise<Channel[]>;
     /**
      * 创建一个新频道
      * @param name 新频道的名称
