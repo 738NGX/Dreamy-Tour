@@ -1,10 +1,10 @@
-import { Channel } from "../miniprogram/utils/channel/channel";
+import { Channel, ChannelBasic } from "../miniprogram/utils/channel/channel";
 import { Group } from "../miniprogram/utils/channel/group";
 import { Comment, Post } from "../miniprogram/utils/channel/post";
 import { UserRanking } from "../miniprogram/utils/channel/userRanking";
 import { FootPrint } from "../miniprogram/utils/tour/footprint";
 import { Tour } from "../miniprogram/utils/tour/tour";
-import { User } from "../miniprogram/utils/user/user";
+import { Member, User } from "../miniprogram/utils/user/user";
 
 /// <reference path="./types/index.d.ts" />
 
@@ -64,13 +64,13 @@ declare global {
     /**
      * @returns 当前用户未加入的频道列表
      */
-    async getCurrentUserUnjoinedChannels(): Promise<Channel[]>;
+    getCurrentUserUnjoinedChannels(): Promise<Channel[]>;
     /**
      * 创建一个新频道
      * @param name 新频道的名称
      * @param description 新频道的描述
      */
-    createChannel(name: string, description: string): Promise<void>;
+    createChannel(name: string, description: string): Promise<boolean>;
     /**
      * 加入一个频道
      * @param channelId 频道ID
@@ -97,6 +97,45 @@ declare global {
     generateUserRankings(footprints: FootPrint[]): Promise<UserRanking[]>;
 
     // for channel-detail-setting.ts
+    /**
+     * 获得频道中的成员列表和待审核用户列表
+     * @param channelId 频道ID
+     * @returns 一个频道中的成员列表和待审核用户列表
+     */
+    getMembersInChannel(channelId: number): Promise<{ members: Member[], waitingUsers: Member[] }>;
+    /**
+     * 获得当前用户在频道中的权限
+     * @param channelId 频道ID
+     * @returns 当前用户在频道中的权限
+     */
+    getUserGroupNameInChannel(channelId: number): Promise<{isChannelOwner: boolean, isChannelAdmin: boolean}>;
+    /**
+     * 添加一个新成员
+     * @param channelId 频道ID
+     * @param newMemberId 新成员ID
+     * @returns 是否成功添加新成员
+     */
+    addMemberInChannel(channelId: number, newMemberIdInput: string): Promise<boolean>;
+    /**
+     * 修改频道基本信息
+     * @param channel 频道基本信息实例
+     * @returns 是否成功改变频道基本信息
+     */
+    changeChannelBasic(channel: ChannelBasic): Promise<boolean>;
+    /**
+     * 允许目标用户加入频道
+     * @param channelId 频道ID
+     * @param userId 用户ID
+     * @returns 是否成功允许将目标用户加入频道, 成功则返回频道实例
+     */
+    approveUserInChannel(channelId: number, userId: number): Promise<boolean>;
+    /**
+     * 拒绝目标用户加入频道
+     * @param channelId 频道ID
+     * @param userId 用户ID
+     * @returns 是否成功拒绝目标用户加入频道, 成功则返回频道实例
+     */
+    rejectUserInChannel(channelId: number, userId: number): Promise<boolean>;
     /**
      * 改变目标用户的频道管理员权限
      * @param channelId 频道ID

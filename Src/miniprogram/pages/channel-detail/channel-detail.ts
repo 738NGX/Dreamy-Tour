@@ -2,7 +2,7 @@
  * （单个）频道主页，下分为频道足迹、讨论区、频道群组
  * 根据用户群权限加载管理页面
  */
-import { Channel } from "../../utils/channel/channel";
+import { ChannelBasic } from "../../utils/channel/channel";
 
 const app = getApp<IAppOption>();
 
@@ -20,7 +20,7 @@ Component({
     childPage: 0,
 
     // 数据缓存
-    currentChannel: null as Channel | null,
+    currentChannel: undefined as ChannelBasic | undefined,
   },
   methods: {
     onLoad(options: any) {
@@ -44,7 +44,7 @@ Component({
       this.setData({ childPage: e.detail.value })
     },
     handleCurrentChannelChange(e: WechatMiniprogram.CustomEvent) {
-      this.setData({ currentChannel: new Channel(e.detail.value) })
+      this.setData({ currentChannel: new ChannelBasic(e.detail.value) })
     },
   },
 })
