@@ -2,6 +2,7 @@ import { Channel, JoinWay } from "./utils/channel/channel";
 import { Group } from "./utils/channel/group";
 import { Comment, Post } from "./utils/channel/post";
 import { UserRanking } from "./utils/channel/userRanking";
+import HttpUtil from "./utils/httpUtil";
 import { testData } from "./utils/testData";
 import { FootPrint } from "./utils/tour/footprint";
 import { Tour, TourStatus } from "./utils/tour/tour";
@@ -200,27 +201,15 @@ App<IAppOption>({
   },
 
   // for channel-adder.ts
-  getCurrentUserUnjoinedChannels(callback: (channels: Channel[]) => void): void {
+  /**
+   * 获取用户未参加的频道列表
+   * @returns 频道列表
+   */
+  async getCurrentUserUnjoinedChannels(): Promise<Channel[]> {
     /** 后端逻辑 */
-    // 获取 token
-    const token = wx.getStorageSync("token");
-    wx.request({
-      url: `${this.globalData.baseUrl}/channel/list`,
-      header: {
-        "Authorization": token
-      },
-      success(res: any) {
-        const channels = res.data.data as Channel[];
-        callback(channels);
-      },
-      fail() {
-        wx.showToast({
-          title: "请求失败",
-          icon: "error"
-        });
-        callback([]);
-      }
-    });
+   const res = await HttpUtil.get({ url: "/channel/list" });
+   const channelList = res.data.data as Channel[];
+   return channelList;
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
     // return this.getChannelListCopy().filter(
     //   channel => !this.currentUser().joinedChannel
@@ -287,27 +276,11 @@ App<IAppOption>({
   },
 
   // for channel-list.ts
-  getCurrentUserJoinedChannels(callback: (channels: Channel[]) => void): void {
+  async getCurrentUserJoinedChannels(): Promise<Channel[]> {
     /** 后端逻辑 */
-    // 获取 token
-    const token = wx.getStorageSync("token");
-    wx.request({
-      url: `${this.globalData.baseUrl}/channel/joined/list`,
-      header: {
-        "Authorization": token
-      },
-      success(res: any) {
-        const channels = res.data.data as Channel[];
-        callback(channels);
-      },
-      fail() {
-        wx.showToast({
-          title: "请求失败",
-          icon: "error"
-        });
-        callback([]);
-      }
-    });
+    const res = await HttpUtil.get({ url: "/channel/joined/list" });
+    const channelList = res.data.data as Channel[]
+    return channelList;
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
     // return this.getChannelListCopy().filter(
     //   channel => this.currentUser().joinedChannel

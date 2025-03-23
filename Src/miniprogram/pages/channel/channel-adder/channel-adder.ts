@@ -1,5 +1,4 @@
 import { Channel } from "../../../utils/channel/channel";
-import { channelList } from "../../../utils/testData/channel";
 
 const app = getApp<IAppOption>();
 
@@ -39,10 +38,9 @@ Component({
           channel => channel.name.includes(this.data.searchingValue))
       });
     },
-    loadChannelList() {
-      app.getCurrentUserUnjoinedChannels(channelList => {
-        this.setData({ channelList, fullChannelList: channelList });
-      });
+    async loadChannelList() {
+      const channelList = await app.getCurrentUserUnjoinedChannels();
+      this.setData({ channelList, fullChannelList: channelList });
     },
     onSearch(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;

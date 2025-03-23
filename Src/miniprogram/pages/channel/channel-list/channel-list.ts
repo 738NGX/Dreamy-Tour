@@ -39,10 +39,9 @@ Component({
         url: `/pages/channel-detail/channel-detail?channelId=${channelId}`,
       });
     },
-    loadChannelList() {
-      app.getCurrentUserJoinedChannels(channelList => {
-        this.setData({ channelList, fullChannelList: channelList });
-      });
+    async loadChannelList() {
+      const channelList = await app.getCurrentUserJoinedChannels();
+      this.setData({ channelList, fullChannelList: channelList });
     },
     onSearch(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
