@@ -207,9 +207,17 @@ App<IAppOption>({
    */
   async getCurrentUserUnjoinedChannels(): Promise<Channel[]> {
     /** 后端逻辑 */
-    const res = await HttpUtil.get({ url: "/channel/list" });
-    const channelList = res.data.data as Channel[];
-    return channelList;
+    try {
+      const res = await HttpUtil.get({ url: "/channel/unjoined/list" });
+      const channelList = res.data.data as Channel[];
+      return channelList;
+    } catch {
+      wx.showToast({
+        title: "加载失败",
+        icon: "error"
+      });
+      return [];
+    }
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
     // return this.getChannelListCopy().filter(
     //   channel => !this.currentUser().joinedChannel
@@ -279,9 +287,17 @@ App<IAppOption>({
   // for channel-list.ts
   async getCurrentUserJoinedChannels(): Promise<Channel[]> {
     /** 后端逻辑 */
-    const res = await HttpUtil.get({ url: "/channel/joined/list" });
-    const channelList = res.data.data as Channel[]
-    return channelList;
+    try {
+      const res = await HttpUtil.get({ url: "/channel/joined/list" });
+      const channelList = res.data.data as Channel[]
+      return channelList;
+    } catch {
+      wx.showToast({
+        title: "加载失败",
+        icon: "error"
+      });
+      return [];
+    }
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
     // return this.getChannelListCopy().filter(
     //   channel => this.currentUser().joinedChannel
