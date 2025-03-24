@@ -56,3 +56,10 @@ export class Comment implements IPost {
     this.parentComment = data.parentComment ?? -1;
   }
 }
+
+export type StructedComment = Comment & {
+  userName: string;
+  userGroup: string;
+  timeStr: string;
+  replies: StructedComment[];
+};

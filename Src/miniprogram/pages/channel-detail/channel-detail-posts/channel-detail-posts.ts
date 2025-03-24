@@ -3,6 +3,7 @@
  */
 import { Channel } from "../../../utils/channel/channel";
 import { PostCard } from "../../../utils/channel/post";
+import { File } from "../../../utils/tour/photo";
 
 const app = getApp<IAppOption>();
 
@@ -29,7 +30,7 @@ Component({
     inputVisible: false,
     inputTitle: '',
     inputValue: '',
-    originFiles: [] as any[],
+    originFiles: [] as File[],
   },
 
   lifetimes: {

@@ -1,18 +1,19 @@
 /**
  * 具体的帖子界面
  */
-import { Comment, Post } from "../../utils/channel/post";
-import { User } from "../../utils/user/user";
-import { formatPostTime, getNewId, getUserGroupNameInChannel } from "../../utils/util";
+import { Comment, Post, StructedComment } from "../../utils/channel/post";
+import { File } from "../../utils/tour/photo";
+import { Member } from "../../utils/user/user";
+import { formatPostTime } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
 enum InputMode { None, Comment, Reply };
 
-function getStructuredComments(postId: number, userList: User[], commentList: Comment[]) {
-  const userMap = new Map(userList.map(user => [user.id, user.name]));
+function getStructuredComments(post: Post, userList: Member[], commentList: Comment[]): StructedComment[] {
+  const userNameMap = new Map(userList.map(user => [user.id, user.name]));
+  const userGroupMap = new Map(userList.map(user => [user.id, user.userGroup]));
   const replyMap = new Map<number, Comment[]>();
-  const channelId = app.getPost(postId)?.linkedChannel;
 
   // 初始化评论映射
   commentList.forEach(comment => {
@@ -33,20 +34,20 @@ function getStructuredComments(postId: number, userList: User[], commentList: Co
       return [{
         ...reply,
         content: newContent,
-        userName: userMap.get(reply.user) || "Unknown",
-        userGroup: getUserGroupNameInChannel(userList.find(user => user.id == reply.user)!, channelId!),
+        userName: userNameMap.get(reply.user) || "未知用户",
+        userGroup: userGroupMap.get(reply.user) || "未知用户组",
         timeStr: formatPostTime(reply.time)
-      }, ...collectAllReplies(reply.id, userMap.get(reply.user))];
+      }, ...collectAllReplies(reply.id, userNameMap.get(reply.user))];
     }).sort((a, b) => b.likes.length - a.likes.length);
   }
 
   // 处理顶层评论，并整理其回复列表
   return commentList
-    .filter(comment => comment.linkedPost == postId && comment.parentComment == -1)
+    .filter(comment => comment.linkedPost == post.id && comment.parentComment == -1)
     .map(topComment => ({
       ...topComment,
-      userName: userMap.get(topComment.user) || "Unknown",
-      userGroup: getUserGroupNameInChannel(userList.find(user => user.id == topComment.user)!, channelId!),
+      userName: userNameMap.get(topComment.user) || "未知用户",
+      userGroup: userGroupMap.get(topComment.user) || "未知用户组",
       replies: collectAllReplies(topComment.id),
       timeStr: formatPostTime(topComment.time)
     }))
@@ -66,52 +67,37 @@ Component({
     author: '',
     authorGroup: '',
     timeStr: '',
-    structedComments: [] as any[],
+    structedComments: [] as StructedComment[],
     commentsSortType: '热度排序',
 
     repliesVisible: false,
     repliesParent: -1,
-    replies: [] as any[],
+    replies: [] as StructedComment[],
     repliesSortType: '热度排序',
 
     inputVisible: false,
     inputMode: InputMode.None,
     inputValue: '',
     replyingComment: -1,
-    originFiles: [] as any[],
+    originFiles: [] as File[],
   },
   methods: {
-    onLoad(options: any) {
+    async onLoad(options: any) {
       const { postId } = options;
-      const currentPost = app.getPost(parseInt(postId));
-      this.setData({ currentPost });
-      const userGroup = getUserGroupNameInChannel(
-        app.currentUser(),
-        currentPost?.linkedChannel!
-      )
-      this.setData({
-        isChannelAdmin: userGroup === '系统管理员' || userGroup === '频道主' || userGroup === '频道管理员',
-      });
+      const currentPost = await app.getFullPost(parseInt(postId)) as Post;
+      const { isChannelAdmin } = await app.getUserAuthorityInChannel(currentPost.linkedChannel)
+      this.setData({ currentPost, isChannelAdmin });
     },
-    onShow() {
-      const author = app.getUser(this.data.currentPost.user)?.name;
-      const authorGroup = getUserGroupNameInChannel(
-        app.getUser(this.data.currentPost.user)!,
-        this.data.currentPost?.linkedChannel!
-      );
+    async onShow() {
+      const { currentPost } = this.data;
+      const { members } = await app.getMembersInChannel(currentPost.linkedChannel);
+      const commentList = await app.getFullCommentsInPost(currentPost.id);
+
+      const author = members.find(member => member.id === currentPost.user)?.name ?? '未知用户';
+      const authorGroup = members.find(member => member.id === currentPost.user)?.userGroup ?? '未知用户组';
       const timeStr = this.data.currentPost ? formatPostTime(this.data.currentPost.time) : '';
-      const structedComments = getStructuredComments(
-        this.data.currentPost.id,
-        app.getUserListCopy(),
-        app.getCommentListCopy()
-      );
-      this.setData({
-        commentList: app.getCommentListCopy(),
-        author: author,
-        authorGroup: authorGroup,
-        timeStr: timeStr,
-        structedComments: structedComments
-      });
+      const structedComments = getStructuredComments(currentPost, members, commentList);
+      this.setData({ author, authorGroup, timeStr, structedComments });
     },
     onRefresh() {
       this.setData({ refreshEnable: true });
@@ -181,52 +167,27 @@ Component({
         })
       }
     },
-    handleLike() {
-      const currentPost = new Post(this.data.currentPost);
-      if (currentPost.likes.includes(this.data.currentUserId)) {
-        currentPost.likes = currentPost.likes.filter(id => id !== this.data.currentUserId);
-      } else {
-        currentPost.likes.push(this.data.currentUserId);
+    async handleLike() {
+      const currentPost = await app.handlePostLike(this.data.currentPost.id);
+      if (!currentPost) {
+        wx.showToast({
+          title: '操作失败',
+          icon: 'none'
+        });
+        return;
       }
-      app.updatePost(currentPost);
       this.setData({ currentPost });
     },
-    handleCommentLike(e: WechatMiniprogram.CustomEvent) {
+    async handleCommentLike(e: WechatMiniprogram.CustomEvent) {
       const commentId = e.currentTarget.dataset.index;
-      const structedComments = JSON.parse(JSON.stringify(this.data.structedComments));
-      const comment = structedComments.find((comment: any) => comment.id == commentId);
-      if (comment.likes.includes(this.data.currentUserId)) {
-        comment.likes = comment.likes.filter((id: any) => id !== this.data.currentUserId);
-      } else {
-        comment.likes.push(this.data.currentUserId);
-      }
-      const newComment = app.getComment(commentId) as Comment;
-      newComment.likes = comment.likes;
-      app.updateComment(newComment);
+      const structedComments = await app.handleCommentLike(commentId, this.data.structedComments);
       this.setData({ structedComments });
     },
-    handleReplyLike(e: WechatMiniprogram.CustomEvent) {
+    async handleReplyLike(e: WechatMiniprogram.CustomEvent) {
       const commentId = e.currentTarget.dataset.index[0];
       const replyId = e.currentTarget.dataset.index[1];
-
-      const structedComments = JSON.parse(JSON.stringify(this.data.structedComments));
-      const comment = structedComments.find((comment: any) => comment.id == commentId);
-      const reply = comment.replies.find((reply: any) => reply.id == replyId);
-
-      if (reply.likes.includes(this.data.currentUserId)) {
-        reply.likes = reply.likes.filter((id: any) => id !== this.data.currentUserId);
-      } else {
-        reply.likes.push(this.data.currentUserId);
-      }
-
-      const newComment = app.getComment(replyId) as Comment;
-      newComment.likes = reply.likes;
-      app.updateComment(newComment);
-
-      this.setData({
-        structedComments: structedComments,
-        replies: comment.replies,
-      });
+      const { structedComments, replies } = await app.handleReplyLike(commentId, replyId, this.data.structedComments);
+      this.setData({ structedComments, replies });
     },
     cancelInput() {
       this.setData({ inputVisible: false });
@@ -234,7 +195,7 @@ Component({
     handleInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ inputValue: e.detail.value });
     },
-    handleInputSend() {
+    async handleInputSend() {
       if (this.data.inputValue === '') {
         wx.showToast({
           title: '不可发送空白内容',
@@ -242,50 +203,58 @@ Component({
         });
         return;
       }
-      const newCommentId = getNewId(app.globalData.currentData.commentList);
+      let success = false;
       if (this.data.inputMode === InputMode.Comment) {
         const newComment = new Comment({
-          id: newCommentId,
+          id: -1,
           user: this.data.currentUserId,
           linkedPost: this.data.currentPost.id,
           content: this.data.inputValue,
           time: new Date().getTime(),
           likes: [],
-          photos: this.data.originFiles.map((file: any) => ({ value: file.url, ariaLabel: file.name })),
+          photos: this.data.originFiles.map((file) => ({ value: file.url, ariaLabel: file.name })),
           parentComment: -1
         });
-        app.addComment(newComment);
-        this.onRefresh();
+        if (await app.handleCommentSend(newComment)) {
+          success = true;
+          this.onRefresh();
+        }
       } else if (this.data.inputMode === InputMode.Reply) {
         const newComment = new Comment({
-          id: newCommentId,
+          id: -1,
           user: this.data.currentUserId,
           linkedPost: this.data.currentPost.id,
           content: this.data.inputValue,
           time: new Date().getTime(),
           likes: [],
-          photos: this.data.originFiles.map((file: any) => ({ value: file.url, ariaLabel: file.name })),
+          photos: this.data.originFiles.map((file) => ({ value: file.url, ariaLabel: file.name })),
           parentComment: this.data.replyingComment
         });
-        app.addComment(newComment);
-        this.onRefresh();
-        if (this.data.repliesParent != -1) {
-          const replies = this.data.structedComments.find((comment: any) => comment.id == this.data.repliesParent).replies;
-          this.setData({ replies });
+        if (await app.handleCommentSend(newComment)) {
+          success = true;
+          this.onRefresh();
+          if (this.data.repliesParent != -1) {
+            const replies = this.data.structedComments.find((comment) => comment.id == this.data.repliesParent)?.replies;
+            this.setData({ replies });
+          }
         }
       }
-      this.setData({
-        inputVisible: false,
-        inputValue: '',
-        inputMode: InputMode.None,
-        originFiles: []
-      });
+      if (success) {
+        this.setData({
+          inputVisible: false,
+          inputValue: '',
+          inputMode: InputMode.None,
+          originFiles: []
+        });
+      } else {
+        wx.showToast({
+          title: '发送失败',
+          icon: 'none'
+        });
+      }
     },
     handleCommentInput() {
-      this.setData({
-        inputVisible: true,
-        inputMode: InputMode.Comment,
-      });
+      this.setData({ inputVisible: true, inputMode: InputMode.Comment });
     },
     handleReplyInput(e: WechatMiniprogram.CustomEvent) {
       const id = e.currentTarget.dataset.index ?? -1;
@@ -297,44 +266,36 @@ Component({
     },
     handleImageUploadSuccess(e: WechatMiniprogram.CustomEvent) {
       const { files } = e.detail;
-      this.setData({
-        originFiles: files,
-      });
+      this.setData({ originFiles: files });
     },
     handleImageUploadRemove(e: WechatMiniprogram.CustomEvent) {
       const { index } = e.detail;
       const { originFiles } = this.data;
       originFiles.splice(index, 1);
-      this.setData({
-        originFiles,
-      });
+      this.setData({ originFiles });
     },
     handleImageUploadClick(e: WechatMiniprogram.CustomEvent) {
       console.log(e.detail.file);
     },
     handleImageUploadDrop(e: WechatMiniprogram.CustomEvent) {
       const { files } = e.detail;
-      this.setData({
-        originFiles: files,
-      });
+      this.setData({ originFiles: files });
     },
     onCommentDelete(e: WechatMiniprogram.CustomEvent) {
       const that = this;
       wx.showModal({
         title: '警告',
         content: '是否确定删除该评论？',
-        success(res) {
+        async success(res) {
           if (res.confirm) {
             const comment = e.currentTarget.dataset.index?.id;
-            // 递归移除指定评论及其所有回复
-            function removeRecursively(commentId: number) {
-              const commentList = app.getCommentListCopy();
-              const childReplies = commentList.filter((c: any) => c.parentComment === commentId);
-              childReplies.forEach(reply => removeRecursively(reply.id));
-              app.removeComment(commentId);
+            if (await app.handleCommentDelete(comment)) { that.onRefresh(); }
+            else {
+              wx.showToast({
+                title: '删除失败',
+                icon: 'none'
+              });
             }
-            removeRecursively(comment);
-            that.onRefresh();
           } else if (res.cancel) {
             return;
           }
@@ -346,23 +307,20 @@ Component({
       wx.showModal({
         title: '警告',
         content: '是否确定删除该回复？',
-        success(res) {
+        async success(res) {
           if (res.confirm) {
             const replyId = e.currentTarget.dataset.index?.id;
             const parentComment = e.currentTarget.dataset.index?.parentComment;
-            const commentList = app.getCommentListCopy();
-            // 递归获取所有子回复的 id
-            function getAllDescendantIds(parentId: number): number[] {
-              const childReplies = commentList.filter((c) => c.parentComment === parentId);
-              return childReplies.reduce((acc: number[], current) => {
-                return acc.concat(current.id, getAllDescendantIds(current.id));
-              }, []);
+            if (await app.handleReplyDelete(replyId)) {
+              that.onRefresh();
+              const replies = that.data.structedComments.find((comment) => comment.id == parentComment)?.replies;
+              that.setData({ replies });
+            } else {
+              wx.showToast({
+                title: '删除失败',
+                icon: 'none'
+              });
             }
-            const idsToDelete = [replyId, ...getAllDescendantIds(replyId)];
-            idsToDelete.forEach(id => { app.removeComment(id); });
-            that.onRefresh();
-            const replies = that.data.structedComments.find((comment: any) => comment.id == parentComment).replies;
-            that.setData({ replies });
           }
         }
       });
@@ -372,15 +330,16 @@ Component({
       wx.showModal({
         title: '警告',
         content: '是否确定删除该帖子？',
-        success(res) {
+        async success(res) {
           if (res.confirm) {
-            app.getCommentListCopy().forEach((comment: any) => {
-              if (comment.linkedPost === that.data.currentPost.id) {
-                app.removeComment(comment.id);
-              }
-            });
-            app.removePost(that.data.currentPost);
-            wx.navigateBack();
+            if (await app.handlePostDelete(that.data.currentPost.id)) {
+              wx.navigateBack();
+            } else {
+              wx.showToast({
+                title: '删除失败',
+                icon: 'none'
+              });
+            }
           } else if (res.cancel) {
             return;
           }

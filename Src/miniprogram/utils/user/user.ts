@@ -48,7 +48,7 @@ export class User extends UserBasic {
 }
 
 /**
- * 成员信息, 用于频道/群组显示
+ * 成员信息, 用于频道/群组/帖子显示
  */
 export class Member extends UserBasic {
   userGroup: string;

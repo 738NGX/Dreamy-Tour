@@ -6,3 +6,10 @@ export class Photo {
     this.ariaLabel = data.ariaLabel ?? '';
   }
 }
+
+export type File = {
+  url: string;
+  name: string;
+  size: number;
+  type: string;
+}

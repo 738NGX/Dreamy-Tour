@@ -1,9 +1,10 @@
 import { Channel, ChannelBasic } from "../miniprogram/utils/channel/channel";
 import { Group, GroupBasic } from "../miniprogram/utils/channel/group";
-import { Comment, Post, PostCard } from "../miniprogram/utils/channel/post";
+import { Comment, Post, PostCard, StructedComment } from "../miniprogram/utils/channel/post";
 import { UserRanking } from "../miniprogram/utils/channel/userRanking";
 import { Currency } from "../miniprogram/utils/tour/expense";
 import { FootPrint } from "../miniprogram/utils/tour/footprint";
+import { File } from "../miniprogram/utils/tour/photo";
 import { Tour } from "../miniprogram/utils/tour/tour";
 import { Member, User } from "../miniprogram/utils/user/user";
 
@@ -110,7 +111,7 @@ declare global {
      * @param content 
      * @param originFiles 
      */
-    createPost(channelId: number, title: string, content: string, originFiles: any[]): Promise<boolean>;
+    createPost(channelId: number, title: string, content: string, originFiles: File[]): Promise<boolean>;
 
     // for channel-detail-group.ts
     /**
@@ -209,5 +210,58 @@ declare global {
      * @returns 是否解散成功
      */
     disbandChannel(channelId: number): Promise<boolean>;
+
+    // for channel-post.ts
+    /**
+     * 获取完整的帖子实例
+     * @param postId 帖子ID
+     * @returns 完整的帖子实例
+     */
+    getFullPost(postId: number): Promise<Post | undefined>;
+    /**
+     * 获取帖子中的评论列表
+     * @param postId 
+     */
+    getFullCommentsInPost(postId: number): Promise<Comment[]>
+    /**
+     * 对帖子进行点赞或取消点赞
+     * @param postId 帖子id
+     * @returns 操作后的帖子实例
+     */
+    handlePostLike(postId: number): Promise<Post | undefined>;
+    /**
+     * 对评论进行点赞或取消点赞
+     * @param commentId 评论id
+     * @returns 操作后的评论实例
+     */
+    handleCommentLike(commentId: number, structedComments:StructedComment[]): Promise<StructedComment[]>;
+    /**
+     * 对回复进行点赞或取消点赞
+     * @param commentId 评论id
+     * @param replyId 回复id
+     * @returns 操作后的评论实例
+     */
+    handleReplyLike(commentId: number, replyId: number, structedComments: StructedComment[]): Promise<{ structedComments: StructedComment[], replies: StructedComment[] }>;
+    /**
+     * 增加一条评论
+     * @param comment 评论实例, ID会被重新指定
+     * @returns 是否成功增加评论, 成功则刷新页面
+     */
+    handleCommentSend(comment: Comment): Promise<boolean>;
+    /**
+     * 删除评论
+     * @param commentId 
+     */
+    handleCommentDelete(commentId: number): Promise<boolean>;
+    /**
+     * 删除回复
+     * @param replyId 
+     */
+    handleReplyDelete(replyId: number): Promise<boolean>;
+    /**
+     * 删除帖子
+     * @param postId 
+     */
+    handlePostDelete(postId: number): Promise<boolean>;
   }
 }

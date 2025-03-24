@@ -29,15 +29,16 @@ Component({
         currentChannel: app.getChannel(parseInt(channelId)),
       });
     },
-    onShow() {
+    async onShow() {
       const postsComponent = this.selectComponent('#posts');
       if (postsComponent) {
-        postsComponent.sortPosts();
+        await postsComponent.getFullPosts();
+        postsComponent.searchPosts(postsComponent.data.searchingValue);
       }
       const groupsComponent = this.selectComponent('#groups');
       if (groupsComponent) {
-        groupsComponent.classifyGroups();
-        groupsComponent.getTourTemplates();
+        await groupsComponent.classifyGroups();
+        await groupsComponent.getTourTemplates();
       }
     },
     onChildPageChange(e: WechatMiniprogram.CustomEvent) {

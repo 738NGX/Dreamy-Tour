@@ -1,12 +1,13 @@
 import { Channel, ChannelBasic, JoinWay } from "./utils/channel/channel";
 import { Group, GroupBasic } from "./utils/channel/group";
-import { Comment, Post, PostCard } from "./utils/channel/post";
+import { Comment, Post, PostCard, StructedComment } from "./utils/channel/post";
 import { UserRanking } from "./utils/channel/userRanking";
 import HttpUtil from "./utils/httpUtil";
 import { testData } from "./utils/testData";
 import { Budget } from "./utils/tour/budget";
 import { Currency } from "./utils/tour/expense";
 import { FootPrint } from "./utils/tour/footprint";
+import { File } from "./utils/tour/photo";
 import { Tour, TourStatus } from "./utils/tour/tour";
 import { Location, Transportation } from "./utils/tour/tourNode";
 import { Member, User } from "./utils/user/user";
@@ -363,7 +364,7 @@ App<IAppOption>({
       );
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
-  async createPost(channelId: number, title: string, content: string, originFiles: any[]): Promise<boolean> {
+  async createPost(channelId: number, title: string, content: string, originFiles: File[]): Promise<boolean> {
     /** 后端逻辑 */
 
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
@@ -384,7 +385,7 @@ App<IAppOption>({
         user: this.globalData.currentUserId,
         time: Date.now(),
         isSticky: false,
-        photos: originFiles.map((file: any) => ({ value: file.url, ariaLabel: file.name })),
+        photos: originFiles.map((file) => ({ value: file.url, ariaLabel: file.name })),
       });
       this.addPost(newPost);
       return true;
@@ -806,6 +807,139 @@ App<IAppOption>({
         }
       });
     });
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+
+  // for channel-post.ts
+  async getFullPost(postId: number): Promise<Post | undefined> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    return this.getPost(postId);
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async getFullCommentsInPost(postId: number): Promise<Comment[]> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    return this.getCommentListCopy().filter(
+      comment => comment.linkedPost === postId
+    )
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async handlePostLike(postId: number): Promise<Post | undefined> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const currentPost = this.getPost(postId);
+    const currentUserId = this.globalData.currentUserId;
+    if (!currentPost) { return undefined; }
+    if (currentPost.likes.includes(currentUserId)) {
+      currentPost.likes = currentPost.likes.filter(id => id !== currentUserId);
+    } else {
+      currentPost.likes.push(currentUserId);
+    }
+    this.updatePost(currentPost);
+    return currentPost;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async handleCommentLike(commentId: number, structedComments: StructedComment[]): Promise<StructedComment[]> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
+    const currentUserId = this.globalData.currentUserId;
+    const comment = _structedComments.find((comment: any) => comment.id == commentId);
+    if (!comment) { return _structedComments; }
+    if (comment.likes.includes(currentUserId)) {
+      comment.likes = comment.likes.filter((id: any) => id !== currentUserId);
+    } else {
+      comment.likes.push(currentUserId);
+    }
+    const newComment = this.getComment(commentId) as Comment;
+    newComment.likes = comment.likes;
+    this.updateComment(newComment);
+    return _structedComments;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async handleReplyLike(commentId: number, replyId: number, structedComments: StructedComment[]): Promise<{ structedComments: StructedComment[], replies: StructedComment[] }> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
+    const currentUserId = this.globalData.currentUserId;
+
+    const comment = structedComments.find((comment: any) => comment.id == commentId);
+    if (!comment) { return { structedComments: _structedComments, replies: [] }; }
+    const reply = comment.replies.find((reply: any) => reply.id == replyId);
+    if (!reply) { return { structedComments: _structedComments, replies: [] }; }
+
+    if (reply.likes.includes(currentUserId)) {
+      reply.likes = reply.likes.filter((id: any) => id !== currentUserId);
+    } else {
+      reply.likes.push(currentUserId);
+    }
+
+    const newComment = this.getComment(replyId) as Comment;
+    newComment.likes = reply.likes;
+    this.updateComment(newComment);
+
+    return { structedComments: _structedComments, replies: comment.replies };
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async handleCommentSend(comment: Comment): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    comment.id = getNewId(this.globalData.currentData.commentList);
+    this.addComment(comment);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async handleCommentDelete(commentId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const that = this;
+    // 递归移除指定评论及其所有回复
+    function removeRecursively(commentId: number) {
+      const commentList = that.getCommentListCopy();
+      const childReplies = commentList.filter((c: any) => c.parentComment === commentId);
+      childReplies.forEach(reply => removeRecursively(reply.id));
+      that.removeComment(commentId);
+    }
+    removeRecursively(commentId);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async handleReplyDelete(replyId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const commentList = this.getCommentListCopy();
+    // 递归获取所有子回复的 id
+    function getAllDescendantIds(parentId: number): number[] {
+      const childReplies = commentList.filter((c) => c.parentComment === parentId);
+      return childReplies.reduce((acc: number[], current) => {
+        return acc.concat(current.id, getAllDescendantIds(current.id));
+      }, []);
+    }
+    const idsToDelete = [replyId, ...getAllDescendantIds(replyId)];
+    idsToDelete.forEach(id => { this.removeComment(id); });
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async handlePostDelete(postId: number): Promise<boolean>{
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    this.getCommentListCopy().forEach((comment: any) => {
+      if (comment.linkedPost === postId) {
+        this.removeComment(comment.id);
+      }
+    });
+    this.removePost(postId);
+    return true;
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   }
 })
