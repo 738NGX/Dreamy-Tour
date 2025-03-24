@@ -310,6 +310,32 @@ App<IAppOption>({
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
 
+  // for channel-detail.ts
+  async loadChannel(channelId: number): Promise<ChannelBasic | undefined> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const channel = this.getChannel(channelId);
+    if (channel) {
+      return new ChannelBasic(channel);
+    } else {
+      return undefined;
+    }
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async loadPublicChannel(): Promise<ChannelBasic | undefined> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const channel = this.getChannel(1);
+    if (channel) {
+      return new ChannelBasic(channel);
+    } else {
+      return undefined;
+    }
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+
   // for channel-detail-home.ts
   async generateTourSaves(channelId: number): Promise<Tour[]> {
     /** 后端逻辑 */

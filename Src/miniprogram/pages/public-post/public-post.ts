@@ -2,22 +2,28 @@
  * 公共频道讨论区
  */
 
+import { ChannelBasic } from "../../utils/channel/channel";
+
 Component({
   properties: {
 
   },
   data: {
-    currentChannel: getApp().getChannel(1),
+    currentChannel: {} as ChannelBasic,
   },
   methods: {
-    onShow() {
+    async onShow() {
+      this.setData({
+        currentChannel: await getApp<IAppOption>().loadPublicChannel()
+      });
       if (typeof this.getTabBar === 'function' && this.getTabBar()) {
         const page: any = getCurrentPages().pop();
         this.getTabBar().setData({ value: '/' + page.route })
       }
       const postsComponent = this.selectComponent('#posts');
-      if (postsComponent && typeof postsComponent.sortPosts === 'function') {
-        postsComponent.sortPosts();
+      if (postsComponent) {
+        await postsComponent.getFullPosts();
+        postsComponent.searchPosts(postsComponent.data.searchingValue);
       }
     },
   }

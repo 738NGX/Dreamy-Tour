@@ -23,10 +23,10 @@ Component({
     currentChannel: undefined as ChannelBasic | undefined,
   },
   methods: {
-    onLoad(options: any) {
+    async onLoad(options: any) {
       const { channelId } = options;
       this.setData({
-        currentChannel: app.getChannel(parseInt(channelId)),
+        currentChannel: await app.loadChannel(parseInt(channelId)),
       });
     },
     async onShow() {

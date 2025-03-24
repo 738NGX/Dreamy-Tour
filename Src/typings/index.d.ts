@@ -86,6 +86,19 @@ declare global {
      */
     getCurrentUserJoinedChannels(): Promise<Channel[]>;
 
+    // for channel-detail.ts
+    /**
+     * 加载频道的基本信息
+     * @param channelId 频道ID
+     * @returns 一个频道的基本信息
+     */
+    loadChannel(channelId: number): Promise<ChannelBasic | undefined>;
+    /**
+     * 加载世界频道的基本信息
+     * @returns 世界频道的基本信息
+     */
+    loadPublicChannel(): Promise<ChannelBasic | undefined>;
+
     // for channel-detail-home.ts
     /**
      * @param channelId 频道ID

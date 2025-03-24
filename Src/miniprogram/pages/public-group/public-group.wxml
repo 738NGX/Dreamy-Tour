@@ -1,2 +1,2 @@
 <header class="custom-navbar" tabList="{{[]}}" />
-<channel-detail-group currentChannel="{{currentChannel}}" fabStyle="right: 16px; bottom: 200rpx;" />
+<channel-detail-group id="groups" currentChannel="{{currentChannel}}" fabStyle="right: 16px; bottom: 200rpx;" />
