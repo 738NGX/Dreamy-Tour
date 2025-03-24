@@ -8,10 +8,10 @@ import { Budget } from "./utils/tour/budget";
 import { Currency } from "./utils/tour/expense";
 import { FootPrint } from "./utils/tour/footprint";
 import { File } from "./utils/tour/photo";
-import { Tour, TourStatus } from "./utils/tour/tour";
+import { Tour, TourBasic, TourStatus } from "./utils/tour/tour";
 import { Location, Transportation } from "./utils/tour/tourNode";
 import { Member, User } from "./utils/user/user";
-import { getNewId, getUser, getUserGroupName, getUserGroupNameInChannel } from "./utils/util";
+import { getNewId, getUser, getUserGroupName, getUserGroupNameInChannel, getUserGroupNameInGroup } from "./utils/util";
 
 // app.ts
 App<IAppOption>({
@@ -929,7 +929,7 @@ App<IAppOption>({
     return true;
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
-  async handlePostDelete(postId: number): Promise<boolean>{
+  async handlePostDelete(postId: number): Promise<boolean> {
     /** 后端逻辑 */
 
     /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
@@ -941,5 +941,283 @@ App<IAppOption>({
     this.removePost(postId);
     return true;
     /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
-  }
+  },
+
+  // for channel-detail-group.ts
+  async loadGroup(groupId:number): Promise<{ currentGroup: GroupBasic, linkedTour: TourBasic }>{
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const currentGroup = new GroupBasic(this.getGroup(groupId));
+    const linkedTour = new TourBasic(this.getTourListCopy().find(
+      (tour) => tour.linkedGroup == currentGroup.id
+    ));
+    return { currentGroup, linkedTour };
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async getMembersInGroup(groupId: number): Promise<{ members: Member[], waitingUsers: Member[] }> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const userList = this.getUserListCopy();
+    const currentGroup = this.getGroup(groupId) as Group;
+    const memberList = userList.filter(
+      (user: User) => user.joinedGroup.includes(groupId)
+    );
+    const waitingUsersList = currentGroup.waitingUsers.map(
+      (userId: number) => getUser(userList, userId)
+    ).filter((user: any) => user != undefined);
+    const members = memberList.map((member: User) => {
+      return {
+        ...member,
+        userGroup: getUserGroupNameInGroup(member, groupId),
+      };
+    }).sort((a: any, b: any) => {
+      const getPriority = (group: string) => {
+        if (group === "系统管理员") return 0;
+        if (group === "群主") return 1;
+        if (group === "群管理员") return 2;
+        return 3;
+      };
+      return getPriority(a.userGroup) - getPriority(b.userGroup);
+    });
+    const waitingUsers = waitingUsersList.map((user: any) => {
+      return { ...user, userGroup: getUserGroupName(user) };
+    });
+    return { members, waitingUsers };
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async getUserAuthorityInGroup(groupId: number): Promise<{ isGroupOwner: boolean, isGroupAdmin: boolean }> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const userGroup = getUserGroupNameInGroup(this.currentUser(), groupId);
+    return {
+      isGroupOwner: userGroup === "群主",
+      isGroupAdmin: userGroup === "系统管理员" || userGroup === "群主" || userGroup === "群管理员"
+    };
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async addMemberInGroup(groupId: number, linkedTourId: number, newMemberIdInput: string): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    if (newMemberIdInput === '') {
+      wx.showToast({
+        title: '请输入用户ID',
+        icon: 'none'
+      });
+      return false;
+    }
+    const newMemberId = parseInt(newMemberIdInput, 10);
+    const user = this.getUser(newMemberId);
+    if (!user || user.id === 0) {
+      wx.showToast({
+        title: '用户不存在',
+        icon: 'none'
+      });
+      return false;
+    }
+    if (user.joinedGroup.includes(groupId)) {
+      wx.showToast({
+        title: '用户已在群内',
+        icon: 'none'
+      });
+      return false;
+    }
+    const currentGroup = this.getGroup(groupId) as Group;
+    if (!user.joinedChannel.includes(currentGroup.linkedChannel)) {
+      wx.showToast({
+        title: '用户不在频道中',
+        icon: 'none'
+      });
+      return false;
+    }
+    const linkedTour = this.getTour(linkedTourId) as Tour;
+    linkedTour.users.push(newMemberId);
+    this.updateTour(linkedTour);
+    user.joinedGroup.push(groupId);
+    this.updateUser(user);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async approveUserInGroup(groupId: number, linkedTourId: number, userId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const user = this.getUser(userId);
+    if (!user) { return false; }
+    user.joinedGroup.push(groupId);
+    this.updateUser(user);
+    const currentGroup = this.getGroup(groupId) as Group;
+    const linkedTour = this.getTour(linkedTourId) as Tour;
+    currentGroup.waitingUsers = currentGroup.waitingUsers.filter(
+      (id: number) => id !== userId
+    );
+    linkedTour.users.push(userId);
+    this.updateGroup(currentGroup);
+    this.updateTour(linkedTour);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async rejectUserInGroup(groupId: number, userId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const currentGroup = this.getGroup(groupId) as Group;
+    currentGroup.waitingUsers = currentGroup.waitingUsers.filter(
+      (id: number) => id !== userId
+    );
+    this.updateGroup(currentGroup);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async userAdminChangeInGroup(groupId: number, userId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const currentGroup = this.getGroup(groupId) as Group;
+    const user = this.getUser(userId);
+    if (!user) { return false; }
+    const userGroup = getUserGroupNameInGroup(user, currentGroup.id);
+    if (userGroup === "群主") { return false; }
+    if (userGroup === "群管理员") {
+      user.adminingGroup = user.adminingGroup.filter(
+        (groupId: number) => groupId !== currentGroup.id
+      );
+    } else {
+      user.adminingGroup.push(currentGroup.id);
+    }
+    this.updateUser(user);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async removeMemberInGroup(groupId: number, linkedTourId: number, userId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const currentGroup = this.getGroup(groupId) as Group;
+    const user = this.getUser(userId);
+    if (!user) { return false; }
+    user.joinedGroup = user.joinedGroup.filter(
+      (groupId: number) => groupId !== currentGroup.id
+    );
+    user.adminingGroup = user.adminingGroup.filter(
+      (groupId: number) => groupId !== currentGroup.id
+    );
+    const linkedTour = this.getTour(linkedTourId) as Tour;
+    linkedTour.deleteUser(userId);
+    this.updateTour(linkedTour);
+    this.updateUser(user);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async transferGroupOwner(groupId: number, newOwnerId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const newOwner = this.getUser(newOwnerId);
+    const currentOwner = this.currentUser();
+    if (!newOwner || !currentOwner) { return false; }
+    currentOwner.havingGroup = currentOwner.havingGroup.filter(
+      (groupId: number) => groupId !== groupId
+    );
+    newOwner.adminingGroup = newOwner.adminingGroup.filter(
+      (groupId: number) => groupId !== groupId
+    );
+    newOwner.havingGroup.push(groupId);
+    this.updateUser(newOwner);
+    this.updateUser(currentOwner);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async changeGroupBasic(groupBasic: GroupBasic): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const currentGroup = this.getGroup(groupBasic.id) as Group;
+    const { id, ...rest } = groupBasic;
+    Object.assign(currentGroup, rest);
+    this.updateGroup(currentGroup);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async changeTourBasic(tour: TourBasic): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const currentTour = this.getTour(tour.id) as Tour;
+    const { id, ...rest } = tour;
+    Object.assign(currentTour, rest);
+    this.updateTour(currentTour);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async quitGroup(groupId: number, linkedTourId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const currentUser = this.currentUser();
+    const linkedTour = this.getTour(linkedTourId) as Tour;
+    currentUser.joinedGroup = currentUser.joinedGroup.filter(
+      (_groupId) => _groupId !== groupId
+    );
+    currentUser.adminingGroup = currentUser.adminingGroup.filter(
+      (_groupId) => _groupId !== groupId
+    );
+    linkedTour.users = linkedTour.users.filter(
+      (userId) => userId !== currentUser.id
+    );
+    this.updateTour(linkedTour);
+    this.updateUser(currentUser);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async disbandGroup(groupId: number, linkedTourId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const userList = this.getUserListCopy();
+    userList.forEach((user) => {
+      user.joinedGroup = user.joinedGroup.filter(
+        (_groupId) => _groupId !== groupId
+      );
+      user.adminingGroup = user.adminingGroup.filter(
+        (_groupId) => _groupId !== groupId
+      );
+      user.havingGroup = user.havingGroup.filter(
+        (_groupId) => _groupId !== groupId
+      );
+      this.updateUser(user);
+    });
+    this.removeGroup(groupId);
+    this.removeTour(linkedTourId);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
+  async endGroupTour(groupId: number, linkedTourId: number): Promise<boolean> {
+    /** 后端逻辑 */
+
+    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
+    const userList = this.getUserListCopy();
+    userList.forEach((user: User) => {
+      user.joinedGroup = user.joinedGroup.filter(
+        (_groupId: number) => _groupId !== groupId
+      );
+      user.adminingGroup = user.adminingGroup.filter(
+        (_groupId: number) => _groupId !== groupId
+      );
+      user.havingGroup = user.havingGroup.filter(
+        (_groupId: number) => _groupId !== groupId
+      );
+      this.updateUser(user);
+    });
+    this.removeGroup(groupId);
+    const linkedTour = this.getTour(linkedTourId) as Tour;
+    linkedTour.linkedGroup = -1;
+    linkedTour.status = TourStatus.Finished;
+    this.updateTour(linkedTour);
+    return true;
+    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  },
 })

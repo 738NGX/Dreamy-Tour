@@ -2,12 +2,12 @@
  * 群组界面，展示群成员、群行程、聊天群二维码信息
  */
 import { JoinWay } from "../../utils/channel/channel";
-import { Group } from "../../utils/channel/group";
+import { Group, GroupBasic } from "../../utils/channel/group";
 import { currencyList } from "../../utils/tour/expense";
 import { timezoneList } from "../../utils/tour/timezone";
-import { Tour, TourStatus } from "../../utils/tour/tour";
-import { User } from "../../utils/user/user";
-import { formatDate, getUser, getUserGroupName, getUserGroupNameInGroup, MILLISECONDS } from "../../utils/util";
+import { Tour, TourBasic } from "../../utils/tour/tour";
+import { Member } from "../../utils/user/user";
+import { formatDate, MILLISECONDS } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -25,16 +25,15 @@ Component({
     ],
 
     groupId: -1,
-    currentGroup: {} as Group,
-    currentUser: {} as User,
+    currentGroup: {} as GroupBasic,
     isGroupOwner: false,
     isGroupAdmin: false,
-    members: [] as any[],
-    waitingUsers: [] as any[],
+    members: [] as Member[],
+    waitingUsers: [] as Member[],
 
     newMemberId: '',
 
-    linkedTour: {} as Tour,
+    linkedTour: {} as TourBasic,
     calendarVisible: false,
     dateRange: [0, 0],
     calendarRange: [0, 0],
@@ -55,19 +54,13 @@ Component({
     uploadedPhotos: [] as any[],
   },
   methods: {
-    onLoad(options: any) {
+    async onLoad(options: any) {
       const { groupId } = options;
-      this.setData({
-        groupId: parseInt(groupId),
-        currentUser: app.currentUser(),
-      });
-      this.getAuthority();
+      this.setData({ groupId: parseInt(groupId), });
+      await this.getAuthority();
     },
-    onShow() {
-      const currentGroup = app.getGroup(this.data.groupId) as Group;
-      const linkedTour = new Tour(app.getTourListCopy().find(
-        (tour) => tour.linkedGroup == currentGroup.id
-      ));
+    async onShow() {
+      const { currentGroup, linkedTour } = await app.loadGroup(this.data.groupId);
       this.setData({
         currentGroup: currentGroup,
         linkedTour: linkedTour,
@@ -76,154 +69,58 @@ Component({
         dateRangeStr: [formatDate(linkedTour.startDate), formatDate(linkedTour.endDate)],
         timeOffsetStr: timezoneList.find(tz => tz.value === linkedTour.timeOffset)?.label ?? '未知时区'
       });
-      this.getMembers();
+      await this.getMembers();
     },
-    getAuthority() {
-      const userGroup = getUserGroupNameInGroup(
-        this.data.currentUser,
-        this.data.groupId
-      );
-      this.setData({
-        isGroupOwner: userGroup === "群主",
-        isGroupAdmin: userGroup === "系统管理员" || userGroup === "群主" || userGroup === "群管理员"
-      });
+    async getAuthority() {
+      const { isGroupOwner, isGroupAdmin } = await app.getUserAuthorityInGroup(this.data.groupId);
+      this.setData({ isGroupOwner, isGroupAdmin });
     },
-    getMembers() {
-      const userList = app.getUserListCopy();
-      const memberList = userList.filter(
-        (user: User) => user.joinedGroup.includes(this.data.groupId)
-      );
-      const waitingUsersList = this.data.currentGroup.waitingUsers.map(
-        (userId: number) => getUser(userList, userId)
-      ).filter((user: any) => user != undefined);
-      const members = memberList.map((member: User) => {
-        return {
-          ...member,
-          userGroup: getUserGroupNameInGroup(member, this.data.groupId),
-        };
-      }).sort((a: any, b: any) => {
-        const getPriority = (group: string) => {
-          if (group === "系统管理员") return 0;
-          if (group === "群主") return 1;
-          if (group === "群管理员") return 2;
-          return 3;
-        };
-        return getPriority(a.userGroup) - getPriority(b.userGroup);
-      });
-      const waitingUsers = waitingUsersList.map((user: any) => {
-        return { ...user, userGroup: getUserGroupName(user) };
-      });
+    async getMembers() {
+      const { members, waitingUsers } = await app.getMembersInGroup(this.data.groupId);
       this.setData({ members, waitingUsers });
     },
     onNewMemberIdInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ newMemberId: e.detail.value });
     },
-    addMember() {
-      if (this.data.newMemberId === '') {
-        wx.showToast({
-          title: '请输入用户ID',
-          icon: 'none'
-        });
-        return;
+    async addMember() {
+      if (await app.addMemberInGroup(
+        this.data.groupId,
+        this.data.linkedTour.id,
+        this.data.newMemberId)
+      ) {
+        await this.getMembers();
+        this.setData({ newMemberId: '' });
       }
-      const newMemberId = parseInt(this.data.newMemberId, 10);
-      const user = app.getUser(newMemberId);
-      if (!user || user.id === 0) {
-        wx.showToast({
-          title: '用户不存在',
-          icon: 'none'
-        });
-        return;
-      }
-      if (user.joinedGroup.includes(this.data.groupId)) {
-        wx.showToast({
-          title: '用户已在群内',
-          icon: 'none'
-        });
-        return;
-      }
-      if(!user.joinedChannel.includes(this.data.currentGroup.linkedChannel)) {
-        wx.showToast({
-          title: '用户不在频道中',
-          icon: 'none'
-        });
-        return;
-      }
-      const { linkedTour } = this.data;
-      linkedTour.users.push(newMemberId);
-      app.updateTour(linkedTour);
-      this.setData({ linkedTour });
-      user.joinedGroup.push(this.data.groupId);
-      app.updateUser(user);
-      this.getMembers();
-      this.setData({ newMemberId: '' });
     },
-    approveUser(e: WechatMiniprogram.CustomEvent) {
+    async approveUser(e: WechatMiniprogram.CustomEvent) {
       const userId = parseInt(e.currentTarget.dataset.index);
-      const user = app.getUser(userId);
-      if (!user) { return; }
-      user.joinedGroup.push(this.data.groupId);
-      app.updateUser(user);
-      const { currentGroup, linkedTour } = this.data;
-      currentGroup.waitingUsers = currentGroup.waitingUsers.filter(
-        (id: number) => id !== userId
-      );
-      linkedTour.users.push(userId);
-      app.updateGroup(currentGroup);
-      app.updateTour(linkedTour);
-      this.setData({ currentGroup, linkedTour });
-      this.getMembers();
+      if (await app.approveUserInGroup(this.data.groupId, this.data.linkedTour.id, userId)) {
+        await this.getMembers();
+      }
     },
-    rejectUser(e: WechatMiniprogram.CustomEvent) {
+    async rejectUser(e: WechatMiniprogram.CustomEvent) {
       const userId = parseInt(e.currentTarget.dataset.index);
-      const { currentGroup } = this.data;
-      currentGroup.waitingUsers = currentGroup.waitingUsers.filter(
-        (id: number) => id !== userId
-      );
-      app.updateGroup(currentGroup);
-      this.setData({ currentGroup });
-      this.getMembers();
+      if (await app.rejectUserInGroup(this.data.groupId, userId)) {
+        await this.getMembers();
+      }
     },
-    handleUserAdminChange(e: WechatMiniprogram.CustomEvent) {
+    async handleUserAdminChange(e: WechatMiniprogram.CustomEvent) {
       const userId = e.currentTarget.dataset.index;
-      const currentGroup = this.data.currentGroup;
-      const user = app.getUser(userId);
-      if (!user) { return; }
-      const userGroup = getUserGroupNameInGroup(user, currentGroup.id);
-      if (userGroup === "群主") { return; }
-      if (userGroup === "群管理员") {
-        user.adminingGroup = user.adminingGroup.filter(
-          (groupId: number) => groupId !== currentGroup.id
-        );
-      } else {
-        user.adminingGroup.push(currentGroup.id);
+      if (await app.userAdminChangeInGroup(this.data.groupId, userId)) {
+        await this.getMembers();
       }
-      app.updateUser(user);
-      this.getMembers();
     },
     removeMember(e: WechatMiniprogram.CustomEvent) {
       const that = this;
       wx.showModal({
         title: '警告',
         content: '确定要移除该成员吗？与该成员相关的行程信息将会一起被移除。',
-        success(res) {
+        async success(res) {
           if (res.confirm) {
             const userId = e.currentTarget.dataset.index;
-            const currentGroup = that.data.currentGroup;
-            const user = app.getUser(userId);
-            if (!user) { return; }
-            user.joinedGroup = user.joinedGroup.filter(
-              (groupId: number) => groupId !== currentGroup.id
-            );
-            user.adminingGroup = user.adminingGroup.filter(
-              (groupId: number) => groupId !== currentGroup.id
-            );
-            const { linkedTour } = that.data;
-            linkedTour.deleteUser(userId);
-            that.setData({ linkedTour });
-            app.updateTour(linkedTour);
-            app.updateUser(user);
-            that.getMembers();
+            if (await app.removeMemberInGroup(that.data.groupId, that.data.linkedTour.id, userId)) {
+              await that.getMembers();
+            }
           }
         }
       });
@@ -233,24 +130,13 @@ Component({
       wx.showModal({
         title: '警告',
         content: '确定要转让群主身份给该成员吗？',
-        success(res) {
+        async success(res) {
           if (res.confirm) {
             const userId = e.currentTarget.dataset.index;
-            const newOwner = app.getUser(userId);
-            const currentOwner = app.getUser(that.data.currentUser.id);
-            if (!newOwner || !currentOwner) { return; }
-            currentOwner.havingGroup = currentOwner.havingGroup.filter(
-              (groupId: number) => groupId !== that.data.groupId
-            );
-            newOwner.adminingGroup = newOwner.adminingGroup.filter(
-              (groupId: number) => groupId !== that.data.groupId
-            );
-            newOwner.havingGroup.push(that.data.groupId);
-            that.setData({ currentUser: currentOwner });
-            app.updateUser(newOwner);
-            app.updateUser(currentOwner);
-            that.getAuthority();
-            that.getMembers();
+            if (await app.transferGroupOwner(that.data.groupId, userId)) {
+              await that.getAuthority();
+              await that.getMembers();
+            }
           }
         }
       });
@@ -263,12 +149,12 @@ Component({
     handleDateRangeChange() {
       this.setData({ calendarVisible: true });
     },
-    handleCalendarConfirm(e: WechatMiniprogram.CustomEvent) {
+    async handleCalendarConfirm(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
       const linkedTour = this.data.linkedTour;
       linkedTour.startDate = value[0];
       linkedTour.endDate = value[1];
-      app.updateTour(linkedTour);
+      await app.changeTourBasic(linkedTour);
       this.setData({
         linkedTour: linkedTour,
         dateRange: value,
@@ -286,17 +172,17 @@ Component({
     onTimezoneColumnChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({ selectingTimeOffset: Number(e.detail.value[0]) });
     },
-    onTourTimezonePickerChange() {
+    async onTourTimezonePickerChange() {
       const linkedTour = this.data.linkedTour;
       linkedTour.timeOffset = this.data.selectingTimeOffset;
       this.setData({
         linkedTour: linkedTour,
         timeOffsetStr: timezoneList.find(tz => tz.value === linkedTour.timeOffset)?.label || '未知时区',
       });
-      app.updateTour(linkedTour);
+      await app.changeTourBasic(linkedTour);
       this.onTimezonePickerClick();
     },
-    exchangeTourCurrency() {
+    async exchangeTourCurrency() {
       const linkedTour = this.data.linkedTour;
       const newMainCurrency = linkedTour.subCurrency;
       const newSubCurrency = linkedTour.mainCurrency;
@@ -304,25 +190,23 @@ Component({
       linkedTour.subCurrency = newSubCurrency;
       linkedTour.currencyExchangeRate = Number((1 / linkedTour.currencyExchangeRate).toFixed(7));
       this.setData({ linkedTour });
-      app.updateTour(linkedTour);
+      await app.changeTourBasic(linkedTour);
     },
     onRateInput(e: WechatMiniprogram.CustomEvent) {
       const { rateError } = this.data;
       const isNumber = /^\d+(\.\d+)?$/.test(e.detail.value);
       if (rateError === isNumber) {
-        this.setData({
-          rateError: !isNumber,
-        });
+        this.setData({ rateError: !isNumber });
       }
     },
-    onRateUpdate(e: WechatMiniprogram.CustomEvent) {
+    async onRateUpdate(e: WechatMiniprogram.CustomEvent) {
       if (this.data.rateError) {
         return;
       }
       const linkedTour = this.data.linkedTour;
       linkedTour.currencyExchangeRate = Number(e.detail.value);
       this.setData({ linkedTour });
-      app.updateTour(linkedTour);
+      await app.changeTourBasic(linkedTour);
     },
     onPhotoUploadVisibleChange() {
       this.setData({
@@ -346,53 +230,43 @@ Component({
         fileList: uploadedPhotos,
       });
     },
-    onPhotoUploadConfirm() {
+    async onPhotoUploadConfirm() {
       if (this.data.uploadedPhotos.length === 0) return;
       const { currentGroup } = this.data;
       currentGroup.qrCode = this.data.uploadedPhotos[0].url;
       this.setData({ currentGroup, photoUploadVisible: false });
-      app.updateGroup(currentGroup);
+      await app.changeGroupBasic(currentGroup);
     },
-    handleTitleUpdate(e: WechatMiniprogram.CustomEvent) {
+    async handleTitleUpdate(e: WechatMiniprogram.CustomEvent) {
       const { currentGroup, linkedTour } = this.data;
       currentGroup.name = e.detail.value;
       linkedTour.title = e.detail.value;
       this.setData({ currentGroup, linkedTour });
-      app.updateGroup(currentGroup);
-      app.updateTour(linkedTour);
+      await app.changeGroupBasic(currentGroup);
+      await app.changeTourBasic(linkedTour);
     },
-    handleDescriptionUpdate(e: WechatMiniprogram.CustomEvent) {
+    async handleDescriptionUpdate(e: WechatMiniprogram.CustomEvent) {
       const { currentGroup } = this.data;
       currentGroup.description = e.detail.value;
       this.setData({ currentGroup });
-      app.updateGroup(currentGroup);
+      await app.changeGroupBasic(currentGroup);
     },
-    onJoinWayChange(e: WechatMiniprogram.CustomEvent) {
+    async onJoinWayChange(e: WechatMiniprogram.CustomEvent) {
       const { currentGroup } = this.data;
       currentGroup.joinWay = e.detail.value;
       this.setData({ currentGroup });
-      app.updateGroup(currentGroup);
+      await app.changeGroupBasic(currentGroup);
     },
     quitGroup() {
       const that = this;
       wx.showModal({
         title: '警告',
         content: '确定要退出该群组吗？',
-        success(res) {
+        async success(res) {
           if (res.confirm) {
-            const { currentUser, linkedTour } = that.data;
-            currentUser.joinedGroup = currentUser.joinedGroup.filter(
-              (groupId: number) => groupId !== that.data.groupId
-            );
-            currentUser.adminingGroup = currentUser.adminingGroup.filter(
-              (groupId: number) => groupId !== that.data.groupId
-            );
-            linkedTour.users = linkedTour.users.filter(
-              (userId: number) => userId !== currentUser.id
-            );
-            app.updateTour(linkedTour);
-            app.updateUser(currentUser);
-            wx.navigateBack();
+            if (await app.quitGroup(that.data.currentGroup.id, that.data.linkedTour.id)) {
+              wx.navigateBack();
+            }
           }
         }
       });
@@ -402,25 +276,12 @@ Component({
       wx.showModal({
         title: '警告',
         content: '确定要解散该群组吗？',
-        success(res) {
+        async success(res) {
           if (res.confirm) {
-            const userList = app.getUserListCopy();
-            userList.forEach((user: User) => {
-              user.joinedGroup = user.joinedGroup.filter(
-                (groupId: number) => groupId !== that.data.groupId
-              );
-              user.adminingGroup = user.adminingGroup.filter(
-                (groupId: number) => groupId !== that.data.groupId
-              );
-              user.havingGroup = user.havingGroup.filter(
-                (groupId: number) => groupId !== that.data.groupId
-              );
-              app.updateUser(user);
-            });
-            app.removeGroup(that.data.currentGroup);
-            app.removeTour(that.data.linkedTour);
-            that.setData({ currentGroup: {} as Group, linkedTour: {} as Tour });
-            wx.navigateBack();
+            if (await app.disbandGroup(that.data.currentGroup.id, that.data.linkedTour.id)) {
+              that.setData({ currentGroup: {} as Group, linkedTour: {} as Tour });
+              wx.navigateBack();
+            }
           }
         }
       });
@@ -430,28 +291,12 @@ Component({
       wx.showModal({
         title: '警告',
         content: '确定要结束此次行程吗？行程将会保存到频道足迹,同时解散该群组。',
-        success(res) {
+        async success(res) {
           if (res.confirm) {
-            const userList = app.getUserListCopy();
-            userList.forEach((user: User) => {
-              user.joinedGroup = user.joinedGroup.filter(
-                (groupId: number) => groupId !== that.data.groupId
-              );
-              user.adminingGroup = user.adminingGroup.filter(
-                (groupId: number) => groupId !== that.data.groupId
-              );
-              user.havingGroup = user.havingGroup.filter(
-                (groupId: number) => groupId !== that.data.groupId
-              );
-              app.updateUser(user);
-            });
-            app.removeGroup(that.data.currentGroup);
-            const { linkedTour } = that.data;
-            linkedTour.linkedGroup = -1;
-            linkedTour.status = TourStatus.Finished;
-            app.updateTour(linkedTour);
-            that.setData({ currentGroup: {} as Group, linkedTour: {} as Tour });
-            wx.navigateBack();
+            if (await app.endGroupTour(that.data.currentGroup.id, that.data.linkedTour.id)) {
+              that.setData({ currentGroup: {} as Group, linkedTour: {} as Tour });
+              wx.navigateBack();
+            }
           }
         }
       });

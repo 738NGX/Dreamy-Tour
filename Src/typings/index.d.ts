@@ -5,7 +5,7 @@ import { UserRanking } from "../miniprogram/utils/channel/userRanking";
 import { Currency } from "../miniprogram/utils/tour/expense";
 import { FootPrint } from "../miniprogram/utils/tour/footprint";
 import { File } from "../miniprogram/utils/tour/photo";
-import { Tour } from "../miniprogram/utils/tour/tour";
+import { Tour, TourBasic } from "../miniprogram/utils/tour/tour";
 import { Member, User } from "../miniprogram/utils/user/user";
 
 /// <reference path="./types/index.d.ts" />
@@ -234,7 +234,7 @@ declare global {
      * @param commentId 评论id
      * @returns 操作后的评论实例
      */
-    handleCommentLike(commentId: number, structedComments:StructedComment[]): Promise<StructedComment[]>;
+    handleCommentLike(commentId: number, structedComments: StructedComment[]): Promise<StructedComment[]>;
     /**
      * 对回复进行点赞或取消点赞
      * @param commentId 评论id
@@ -263,5 +263,21 @@ declare global {
      * @param postId 
      */
     handlePostDelete(postId: number): Promise<boolean>;
+
+    // for group.ts
+    loadGroup(groupId: number): Promise<{ currentGroup: GroupBasic, linkedTour: TourBasic }>;
+    getMembersInGroup(groupId: number): Promise<{ members: Member[], waitingUsers: Member[] }>;
+    getUserAuthorityInGroup(groupId: number): Promise<{ isGroupOwner: boolean, isGroupAdmin: boolean }>;
+    addMemberInGroup(groupId: number, linkedTourId: number, newMemberIdInput: string): Promise<boolean>;
+    approveUserInGroup(groupId: number, linkedTourId: number, userId: number): Promise<boolean>;
+    rejectUserInGroup(groupId: number, userId: number): Promise<boolean>;
+    userAdminChangeInGroup(groupId: number, userId: number): Promise<boolean>;
+    removeMemberInGroup(groupId: number, linkedTourId: number, userId: number): Promise<boolean>;
+    transferGroupOwner(groupId: number, newOwnerId: number): Promise<boolean>;
+    changeGroupBasic(group: GroupBasic): Promise<boolean>;
+    changeTourBasic(tour: TourBasic): Promise<boolean>;
+    quitGroup(groupId: number, linkedTourId: number): Promise<boolean>;
+    disbandGroup(groupId: number, linkedTourId: number): Promise<boolean>;
+    endGroupTour(groupId: number, linkedTourId: number): Promise<boolean>;
   }
 }

@@ -12,25 +12,19 @@ export const tourStatusList = [
   { value: TourStatus.Cancelled, label: '已取消' }
 ];
 
-export class Tour {
+export class TourBasic {
   id: number;
   title: string;
   status: TourStatus;
   linkedChannel: number;
   channelVisible: boolean;
   linkedGroup: number;
-  users: number[];
   startDate: number;
   endDate: number;
   timeOffset: number;
   mainCurrency: Currency;
   subCurrency: Currency;
   currencyExchangeRate: number;
-  nodeCopyNames: string[];
-  budgets: Budget[];
-  locations: Location[][];
-  transportations: Transportation[][];
-
   constructor(data: any) {
     this.id = data.id ?? -1;
     this.title = data.title ?? '新行程';
@@ -38,13 +32,25 @@ export class Tour {
     this.linkedChannel = data.linkedChannel ?? -1;
     this.channelVisible = data.channelVisible ?? true;
     this.linkedGroup = data.linkedGroup ?? -1;
-    this.users = data.users ?? [];
     this.startDate = data.startDate ?? Date.now();
     this.endDate = data.endDate ?? Date.now() + MILLISECONDS.DAY;
     this.timeOffset = data.timeOffset ?? -480;
     this.mainCurrency = data.mainCurrency ?? Currency.CNY;
     this.subCurrency = data.subCurrency ?? Currency.JPY;
     this.currencyExchangeRate = data.currencyExchangeRate ?? 1;
+  }
+}
+
+export class Tour extends TourBasic {
+  users: number[];
+  nodeCopyNames: string[];
+  budgets: Budget[];
+  locations: Location[][];
+  transportations: Transportation[][];
+
+  constructor(data: any) {
+    super(data);
+    this.users = data.users ?? [];
     this.nodeCopyNames = data.nodeCopyNames ?? ['默认'];
     this.budgets = (Array.isArray(data.budgets) && data.budgets.length)
       ? data.budgets.map((budget: any) => new Budget(budget))
