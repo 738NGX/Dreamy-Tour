@@ -87,8 +87,16 @@ Component({
       const currentPost = await app.getFullPost(parseInt(postId)) as Post;
       const { isChannelAdmin } = await app.getUserAuthorityInChannel(currentPost.linkedChannel)
       this.setData({ currentPost, isChannelAdmin });
+      this.init();
     },
-    async onShow() {
+    onRefresh() {
+      this.setData({ refreshEnable: true });
+      setTimeout(() => {
+        this.setData({ refreshEnable: false });
+      }, 500);
+      this.init();
+    },
+    async init(){
       const { currentPost } = this.data;
       const { members } = await app.getMembersInChannel(currentPost.linkedChannel);
       const commentList = await app.getFullCommentsInPost(currentPost.id);
@@ -98,13 +106,6 @@ Component({
       const timeStr = this.data.currentPost ? formatPostTime(this.data.currentPost.time) : '';
       const structedComments = getStructuredComments(currentPost, members, commentList);
       this.setData({ author, authorGroup, timeStr, structedComments });
-    },
-    onRefresh() {
-      this.setData({ refreshEnable: true });
-      setTimeout(() => {
-        this.setData({ refreshEnable: false });
-      }, 500);
-      this.onShow();
     },
     onImageLoad(e: WechatMiniprogram.CustomEvent) {
       const { width, height } = e.detail;

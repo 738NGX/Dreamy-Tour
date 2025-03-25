@@ -1,13 +1,12 @@
 <view class="example-search">
-  <t-search placeholder="搜索帖子" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear"/>
+  <t-search placeholder="搜索帖子" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" />
 </view>
 <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
-  <scroll-view class="scrollarea" style="height:75vh;" scroll-y type="list">
-    <view class="post-list">
-      <view class="post-grid">
-        <view class="column left">
-          <block wx:for="{{leftPosts}}" wx:key="id">
-            <view class="post-card" bindtap="handlePostDetail" data-index="{{item.id}}">
+  <view class="post-list">
+    <view class="post-grid">
+      <view class="column left">
+        <block wx:for="{{leftPosts}}" wx:key="id">
+          <view class="post-card" bindtap="handlePostDetail" data-index="{{item.id}}">
             <!-- 文章图片 -->
             <image class="post-image" wx:if="{{item.photos.length > 0}}" src="{{item.photos[0].value}}" mode="widthFix" />
             <!-- 文章信息 -->
@@ -26,11 +25,11 @@
               </view>
             </view>
           </view>
-          </block>
-        </view>
-        <view class="column right">
-          <block wx:for="{{rightPosts}}" wx:key="id">
-            <view class="post-card" bindtap="handlePostDetail" data-index="{{item.id}}">
+        </block>
+      </view>
+      <view class="column right">
+        <block wx:for="{{rightPosts}}" wx:key="id">
+          <view class="post-card" bindtap="handlePostDetail" data-index="{{item.id}}">
             <!-- 文章图片 -->
             <image class="post-image" wx:if="{{item.photos.length > 0}}" src="{{item.photos[0].value}}" mode="widthFix" />
             <!-- 文章信息 -->
@@ -49,11 +48,11 @@
               </view>
             </view>
           </view>
-          </block>
-        </view>
+        </block>
       </view>
     </view>
-  </scroll-view>
+  </view>
+  <view style="height:400rpx" />
 </t-pull-down-refresh>
 <t-fab icon="add" bind:click="handlePost" style="{{fabStyle}}"></t-fab>
 <!-- 发帖输入框 -->

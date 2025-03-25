@@ -41,4 +41,5 @@
       <t-button wx:else theme="danger" style="width:100%;" bind:tap="quitChannel">退出群组</t-button>
     </view>
   </c-collapse>
+  <view style="height:200rpx" />
 </scroll-view>

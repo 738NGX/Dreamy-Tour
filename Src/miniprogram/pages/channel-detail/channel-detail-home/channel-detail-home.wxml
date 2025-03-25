@@ -24,9 +24,10 @@
   <t-icon class="wrapper__center" name="swap-right" size="40rpx" />
   <view class="wrapper__right">{{filterDateStr[1]}}</view>
 </view>
-<scroll-view class="scrollarea" style="height:40vh;" scroll-y type="list">
+<scroll-view class="scrollarea" style="height:45vh;" scroll-y type="list">
   <block wx:for="{{footprints}}" wx:key="index" wx:for-index="i">
     <t-cell bind:click="handleTourView" data-index="{{item.id}}" title="{{item.title}}" description="{{item.startDateStr}}-{{item.endDateStr}}" hover arrow />
   </block>
+  <view style="height:200rpx" />
 </scroll-view>
 <t-fab icon="user-circle" bind:click="onRankingVisibleChange" text="旅行排行" />

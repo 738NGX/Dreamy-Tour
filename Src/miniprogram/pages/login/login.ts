@@ -1,3 +1,5 @@
+import { apiUrl } from "../../utils/httpUtil";
+
 // pages/login/login.ts
 Page({
 
@@ -72,7 +74,7 @@ Page({
       success(res) {
         if (res.code) {
           wx.request({
-            url: "http://117.72.15.170/api/wx-login",
+            url: `${apiUrl}/wx-login`,
             method: "POST",
             data: {
               "code": res.code

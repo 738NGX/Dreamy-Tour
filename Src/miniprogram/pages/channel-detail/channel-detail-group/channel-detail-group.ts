@@ -22,6 +22,10 @@ Component({
     fabStyle: {
       type: String,
       value: 'right: 16px; bottom: 32px;',
+    },
+    height: {
+      type: Number,
+      value: 75,
     }
   },
   data: {

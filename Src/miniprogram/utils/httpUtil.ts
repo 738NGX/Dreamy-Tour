@@ -1,3 +1,6 @@
+const usingDomain = true; // 是否使用域名
+export const apiUrl =  usingDomain ? "https://dreamy-tour.738ngx.site/api" : "http://117.72.15.170/api";
+
 /**
  * 所有请求的参数类型
  */
@@ -65,7 +68,7 @@ type Response = {
 // HTTP 请求工具类
 class HttpUtil {
   // 基础 URL
-  static readonly baseUrl = "http://117.72.15.170/api"
+  static readonly baseUrl = apiUrl;
 
   /**
    * 发送网络请求（支持 Token 校验和自动跳转登录）

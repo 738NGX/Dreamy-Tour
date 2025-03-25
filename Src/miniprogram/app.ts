@@ -2,7 +2,7 @@ import { Channel, ChannelBasic, JoinWay } from "./utils/channel/channel";
 import { Group, GroupBasic } from "./utils/channel/group";
 import { Comment, Post, PostCard, StructedComment } from "./utils/channel/post";
 import { UserRanking } from "./utils/channel/userRanking";
-import HttpUtil from "./utils/httpUtil";
+import HttpUtil, { apiUrl } from "./utils/httpUtil";
 import { testData } from "./utils/testData";
 import { Budget } from "./utils/tour/budget";
 import { Currency } from "./utils/tour/expense";
@@ -19,7 +19,7 @@ App<IAppOption>({
     currentUserId: 1,
     testMode: false,
     currentData: testData,
-    baseUrl: "http://117.72.15.170/api",
+    baseUrl: apiUrl,
   },
   onLaunch() {
     // 开屏进入登录页面

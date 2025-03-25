@@ -2,20 +2,19 @@
   <t-search placeholder="搜索群组" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" />
 </view>
 <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
-  <scroll-view class="scrollarea" style="height:75vh;" scroll-y type="list">
-    <t-cell title="已加入" style="--td-cell-vertical-padding:10rpx;" />
-    <block wx:for="{{joinedGroups}}" wx:key="index">
-      <t-cell title="{{item.name}}" description="{{item.description}}" note="进入" data-index="{{item.id}}" bind:click="onGroupClick" hover>
-        <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
-      </t-cell>
-    </block>
-    <t-cell title="未加入" style="--td-cell-vertical-padding:10rpx;" />
-    <block wx:for="{{unJoinedGroups}}" wx:key="index">
-      <t-cell title="{{item.name}}" description="{{item.description}}" note="{{joinWayText[item.joinWay]}}" data-index="{{item.id}}" bind:click="joinGroup" hover style="white-space: nowrap;">
-        <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
-      </t-cell>
-    </block>
-  </scroll-view>
+  <t-cell title="已加入" style="--td-cell-vertical-padding:10rpx;" />
+  <block wx:for="{{joinedGroups}}" wx:key="index">
+    <t-cell title="{{item.name}}" description="{{item.description}}" note="进入" data-index="{{item.id}}" bind:click="onGroupClick" hover>
+      <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
+    </t-cell>
+  </block>
+  <t-cell title="未加入" style="--td-cell-vertical-padding:10rpx;" />
+  <block wx:for="{{unJoinedGroups}}" wx:key="index">
+    <t-cell title="{{item.name}}" description="{{item.description}}" note="{{joinWayText[item.joinWay]}}" data-index="{{item.id}}" bind:click="joinGroup" hover style="white-space: nowrap;">
+      <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
+    </t-cell>
+  </block>
+  <view style="height:400rpx" />
 </t-pull-down-refresh>
 <t-fab icon="add" bind:click="handleCreateGroup" style="{{fabStyle}}"></t-fab>
 <t-popup-headered style="height:50vh;" visible="{{createGroupVisible}}" title="创建群组" confirmText="创建" bind:visible-change="handleCreateGroup" bindConfirm="handleCreateGroupConfirm" bindCancel="handleCreateGroup" placement="bottom">

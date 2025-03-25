@@ -2,11 +2,10 @@
   <t-search placeholder="搜索频道" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" />
 </view>
 <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
-  <scroll-view class="scrollarea" style="height:75vh;" scroll-y type="list">
-    <block wx:for="{{channelList}}" wx:key="index" wx:for-index="i">
-      <t-cell title="{{item.name}}" description="{{item.description}}" arrow data-index="{{item.id}}" bind:click="onChannelClick" hover>
-        <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
-      </t-cell>
-    </block>
-  </scroll-view>
+  <block wx:for="{{channelList}}" wx:key="index" wx:for-index="i">
+    <t-cell title="{{item.name}}" description="{{item.description}}" arrow data-index="{{item.id}}" bind:click="onChannelClick" hover>
+      <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
+    </t-cell>
+  </block>
+  <view style="height:400rpx" />
 </t-pull-down-refresh>
