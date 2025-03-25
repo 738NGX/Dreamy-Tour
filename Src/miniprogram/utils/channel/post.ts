@@ -11,6 +11,7 @@ export interface IPost {
 
 export type PostCard = Post & {
   username: string;
+  avatarUrl: string;
 }
 
 export class Post implements IPost {
@@ -60,6 +61,7 @@ export class Comment implements IPost {
 export type StructedComment = Comment & {
   userName: string;
   userGroup: string;
+  avatarUrl: string;
   timeStr: string;
   replies: StructedComment[];
 };

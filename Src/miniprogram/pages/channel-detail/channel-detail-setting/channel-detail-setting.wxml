@@ -3,7 +3,7 @@
   <c-collapse header="频道成员">
     <t-swipe-cell wx:for="{{members}}" wx:key="id">
       <t-cell bordered="{{false}}" title="{{item.name}}" class="narrow-cell">
-        <t-avatar slot="image" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
+        <t-avatar slot="image" class="avatar"  image="{{item.avatarUrl}}" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
         <t-tag slot="note" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
       </t-cell>
       <view slot="right" class="btn-wrapper">
@@ -19,7 +19,7 @@
   <c-collapse header="频道选项">
     <view wx:if="{{isChannelAdmin}}">
       <t-input placeholder="请输入频道名" bind:blur="handleTitleUpdate" value="{{currentChannel.name}}" maxcharacter="{{30}}" />
-      <t-textarea bind:blur="handleDescriptionUpdate" value="{{currentChannel.description}}" style="height:15vh;" placeholder="输入群组描述..." maxlength="30" disableDefaultPadding="{{true}}" indicator />
+      <t-textarea bind:blur="handleDescriptionUpdate" value="{{currentChannel.description}}" style="height:15vh;" placeholder="输入频道描述..." maxlength="30" disableDefaultPadding="{{true}}" indicator />
       <t-cell class="narrow-cell" title="加入方式" />
       <t-radio-group bind:change="onJoinWayChange" value="{{currentChannel.joinWay}}" borderless t-class="radio-box">
         <t-radio wx:for="{{joinWays}}" block="{{false}}" wx:key="index" label="{{item.label}}" value="{{item.value}}" />
@@ -27,7 +27,7 @@
       <t-cell class="narrow-cell" wx:if="{{currentChannel.joinWay==1}}" title="加入审批" />
       <t-swipe-cell wx:if="{{currentChannel.joinWay==1}}" wx:for="{{waitingUsers}}" wx:key="id">
         <t-cell bordered="{{false}}" title="{{item.name}}" class="narrow-cell">
-          <t-avatar slot="image" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
+          <t-avatar slot="image" image="{{item.avatarUrl}}" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
           <t-tag slot="note" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
         </t-cell>
         <view slot="right" class="btn-wrapper">
@@ -37,8 +37,8 @@
       </t-swipe-cell>
     </view>
     <view style="margin:32rpx;display:flex;flex-direction:column;justify-content:center;">
-      <t-button wx:if="{{isChannelOwner}}" theme="danger" style="width:100%;" bind:tap="disbandChannel">解散群组</t-button>
-      <t-button wx:else theme="danger" style="width:100%;" bind:tap="quitChannel">退出群组</t-button>
+      <t-button wx:if="{{isChannelOwner}}" theme="danger" style="width:100%;" bind:tap="disbandChannel">解散频道</t-button>
+      <t-button wx:else theme="danger" style="width:100%;" bind:tap="quitChannel">退出频道</t-button>
     </view>
   </c-collapse>
   <view style="height:200rpx" />

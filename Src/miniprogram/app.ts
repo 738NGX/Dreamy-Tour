@@ -381,6 +381,7 @@ App<IAppOption>({
           return {
             ...post,
             username: this.getUser(post.user)?.name ?? '未知用户',
+            avatarUrl: this.getUser(post.user)?.avatarUrl ?? '',
           }
         })
         .filter((post) =>
