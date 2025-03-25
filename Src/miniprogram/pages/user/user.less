@@ -1,10 +1,26 @@
-.avatar:not(:last-child) {
-  margin-right: 64rpx;
-}
-
 .external-class-content {
   color: #fff;
   background-color: var(--td-brand-color, #0052d9);
   font-size: larger;
   font-weight: 400;
+}
+
+avatar-example {
+  --td-avatar-border-width-large: 10rpx;
+}
+
+.name-card-bg {
+  height: 500rpx;
+  background-image: linear-gradient(to top, #48c6ef 0%, #0052d9 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.name-card-username {
+  margin-top: 30rpx;
+  font-size: 50rpx;
+  font-weight: bold;
+  color: #fff;
 }

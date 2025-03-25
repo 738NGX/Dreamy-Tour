@@ -1,5 +1,9 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
-<header class="custom-navbar" tabList="{{[]}}" />
-<scroll-view class="scrollarea" style="height:90vh" scroll-y type="list">
-
+<!-- header class="custom-navbar" tabList="{{[]}}" / -->
+<scroll-view class="scrollarea" style="height:100vh" scroll-y type="list">
+  <view class="name-card-bg">
+    <view style="height:150rpx"/>
+    <t-avatar bordered image="{{currentUser.avatarUrl}}" size="100px" class="avatar-example" t-class-content="external-class-content">{{ currentUser.name[0] }}</t-avatar>
+    <view class="name-card-username">{{currentUser.name}}</view>
+  </view>
 </scroll-view>
