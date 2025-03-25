@@ -104,5 +104,11 @@ Page({
         })
       }
     })
+  },
+  enterTestMode(){
+    getApp<IAppOption>().globalData.testMode = true;
+    wx.switchTab({
+      url: "/pages/channel/channel"
+    });
   }
 })

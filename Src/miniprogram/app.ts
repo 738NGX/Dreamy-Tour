@@ -17,6 +17,7 @@ import { getNewId, getUser, getUserGroupName, getUserGroupNameInChannel, getUser
 App<IAppOption>({
   globalData: {
     currentUserId: 1,
+    testMode: false,
     currentData: testData,
     baseUrl: "http://117.72.15.170/api",
   },
@@ -210,1040 +211,1040 @@ App<IAppOption>({
    * @returns 频道列表
    */
   async getCurrentUserUnjoinedChannels(): Promise<Channel[]> {
-    /** 后端逻辑 */
-    try {
-      const res = await HttpUtil.get({ url: "/channel/unjoined/list" });
-      const channelList = res.data.data as Channel[];
-      return channelList;
-    } catch {
-      wx.showToast({
-        title: "加载失败",
-        icon: "error"
-      });
-      return [];
+    if (!this.globalData.testMode) {
+      try {
+        const res = await HttpUtil.get({ url: "/channel/unjoined/list" });
+        const channelList = res.data.data as Channel[];
+        return channelList;
+      } catch {
+        wx.showToast({
+          title: "加载失败",
+          icon: "error"
+        });
+        return [];
+      }
+    } else {
+      return this.getChannelListCopy().filter(
+        channel => !this.currentUser().joinedChannel
+          .includes(channel.id) && channel.id != 1
+      );
     }
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    // return this.getChannelListCopy().filter(
-    //   channel => !this.currentUser().joinedChannel
-    //     .includes(channel.id) && channel.id != 1
-    // );
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async createChannel(name: string, description: string): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const newChannelId = getNewId(this.globalData.currentData.channelList);
-    const channel = new Channel({
-      id: newChannelId,
-      name: name,
-      description: description,
-    });
-    const thisUser = this.currentUser();
-    thisUser.joinedChannel.push(newChannelId);
-    thisUser.havingChannel.push(newChannelId);
-    this.addChannel(channel);
-    this.updateUser(thisUser);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const newChannelId = getNewId(this.globalData.currentData.channelList);
+      const channel = new Channel({
+        id: newChannelId,
+        name: name,
+        description: description,
+      });
+      const thisUser = this.currentUser();
+      thisUser.joinedChannel.push(newChannelId);
+      thisUser.havingChannel.push(newChannelId);
+      this.addChannel(channel);
+      this.updateUser(thisUser);
+      return true;
+    }
   },
   async joinChannel(channelId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const channel = this.getChannel(channelId) as Channel;
-    if (channel.joinWay == JoinWay.Approval) {
-      if (channel.waitingUsers.includes(this.globalData.currentUserId)) {
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const channel = this.getChannel(channelId) as Channel;
+      if (channel.joinWay == JoinWay.Approval) {
+        if (channel.waitingUsers.includes(this.globalData.currentUserId)) {
+          wx.showToast({
+            title: '您已经申请过了,请耐心等待',
+            icon: 'none',
+          });
+          return false;
+        }
+        else {
+          channel.waitingUsers.push(this.globalData.currentUserId);
+          this.updateChannel(channel);
+          wx.showToast({
+            title: '已发送加入申请,请耐心等待',
+            icon: 'none',
+          });
+          return false;
+        }
+      }
+      if (channel.joinWay == JoinWay.Invite) {
         wx.showToast({
-          title: '您已经申请过了,请耐心等待',
+          title: '该频道仅限邀请加入',
           icon: 'none',
         });
         return false;
       }
-      else {
-        channel.waitingUsers.push(this.globalData.currentUserId);
-        this.updateChannel(channel);
-        wx.showToast({
-          title: '已发送加入申请,请耐心等待',
-          icon: 'none',
-        });
-        return false;
-      }
-    }
-    if (channel.joinWay == JoinWay.Invite) {
+      const thisUser = this.currentUser();
+      thisUser.joinedChannel.push(channelId);
+      this.updateUser(thisUser);
       wx.showToast({
-        title: '该频道仅限邀请加入',
+        title: '加入成功,请返回频道列表查看',
         icon: 'none',
       });
-      return false;
+      return true;
     }
-    const thisUser = this.currentUser();
-    thisUser.joinedChannel.push(channelId);
-    this.updateUser(thisUser);
-    wx.showToast({
-      title: '加入成功,请返回频道列表查看',
-      icon: 'none',
-    });
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
 
   // for channel-list.ts
   async getCurrentUserJoinedChannels(): Promise<Channel[]> {
-    /** 后端逻辑 */
-    try {
-      const res = await HttpUtil.get({ url: "/channel/joined/list" });
-      const channelList = res.data.data as Channel[]
-      return channelList;
-    } catch {
-      wx.showToast({
-        title: "加载失败",
-        icon: "error"
-      });
-      return [];
+    if (!this.globalData.testMode) {
+      try {
+        const res = await HttpUtil.get({ url: "/channel/joined/list" });
+        const channelList = res.data.data as Channel[]
+        return channelList;
+      } catch {
+        wx.showToast({
+          title: "加载失败",
+          icon: "error"
+        });
+        return [];
+      }
+    } else {
+      return this.getChannelListCopy().filter(
+        channel => this.currentUser().joinedChannel
+          .includes(channel.id) && channel.id != 1
+      );
     }
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    // return this.getChannelListCopy().filter(
-    //   channel => this.currentUser().joinedChannel
-    //     .includes(channel.id) && channel.id != 1
-    // );
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
 
   // for channel-detail.ts
   async loadChannel(channelId: number): Promise<ChannelBasic | undefined> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const channel = this.getChannel(channelId);
-    if (channel) {
-      return new ChannelBasic(channel);
-    } else {
+    if (!this.globalData.testMode) {
       return undefined;
+    } else {
+      const channel = this.getChannel(channelId);
+      if (channel) {
+        return new ChannelBasic(channel);
+      } else {
+        return undefined;
+      }
     }
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async loadPublicChannel(): Promise<ChannelBasic | undefined> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const channel = this.getChannel(1);
-    if (channel) {
-      return new ChannelBasic(channel);
-    } else {
+    if (!this.globalData.testMode) {
       return undefined;
+    } else {
+      const channel = this.getChannel(1);
+      if (channel) {
+        return new ChannelBasic(channel);
+      } else {
+        return undefined;
+      }
     }
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
 
   // for channel-detail-home.ts
   async generateTourSaves(channelId: number): Promise<Tour[]> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const tourSaves = (this.globalData.currentData.tourList as Tour[])
-      .filter(tour => tour.linkedChannel == channelId && tour.status == TourStatus.Finished && tour.channelVisible)
-      .sort((a, b) => b.startDate - a.startDate);
-    return tourSaves;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return [];
+    } else {
+      const tourSaves = (this.globalData.currentData.tourList as Tour[])
+        .filter(tour => tour.linkedChannel == channelId && tour.status == TourStatus.Finished && tour.channelVisible)
+        .sort((a, b) => b.startDate - a.startDate);
+      return tourSaves;
+    }
   },
   async generateUserRankings(footprints: FootPrint[]): Promise<UserRanking[]> {
-    /** 后端逻辑 */
+    if (!this.globalData.testMode) {
+      return [];
+    } else {
+      const userTourCount: Map<number, number> = new Map();
 
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const userTourCount: Map<number, number> = new Map();
-
-    footprints.forEach(tour => {
-      tour.users.forEach((userId) => {
-        userTourCount.set(userId, (userTourCount.get(userId) || 0) + 1);
+      footprints.forEach(tour => {
+        tour.users.forEach((userId) => {
+          userTourCount.set(userId, (userTourCount.get(userId) || 0) + 1);
+        });
       });
-    });
-    const rankList = (this.globalData.currentData.userList as User[]).map(user => {
-      const count = userTourCount.get(user.id) || 0;
-      return { rank: 0, name: user.name, count } as UserRanking;
-    }).filter((user) => user.count > 0);
-    rankList.sort((a, b) => b.count - a.count);
-    rankList.forEach((user, index) => {
-      user.rank = index + 1;
-    });
-    return rankList;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+      const rankList = (this.globalData.currentData.userList as User[]).map(user => {
+        const count = userTourCount.get(user.id) || 0;
+        return { rank: 0, name: user.name, count } as UserRanking;
+      }).filter((user) => user.count > 0);
+      rankList.sort((a, b) => b.count - a.count);
+      rankList.forEach((user, index) => {
+        user.rank = index + 1;
+      });
+      return rankList;
+    }
   },
 
   // for channel-detail-post.ts
   async getFullPostsInChannel(channelId: number): Promise<PostCard[]> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    return this.getPostListCopy()
-      .map((post) => {
-        return {
-          ...post,
-          username: this.getUser(post.user)?.name ?? '未知用户',
-        }
-      })
-      .filter((post) =>
-        post.linkedChannel == channelId
-      )
-      .sort((a, b) =>
-        (b.isSticky ? 1 : 0) - (a.isSticky ? 1 : 0) || b.time - a.time
-      );
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return [];
+    } else {
+      return this.getPostListCopy()
+        .map((post) => {
+          return {
+            ...post,
+            username: this.getUser(post.user)?.name ?? '未知用户',
+          }
+        })
+        .filter((post) =>
+          post.linkedChannel == channelId
+        )
+        .sort((a, b) =>
+          (b.isSticky ? 1 : 0) - (a.isSticky ? 1 : 0) || b.time - a.time
+        );
+    }
   },
   async createPost(channelId: number, title: string, content: string, originFiles: File[]): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    if (title !== null && content !== null) {
-      if (title.length === 0) {
-        wx.showToast({
-          title: '标题不能为空',
-          icon: 'none',
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      if (title !== null && content !== null) {
+        if (title.length === 0) {
+          wx.showToast({
+            title: '标题不能为空',
+            icon: 'none',
+          });
+          return false;
+        }
+        const newPostId = getNewId(this.globalData.currentData.postList);
+        const newPost = new Post({
+          id: newPostId,
+          title: title,
+          content: content,
+          linkedChannel: channelId,
+          user: this.globalData.currentUserId,
+          time: Date.now(),
+          isSticky: false,
+          photos: originFiles.map((file) => ({ value: file.url, ariaLabel: file.name })),
         });
-        return false;
+        this.addPost(newPost);
+        return true;
       }
-      const newPostId = getNewId(this.globalData.currentData.postList);
-      const newPost = new Post({
-        id: newPostId,
-        title: title,
-        content: content,
-        linkedChannel: channelId,
-        user: this.globalData.currentUserId,
-        time: Date.now(),
-        isSticky: false,
-        photos: originFiles.map((file) => ({ value: file.url, ariaLabel: file.name })),
-      });
-      this.addPost(newPost);
-      return true;
+      return false;
     }
-    return false;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
 
   // for channel-detail-group.ts
   async classifyGroups(channelId: number): Promise<{ joinedGroups: GroupBasic[], unJoinedGroups: GroupBasic[] }> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const groups = this.getGroupListCopy();
-    const currentUser = this.currentUser();
-    const joinedGroups = groups.filter(group =>
-      group.linkedChannel == channelId &&
-      currentUser?.joinedGroup.includes(group.id)
-    ).map(group => new GroupBasic(group));
-    const unJoinedGroups = groups.filter(group =>
-      group.linkedChannel == channelId &&
-      !currentUser.joinedGroup.includes(group.id)
-    ).map(group => new GroupBasic(group));
-    return { joinedGroups, unJoinedGroups };
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return { joinedGroups: [], unJoinedGroups: [] };
+    } else {
+      const groups = this.getGroupListCopy();
+      const currentUser = this.currentUser();
+      const joinedGroups = groups.filter(group =>
+        group.linkedChannel == channelId &&
+        currentUser?.joinedGroup.includes(group.id)
+      ).map(group => new GroupBasic(group));
+      const unJoinedGroups = groups.filter(group =>
+        group.linkedChannel == channelId &&
+        !currentUser.joinedGroup.includes(group.id)
+      ).map(group => new GroupBasic(group));
+      return { joinedGroups, unJoinedGroups };
+    }
   },
   async createGroup(channelId: number, name: string, description: string, newTourCurrency: Currency[], tourTemplateId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    if (!name || !description) {
-      wx.showToast({
-        title: '请填写完整信息',
-        icon: 'none',
-      })
+    if (!this.globalData.testMode) {
       return false;
+    } else {
+      if (!name || !description) {
+        wx.showToast({
+          title: '请填写完整信息',
+          icon: 'none',
+        })
+        return false;
+      }
+      const newGroupId = getNewId(this.globalData.currentData.groupList);
+      const group = new Group({
+        id: newGroupId,
+        name: name,
+        description: description,
+        linkedChannel: channelId
+      });
+      const thisUser = this.currentUser();
+      const tourTemplate = this.getTour(tourTemplateId);
+      const newTour = new Tour({
+        id: getNewId(this.globalData.currentData.tourList),
+        title: name,
+        linkedChannel: channelId,
+        linkedGroup: newGroupId,
+        users: [thisUser.id],
+        mainCurrency: newTourCurrency[0],
+        subCurrency: newTourCurrency[1],
+      })
+      if (tourTemplate) {
+        newTour.startDate = tourTemplate.startDate;
+        newTour.endDate = tourTemplate.endDate;
+        newTour.timeOffset = tourTemplate.timeOffset;
+        newTour.mainCurrency = tourTemplate.mainCurrency;
+        newTour.subCurrency = tourTemplate.subCurrency;
+        newTour.currencyExchangeRate = tourTemplate.currencyExchangeRate;
+        newTour.nodeCopyNames = tourTemplate.nodeCopyNames.map((name: string) => name);
+        newTour.budgets = tourTemplate.budgets.map((budget: Budget) => new Budget(budget));
+        newTour.locations = tourTemplate.locations.map((copy: Location[]) => copy.map((location: Location) => new Location(location)));
+        newTour.transportations = tourTemplate.transportations.map((copy: Transportation[]) => copy.map((transportation: Transportation) => new Transportation(transportation)));
+      }
+      thisUser.joinedGroup.push(newGroupId);
+      thisUser.havingGroup.push(newGroupId);
+      this.addGroup(group);
+      this.addTour(newTour);
+      this.updateUser(thisUser);
+      return true;
     }
-    const newGroupId = getNewId(this.globalData.currentData.groupList);
-    const group = new Group({
-      id: newGroupId,
-      name: name,
-      description: description,
-      linkedChannel: channelId
-    });
-    const thisUser = this.currentUser();
-    const tourTemplate = this.getTour(tourTemplateId);
-    const newTour = new Tour({
-      id: getNewId(this.globalData.currentData.tourList),
-      title: name,
-      linkedChannel: channelId,
-      linkedGroup: newGroupId,
-      users: [thisUser.id],
-      mainCurrency: newTourCurrency[0],
-      subCurrency: newTourCurrency[1],
-    })
-    if (tourTemplate) {
-      newTour.startDate = tourTemplate.startDate;
-      newTour.endDate = tourTemplate.endDate;
-      newTour.timeOffset = tourTemplate.timeOffset;
-      newTour.mainCurrency = tourTemplate.mainCurrency;
-      newTour.subCurrency = tourTemplate.subCurrency;
-      newTour.currencyExchangeRate = tourTemplate.currencyExchangeRate;
-      newTour.nodeCopyNames = tourTemplate.nodeCopyNames.map((name: string) => name);
-      newTour.budgets = tourTemplate.budgets.map((budget: Budget) => new Budget(budget));
-      newTour.locations = tourTemplate.locations.map((copy: Location[]) => copy.map((location: Location) => new Location(location)));
-      newTour.transportations = tourTemplate.transportations.map((copy: Transportation[]) => copy.map((transportation: Transportation) => new Transportation(transportation)));
-    }
-    thisUser.joinedGroup.push(newGroupId);
-    thisUser.havingGroup.push(newGroupId);
-    this.addGroup(group);
-    this.addTour(newTour);
-    this.updateUser(thisUser);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async joinGroup(groupId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const group = this.getGroup(groupId) as Group;
-    if (group.joinWay == JoinWay.Approval) {
-      if (group.waitingUsers.includes(this.globalData.currentUserId)) {
-        wx.showToast({
-          title: '您已经申请过了,请耐心等待',
-          icon: 'none',
-        });
-        return false;
-      }
-      else {
-        group.waitingUsers.push(this.globalData.currentUserId);
-        this.updateGroup(group);
-        wx.showToast({
-          title: '已发送加入申请,请耐心等待',
-          icon: 'none',
-        });
-        return false;
-      }
-    }
-    if (group.joinWay == JoinWay.Invite) {
-      wx.showToast({
-        title: '该群组仅限邀请加入',
-        icon: 'none',
-      });
+    if (!this.globalData.testMode) {
       return false;
+    } else {
+      const group = this.getGroup(groupId) as Group;
+      if (group.joinWay == JoinWay.Approval) {
+        if (group.waitingUsers.includes(this.globalData.currentUserId)) {
+          wx.showToast({
+            title: '您已经申请过了,请耐心等待',
+            icon: 'none',
+          });
+          return false;
+        }
+        else {
+          group.waitingUsers.push(this.globalData.currentUserId);
+          this.updateGroup(group);
+          wx.showToast({
+            title: '已发送加入申请,请耐心等待',
+            icon: 'none',
+          });
+          return false;
+        }
+      }
+      if (group.joinWay == JoinWay.Invite) {
+        wx.showToast({
+          title: '该群组仅限邀请加入',
+          icon: 'none',
+        });
+        return false;
+      }
+      const thisUser = this.currentUser() as User;
+      thisUser.joinedGroup.push(groupId);
+      this.updateUser(thisUser);
+      return true;
     }
-    const thisUser = this.currentUser() as User;
-    thisUser.joinedGroup.push(groupId);
-    this.updateUser(thisUser);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
 
   // for channel-detail-setting.ts
   async getMembersInChannel(channelId: number): Promise<{ members: Member[], waitingUsers: Member[] }> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const userList = this.getUserListCopy();
-    const memberList = userList.filter(
-      (user: User) => user.joinedChannel.includes(channelId)
-    );
-    const waitingUsersList = (this.getChannel(channelId) as Channel).waitingUsers.map(
-      (userId: number) => getUser(userList, userId)
-    ).filter((user: any) => user != undefined) as User[];
-    const members = memberList.map((member: User) => {
-      return new Member({
-        ...member,
-        userGroup: getUserGroupNameInChannel(member, channelId),
+    if (!this.globalData.testMode) {
+      return { members: [], waitingUsers: [] };
+    } else {
+      const userList = this.getUserListCopy();
+      const memberList = userList.filter(
+        (user: User) => user.joinedChannel.includes(channelId)
+      );
+      const waitingUsersList = (this.getChannel(channelId) as Channel).waitingUsers.map(
+        (userId: number) => getUser(userList, userId)
+      ).filter((user: any) => user != undefined) as User[];
+      const members = memberList.map((member: User) => {
+        return new Member({
+          ...member,
+          userGroup: getUserGroupNameInChannel(member, channelId),
+        });
+      }).sort((a, b) => {
+        const getPriority = (group: string) => {
+          if (group === "系统管理员") return 0;
+          if (group === "频道主") return 1;
+          if (group === "频道管理员") return 2;
+          return 3;
+        };
+        return getPriority(a.userGroup) - getPriority(b.userGroup);
       });
-    }).sort((a, b) => {
-      const getPriority = (group: string) => {
-        if (group === "系统管理员") return 0;
-        if (group === "频道主") return 1;
-        if (group === "频道管理员") return 2;
-        return 3;
-      };
-      return getPriority(a.userGroup) - getPriority(b.userGroup);
-    });
-    const waitingUsers = waitingUsersList.map((user) => {
-      return new Member({ ...user, userGroup: getUserGroupName(user) });
-    });
-    return { members, waitingUsers };
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+      const waitingUsers = waitingUsersList.map((user) => {
+        return new Member({ ...user, userGroup: getUserGroupName(user) });
+      });
+      return { members, waitingUsers };
+    }
   },
   async getUserAuthorityInChannel(channelId: number): Promise<{ isChannelOwner: boolean, isChannelAdmin: boolean }> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const userGroup = getUserGroupNameInChannel(this.currentUser(), channelId);
-    return {
-      isChannelOwner: userGroup === "频道主",
-      isChannelAdmin: userGroup === "系统管理员" || userGroup === "频道主" || userGroup === "频道管理员"
-    };
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return { isChannelOwner: false, isChannelAdmin: false };
+    } else {
+      const userGroup = getUserGroupNameInChannel(this.currentUser(), channelId);
+      return {
+        isChannelOwner: userGroup === "频道主",
+        isChannelAdmin: userGroup === "系统管理员" || userGroup === "频道主" || userGroup === "频道管理员"
+      };
+    }
   },
   async addMemberInChannel(channelId: number, newMemberIdInput: string): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    if (newMemberIdInput === '') {
-      wx.showToast({
-        title: '请输入用户ID',
-        icon: 'none'
-      });
+    if (!this.globalData.testMode) {
       return false;
+    } else {
+      if (newMemberIdInput === '') {
+        wx.showToast({
+          title: '请输入用户ID',
+          icon: 'none'
+        });
+        return false;
+      }
+      const newMemberId = parseInt(newMemberIdInput, 10);
+      const user = this.getUser(newMemberId);
+      if (!user || user.id === 0) {
+        wx.showToast({
+          title: '用户不存在',
+          icon: 'none'
+        });
+        return false;
+      }
+      if (user.joinedChannel.includes(channelId)) {
+        wx.showToast({
+          title: '用户已在频道内',
+          icon: 'none'
+        });
+        return false;
+      }
+      user.joinedChannel.push(channelId);
+      this.updateUser(user);
+      return true;
     }
-    const newMemberId = parseInt(newMemberIdInput, 10);
-    const user = this.getUser(newMemberId);
-    if (!user || user.id === 0) {
-      wx.showToast({
-        title: '用户不存在',
-        icon: 'none'
-      });
-      return false;
-    }
-    if (user.joinedChannel.includes(channelId)) {
-      wx.showToast({
-        title: '用户已在频道内',
-        icon: 'none'
-      });
-      return false;
-    }
-    user.joinedChannel.push(channelId);
-    this.updateUser(user);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async changeChannelBasic(channel: ChannelBasic): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const currentChannel = this.getChannel(channel.id) as Channel;
-    currentChannel.name = channel.name;
-    currentChannel.description = channel.description;
-    currentChannel.joinWay = channel.joinWay;
-    this.updateChannel(currentChannel);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentChannel = this.getChannel(channel.id) as Channel;
+      currentChannel.name = channel.name;
+      currentChannel.description = channel.description;
+      currentChannel.joinWay = channel.joinWay;
+      this.updateChannel(currentChannel);
+      return true;
+    }
   },
   async approveUserInChannel(channelId: number, userId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const user = this.getUser(userId);
-    if (!user) { return false; }
-    user.joinedChannel.push(channelId);
-    this.updateUser(user);
-    const currentChannel = this.getChannel(channelId) as Channel;
-    currentChannel.waitingUsers = currentChannel.waitingUsers.filter(
-      (id: number) => id !== userId
-    );
-    this.updateChannel(currentChannel);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const user = this.getUser(userId);
+      if (!user) { return false; }
+      user.joinedChannel.push(channelId);
+      this.updateUser(user);
+      const currentChannel = this.getChannel(channelId) as Channel;
+      currentChannel.waitingUsers = currentChannel.waitingUsers.filter(
+        (id: number) => id !== userId
+      );
+      this.updateChannel(currentChannel);
+      return true;
+    }
   },
   async rejectUserInChannel(channelId: number, userId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const currentChannel = this.getChannel(channelId) as Channel;
-    currentChannel.waitingUsers = currentChannel.waitingUsers.filter(
-      (id: number) => id !== userId
-    );
-    this.updateChannel(currentChannel);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentChannel = this.getChannel(channelId) as Channel;
+      currentChannel.waitingUsers = currentChannel.waitingUsers.filter(
+        (id: number) => id !== userId
+      );
+      this.updateChannel(currentChannel);
+      return true;
+    }
   },
   async userAdminChangeInChannel(channelId: number, userId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const user = this.getUser(userId);
-    if (!user) { return false; }
-    const userGroup = getUserGroupNameInChannel(user, channelId);
-    if (userGroup === "频道主") { return false; }
-    if (userGroup === "频道管理员") {
-      user.adminingChannel = user.adminingChannel.filter(
-        (_channelId: number) => _channelId !== channelId
-      );
+    if (!this.globalData.testMode) {
+      return false;
     } else {
-      user.adminingChannel.push(channelId);
+      const user = this.getUser(userId);
+      if (!user) { return false; }
+      const userGroup = getUserGroupNameInChannel(user, channelId);
+      if (userGroup === "频道主") { return false; }
+      if (userGroup === "频道管理员") {
+        user.adminingChannel = user.adminingChannel.filter(
+          (_channelId: number) => _channelId !== channelId
+        );
+      } else {
+        user.adminingChannel.push(channelId);
+      }
+      this.updateUser(user);
+      return true;
     }
-    this.updateUser(user);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async removeMemberInChannel(channelId: number, userId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const that = this;
-    return new Promise((resolve) => {
-      wx.showModal({
-        title: '警告',
-        content: '确定要移除该成员吗？与该成员相关的行程信息将会一起被移除。',
-        success(res) {
-          if (res.confirm) {
-            const user = that.getUser(userId);
-            if (!user) { resolve(false); return; }
-            user.joinedChannel = user.joinedChannel.filter(
-              (_channelId) => _channelId !== channelId
-            );
-            user.adminingChannel = user.adminingChannel.filter(
-              (_channelId) => _channelId !== channelId
-            );
-            that.updateUser(user);
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        },
-        fail() {
-          resolve(false);
-        }
-      });
-    });
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
-  },
-  async transferChannelOwner(channelId: number, newOwnerId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const that = this;
-    return new Promise((resolve) => {
-      wx.showModal({
-        title: '警告',
-        content: '确定要转让频道主身份给该成员吗？',
-        success(res) {
-          if (res.confirm) {
-            const currentOwner = that.currentUser();
-            const newOwner = that.getUser(newOwnerId) as User;
-            currentOwner.havingChannel = currentOwner.havingChannel.filter(channel => channel !== channelId);
-            newOwner.adminingChannel = newOwner.adminingChannel.filter(channel => channel !== channelId);
-            newOwner.havingChannel.push(channelId);
-            that.updateUser(currentOwner);
-            that.updateUser(newOwner);
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        },
-        fail() {
-          resolve(false);
-        }
-      });
-    });
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
-  },
-  async quitChannel(channelId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const that = this;
-    const currentUser = that.currentUser();
-    if (currentUser.havingGroup
-      .map(group => that.getGroup(group)?.linkedChannel)
-      .includes(channelId)
-    ) {
-      wx.showToast({
-        title: '你还在频道中拥有群组，请先结束行程、解散或转让群组',
-        icon: 'none',
-      });
+    if (!this.globalData.testMode) {
       return false;
-    }
-    return new Promise((resolve) => {
-      wx.showModal({
-        title: '警告',
-        content: '确定要退出该频道吗？同时将退出频道中你加入的所有群组',
-        success(res) {
-          if (res.confirm) {
-            currentUser.joinedChannel = currentUser.joinedChannel.filter(channel => channel !== channelId);
-            currentUser.adminingChannel = currentUser.adminingChannel.filter(channel => channel !== channelId);
-            for (const tour of that.getTourListCopy()) {
-              if (tour.linkedChannel === channelId && tour.status != TourStatus.Finished) {
-                tour.users = tour.users.filter(user => user !== currentUser.id);
-              }
-              that.updateTour(tour);
-            }
-            currentUser.joinedGroup = currentUser.joinedGroup.filter(group => that.getGroup(group)?.linkedChannel !== channelId);
-            currentUser.adminingGroup = currentUser.adminingGroup.filter(group => that.getGroup(group)?.linkedChannel !== channelId);
-            that.updateUser(currentUser);
-            resolve(true);
-          } else {
-            resolve(false);
-          }
-        },
-        fail() {
-          resolve(false);
-        }
-      });
-    });
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
-  },
-  async disbandChannel(channelId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const that = this;
-    return new Promise((resolve) => {
-      wx.showModal({
-        title: '警告',
-        content: '确定要解散该频道吗？',
-        success(res) {
-          if (res.confirm) {
-            const userList = that.globalData.currentData.userList as User[];
-            const groupList = that.globalData.currentData.groupList as Group[];
-            const tourList = that.globalData.currentData.tourList as Tour[];
-            const postList = that.globalData.currentData.postList as Post[];
-            const commentList = that.globalData.currentData.commentList as Comment[];
-            userList.forEach(user => {
+    } else {
+      const that = this;
+      return new Promise((resolve) => {
+        wx.showModal({
+          title: '警告',
+          content: '确定要移除该成员吗？与该成员相关的行程信息将会一起被移除。',
+          success(res) {
+            if (res.confirm) {
+              const user = that.getUser(userId);
+              if (!user) { resolve(false); return; }
               user.joinedChannel = user.joinedChannel.filter(
-                channelId => channelId !== channelId
+                (_channelId) => _channelId !== channelId
               );
               user.adminingChannel = user.adminingChannel.filter(
-                channelId => channelId !== channelId
-              );
-              user.havingChannel = user.havingChannel.filter(
-                channelId => channelId !== channelId
-              );
-              user.joinedGroup = user.joinedGroup.filter(
-                groupId => that.getGroup(groupId)?.linkedChannel !== channelId
-              );
-              user.adminingGroup = user.adminingGroup.filter(
-                groupId => that.getGroup(groupId)?.linkedChannel !== channelId
-              );
-              user.havingGroup = user.havingGroup.filter(
-                groupId => that.getGroup(groupId)?.linkedChannel !== channelId
+                (_channelId) => _channelId !== channelId
               );
               that.updateUser(user);
-            });
-            groupList.forEach(group => {
-              if (group.linkedChannel === channelId) {
-                that.removeGroup(group);
-              }
-            });
-            tourList.forEach(tour => {
-              if (tour.linkedChannel === channelId) {
-                that.removeTour(tour);
-              }
-            });
-            commentList.forEach(comment => {
-              if (postList.some(post => post.id === comment.linkedPost)) {
-                that.removeComment(comment);
-              }
-            });
-            postList.forEach(post => {
-              if (post.linkedChannel === channelId) {
-                that.removePost(post);
-              }
-            });
-            that.removeChannel(channelId);
-            resolve(true);
-          } else {
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          },
+          fail() {
             resolve(false);
           }
-        },
-        fail() {
-          resolve(false);
-        }
+        });
       });
-    });
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    }
+  },
+  async transferChannelOwner(channelId: number, newOwnerId: number): Promise<boolean> {
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const that = this;
+      return new Promise((resolve) => {
+        wx.showModal({
+          title: '警告',
+          content: '确定要转让频道主身份给该成员吗？',
+          success(res) {
+            if (res.confirm) {
+              const currentOwner = that.currentUser();
+              const newOwner = that.getUser(newOwnerId) as User;
+              currentOwner.havingChannel = currentOwner.havingChannel.filter(channel => channel !== channelId);
+              newOwner.adminingChannel = newOwner.adminingChannel.filter(channel => channel !== channelId);
+              newOwner.havingChannel.push(channelId);
+              that.updateUser(currentOwner);
+              that.updateUser(newOwner);
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          },
+          fail() {
+            resolve(false);
+          }
+        });
+      });
+    }
+  },
+  async quitChannel(channelId: number): Promise<boolean> {
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const that = this;
+      const currentUser = that.currentUser();
+      if (currentUser.havingGroup
+        .map(group => that.getGroup(group)?.linkedChannel)
+        .includes(channelId)
+      ) {
+        wx.showToast({
+          title: '你还在频道中拥有群组，请先结束行程、解散或转让群组',
+          icon: 'none',
+        });
+        return false;
+      }
+      return new Promise((resolve) => {
+        wx.showModal({
+          title: '警告',
+          content: '确定要退出该频道吗？同时将退出频道中你加入的所有群组',
+          success(res) {
+            if (res.confirm) {
+              currentUser.joinedChannel = currentUser.joinedChannel.filter(channel => channel !== channelId);
+              currentUser.adminingChannel = currentUser.adminingChannel.filter(channel => channel !== channelId);
+              for (const tour of that.getTourListCopy()) {
+                if (tour.linkedChannel === channelId && tour.status != TourStatus.Finished) {
+                  tour.users = tour.users.filter(user => user !== currentUser.id);
+                }
+                that.updateTour(tour);
+              }
+              currentUser.joinedGroup = currentUser.joinedGroup.filter(group => that.getGroup(group)?.linkedChannel !== channelId);
+              currentUser.adminingGroup = currentUser.adminingGroup.filter(group => that.getGroup(group)?.linkedChannel !== channelId);
+              that.updateUser(currentUser);
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          },
+          fail() {
+            resolve(false);
+          }
+        });
+      });
+    }
+  },
+  async disbandChannel(channelId: number): Promise<boolean> {
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const that = this;
+      return new Promise((resolve) => {
+        wx.showModal({
+          title: '警告',
+          content: '确定要解散该频道吗？',
+          success(res) {
+            if (res.confirm) {
+              const userList = that.globalData.currentData.userList as User[];
+              const groupList = that.globalData.currentData.groupList as Group[];
+              const tourList = that.globalData.currentData.tourList as Tour[];
+              const postList = that.globalData.currentData.postList as Post[];
+              const commentList = that.globalData.currentData.commentList as Comment[];
+              userList.forEach(user => {
+                user.joinedChannel = user.joinedChannel.filter(
+                  channelId => channelId !== channelId
+                );
+                user.adminingChannel = user.adminingChannel.filter(
+                  channelId => channelId !== channelId
+                );
+                user.havingChannel = user.havingChannel.filter(
+                  channelId => channelId !== channelId
+                );
+                user.joinedGroup = user.joinedGroup.filter(
+                  groupId => that.getGroup(groupId)?.linkedChannel !== channelId
+                );
+                user.adminingGroup = user.adminingGroup.filter(
+                  groupId => that.getGroup(groupId)?.linkedChannel !== channelId
+                );
+                user.havingGroup = user.havingGroup.filter(
+                  groupId => that.getGroup(groupId)?.linkedChannel !== channelId
+                );
+                that.updateUser(user);
+              });
+              groupList.forEach(group => {
+                if (group.linkedChannel === channelId) {
+                  that.removeGroup(group);
+                }
+              });
+              tourList.forEach(tour => {
+                if (tour.linkedChannel === channelId) {
+                  that.removeTour(tour);
+                }
+              });
+              commentList.forEach(comment => {
+                if (postList.some(post => post.id === comment.linkedPost)) {
+                  that.removeComment(comment);
+                }
+              });
+              postList.forEach(post => {
+                if (post.linkedChannel === channelId) {
+                  that.removePost(post);
+                }
+              });
+              that.removeChannel(channelId);
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          },
+          fail() {
+            resolve(false);
+          }
+        });
+      });
+    }
   },
 
   // for channel-post.ts
   async getFullPost(postId: number): Promise<Post | undefined> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    return this.getPost(postId);
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return undefined;
+    } else {
+      return this.getPost(postId);
+    }
   },
   async getFullCommentsInPost(postId: number): Promise<Comment[]> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    return this.getCommentListCopy().filter(
-      comment => comment.linkedPost === postId
-    )
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return [];
+    } else {
+      return this.getCommentListCopy().filter(
+        comment => comment.linkedPost === postId
+      )
+    }
   },
   async handlePostLike(postId: number): Promise<Post | undefined> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const currentPost = this.getPost(postId);
-    const currentUserId = this.globalData.currentUserId;
-    if (!currentPost) { return undefined; }
-    if (currentPost.likes.includes(currentUserId)) {
-      currentPost.likes = currentPost.likes.filter(id => id !== currentUserId);
+    if (!this.globalData.testMode) {
+      return undefined;
     } else {
-      currentPost.likes.push(currentUserId);
+      const currentPost = this.getPost(postId);
+      const currentUserId = this.globalData.currentUserId;
+      if (!currentPost) { return undefined; }
+      if (currentPost.likes.includes(currentUserId)) {
+        currentPost.likes = currentPost.likes.filter(id => id !== currentUserId);
+      } else {
+        currentPost.likes.push(currentUserId);
+      }
+      this.updatePost(currentPost);
+      return currentPost;
     }
-    this.updatePost(currentPost);
-    return currentPost;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async handleCommentLike(commentId: number, structedComments: StructedComment[]): Promise<StructedComment[]> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
-    const currentUserId = this.globalData.currentUserId;
-    const comment = _structedComments.find((comment: any) => comment.id == commentId);
-    if (!comment) { return _structedComments; }
-    if (comment.likes.includes(currentUserId)) {
-      comment.likes = comment.likes.filter((id: any) => id !== currentUserId);
+    if (!this.globalData.testMode) {
+      return structedComments;
     } else {
-      comment.likes.push(currentUserId);
+      const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
+      const currentUserId = this.globalData.currentUserId;
+      const comment = _structedComments.find((comment: any) => comment.id == commentId);
+      if (!comment) { return _structedComments; }
+      if (comment.likes.includes(currentUserId)) {
+        comment.likes = comment.likes.filter((id: any) => id !== currentUserId);
+      } else {
+        comment.likes.push(currentUserId);
+      }
+      const newComment = this.getComment(commentId) as Comment;
+      newComment.likes = comment.likes;
+      this.updateComment(newComment);
+      return _structedComments;
     }
-    const newComment = this.getComment(commentId) as Comment;
-    newComment.likes = comment.likes;
-    this.updateComment(newComment);
-    return _structedComments;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async handleReplyLike(commentId: number, replyId: number, structedComments: StructedComment[]): Promise<{ structedComments: StructedComment[], replies: StructedComment[] }> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
-    const currentUserId = this.globalData.currentUserId;
-
-    const comment = structedComments.find((comment: any) => comment.id == commentId);
-    if (!comment) { return { structedComments: _structedComments, replies: [] }; }
-    const reply = comment.replies.find((reply: any) => reply.id == replyId);
-    if (!reply) { return { structedComments: _structedComments, replies: [] }; }
-
-    if (reply.likes.includes(currentUserId)) {
-      reply.likes = reply.likes.filter((id: any) => id !== currentUserId);
+    if (!this.globalData.testMode) {
+      return { structedComments, replies: [] };
     } else {
-      reply.likes.push(currentUserId);
+      const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
+      const currentUserId = this.globalData.currentUserId;
+
+      const comment = structedComments.find((comment: any) => comment.id == commentId);
+      if (!comment) { return { structedComments: _structedComments, replies: [] }; }
+      const reply = comment.replies.find((reply: any) => reply.id == replyId);
+      if (!reply) { return { structedComments: _structedComments, replies: [] }; }
+
+      if (reply.likes.includes(currentUserId)) {
+        reply.likes = reply.likes.filter((id: any) => id !== currentUserId);
+      } else {
+        reply.likes.push(currentUserId);
+      }
+
+      const newComment = this.getComment(replyId) as Comment;
+      newComment.likes = reply.likes;
+      this.updateComment(newComment);
+
+      return { structedComments: _structedComments, replies: comment.replies };
     }
-
-    const newComment = this.getComment(replyId) as Comment;
-    newComment.likes = reply.likes;
-    this.updateComment(newComment);
-
-    return { structedComments: _structedComments, replies: comment.replies };
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async handleCommentSend(comment: Comment): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    comment.id = getNewId(this.globalData.currentData.commentList);
-    this.addComment(comment);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      comment.id = getNewId(this.globalData.currentData.commentList);
+      this.addComment(comment);
+      return true;
+    }
   },
   async handleCommentDelete(commentId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const that = this;
-    // 递归移除指定评论及其所有回复
-    function removeRecursively(commentId: number) {
-      const commentList = that.getCommentListCopy();
-      const childReplies = commentList.filter((c: any) => c.parentComment === commentId);
-      childReplies.forEach(reply => removeRecursively(reply.id));
-      that.removeComment(commentId);
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const that = this;
+      // 递归移除指定评论及其所有回复
+      function removeRecursively(commentId: number) {
+        const commentList = that.getCommentListCopy();
+        const childReplies = commentList.filter((c: any) => c.parentComment === commentId);
+        childReplies.forEach(reply => removeRecursively(reply.id));
+        that.removeComment(commentId);
+      }
+      removeRecursively(commentId);
+      return true;
     }
-    removeRecursively(commentId);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async handleReplyDelete(replyId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const commentList = this.getCommentListCopy();
-    // 递归获取所有子回复的 id
-    function getAllDescendantIds(parentId: number): number[] {
-      const childReplies = commentList.filter((c) => c.parentComment === parentId);
-      return childReplies.reduce((acc: number[], current) => {
-        return acc.concat(current.id, getAllDescendantIds(current.id));
-      }, []);
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const commentList = this.getCommentListCopy();
+      // 递归获取所有子回复的 id
+      function getAllDescendantIds(parentId: number): number[] {
+        const childReplies = commentList.filter((c) => c.parentComment === parentId);
+        return childReplies.reduce((acc: number[], current) => {
+          return acc.concat(current.id, getAllDescendantIds(current.id));
+        }, []);
+      }
+      const idsToDelete = [replyId, ...getAllDescendantIds(replyId)];
+      idsToDelete.forEach(id => { this.removeComment(id); });
+      return true;
     }
-    const idsToDelete = [replyId, ...getAllDescendantIds(replyId)];
-    idsToDelete.forEach(id => { this.removeComment(id); });
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async handlePostDelete(postId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    this.getCommentListCopy().forEach((comment: any) => {
-      if (comment.linkedPost === postId) {
-        this.removeComment(comment.id);
-      }
-    });
-    this.removePost(postId);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      this.getCommentListCopy().forEach((comment: any) => {
+        if (comment.linkedPost === postId) {
+          this.removeComment(comment.id);
+        }
+      });
+      this.removePost(postId);
+      return true;
+    }
   },
 
   // for channel-detail-group.ts
-  async loadGroup(groupId:number): Promise<{ currentGroup: GroupBasic, linkedTour: TourBasic }>{
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const currentGroup = new GroupBasic(this.getGroup(groupId));
-    const linkedTour = new TourBasic(this.getTourListCopy().find(
-      (tour) => tour.linkedGroup == currentGroup.id
-    ));
-    return { currentGroup, linkedTour };
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+  async loadGroup(groupId: number): Promise<{ currentGroup: GroupBasic, linkedTour: TourBasic }> {
+    if (!this.globalData.testMode) {
+      return { currentGroup: {} as GroupBasic, linkedTour: {} as TourBasic };
+    } else {
+      const currentGroup = new GroupBasic(this.getGroup(groupId));
+      const linkedTour = new TourBasic(this.getTourListCopy().find(
+        (tour) => tour.linkedGroup == currentGroup.id
+      ));
+      return { currentGroup, linkedTour };
+    }
   },
   async getMembersInGroup(groupId: number): Promise<{ members: Member[], waitingUsers: Member[] }> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const userList = this.getUserListCopy();
-    const currentGroup = this.getGroup(groupId) as Group;
-    const memberList = userList.filter(
-      (user: User) => user.joinedGroup.includes(groupId)
-    );
-    const waitingUsersList = currentGroup.waitingUsers.map(
-      (userId: number) => getUser(userList, userId)
-    ).filter((user: any) => user != undefined);
-    const members = memberList.map((member: User) => {
-      return {
-        ...member,
-        userGroup: getUserGroupNameInGroup(member, groupId),
-      };
-    }).sort((a: any, b: any) => {
-      const getPriority = (group: string) => {
-        if (group === "系统管理员") return 0;
-        if (group === "群主") return 1;
-        if (group === "群管理员") return 2;
-        return 3;
-      };
-      return getPriority(a.userGroup) - getPriority(b.userGroup);
-    });
-    const waitingUsers = waitingUsersList.map((user: any) => {
-      return { ...user, userGroup: getUserGroupName(user) };
-    });
-    return { members, waitingUsers };
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return { members: [], waitingUsers: [] };
+    } else {
+      const userList = this.getUserListCopy();
+      const currentGroup = this.getGroup(groupId) as Group;
+      const memberList = userList.filter(
+        (user: User) => user.joinedGroup.includes(groupId)
+      );
+      const waitingUsersList = currentGroup.waitingUsers.map(
+        (userId: number) => getUser(userList, userId)
+      ).filter((user: any) => user != undefined);
+      const members = memberList.map((member: User) => {
+        return {
+          ...member,
+          userGroup: getUserGroupNameInGroup(member, groupId),
+        };
+      }).sort((a: any, b: any) => {
+        const getPriority = (group: string) => {
+          if (group === "系统管理员") return 0;
+          if (group === "群主") return 1;
+          if (group === "群管理员") return 2;
+          return 3;
+        };
+        return getPriority(a.userGroup) - getPriority(b.userGroup);
+      });
+      const waitingUsers = waitingUsersList.map((user: any) => {
+        return { ...user, userGroup: getUserGroupName(user) };
+      });
+      return { members, waitingUsers };
+    }
   },
   async getUserAuthorityInGroup(groupId: number): Promise<{ isGroupOwner: boolean, isGroupAdmin: boolean }> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const userGroup = getUserGroupNameInGroup(this.currentUser(), groupId);
-    return {
-      isGroupOwner: userGroup === "群主",
-      isGroupAdmin: userGroup === "系统管理员" || userGroup === "群主" || userGroup === "群管理员"
-    };
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return { isGroupOwner: false, isGroupAdmin: false };
+    } else {
+      const userGroup = getUserGroupNameInGroup(this.currentUser(), groupId);
+      return {
+        isGroupOwner: userGroup === "群主",
+        isGroupAdmin: userGroup === "系统管理员" || userGroup === "群主" || userGroup === "群管理员"
+      };
+    }
   },
   async addMemberInGroup(groupId: number, linkedTourId: number, newMemberIdInput: string): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    if (newMemberIdInput === '') {
-      wx.showToast({
-        title: '请输入用户ID',
-        icon: 'none'
-      });
+    if (!this.globalData.testMode) {
       return false;
+    } else {
+      if (newMemberIdInput === '') {
+        wx.showToast({
+          title: '请输入用户ID',
+          icon: 'none'
+        });
+        return false;
+      }
+      const newMemberId = parseInt(newMemberIdInput, 10);
+      const user = this.getUser(newMemberId);
+      if (!user || user.id === 0) {
+        wx.showToast({
+          title: '用户不存在',
+          icon: 'none'
+        });
+        return false;
+      }
+      if (user.joinedGroup.includes(groupId)) {
+        wx.showToast({
+          title: '用户已在群内',
+          icon: 'none'
+        });
+        return false;
+      }
+      const currentGroup = this.getGroup(groupId) as Group;
+      if (!user.joinedChannel.includes(currentGroup.linkedChannel)) {
+        wx.showToast({
+          title: '用户不在频道中',
+          icon: 'none'
+        });
+        return false;
+      }
+      const linkedTour = this.getTour(linkedTourId) as Tour;
+      linkedTour.users.push(newMemberId);
+      this.updateTour(linkedTour);
+      user.joinedGroup.push(groupId);
+      this.updateUser(user);
+      return true;
     }
-    const newMemberId = parseInt(newMemberIdInput, 10);
-    const user = this.getUser(newMemberId);
-    if (!user || user.id === 0) {
-      wx.showToast({
-        title: '用户不存在',
-        icon: 'none'
-      });
-      return false;
-    }
-    if (user.joinedGroup.includes(groupId)) {
-      wx.showToast({
-        title: '用户已在群内',
-        icon: 'none'
-      });
-      return false;
-    }
-    const currentGroup = this.getGroup(groupId) as Group;
-    if (!user.joinedChannel.includes(currentGroup.linkedChannel)) {
-      wx.showToast({
-        title: '用户不在频道中',
-        icon: 'none'
-      });
-      return false;
-    }
-    const linkedTour = this.getTour(linkedTourId) as Tour;
-    linkedTour.users.push(newMemberId);
-    this.updateTour(linkedTour);
-    user.joinedGroup.push(groupId);
-    this.updateUser(user);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async approveUserInGroup(groupId: number, linkedTourId: number, userId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const user = this.getUser(userId);
-    if (!user) { return false; }
-    user.joinedGroup.push(groupId);
-    this.updateUser(user);
-    const currentGroup = this.getGroup(groupId) as Group;
-    const linkedTour = this.getTour(linkedTourId) as Tour;
-    currentGroup.waitingUsers = currentGroup.waitingUsers.filter(
-      (id: number) => id !== userId
-    );
-    linkedTour.users.push(userId);
-    this.updateGroup(currentGroup);
-    this.updateTour(linkedTour);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const user = this.getUser(userId);
+      if (!user) { return false; }
+      user.joinedGroup.push(groupId);
+      this.updateUser(user);
+      const currentGroup = this.getGroup(groupId) as Group;
+      const linkedTour = this.getTour(linkedTourId) as Tour;
+      currentGroup.waitingUsers = currentGroup.waitingUsers.filter(
+        (id: number) => id !== userId
+      );
+      linkedTour.users.push(userId);
+      this.updateGroup(currentGroup);
+      this.updateTour(linkedTour);
+      return true;
+    }
   },
   async rejectUserInGroup(groupId: number, userId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const currentGroup = this.getGroup(groupId) as Group;
-    currentGroup.waitingUsers = currentGroup.waitingUsers.filter(
-      (id: number) => id !== userId
-    );
-    this.updateGroup(currentGroup);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentGroup = this.getGroup(groupId) as Group;
+      currentGroup.waitingUsers = currentGroup.waitingUsers.filter(
+        (id: number) => id !== userId
+      );
+      this.updateGroup(currentGroup);
+      return true;
+    }
   },
   async userAdminChangeInGroup(groupId: number, userId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const currentGroup = this.getGroup(groupId) as Group;
-    const user = this.getUser(userId);
-    if (!user) { return false; }
-    const userGroup = getUserGroupNameInGroup(user, currentGroup.id);
-    if (userGroup === "群主") { return false; }
-    if (userGroup === "群管理员") {
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentGroup = this.getGroup(groupId) as Group;
+      const user = this.getUser(userId);
+      if (!user) { return false; }
+      const userGroup = getUserGroupNameInGroup(user, currentGroup.id);
+      if (userGroup === "群主") { return false; }
+      if (userGroup === "群管理员") {
+        user.adminingGroup = user.adminingGroup.filter(
+          (groupId: number) => groupId !== currentGroup.id
+        );
+      } else {
+        user.adminingGroup.push(currentGroup.id);
+      }
+      this.updateUser(user);
+      return true;
+    }
+  },
+  async removeMemberInGroup(groupId: number, linkedTourId: number, userId: number): Promise<boolean> {
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentGroup = this.getGroup(groupId) as Group;
+      const user = this.getUser(userId);
+      if (!user) { return false; }
+      user.joinedGroup = user.joinedGroup.filter(
+        (groupId: number) => groupId !== currentGroup.id
+      );
       user.adminingGroup = user.adminingGroup.filter(
         (groupId: number) => groupId !== currentGroup.id
       );
-    } else {
-      user.adminingGroup.push(currentGroup.id);
+      const linkedTour = this.getTour(linkedTourId) as Tour;
+      linkedTour.deleteUser(userId);
+      this.updateTour(linkedTour);
+      this.updateUser(user);
+      return true;
     }
-    this.updateUser(user);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
-  },
-  async removeMemberInGroup(groupId: number, linkedTourId: number, userId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const currentGroup = this.getGroup(groupId) as Group;
-    const user = this.getUser(userId);
-    if (!user) { return false; }
-    user.joinedGroup = user.joinedGroup.filter(
-      (groupId: number) => groupId !== currentGroup.id
-    );
-    user.adminingGroup = user.adminingGroup.filter(
-      (groupId: number) => groupId !== currentGroup.id
-    );
-    const linkedTour = this.getTour(linkedTourId) as Tour;
-    linkedTour.deleteUser(userId);
-    this.updateTour(linkedTour);
-    this.updateUser(user);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
   },
   async transferGroupOwner(groupId: number, newOwnerId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const newOwner = this.getUser(newOwnerId);
-    const currentOwner = this.currentUser();
-    if (!newOwner || !currentOwner) { return false; }
-    currentOwner.havingGroup = currentOwner.havingGroup.filter(
-      (groupId: number) => groupId !== groupId
-    );
-    newOwner.adminingGroup = newOwner.adminingGroup.filter(
-      (groupId: number) => groupId !== groupId
-    );
-    newOwner.havingGroup.push(groupId);
-    this.updateUser(newOwner);
-    this.updateUser(currentOwner);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const newOwner = this.getUser(newOwnerId);
+      const currentOwner = this.currentUser();
+      if (!newOwner || !currentOwner) { return false; }
+      currentOwner.havingGroup = currentOwner.havingGroup.filter(
+        (groupId: number) => groupId !== groupId
+      );
+      newOwner.adminingGroup = newOwner.adminingGroup.filter(
+        (groupId: number) => groupId !== groupId
+      );
+      newOwner.havingGroup.push(groupId);
+      this.updateUser(newOwner);
+      this.updateUser(currentOwner);
+      return true;
+    }
   },
   async changeGroupBasic(groupBasic: GroupBasic): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const currentGroup = this.getGroup(groupBasic.id) as Group;
-    const { id, ...rest } = groupBasic;
-    Object.assign(currentGroup, rest);
-    this.updateGroup(currentGroup);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentGroup = this.getGroup(groupBasic.id) as Group;
+      const { id, ...rest } = groupBasic;
+      Object.assign(currentGroup, rest);
+      this.updateGroup(currentGroup);
+      return true;
+    }
   },
   async changeTourBasic(tour: TourBasic): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const currentTour = this.getTour(tour.id) as Tour;
-    const { id, ...rest } = tour;
-    Object.assign(currentTour, rest);
-    this.updateTour(currentTour);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentTour = this.getTour(tour.id) as Tour;
+      const { id, ...rest } = tour;
+      Object.assign(currentTour, rest);
+      this.updateTour(currentTour);
+      return true;
+    }
   },
   async quitGroup(groupId: number, linkedTourId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const currentUser = this.currentUser();
-    const linkedTour = this.getTour(linkedTourId) as Tour;
-    currentUser.joinedGroup = currentUser.joinedGroup.filter(
-      (_groupId) => _groupId !== groupId
-    );
-    currentUser.adminingGroup = currentUser.adminingGroup.filter(
-      (_groupId) => _groupId !== groupId
-    );
-    linkedTour.users = linkedTour.users.filter(
-      (userId) => userId !== currentUser.id
-    );
-    this.updateTour(linkedTour);
-    this.updateUser(currentUser);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentUser = this.currentUser();
+      const linkedTour = this.getTour(linkedTourId) as Tour;
+      currentUser.joinedGroup = currentUser.joinedGroup.filter(
+        (_groupId) => _groupId !== groupId
+      );
+      currentUser.adminingGroup = currentUser.adminingGroup.filter(
+        (_groupId) => _groupId !== groupId
+      );
+      linkedTour.users = linkedTour.users.filter(
+        (userId) => userId !== currentUser.id
+      );
+      this.updateTour(linkedTour);
+      this.updateUser(currentUser);
+      return true;
+    }
   },
   async disbandGroup(groupId: number, linkedTourId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const userList = this.getUserListCopy();
-    userList.forEach((user) => {
-      user.joinedGroup = user.joinedGroup.filter(
-        (_groupId) => _groupId !== groupId
-      );
-      user.adminingGroup = user.adminingGroup.filter(
-        (_groupId) => _groupId !== groupId
-      );
-      user.havingGroup = user.havingGroup.filter(
-        (_groupId) => _groupId !== groupId
-      );
-      this.updateUser(user);
-    });
-    this.removeGroup(groupId);
-    this.removeTour(linkedTourId);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const userList = this.getUserListCopy();
+      userList.forEach((user) => {
+        user.joinedGroup = user.joinedGroup.filter(
+          (_groupId) => _groupId !== groupId
+        );
+        user.adminingGroup = user.adminingGroup.filter(
+          (_groupId) => _groupId !== groupId
+        );
+        user.havingGroup = user.havingGroup.filter(
+          (_groupId) => _groupId !== groupId
+        );
+        this.updateUser(user);
+      });
+      this.removeGroup(groupId);
+      this.removeTour(linkedTourId);
+      return true;
+    }
   },
   async endGroupTour(groupId: number, linkedTourId: number): Promise<boolean> {
-    /** 后端逻辑 */
-
-    /** 前端测试逻辑, 接入后端后从此处开始全部注释 */
-    const userList = this.getUserListCopy();
-    userList.forEach((user: User) => {
-      user.joinedGroup = user.joinedGroup.filter(
-        (_groupId: number) => _groupId !== groupId
-      );
-      user.adminingGroup = user.adminingGroup.filter(
-        (_groupId: number) => _groupId !== groupId
-      );
-      user.havingGroup = user.havingGroup.filter(
-        (_groupId: number) => _groupId !== groupId
-      );
-      this.updateUser(user);
-    });
-    this.removeGroup(groupId);
-    const linkedTour = this.getTour(linkedTourId) as Tour;
-    linkedTour.linkedGroup = -1;
-    linkedTour.status = TourStatus.Finished;
-    this.updateTour(linkedTour);
-    return true;
-    /** 前端测试逻辑, 接入后端后到此处结束全部注释 */
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const userList = this.getUserListCopy();
+      userList.forEach((user: User) => {
+        user.joinedGroup = user.joinedGroup.filter(
+          (_groupId: number) => _groupId !== groupId
+        );
+        user.adminingGroup = user.adminingGroup.filter(
+          (_groupId: number) => _groupId !== groupId
+        );
+        user.havingGroup = user.havingGroup.filter(
+          (_groupId: number) => _groupId !== groupId
+        );
+        this.updateUser(user);
+      });
+      this.removeGroup(groupId);
+      const linkedTour = this.getTour(linkedTourId) as Tour;
+      linkedTour.linkedGroup = -1;
+      linkedTour.status = TourStatus.Finished;
+      this.updateTour(linkedTour);
+      return true;
+    }
   },
 })

@@ -81,11 +81,11 @@ Component({
   },
 
   lifetimes: {
-    ready() {
-      this.generateTourSaves();
+    async ready() {
+      await this.generateTourSaves();
       this.generateFullFootprints();
       this.generateFullMarkers();
-      this.generateUserRankings();
+      await this.generateUserRankings();
     },
   },
 

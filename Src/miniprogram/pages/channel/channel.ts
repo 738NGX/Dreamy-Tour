@@ -29,7 +29,6 @@ Component({
       }
     },
     onChildPageChange(e: WechatMiniprogram.CustomEvent) {
-      console.log(e.detail.value)
       this.setData({ childPage: e.detail.value })
     },
   },

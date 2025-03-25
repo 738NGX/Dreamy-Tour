@@ -14,6 +14,7 @@ declare global {
   interface IAppOption {
     globalData: {
       currentUserId: number;
+      testMode: boolean;
       currentData: any;
       baseUrl: string;
     },

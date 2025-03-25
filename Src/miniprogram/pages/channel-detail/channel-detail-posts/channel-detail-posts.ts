@@ -34,7 +34,8 @@ Component({
   },
 
   lifetimes: {
-    ready() {
+    async ready() {
+      await this.getFullPosts();
       this.searchPosts();
     },
   },
