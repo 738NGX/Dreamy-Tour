@@ -9,7 +9,7 @@ Component({
     currencyList: currencyList,
 
     currentTour: {} as any,
-
+    currentTourId: 0 as number,
     settingsVisible: false,
 
     dateRange: [] as any[],
@@ -18,7 +18,8 @@ Component({
     copyOptions: [] as any[],
     currentCopyIndex: 0,
 
-    currentChildPage: 0,
+    showUserReport: false,
+    //前端写这个有隐私安全
   },
   methods: {
     onLoad(options: any) {
@@ -26,7 +27,9 @@ Component({
       const currentTour = app.getTour(parseInt(tourId)) as Tour;
       const dateRange = this.getDateRange(currentTour!.startDate, currentTour!.endDate);
       const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
-      this.setData({ currentTour, dateRange, copyOptions });
+      this.setData({ currentTour, dateRange, copyOptions,
+        currentTourId:tourId
+       });
     },
     getDateRange(startTimestamp: number, endTimestamp: number): number[][] {
       const startDate = new Date(startTimestamp);
@@ -57,19 +60,11 @@ Component({
       const { value } = event.detail;
       this.setData({ currentCopyIndex: value });
     },
-
-    handleChildPageChange(){
-      const currentChildPage = this.data.currentChildPage;
-      if(currentChildPage === 0){
-        this.setData({
-          currentChildPage: 1,
-        })
-      }
-      else { 
-        this.setData({
-          currentChildPage: 0,
-        })
-      }
+    showTourReport(){
+      wx.navigateTo({
+        url:`/pages/report/report?tourId=${this.data.currentTourId}&currentTourCopyIndex=${this.data.currentCopyIndex}&showUserReport=${this.data.showUserReport}`
+      })
+    //  console.log(this.data.showUserReport,"tiaozhuan")
     }
   }
 })
