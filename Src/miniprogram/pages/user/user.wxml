@@ -1,9 +1,26 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
 <!-- header class="custom-navbar" tabList="{{[]}}" / -->
 <scroll-view class="scrollarea" style="height:100vh" scroll-y type="list">
-  <view class="name-card-bg">
-    <view style="height:150rpx"/>
-    <t-avatar bordered image="{{currentUser.avatarUrl}}" size="100px" class="avatar-example" t-class-content="external-class-content">{{ currentUser.name[0] }}</t-avatar>
+  <view class="name-card">
+    <view style="height:150rpx" />
+    <t-avatar bordered image="{{currentUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ currentUser.name[0] }}</t-avatar>
     <view class="name-card-username">{{currentUser.name}}</view>
+    <view class="row">
+      <t-tag size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(userGroup)}}">{{userGroup}}</t-tag>
+      <view wx:if="{{currentUser.gender!='保密'}}" class="gender-icon" style="background-color:#{{currentUser.gender=='男'?'00a1d6':'ff548c'}};">
+        <t-icon name="{{currentUser.gender=='男'?'gender-male':'gender-female'}}" size="24rpx" />
+      </view>
+    </view>
   </view>
+  <scroll-view scroll-y type="list" class="user-main">
+    <view class="user-container">
+      <t-cell bordered="{{false}}" bind:click="signIn" title="经验值" note="点击签到" hover arrow />
+      <t-progress style="margin:0 30rpx;" theme="plump" color="{{ {  from: '#0052D9', to: '#48c6ef' } }}" label="{{expLabel}}" percentage="{{expPercentage}}" />
+      <c-collapse header="切换演示账号">
+        <t-cell class="narrow-cell" bind:click="changeTestUser" wx:for="{{testUserList}}" wx:key="id" title="{{item.name}}" data-index="{{item.id}}" arrow hover>
+          <t-avatar slot="left-icon" image="{{item.avatarUrl}}" style="margin:10rpx 0rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.name[0] }}</t-avatar>
+        </t-cell>
+      </c-collapse>
+    </view>
+  </scroll-view>
 </scroll-view>

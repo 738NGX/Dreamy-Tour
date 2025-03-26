@@ -1,4 +1,4 @@
-import { User } from "./user/user";
+import { User, UserBasic } from "./user/user";
 
 export const MILLISECONDS = {
   SECOND: 1e+3,
@@ -108,23 +108,35 @@ export function getEChartData(data: any) {
   return JSON.parse(JSON.stringify(res));
 }
 
-export function getUserGroupName(user: User): string {
+const userGroupName = ['Lv.0船客', 'Lv.1水手', 'Lv.2水手长', 'Lv.3轮机长', 'Lv.4大副', 'Lv.5船长', 'Lv.6探险家'];
+
+export const userExpTarget = {
+  [userGroupName[0]]: 20,
+  [userGroupName[1]]: 150,
+  [userGroupName[2]]: 450,
+  [userGroupName[3]]: 1080,
+  [userGroupName[4]]: 2880,
+  [userGroupName[5]]: 10000,
+  [userGroupName[6]]: 10000,
+}
+
+export function getUserGroupName(user: User | UserBasic): string {
   if (user.isAdmin) {
     return '系统管理员';
-  } else if (user.exp >= 10000) {
-    return 'Lv.6探险家';
-  } else if (user.exp >= 2880) {
-    return 'Lv.5船长';
-  } else if (user.exp >= 1080) {
-    return 'Lv.4大副';
-  } else if (user.exp >= 450) {
-    return 'Lv.3轮机长';
-  } else if (user.exp >= 150) {
-    return 'Lv.2水手长';
-  } else if (user.exp >= 20) {
-    return 'Lv.1水手';
+  } else if (user.exp >= userExpTarget[userGroupName[5]]) {
+    return userGroupName[6];
+  } else if (user.exp >= userExpTarget[userGroupName[4]]) {
+    return userGroupName[5];
+  } else if (user.exp >= userExpTarget[userGroupName[3]]) {
+    return userGroupName[4];
+  } else if (user.exp >= userExpTarget[userGroupName[2]]) {
+    return userGroupName[3];
+  } else if (user.exp >= userExpTarget[userGroupName[1]]) {
+    return userGroupName[2];
+  } else if (user.exp >= userExpTarget[userGroupName[0]]) {
+    return userGroupName[1];
   } else {
-    return 'Lv.0船客';
+    return userGroupName[0];
   }
 }
 
@@ -205,8 +217,23 @@ export function getNewId(arr: any[]): number {
   return maxId + 1;
 }
 
-export function displayNumber(num:number): String{
+export function displayNumber(num: number): String {
   const number = num;
-  if(number < 1000) return number.toString()
+  if (number < 1000) return number.toString()
   return (number / 1000).toString() + 'k'
+}
+
+export async function getImageBase64(tempFilePath: string): Promise<string> {
+  const base64 = await new Promise(resolve => {
+    wx.getFileSystemManager().readFile({
+      filePath: tempFilePath,
+      encoding: 'base64',
+      success: ({
+        data
+      }) => {
+        return resolve('data:image/png;base64,' + data);
+      }
+    });
+  });
+  return base64 as string;
 }

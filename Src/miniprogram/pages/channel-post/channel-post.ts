@@ -90,14 +90,14 @@ Component({
       const currentPost = await app.getFullPost(parseInt(postId)) as Post;
       const { isChannelAdmin } = await app.getUserAuthorityInChannel(currentPost.linkedChannel)
       this.setData({ currentPost, isChannelAdmin });
-      this.init();
+      await this.init();
     },
-    onRefresh() {
+    async onRefresh() {
       this.setData({ refreshEnable: true });
       setTimeout(() => {
         this.setData({ refreshEnable: false });
       }, 500);
-      this.init();
+      await this.init();
     },
     async init() {
       const { currentPost } = this.data;
@@ -222,7 +222,7 @@ Component({
         });
         if (await app.handleCommentSend(newComment)) {
           success = true;
-          this.onRefresh();
+          await this.onRefresh();
         }
       } else if (this.data.inputMode === InputMode.Reply) {
         const newComment = new Comment({
@@ -237,7 +237,7 @@ Component({
         });
         if (await app.handleCommentSend(newComment)) {
           success = true;
-          this.onRefresh();
+          await this.onRefresh();
           if (this.data.repliesParent != -1) {
             const replies = this.data.structedComments.find((comment) => comment.id == this.data.repliesParent)?.replies;
             this.setData({ replies });

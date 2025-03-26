@@ -7,6 +7,7 @@
     "t-icon": "tdesign-miniprogram/icon/icon",
     "t-calendar": "tdesign-miniprogram/calendar/calendar",
     "t-swiper": "tdesign-miniprogram/swiper/swiper",
+    "t-avatar": "tdesign-miniprogram/avatar/avatar",
     "t-fab": "tdesign-miniprogram/fab/fab"
   }
 }
