@@ -6,7 +6,7 @@ import { Currency } from "../miniprogram/utils/tour/expense";
 import { FootPrint } from "../miniprogram/utils/tour/footprint";
 import { File } from "../miniprogram/utils/tour/photo";
 import { Tour, TourBasic } from "../miniprogram/utils/tour/tour";
-import { Member, User } from "../miniprogram/utils/user/user";
+import { Member, User, UserBasic } from "../miniprogram/utils/user/user";
 
 /// <reference path="./types/index.d.ts" />
 
@@ -293,5 +293,9 @@ declare global {
     quitGroup(groupId: number, linkedTourId: number): Promise<boolean>;
     disbandGroup(groupId: number, linkedTourId: number): Promise<boolean>;
     endGroupTour(groupId: number, linkedTourId: number): Promise<boolean>;
+
+    // for user.ts
+    changeUserBasic(user: UserBasic): Promise<boolean>;
+    changeUserAvatar(url:string): Promise<boolean>;
   }
 }

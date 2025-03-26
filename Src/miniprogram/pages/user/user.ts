@@ -1,5 +1,5 @@
 import { UserBasic } from "../../utils/user/user";
-import { getUserGroupName, userExpTarget } from "../../utils/util";
+import { getImageBase64, getUserGroupName, userExpTarget } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -8,16 +8,21 @@ Component({
 
   },
   data: {
-    testUserList: app.getUserListCopy(),
+    isTestMode: app.globalData.testMode,
+    testUserList: [] as UserBasic[],
     currentUser: {} as UserBasic,
     userGroup: '',
     expPercentage: 0,
     expLabel: '',
+
+    photoUploadVisible: false,
+    uploadedPhotos: [] as any[],
   },
   methods: {
     onShow() {
       this.setData({
         currentUser: app.currentUser(),
+        testUserList: app.getUserListCopy()
       });
       this.caluculateExp();
       if (typeof this.getTabBar === 'function' && this.getTabBar()) {
@@ -48,7 +53,7 @@ Component({
         expLabel: `${exp}/${target}`
       })
     },
-    signIn(){
+    signIn() {
       const user = app.currentUser();
       user.exp += 10;
       this.setData({
@@ -56,6 +61,48 @@ Component({
       })
       app.updateUser(user);
       this.caluculateExp();
+    },
+    onPhotoUploadVisibleChange() {
+      this.setData({
+        photoUploadVisible: !this.data.photoUploadVisible
+      });
+    },
+    handlePhotoAdd(e: WechatMiniprogram.CustomEvent) {
+      const { uploadedPhotos } = this.data;
+      const { files } = e.detail;
+
+      this.setData({
+        uploadedPhotos: [...uploadedPhotos, ...files],
+      });
+    },
+    handlePhotoRemove(e: WechatMiniprogram.CustomEvent) {
+      const { index } = e.detail;
+      const { uploadedPhotos } = this.data;
+
+      uploadedPhotos.splice(index, 1);
+      this.setData({
+        fileList: uploadedPhotos,
+      });
+    },
+    async onPhotoUploadConfirm() {
+      if (this.data.uploadedPhotos.length === 0) return;
+      const { currentUser } = this.data;
+      currentUser.avatarUrl = await getImageBase64(this.data.uploadedPhotos[0].url);
+      this.setData({ currentUser, photoUploadVisible: false });
+      await app.changeUserBasic(currentUser);
+    },
+    uploadAvater(){
+      wx.chooseImage({
+        count: 1,
+        sizeType: ['original', 'compressed'],
+        sourceType: ['album', 'camera'],
+        success (res) {
+          const src = res.tempFilePaths[0]
+          wx.navigateTo({
+            url: `../upload-avatar/upload-avatar?src=${src}`
+          })
+        }
+      })
     }
   }
 })

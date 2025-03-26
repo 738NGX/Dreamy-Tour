@@ -16,15 +16,18 @@
     "noUnusedParameters": true,
     "strict": true,
     "strictPropertyInitialization": true,
-    "lib": ["ES2020"],
-    "typeRoots": [
-        "./typings"
-      ]
-    },
-    "include": [
-      "./**/*.ts"
+    "lib": [
+      "ES2020"
     ],
-    "exclude": [
-      "node_modules"
+    "typeRoots": [
+      "./typings"
     ]
+  },
+  "include": [
+    "./**/*.ts",
+    "miniprogram/pages/upload-avatar/upload-avater.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

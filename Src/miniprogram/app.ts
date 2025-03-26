@@ -10,7 +10,7 @@ import { FootPrint } from "./utils/tour/footprint";
 import { File } from "./utils/tour/photo";
 import { Tour, TourBasic, TourStatus } from "./utils/tour/tour";
 import { Location, Transportation } from "./utils/tour/tourNode";
-import { Member, User } from "./utils/user/user";
+import { Member, User, UserBasic } from "./utils/user/user";
 import { getImageBase64, getNewId, getUser, getUserGroupName, getUserGroupNameInChannel, getUserGroupNameInGroup } from "./utils/util";
 
 // app.ts
@@ -1245,6 +1245,27 @@ App<IAppOption>({
       linkedTour.linkedGroup = -1;
       linkedTour.status = TourStatus.Finished;
       this.updateTour(linkedTour);
+      return true;
+    }
+  },
+  async changeUserBasic(user: UserBasic): Promise<boolean> {
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentUser = this.currentUser();
+      const { id, ...rest } = user;
+      Object.assign(currentUser, rest);
+      this.updateUser(currentUser);
+      return true;
+    }
+  },
+  async changeUserAvatar(avatar: string): Promise<boolean> {
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentUser = this.currentUser();
+      currentUser.avatarUrl = avatar;
+      this.updateUser(currentUser);
       return true;
     }
   },

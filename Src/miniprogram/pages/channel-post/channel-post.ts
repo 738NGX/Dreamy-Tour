@@ -4,7 +4,7 @@
 import { Comment, Post, StructedComment } from "../../utils/channel/post";
 import { File } from "../../utils/tour/photo";
 import { Member } from "../../utils/user/user";
-import { formatPostTime } from "../../utils/util";
+import { formatPostTime, getImageBase64 } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -217,7 +217,7 @@ Component({
           content: this.data.inputValue,
           time: new Date().getTime(),
           likes: [],
-          photos: this.data.originFiles.map((file) => ({ value: file.url, ariaLabel: file.name })),
+          photos: await Promise.all(this.data.originFiles.map(async (file) => ({ value: await getImageBase64(file.url), ariaLabel: file.name }))),
           parentComment: -1
         });
         if (await app.handleCommentSend(newComment)) {
@@ -232,7 +232,7 @@ Component({
           content: this.data.inputValue,
           time: new Date().getTime(),
           likes: [],
-          photos: this.data.originFiles.map((file) => ({ value: file.url, ariaLabel: file.name })),
+          photos: await Promise.all(this.data.originFiles.map(async (file) => ({ value: await getImageBase64(file.url), ariaLabel: file.name }))),
           parentComment: this.data.replyingComment
         });
         if (await app.handleCommentSend(newComment)) {
