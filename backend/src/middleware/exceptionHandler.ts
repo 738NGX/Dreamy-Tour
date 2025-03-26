@@ -9,6 +9,7 @@ import WxServiceError from "@/exception/wxServiceError";
 import NotFoundError from "@/exception/notFoundError";
 import ApiError from "@/exception/apiError";
 import InternalError from "@/exception/internalError";
+import EmptyFileError from "@/exception/emptyFileError";
 
 // 定义错误处理函数类型
 type ErrorHandler = (
@@ -57,6 +58,11 @@ const ERROR_HANDLERS: Map<Function, ErrorHandler> = new Map([
   [
     InternalError,
     (err, req, res) => res.status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json(Result.error(err.message))
+  ],
+  [
+    EmptyFileError,
+    (err, req, res) => res.status(StatusCodes.BAD_REQUEST)
       .json(Result.error(err.message))
   ]
 ]);

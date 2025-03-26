@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-10 10:20:27
+ * @Last Modified time: 2025-03-23 19:32:51
  */
 import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
@@ -27,6 +27,8 @@ import ChannelService from "./channelService";
 import ChannelConstant from "@/constant/channelConstant";
 import axios from "axios";
 import { StatusCodes } from "http-status-codes";
+import RoleDto from "@/dto/user/roleDto";
+import RoleUtil from "@/util/roleUtil";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
@@ -193,6 +195,27 @@ class UserService {
     await db.run(
       `DELETE FROM users WHERE uid = ?`, 
       [uid]
+    )
+  }
+
+  /**
+   * 将自身等级提升到对应的角色类型
+   * @param uid 用户 ID
+   * @param role 角色类型
+   */
+  static async getPrivilege(uid: number, roleDto: RoleDto): Promise<void> {
+    const roleId = RoleUtil.roleStringToNumber(roleDto.role);
+    // 更新用户表对应用户的 roleId 字段
+    const db = await dbPromise;
+    await db.run(
+      `
+      UPDATE users SET roleId = ?
+      WHERE uid = ?
+      `,
+      [
+        roleId,
+        uid
+      ]
     )
   }
   
