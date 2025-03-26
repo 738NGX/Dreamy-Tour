@@ -17,7 +17,7 @@
             </view>
             <!-- 用户信息 + 点赞 -->
             <view class="post-meta">
-              <t-avatar class="avatar-example" t-class-content="external-class-content" size="24px">{{ item.username[0] }}</t-avatar>
+              <t-avatar class="avatar-example" image="{{item.avatarUrl}}" t-class-content="external-class-content" size="24px">{{ item.username[0] }}</t-avatar>
               <text class="username">{{ item.username }}</text>
               <view class="likes">
                 <t-icon name="heart" size="16" style="margin-right:10rpx;" />
@@ -40,7 +40,7 @@
             </view>
             <!-- 用户信息 + 点赞 -->
             <view class="post-meta">
-              <t-avatar class="avatar-example" t-class-content="external-class-content" size="24px">{{ item.username[0] }}</t-avatar>
+              <t-avatar class="avatar-example" image="{{item.avatarUrl}}" t-class-content="external-class-content" size="24px">{{ item.username[0] }}</t-avatar>
               <text class="username">{{ item.username }}</text>
               <view class="likes">
                 <t-icon name="heart" size="16" style="margin-right:10rpx;" />

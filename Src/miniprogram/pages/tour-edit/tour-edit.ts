@@ -19,7 +19,7 @@ Component({
     copyOptions: [] as any[],
     currentCopyIndex: 0,
 
-    currentChildPage: 0,
+    showUserReport: true,
   },
   methods: {
     onLoad(options: any) {
@@ -130,31 +130,11 @@ Component({
       this.setData({ currentTour });
       app.updateTour(currentTour);
     },
-
-    handleChildPageChange(){
-      const currentChildPage = this.data.currentChildPage;
-      if(currentChildPage === 0){
-        this.setData({
-          currentChildPage: 1,
-        })
-      }
-      else { 
-        this.setData({
-          currentChildPage: 0,
-        })
-      }
-    },
-    
-    showGroupTourReport(){
-      // wx.setStorageSync('currentTour',this.data.currentTour);
-      // wx.setStorageSync('currentTourCopyIndex',this.data.currentCopyIndex);
-      // console.log("currentTour",this.data.currentTour,"currentcopyindex",this.data.currentCopyIndex)
-      // wx.navigateTo({
-      //   url:`/pages/report-for-group/report-for-group?tourId=${this.data.currentTourId}&currentTourCopyIndex=${this.data.currentCopyIndex}`
-      // })
+    showTourReport(){
       wx.navigateTo({
-        url:`/pages/report/report?tourId=${this.data.currentTourId}&currentTourCopyIndex=${this.data.currentCopyIndex}`
+        url:`/pages/report/report?tourId=${this.data.currentTourId}&currentTourCopyIndex=${this.data.currentCopyIndex}&showUserReport=${this.data.showUserReport}`
       })
+    //  console.log("tiaozhuan")
     }
   }
 })

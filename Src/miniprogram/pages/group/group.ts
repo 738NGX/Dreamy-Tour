@@ -7,7 +7,7 @@ import { currencyList } from "../../utils/tour/expense";
 import { timezoneList } from "../../utils/tour/timezone";
 import { Tour, TourBasic } from "../../utils/tour/tour";
 import { Member } from "../../utils/user/user";
-import { formatDate, MILLISECONDS } from "../../utils/util";
+import { formatDate, getImageBase64, MILLISECONDS } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -209,9 +209,22 @@ Component({
       await app.changeTourBasic(linkedTour);
     },
     onPhotoUploadVisibleChange() {
-      this.setData({
-        photoUploadVisible: !this.data.photoUploadVisible
-      });
+      const that = this;
+      wx.chooseImage({
+        count: 1,
+        sizeType: ['original', 'compressed'],
+        sourceType: ['album'],
+        async success(res) {
+          const src = res.tempFilePaths[0]
+          const { currentGroup } = that.data;
+          currentGroup.qrCode = await getImageBase64(src);
+          that.setData({ currentGroup, photoUploadVisible: false });
+          await app.changeGroupBasic(currentGroup);
+        }
+      })
+      //this.setData({
+      //  photoUploadVisible: !this.data.photoUploadVisible
+      //});
     },
     handlePhotoAdd(e: WechatMiniprogram.CustomEvent) {
       const { uploadedPhotos } = this.data;
@@ -233,7 +246,7 @@ Component({
     async onPhotoUploadConfirm() {
       if (this.data.uploadedPhotos.length === 0) return;
       const { currentGroup } = this.data;
-      currentGroup.qrCode = this.data.uploadedPhotos[0].url;
+      currentGroup.qrCode = await getImageBase64(this.data.uploadedPhotos[0].url);
       this.setData({ currentGroup, photoUploadVisible: false });
       await app.changeGroupBasic(currentGroup);
     },

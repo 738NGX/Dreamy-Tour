@@ -21,7 +21,7 @@ export class UserBasic {
     this.avatarUrl = data.avatarUrl ?? '';
     this.email = data.email ?? '';
     this.phone = data.phone ?? '';
-    this.signature = data.signature ?? '';
+    this.signature = data.signature ?? '请多关照!';
     this.birthday = data.birthday ?? '';
   }
 }

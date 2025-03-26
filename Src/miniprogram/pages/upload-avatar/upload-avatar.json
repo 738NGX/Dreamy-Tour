@@ -1,15 +1,15 @@
 {
+  "backgroundTextStyle": "dark",
+  "navigationBarBackgroundColor": "#000",
+  "navigationBarTitleText": "裁剪头像",
+  "navigationBarTextStyle": "white",
   "usingComponents": {
     "header": "/components/header/header",
     "t-cell": "tdesign-miniprogram/cell/cell",
     "c-collapse": "/components/c-collapse/c-collapse",
     "t-tag": "tdesign-miniprogram/tag/tag",
     "t-progress": "tdesign-miniprogram/progress/progress",
-    "t-button": "tdesign-miniprogram/button/button",
     "t-icon": "tdesign-miniprogram/icon/icon",
-    "t-input": "tdesign-miniprogram/input/input",
-    "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",
-    "t-radio": "tdesign-miniprogram/radio/radio",
     "t-avatar": "tdesign-miniprogram/avatar/avatar"
   }
 }

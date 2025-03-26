@@ -7,7 +7,7 @@
   <c-collapse header="群成员">
     <t-swipe-cell wx:for="{{members}}" wx:key="id">
       <t-cell bordered="{{false}}" title="{{item.name}}" class="narrow-cell">
-        <t-avatar slot="image" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
+        <t-avatar image="{{item.avatarUrl}}" slot="image" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
         <t-tag slot="note" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
       </t-cell>
       <view slot="right" class="btn-wrapper">
@@ -60,7 +60,7 @@
       <t-cell class="narrow-cell" wx:if="{{currentGroup.joinWay==1}}" title="加入审批" />
       <t-swipe-cell wx:if="{{currentGroup.joinWay==1}}" wx:for="{{waitingUsers}}" wx:key="id">
         <t-cell bordered="{{false}}" title="{{item.name}}" class="narrow-cell">
-          <t-avatar slot="image" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
+          <t-avatar image="{{item.avatarUrl}}" slot="image" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
           <t-tag slot="note" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
         </t-cell>
         <view slot="right" class="btn-wrapper">

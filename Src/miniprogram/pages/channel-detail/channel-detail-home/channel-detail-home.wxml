@@ -11,7 +11,9 @@
   <view class="wrapper wrapper__left">旅行排行</view>
   <scroll-view class="scrollarea" style="height:40vh;" scroll-y type="list">
     <block wx:if="{{userRankings.length>0}}" wx:for="{{userRankings}}" wx:key="index" wx:for-index="i">
-      <t-cell title="{{item.name}}" note="{{item.count}}次" leftIcon="numbers-{{item.rank}}" />
+      <t-cell bordered="{{false}}" title="{{item.name}}" note="{{item.count}}次" class="narrow-cell">
+        <t-avatar slot="left-icon" image="{{item.avatarUrl}}" style="margin:10rpx 0rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.name[0] }}</t-avatar>
+      </t-cell>
     </block>
   </scroll-view>
 </t-popup>

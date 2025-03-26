@@ -4,15 +4,14 @@
 import { Comment, Post, StructedComment } from "../../utils/channel/post";
 import { File } from "../../utils/tour/photo";
 import { Member } from "../../utils/user/user";
-import { formatPostTime } from "../../utils/util";
+import { formatPostTime, getImageBase64 } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
 enum InputMode { None, Comment, Reply };
 
 function getStructuredComments(post: Post, userList: Member[], commentList: Comment[]): StructedComment[] {
-  const userNameMap = new Map(userList.map(user => [user.id, user.name]));
-  const userGroupMap = new Map(userList.map(user => [user.id, user.userGroup]));
+  const userMap = new Map(userList.map(user => [user.id, { name: user.name, userGroup: user.userGroup, avatarUrl: user.avatarUrl }]));
   const replyMap = new Map<number, Comment[]>();
 
   // 初始化评论映射
@@ -31,13 +30,15 @@ function getStructuredComments(post: Post, userList: Member[], commentList: Comm
       if (parentUserName) {
         newContent = `回复@${parentUserName}：${reply.content}`;
       }
+      const { name, userGroup, avatarUrl } = userMap.get(reply.user) ?? { name: "未知用户", userGroup: "未知用户组", avatarUrl: "" };
       return [{
         ...reply,
         content: newContent,
-        userName: userNameMap.get(reply.user) || "未知用户",
-        userGroup: userGroupMap.get(reply.user) || "未知用户组",
+        userName: name,
+        userGroup: userGroup,
+        avatarUrl: avatarUrl,
         timeStr: formatPostTime(reply.time)
-      }, ...collectAllReplies(reply.id, userNameMap.get(reply.user))];
+      }, ...collectAllReplies(reply.id, name)];
     }).sort((a, b) => b.likes.length - a.likes.length);
   }
 
@@ -46,8 +47,9 @@ function getStructuredComments(post: Post, userList: Member[], commentList: Comm
     .filter(comment => comment.linkedPost == post.id && comment.parentComment == -1)
     .map(topComment => ({
       ...topComment,
-      userName: userNameMap.get(topComment.user) || "未知用户",
-      userGroup: userGroupMap.get(topComment.user) || "未知用户组",
+      userName: userMap.get(topComment.user)?.name || "未知用户",
+      userGroup: userMap.get(topComment.user)?.userGroup || "未知用户组",
+      avatarUrl: userMap.get(topComment.user)?.avatarUrl || "",
       replies: collectAllReplies(topComment.id),
       timeStr: formatPostTime(topComment.time)
     }))
@@ -66,6 +68,7 @@ Component({
     maxHeight: 0,
     author: '',
     authorGroup: '',
+    avatarUrl: '',
     timeStr: '',
     structedComments: [] as StructedComment[],
     commentsSortType: '热度排序',
@@ -87,25 +90,26 @@ Component({
       const currentPost = await app.getFullPost(parseInt(postId)) as Post;
       const { isChannelAdmin } = await app.getUserAuthorityInChannel(currentPost.linkedChannel)
       this.setData({ currentPost, isChannelAdmin });
-      this.init();
+      await this.init();
     },
-    onRefresh() {
+    async onRefresh() {
       this.setData({ refreshEnable: true });
       setTimeout(() => {
         this.setData({ refreshEnable: false });
       }, 500);
-      this.init();
+      await this.init();
     },
-    async init(){
+    async init() {
       const { currentPost } = this.data;
       const { members } = await app.getMembersInChannel(currentPost.linkedChannel);
       const commentList = await app.getFullCommentsInPost(currentPost.id);
 
       const author = members.find(member => member.id === currentPost.user)?.name ?? '未知用户';
       const authorGroup = members.find(member => member.id === currentPost.user)?.userGroup ?? '未知用户组';
+      const avatarUrl = members.find(member => member.id === currentPost.user)?.avatarUrl ?? '';
       const timeStr = this.data.currentPost ? formatPostTime(this.data.currentPost.time) : '';
       const structedComments = getStructuredComments(currentPost, members, commentList);
-      this.setData({ author, authorGroup, timeStr, structedComments });
+      this.setData({ author, authorGroup, avatarUrl, timeStr, structedComments });
     },
     onImageLoad(e: WechatMiniprogram.CustomEvent) {
       const { width, height } = e.detail;
@@ -213,12 +217,12 @@ Component({
           content: this.data.inputValue,
           time: new Date().getTime(),
           likes: [],
-          photos: this.data.originFiles.map((file) => ({ value: file.url, ariaLabel: file.name })),
+          photos: await Promise.all(this.data.originFiles.map(async (file) => ({ value: await getImageBase64(file.url), ariaLabel: file.name }))),
           parentComment: -1
         });
         if (await app.handleCommentSend(newComment)) {
           success = true;
-          this.onRefresh();
+          await this.onRefresh();
         }
       } else if (this.data.inputMode === InputMode.Reply) {
         const newComment = new Comment({
@@ -228,12 +232,12 @@ Component({
           content: this.data.inputValue,
           time: new Date().getTime(),
           likes: [],
-          photos: this.data.originFiles.map((file) => ({ value: file.url, ariaLabel: file.name })),
+          photos: await Promise.all(this.data.originFiles.map(async (file) => ({ value: await getImageBase64(file.url), ariaLabel: file.name }))),
           parentComment: this.data.replyingComment
         });
         if (await app.handleCommentSend(newComment)) {
           success = true;
-          this.onRefresh();
+          await this.onRefresh();
           if (this.data.repliesParent != -1) {
             const replies = this.data.structedComments.find((comment) => comment.id == this.data.repliesParent)?.replies;
             this.setData({ replies });

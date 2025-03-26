@@ -1,5 +1,52 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
-<header class="custom-navbar" tabList="{{[]}}" />
-<scroll-view class="scrollarea" style="height:90vh" scroll-y type="list">
-
+<!-- header class="custom-navbar" tabList="{{[]}}" / -->
+<scroll-view class="scrollarea" style="height:100vh" scroll-y type="list">
+  <view class="name-card">
+    <view style="height:150rpx" />
+    <t-avatar bordered image="{{currentUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ currentUser.name[0] }}</t-avatar>
+    <view class="name-card-username">{{currentUser.name}}</view>
+    <view class="row">
+      <t-tag size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(userGroup)}}">{{userGroup}}</t-tag>
+      <view wx:if="{{currentUser.gender!='保密'}}" class="gender-icon" style="background-color:#{{currentUser.gender=='男'?'00a1d6':'ff548c'}};">
+        <t-icon name="{{currentUser.gender=='男'?'gender-male':'gender-female'}}" size="24rpx" />
+      </view>
+      <view class="name-card-uid" bind:tap="copyUid">UID: {{currentUser.id}}</view>
+    </view>
+    <view class="name-card-uid" style="margin-top:20rpx;">{{currentUser.signature}}</view>
+  </view>
+  <scroll-view scroll-y type="list" class="user-main">
+    <view class="user-container">
+      <t-cell class="narrow-cell" bordered="{{false}}" bind:click="signIn" title="经验值" note="点击签到" hover />
+      <t-progress style="margin: 0 30rpx 30rpx 30rpx;" theme="plump" color="{{ {  from: '#0052D9', to: '#48c6ef' } }}" label="{{expLabel}}" percentage="{{expPercentage}}" />
+      <c-collapse header="个人信息">
+        <t-input class="narrow-input" borderless disabled label="UID" value="{{currentUser.id}}">
+          <button slot="suffix" size="mini" class="avatar-btn" bind:tap="copyUid">复制</button>
+        </t-input>
+        <t-input class="narrow-input" borderless disabled label="修改头像">
+          <button slot="suffix" size="mini" class="avatar-btn" open-type="chooseAvatar" bind:chooseavatar="uploadAvater">选择</button>
+        </t-input>
+        <view class="narrow-input" style="font-size:32rpx; padding:10rpx;">
+          <view style="margin-right:32rpx;">昵称</view>
+          <input type="nickname" value="{{currentUser.name}}" maxlength="{{15}}" bindchange="handleNickNameChange" bindblur="handleNickNameBlur" placeholder-style="input-placeholder" bind:blur="handleNickNameChange" placeholder="请输入昵称" />
+        </view>
+        <view class="narrow-input" style="font-size:32rpx; padding:10rpx;">
+          <view style="margin-right:32rpx;">性别</view>
+          <t-radio-group bind:change="handleGenderChange" value="{{currentUser.gender}}" borderless >
+            <t-radio style="margin-right:32rpx;" block="{{false}}" label="男" value="男" />
+            <t-radio style="margin-right:32rpx;" block="{{false}}" label="女" value="女" />
+            <t-radio style="margin-right:32rpx;" block="{{false}}" label="保密" value="保密" />
+          </t-radio-group>
+        </view>
+        <t-input class="narrow-input" bind:blur="handleSignatureChange" label="签名" placeholder="请输入个性签名" maxlength="{{30}}" value="{{currentUser.signature}}" />
+      </c-collapse>
+      <c-collapse wx:if="{{isTestMode}}" header="切换演示账号">
+        <t-cell class="narrow-cell" bind:click="changeTestUser" wx:for="{{testUserList}}" wx:key="id" title="{{item.name}}" data-index="{{item.id}}" arrow hover>
+          <t-avatar slot="left-icon" image="{{item.avatarUrl}}" style="margin:10rpx 0rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.name[0] }}</t-avatar>
+        </t-cell>
+      </c-collapse>
+      <c-collapse header="选项设置">
+        <t-button theme="danger" style="width:100%;" bind:tap="quitLogin">退出登录</t-button>
+      </c-collapse>
+    </view>
+  </scroll-view>
 </scroll-view>

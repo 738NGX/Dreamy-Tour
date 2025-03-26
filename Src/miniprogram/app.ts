@@ -10,8 +10,8 @@ import { FootPrint } from "./utils/tour/footprint";
 import { File } from "./utils/tour/photo";
 import { Tour, TourBasic, TourStatus } from "./utils/tour/tour";
 import { Location, Transportation } from "./utils/tour/tourNode";
-import { Member, User } from "./utils/user/user";
-import { getNewId, getUser, getUserGroupName, getUserGroupNameInChannel, getUserGroupNameInGroup } from "./utils/util";
+import { Member, User, UserBasic } from "./utils/user/user";
+import { getImageBase64, getNewId, getUser, getUserGroupName, getUserGroupNameInChannel, getUserGroupNameInGroup } from "./utils/util";
 
 // app.ts
 App<IAppOption>({
@@ -361,7 +361,7 @@ App<IAppOption>({
       });
       const rankList = (this.globalData.currentData.userList as User[]).map(user => {
         const count = userTourCount.get(user.id) || 0;
-        return { rank: 0, name: user.name, count } as UserRanking;
+        return { rank: 0, name: user.name, avatarUrl: user.avatarUrl, count } as UserRanking;
       }).filter((user) => user.count > 0);
       rankList.sort((a, b) => b.count - a.count);
       rankList.forEach((user, index) => {
@@ -381,6 +381,7 @@ App<IAppOption>({
           return {
             ...post,
             username: this.getUser(post.user)?.name ?? '未知用户',
+            avatarUrl: this.getUser(post.user)?.avatarUrl ?? '',
           }
         })
         .filter((post) =>
@@ -412,7 +413,7 @@ App<IAppOption>({
           user: this.globalData.currentUserId,
           time: Date.now(),
           isSticky: false,
-          photos: originFiles.map((file) => ({ value: file.url, ariaLabel: file.name })),
+          photos: await Promise.all(originFiles.map(async (file) => ({ value: await getImageBase64(file.url), ariaLabel: file.name }))),
         });
         this.addPost(newPost);
         return true;
@@ -896,7 +897,7 @@ App<IAppOption>({
       const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
       const currentUserId = this.globalData.currentUserId;
 
-      const comment = structedComments.find((comment: any) => comment.id == commentId);
+      const comment = _structedComments.find((comment: any) => comment.id == commentId);
       if (!comment) { return { structedComments: _structedComments, replies: [] }; }
       const reply = comment.replies.find((reply: any) => reply.id == replyId);
       if (!reply) { return { structedComments: _structedComments, replies: [] }; }
@@ -1244,6 +1245,27 @@ App<IAppOption>({
       linkedTour.linkedGroup = -1;
       linkedTour.status = TourStatus.Finished;
       this.updateTour(linkedTour);
+      return true;
+    }
+  },
+  async changeUserBasic(user: UserBasic): Promise<boolean> {
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentUser = this.currentUser();
+      const { id, ...rest } = user;
+      Object.assign(currentUser, rest);
+      this.updateUser(currentUser);
+      return true;
+    }
+  },
+  async changeUserAvatar(avatar: string): Promise<boolean> {
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentUser = this.currentUser();
+      currentUser.avatarUrl = avatar;
+      this.updateUser(currentUser);
       return true;
     }
   },
