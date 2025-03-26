@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:44:15 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-07 23:03:05
+ * @Last Modified time: 2025-03-23 19:34:53
  */
 
 import express, { Request, Response } from "express"
@@ -19,6 +19,7 @@ import NicknameDto from "@/dto/user/nicknameDto";
 import upload from "@/config/multerConfig";
 import FileUtil from "@/util/fileUtil";
 import AvatarVo from "@/vo/user/avatarVo";
+import RoleDto from "@/dto/user/roleDto";
 
 
 const userRoute = express.Router();
@@ -125,6 +126,22 @@ userRoute.delete('/user', async (req: Request, res: Response) => {
   await UserService.unRegister(uid);
   res.status(StatusCodes.OK)
     .json(Result.success(MessageConstant.SUCCESSFUL_UNREGISTER));
+})
+
+/**
+ * @description 用户暂时提权（仅限开发使用）
+ * @method POST
+ * @path /user/privilege
+ */
+userRoute.post('/user/privilege', async (req: Request, res: Response) => {
+  // 获取用户 id
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);  // 经过拦截器处理之后，剩下来的请求中一定包含 token，因此断言为 string
+  const roleDto = await RoleDto.from(req.body);
+  // 更新数据库
+  await UserService.getPrivilege(uid, roleDto);
+  res.json(
+    Result.success(MessageConstant.SUCCESSFUL_MODIFIED)
+  );
 })
 
 export default userRoute;

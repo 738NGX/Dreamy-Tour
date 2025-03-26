@@ -6,7 +6,14 @@
  * @Last Modified time: 2025-03-21 22:25:48
  */
 
+import AuthConstant from "@/constant/authConstant";
+import MessageConstant from "@/constant/messageConstant";
+import PostPublishDto from "@/dto/post/postPublishDto";
+import PostService from "@/service/postService";
+import JwtUtil from "@/util/jwtUtil";
+import Result from "@/vo/result";
 import express, { Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 
 const postRoute = express.Router();
 
@@ -16,7 +23,19 @@ const postRoute = express.Router();
  * @path /post
  */
 postRoute.post('/post', async (req: Request, res: Response) => {
-  
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取请求体参数
+  const postPublishDto = await PostPublishDto.from({
+    ...req.body,
+    uid
+  });
+  await PostService.publish(postPublishDto);
+  // 返回响应
+  res.status(StatusCodes.CREATED)
+    .json(
+      Result.success(MessageConstant.SUCCESSFUL_PUBLISH)
+    );
 })
 
 /**
