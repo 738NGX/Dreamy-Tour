@@ -21,7 +21,7 @@
     </c-collapse>
 
     <t-cell bind:click="handleDateFilterStep" title="日期筛选器" hover note="{{currentDateFilter.label}}" arrow />
-    <t-cell bind:click="showGroupTourReport" title="{{currentChildPage === 1 ? '查看行程详情' : '查看统计报告'}}" hover arrow />
+    <t-cell bind:click="showTourReport" title="{{currentChildPage === 1 ? '查看行程详情' : '查看统计报告'}}" hover arrow />
     <c-collapse header="预算表信息">
       <block wx:for="{{currentTour.budgets}}" wx:key="index" wx:for-index="i">
         <t-input data-index="{{i}}" bind:blur="changeBudgetName" class="narrow-input" value="{{item.title}}">
@@ -35,9 +35,6 @@
   </scroll-view>
 </t-popup>
 <t-cell bind:click="handleSettings" title="{{currentTour?currentTour.title:'行程'}}" hover note="查看更多" arrow />
-<scroll-view class="scrollarea" style="height:80vh" scroll-y type="list" wx:if="{{currentChildPage === 0 || !currentChildPage}}">
+<scroll-view class="scrollarea" style="height:80vh" scroll-y type="list">
   <tour-editor bind:currentTourChange="handleCurrentTourChange" tour="{{currentTour}}" copyIndex="{{currentCopyIndex}}" dateFilter="{{currentDateFilter}}" />
-</scroll-view>
-<scroll-view class="scrollarea" style="height:80vh" scroll-y type="list" wx:if="{{currentChildPage === 1}}">
-  <report-for-tour tour="{{currentTour}}" copyIndex="{{currentCopyIndex}}"/>
 </scroll-view>

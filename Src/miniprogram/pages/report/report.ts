@@ -13,6 +13,10 @@ Component({
       { icon: 'map-add', label: '个人报告', value: 1 },
     ],
 
+    tabListForViewer: [
+      { icon: 'list', label: '群组报告', value: 0 },
+    ],
+
     // 页面状态
     childPage: 0,
     currentTour : null as Tour | null,
@@ -21,6 +25,7 @@ Component({
 
     currentUserId: 0,
 
+    showUserReport: false,
   },
   lifetimes: {
     created() {
@@ -38,12 +43,16 @@ Component({
   methods: {
     onLoad(options:any){
       const tourId = options.tourId;
-        const currentTourCopyIndex = options.currentTourCopyIndex
-        this.setData({
-          currentTour: app.getTour(parseInt(tourId)) as Tour,
-          currentTourCopyIndex: currentTourCopyIndex
-        })
-        console.log("currenttourinreport",this.data.currentTour)
+      const currentTourCopyIndex = options.currentTourCopyIndex;
+      const showUserReport = options.showUserReport === 'true';
+      
+      this.setData({
+        currentTour: app.getTour(parseInt(tourId)) as Tour,
+        currentTourCopyIndex: currentTourCopyIndex,
+        showUserReport: showUserReport
+      })
+      console.log(this.data.showUserReport)
+     // console.log("currenttourinreport",this.data.currentTour)
     },
     onChildPageChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({ childPage: e.detail.value })
