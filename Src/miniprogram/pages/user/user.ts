@@ -1,5 +1,5 @@
 import { UserBasic } from "../../utils/user/user";
-import { getImageBase64, getUserGroupName, userExpTarget } from "../../utils/util";
+import { getUserGroupName, userExpTarget } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -14,9 +14,6 @@ Component({
     userGroup: '',
     expPercentage: 0,
     expLabel: '',
-
-    photoUploadVisible: false,
-    uploadedPhotos: [] as any[],
   },
   methods: {
     onShow() {
@@ -31,6 +28,18 @@ Component({
           value: '/' + page.route
         })
       }
+    },
+    copyUid() {
+      wx.setClipboardData({
+        data: this.data.currentUser.id.toString(),
+        success() {
+          wx.showToast({
+            title: '复制成功',
+            icon: 'success',
+            duration: 1000
+          })
+        }
+      })
     },
     changeTestUser(e: any) {
       const userId = e.currentTarget.dataset.index;
@@ -53,54 +62,75 @@ Component({
         expLabel: `${exp}/${target}`
       })
     },
-    signIn() {
-      const user = app.currentUser();
-      user.exp += 10;
+    async signIn() {
+      const { currentUser } = this.data;
+      currentUser.exp += 10;
       this.setData({
-        currentUser: user
+        currentUser: currentUser
       })
-      app.updateUser(user);
+      await app.changeUserBasic(currentUser);
       this.caluculateExp();
     },
-    onPhotoUploadVisibleChange() {
-      this.setData({
-        photoUploadVisible: !this.data.photoUploadVisible
-      });
-    },
-    handlePhotoAdd(e: WechatMiniprogram.CustomEvent) {
-      const { uploadedPhotos } = this.data;
-      const { files } = e.detail;
-
-      this.setData({
-        uploadedPhotos: [...uploadedPhotos, ...files],
-      });
-    },
-    handlePhotoRemove(e: WechatMiniprogram.CustomEvent) {
-      const { index } = e.detail;
-      const { uploadedPhotos } = this.data;
-
-      uploadedPhotos.splice(index, 1);
-      this.setData({
-        fileList: uploadedPhotos,
-      });
-    },
-    async onPhotoUploadConfirm() {
-      if (this.data.uploadedPhotos.length === 0) return;
+    async handleNickNameChange(e: WechatMiniprogram.CustomEvent) {
       const { currentUser } = this.data;
-      currentUser.avatarUrl = await getImageBase64(this.data.uploadedPhotos[0].url);
-      this.setData({ currentUser, photoUploadVisible: false });
+      currentUser.name = e.detail.value;
+      this.setData({ currentUser })
       await app.changeUserBasic(currentUser);
     },
-    uploadAvater(){
+    async handleGenderChange(e: WechatMiniprogram.CustomEvent) {
+      const { currentUser } = this.data;
+      currentUser.gender = e.detail.value;
+      this.setData({ currentUser })
+      await app.changeUserBasic(currentUser);
+    },
+    async handleNickNameBlur(e: WechatMiniprogram.CustomEvent) {
+      if (!e.detail.value) {
+        wx.showToast({
+          title: '昵称不能为空',
+          icon: 'none',
+          duration: 1000
+        })
+        return;
+      }
+      const { currentUser } = this.data;
+      currentUser.name = e.detail.value;
+      this.setData({ currentUser })
+      await app.changeUserBasic(currentUser);
+      if(this.data.isTestMode) {
+        this.setData({
+          testUserList: app.getUserListCopy()
+        })
+      }
+    },
+    async handleSignatureChange(e: WechatMiniprogram.CustomEvent) {
+      const { currentUser } = this.data;
+      currentUser.signature = e.detail.value;
+      this.setData({ currentUser })
+      await app.changeUserBasic(currentUser);
+    },
+    uploadAvater() {
       wx.chooseImage({
         count: 1,
         sizeType: ['original', 'compressed'],
         sourceType: ['album', 'camera'],
-        success (res) {
+        success(res) {
           const src = res.tempFilePaths[0]
           wx.navigateTo({
             url: `../upload-avatar/upload-avatar?src=${src}`
           })
+        }
+      })
+    },
+    quitLogin() {
+      wx.showModal({
+        title: '提示',
+        content: '确定退出登录？',
+        success(res) {
+          if (res.confirm) {
+            wx.reLaunch({
+              url: '/pages/login/login'
+            })
+          }
         }
       })
     }
