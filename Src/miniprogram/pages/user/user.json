@@ -10,6 +10,8 @@
     "t-input": "tdesign-miniprogram/input/input",
     "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",
     "t-radio": "tdesign-miniprogram/radio/radio",
+    "t-grid": "tdesign-miniprogram/grid/grid",
+    "t-grid-item": "tdesign-miniprogram/grid-item/grid-item",
     "t-avatar": "tdesign-miniprogram/avatar/avatar"
   }
 }
