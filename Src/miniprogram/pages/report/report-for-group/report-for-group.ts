@@ -38,7 +38,7 @@ Component({
   },
   observers: {     
     'currentTour, currentTourCopyIndex': function (currentTour, currentTourCopyIndex) {
-      if (currentTour && currentTourCopyIndex !== undefined) {
+      if (currentTour !== undefined && currentTourCopyIndex !== undefined) {
         // 参数就绪后执行初始化
         this.onLoad();
       }
@@ -71,13 +71,14 @@ Component({
  
   methods: {
     onLoad(){
+      console.log("onload执行")
       // const tourId = options.tourId;
       // const currentTourCopyIndex = options.currentTourCopyIndex
       // this.setData({
       //   currentTour: app.getTour(parseInt(tourId)) as Tour,
       //   currentTourCopyIndex: currentTourCopyIndex
       // })
-     // console.log(this.properties.currentTour)
+      // console.log("currTourin onload",this.properties.currentTour)
       this.initReport(this.properties.currentTour,this.properties.currentTourCopyIndex);
       this.initCharts();
     },
@@ -153,7 +154,11 @@ Component({
       })
     },
     initReport(value:any,copyIndex:number){
-    //  console.log("beforeinitReport",this.properties.currentTour,this.properties.currentTourCopyIndex)
+      console.log("beforeinitReport",this.properties.currentTour,this.properties.currentTourCopyIndex)
+      if (!value || typeof value !== 'object') {
+        console.error("Invalid tour data provided:", value);
+        return; // 或者设置默认值
+      }
       const currentTour = new Tour(value);
       
       const reporter = new Reporter(currentTour,copyIndex);

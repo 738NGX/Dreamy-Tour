@@ -38,7 +38,7 @@ export class Reporter {
   locationList: ExpenseItemList[];
 
   //分成员列表
-  userList: ExpenseItemList[];
+ // userList: ExpenseItemList[];
 
   // 地图路径
   markers: any[] = [];
@@ -69,12 +69,12 @@ export class Reporter {
     this.budgetList = Array(10).fill(null).map(() =>
       new ExpenseItemList(this.mainCurrency, this.subCurrency)
     );
-    this.locationList = Array(tour.locations.length).fill(null).map(() =>
+    this.locationList = Array(tour.locations[copyIndex].length).fill(null).map(() =>
       new ExpenseItemList(this.mainCurrency, this.subCurrency)
     );
-    this.userList = Array(tour.users.length).fill(null).map(() =>
-      new ExpenseItemList(this.mainCurrency, this.subCurrency)
-    )
+    // this.userList = Array(tour.users.length).fill(null).map(() =>
+    //   new ExpenseItemList(this.mainCurrency, this.subCurrency)
+    // )
 
     this.expenseCalculator = new ExpenseCalculator();
     this.expenseCalculator.setUsers(this.tourData.users);
@@ -85,6 +85,7 @@ export class Reporter {
   }
 
   private dealLocations(copyIndex: number) {
+    console.log("tourDataindealLocations",this.tourData)
     const rate = this.currencyExchangeRate;
 
     for (const location of this.tourData.locations[copyIndex]) {
@@ -103,8 +104,8 @@ export class Reporter {
         //平均存入budgetlist
       for (const expense of location.expenses) {
     
-        const userNumForCalc = expense.user && expense.amountType == AmountType.Average ? expense.user.length : 1;
-        const budgetNumForCalc = expense.budget ? expense.budget.length : 1;
+        const userNumForCalc = expense.user?.length && expense.amountType == AmountType.Average ? expense.user.length : 1;
+        const budgetNumForCalc = expense.budget?.length ? expense.budget.length : 1;
 
         if (expense.currency === this.mainCurrency) {
 
@@ -119,36 +120,43 @@ export class Reporter {
           );
           this.expenseCalculator.total.addMain(expense.amount * userNumForCalc, rate);
           this.expenseCalculator.totalInType[expense.type].addMain(expense.amount * userNumForCalc, rate);
-          let budgets = new Set(expense.budget)
-          for(let budget of budgets){
-            this.expenseCalculator.totalInBudget[budget].addMain(expense.amount * userNumForCalc / budgetNumForCalc, rate);
-            this.budgetList[budget].data.push(new ExpenseItem(
-              expense.amount * userNumForCalc / budgetNumForCalc,
-              0,
-              rate,
-              expense.title,
-              location.title,
-              formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
-              expense.type,
-            ));
-          //总价平均分摊给每个参与成员
-          for(const userId of expense.user){
-            const userIndex = this.tourData.users.indexOf(userId);
-            const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
-            this.expenseCalculator.totalInUser[userIndex].addMain(userAmount,rate)
-            this.userList[userIndex].data.push(new ExpenseItem(
-              userAmount,
-              0,
-              rate,
-              expense.title,
-              location.title,
-              formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
-              expense.type,
-            ));
+          
+          if (expense.budget && expense.budget.length > 0) {
+            const budgets = new Set(expense.budget)
+            for(let budget of budgets){
+              this.expenseCalculator.totalInBudget[budget].addMain(expense.amount * userNumForCalc / budgetNumForCalc, rate);
+              this.budgetList[budget].data.push(new ExpenseItem(
+                expense.amount * userNumForCalc / budgetNumForCalc,
+                0,
+                rate,
+                expense.title,
+                location.title,
+                formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
+                expense.type,
+              ));
+            }
           }
+
+          //总价平均分摊给每个参与成员
+          if (expense.user && expense.user.length > 0) {
+            for(const userId of expense.user){
+              const userIndex = this.tourData.users.indexOf(userId);
+              const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
+              this.expenseCalculator.totalInUser[userIndex].addMain(userAmount,rate)
+              // this.userList[userIndex].data.push(new ExpenseItem(
+              //   userAmount,
+              //   0,
+              //   rate,
+              //   expense.title,
+              //   location.title,
+              //   formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
+              //   expense.type,
+              // ));
+            }
+          }
+
           this.typeList[expense.type].data.push(expenseItem);
           this.locationList[location.index].data.push(expenseItem);
-          }
         }
         else {
           const expenseItem = new ExpenseItem(
@@ -163,33 +171,38 @@ export class Reporter {
 
           this.expenseCalculator.total.addSub(expense.amount * userNumForCalc, rate);
           this.expenseCalculator.totalInType[expense.type].addSub(expense.amount * userNumForCalc, rate);
-          let budgets = new Set(expense.budget)
-          for(let budget of budgets){
-            this.expenseCalculator.totalInBudget[budget].addSub(expense.amount * userNumForCalc / budgetNumForCalc, rate);
-            this.budgetList[budget].data.push(new ExpenseItem(
-                0,
-                expense.amount * userNumForCalc / budgetNumForCalc,
-                rate,
-                expense.title,
-                location.title,
-                formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
-                expense.type,
-              ));
+          
+          if (expense.budget && expense.budget.length > 0) {
+            let budgets = new Set(expense.budget)
+            for(let budget of budgets){
+              this.expenseCalculator.totalInBudget[budget].addSub(expense.amount * userNumForCalc / budgetNumForCalc, rate);
+              this.budgetList[budget].data.push(new ExpenseItem(
+                  0,
+                  expense.amount * userNumForCalc / budgetNumForCalc,
+                  rate,
+                  expense.title,
+                  location.title,
+                  formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
+                  expense.type,
+                ));
+            }
           }
 
-          for(const userId of expense.user){
-            const userIndex = this.tourData.users.indexOf(userId);
-            const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
-            this.expenseCalculator.totalInUser[userIndex].addSub(userAmount,rate)
-            this.userList[userIndex].data.push(new ExpenseItem(
-              0,
-              userAmount,
-              rate,
-              expense.title,
-              location.title,
-              formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
-              expense.type,
-            ));
+          if (expense.user && expense.user.length > 0) {
+            for(const userId of expense.user){
+              const userIndex = this.tourData.users.indexOf(userId);
+              const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
+              this.expenseCalculator.totalInUser[userIndex].addSub(userAmount,rate)
+              // this.userList[userIndex].data.push(new ExpenseItem(
+              //   0,
+              //   userAmount,
+              //   rate,
+              //   expense.title,
+              //   location.title,
+              //   formatDate(this.tourData.startDate + location.startOffset, location.timeOffset),
+              //   expense.type,
+              // ));
+            }
           }
          
           this.typeList[expense.type].data.push(expenseItem);
@@ -242,14 +255,14 @@ export class Reporter {
             const userIndex = this.tourData.users.indexOf(userId);
             const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
             this.expenseCalculator.totalInUser[userIndex].addMain(userAmount,rate)
-            this.userList[userIndex].data.push(new ExpenseItem(
-              0,
-              userAmount,
-              rate,
-              expense.title,
-              '',
-              formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
-            ));
+            // this.userList[userIndex].data.push(new ExpenseItem(
+            //   0,
+            //   userAmount,
+            //   rate,
+            //   expense.title,
+            //   '',
+            //   formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
+            // ));
           }
         }
         else {
@@ -285,14 +298,14 @@ export class Reporter {
             const userIndex = this.tourData.users.indexOf(userId);
             const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
             this.expenseCalculator.totalInUser[userIndex].addSub(userAmount,rate)
-            this.userList[userIndex].data.push(new ExpenseItem(
-              0,
-              userAmount,
-              rate,
-              expense.title,
-              '',
-              formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
-            ));
+            // this.userList[userIndex].data.push(new ExpenseItem(
+            //   0,
+            //   userAmount,
+            //   rate,
+            //   expense.title,
+            //   '',
+            //   formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
+            // ));
           }
         }
       }
@@ -309,9 +322,9 @@ export class Reporter {
     for (const list of this.locationList) {
       list.update();
     }
-    for (const list of this.userList){
-      list.update();
-    }
+    // for (const list of this.userList){
+    //   list.update();
+    // }
   }
 }
 

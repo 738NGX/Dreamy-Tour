@@ -30,6 +30,7 @@ Component({
       this.setData({ currentTour, dateRange, copyOptions,
         currentTourId:tourId
        });
+       //console.log("currentTourInViewer",currentTour)
     },
     getDateRange(startTimestamp: number, endTimestamp: number): number[][] {
       const startDate = new Date(startTimestamp);
@@ -64,7 +65,7 @@ Component({
       wx.navigateTo({
         url:`/pages/report/report?tourId=${this.data.currentTourId}&currentTourCopyIndex=${this.data.currentCopyIndex}&showUserReport=${this.data.showUserReport}`
       })
-    //  console.log(this.data.showUserReport,"tiaozhuan")
+     // console.log(this.data.showUserReport,"tiaozhuan")
     }
   }
 })

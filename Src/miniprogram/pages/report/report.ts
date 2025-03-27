@@ -51,8 +51,8 @@ Component({
         currentTourCopyIndex: currentTourCopyIndex,
         showUserReport: showUserReport
       })
-      console.log(this.data.showUserReport)
-     // console.log("currenttourinreport",this.data.currentTour)
+     // console.log(this.data.showUserReport)
+     console.log("currenttourinreport",this.data.currentTour)
     },
     onChildPageChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({ childPage: e.detail.value })
