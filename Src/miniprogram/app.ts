@@ -397,7 +397,28 @@ App<IAppOption>({
   },
   async createPost(channelId: number, title: string, content: string, originFiles: File[]): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        const channelId = 1;
+        await HttpUtil.post({
+          url: "/post",
+          jsonData: {
+            title,
+            content,
+            channelId: channelId.toString(),
+            pictures: await Promise.all(originFiles.map(async (file) => await getImageBase64(file.url)))
+          }
+        });
+        return true;
+      } catch (err: any) {
+        if (err.status == 400) {
+          wx.showToast({
+            title: (err.response.data.msg as string).slice(5),
+            icon: 'none',
+            time: 2000,
+          });
+        }
+        return false;
+      }
     } else {
       if (title !== null && content !== null) {
         if (title.length === 0) {
