@@ -74,6 +74,8 @@ Component({
     structedComments: [] as StructedComment[],
     commentsSortType: '热度排序',
 
+    optionsVisible:false,
+
     repliesVisible: false,
     repliesParent: -1,
     replies: [] as StructedComment[],
@@ -258,6 +260,11 @@ Component({
           icon: 'none'
         });
       }
+    },
+    onOptionsVisibleChange(){
+      this.setData({
+        optionsVisible: !this.data.optionsVisible,
+      })
     },
     handleCommentInput() {
       this.setData({ inputVisible: true, inputMode: InputMode.Comment });

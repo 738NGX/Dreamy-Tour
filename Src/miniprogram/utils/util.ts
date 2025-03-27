@@ -203,7 +203,7 @@ export function formatPostTimeInList(timestamp: number): string {
   const now = new Date();
   const target = new Date(timestamp);
   const diffSeconds = Math.floor((now.getTime() - timestamp) / 1000);
-
+  const currentYear = now.getFullYear();
   if (diffSeconds < 3) {
     return `刚刚`;
   }
@@ -230,8 +230,10 @@ export function formatPostTimeInList(timestamp: number): string {
   if (diffDays < 7) {
     return `${diffDays}天前`;
   }
-
+  if (target.getFullYear() == currentYear)
   return `${(target.getMonth() + 1).toString().padStart(2, '0')}-${target.getDate().toString().padStart(2, '0')}`;
+  
+  return `${target.getFullYear().toString()}-${(target.getMonth() + 1).toString().padStart(2, '0')}-${target.getDate().toString().padStart(2, '0')}`;
 }
 
 export function isSameDay(date1: number, date2: number): boolean {

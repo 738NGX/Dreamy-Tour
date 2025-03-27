@@ -40,8 +40,13 @@
   font-family: Microsoft YaHei !important;
   font-weight:500;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.t-tag{
+  height:40rpx !important;
+  margin-bottom:10rpx;
 }
 
 .post-meta {
@@ -49,6 +54,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
+  margin-top:-10rpx;
   // border-top: 1px solid #f0f0f0;
   font-size: 14px;
   color: #666;
@@ -62,7 +68,7 @@
 }
 
 .username {
-  color:rgba(0, 0, 0, 0.927);
+  color: var(--td-font-gray-1, rgba(0, 0, 0, 0.9));
   flex-grow: 1;
   font-weight:500;
 }
