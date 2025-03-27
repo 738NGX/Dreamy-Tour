@@ -12,6 +12,8 @@ export interface IPost {
 export type PostCard = Post & {
   username: string;
   avatarUrl: string;
+  timeStr: string;
+  isLiked: boolean;
 }
 
 export class Post implements IPost {

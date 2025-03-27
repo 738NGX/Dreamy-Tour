@@ -31,7 +31,7 @@ Component({
             {
                 value: '/pages/user/user',
                 icon: 'user-1',
-                label: '用户'
+                label: '我的'
             },
         ]
     },

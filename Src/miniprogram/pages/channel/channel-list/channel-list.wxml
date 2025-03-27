@@ -1,5 +1,5 @@
 <view class="example-search">
-  <t-search placeholder="搜索频道" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" />
+  <t-search placeholder="搜索频道" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" shape="round" style="height:60rpx"/>
 </view>
 <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
   <block wx:for="{{channelList}}" wx:key="index" wx:for-index="i">
