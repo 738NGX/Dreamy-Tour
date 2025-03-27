@@ -27,10 +27,10 @@
           <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">每日签到经验+5/次</text>
         </t-grid-item>
         <t-grid-item t-class-image="image" text="参与频道讨论" icon="chat-checked">
-          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">发布帖子经验+10/次\n发布评论经验+3/次</text>
+          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">发布帖子经验+30/次\n发布评论经验+10/次</text>
         </t-grid-item>
         <t-grid-item t-class-image="image" text="完成一次行程" icon="map-checked">
-          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">组织者经验+50/次\n参与者经验+20/次</text>
+          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">组织者经验+80/次\n参与者经验+50/次</text>
         </t-grid-item>
       </t-grid>
       <c-collapse header="个人信息">
@@ -57,9 +57,9 @@
         <t-button style="width:100%; margin-top:20rpx;" bind:tap="handleUserBasicReset">取消修改</t-button>
       </c-collapse>
       <c-collapse wx:if="{{isTestMode}}" header="切换演示账号">
-        <t-cell class="narrow-cell" bind:click="changeTestUser" wx:for="{{testUserList}}" wx:key="id" title="{{item.name}}" data-index="{{item.id}}" arrow hover>
-          <t-avatar slot="left-icon" image="{{item.avatarUrl}}" style="margin:10rpx 0rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.name[0] }}</t-avatar>
-        </t-cell>
+        <t-grid column="{{5}}" hover>
+          <t-grid-item data-index="{{item.id}}" bind:click="changeTestUser" t-class-image="image" text="{{item.name}}" wx:for="{{testUserList}}" wx:key="id" icon="{{item.avatarUrl ? '' : 'user-1'}}" image="{{item.avatarUrl}}"/>
+        </t-grid>
       </c-collapse>
       <c-collapse header="选项设置">
         <t-cell left-icon="{{isDarkMode?'mode-dark':'mode-light'}}" class="narrow-cell" bordered="{{false}}" title="{{isDarkMode?'深色主题':'浅色主题'}}已启用" description="应用主题默认跟随系统主题"/>

@@ -139,7 +139,6 @@ export const niji7th = {
           amount: 2200,
           currency: Currency.JPY,
           type: ExpenseType.Meal,
-          budget: [3, 5],
           user: [1, 5],
           note: "吃不完要额外收费"
         }
@@ -153,6 +152,17 @@ export const niji7th = {
       timeOffset: -540,
       longitude: 139.662242,
       latitude: 35.284192,
+      expenses: [
+        {
+          index: 0,
+          title: "横须贺军舰游览",
+          amount: 1800,
+          currency: Currency.JPY,
+          type: ExpenseType.Ticket,
+          user: [1, 5],
+          note: ""
+        }
+      ]
     },
     {
       index: 8,
@@ -162,6 +172,17 @@ export const niji7th = {
       timeOffset: -540,
       longitude: 139.673979,
       latitude: 35.285844,
+      expenses: [
+        {
+          index: 0,
+          title: "三笠公园门票",
+          amount: 600,
+          currency: Currency.JPY,
+          type: ExpenseType.Ticket,
+          user: [1, 5],
+          note: ""
+        }
+      ]
     },
     {
       index: 9,
@@ -180,6 +201,17 @@ export const niji7th = {
       timeOffset: -540,
       longitude: 139.622968,
       latitude: 35.466316,
+      expenses: [
+        {
+          index: 0,
+          title: "花丸乌冬",
+          amount: 800,
+          currency: Currency.JPY,
+          type: ExpenseType.Meal,
+          user: [1, 5],
+          note: ""
+        }
+      ]
     },
     {
       index: 11,
@@ -198,6 +230,26 @@ export const niji7th = {
       timeOffset: -540,
       longitude: 139.630450,
       latitude: 35.464577,
+      expenses: [
+        {
+          index: 0,
+          title: "矿泉水",
+          amount: 118,
+          currency: Currency.JPY,
+          type: ExpenseType.Meal,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 1,
+          title: "前夜祭门票",
+          amount: 800,
+          currency: Currency.JPY,
+          type: ExpenseType.Ticket,
+          user: [1, 5],
+          note: ""
+        }
+      ]
     },
     {
       index: 13,
@@ -207,6 +259,26 @@ export const niji7th = {
       timeOffset: -540,
       longitude: 139.637209,
       latitude: 35.457829,
+      expenses: [
+        {
+          index: 0,
+          title: "矿泉水",
+          amount: 100,
+          currency: Currency.JPY,
+          type: ExpenseType.Meal,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 1,
+          title: "横滨洲际",
+          amount: 497.15,
+          currency: Currency.CNY,
+          type: ExpenseType.Hotel,
+          user: [1, 5],
+          note: ""
+        }
+      ]
     },
     {
       index: 14,
@@ -216,6 +288,26 @@ export const niji7th = {
       timeOffset: -540,
       longitude: 139.771433,
       latitude: 35.625825,
+      expenses: [
+        {
+          index: 0,
+          title: "虹咲完结篇一电影票",
+          amount: 85.5,
+          currency: Currency.CNY,
+          type: ExpenseType.Ticket,
+          user: [1, 5],
+          note: ""
+        },
+        {
+          index: 1,
+          title: "猪排定食",
+          amount: 1045,
+          currency: Currency.JPY,
+          type: ExpenseType.Meal,
+          user: [1, 5],
+          note: ""
+        }
+      ]
     },
     {
       index: 15,
@@ -225,6 +317,125 @@ export const niji7th = {
       timeOffset: -540,
       longitude: 139.772998,
       latitude: 35.698491,
+      expenses: [
+        {
+          index: 0,
+          title: "2021水费",
+          amount: 500,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 1,
+          title: "璃奈小卡*2",
+          amount: 290,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 2,
+          title: "2023水费",
+          amount: 500,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 3,
+          title: "2019水费",
+          amount: 2000,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 4,
+          title: "2元碟集合",
+          amount: 450,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 5,
+          title: "音乐剧cd",
+          amount: 1980,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: "给mmk带"
+        },
+        {
+          index: 6,
+          title: "缪一专",
+          amount: 2000,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 7,
+          title: "缪一专",
+          amount: 2000,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: "给消除带"
+        },
+        {
+          index: 8,
+          title: "缪一期ost",
+          amount: 693,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 9,
+          title: "lldays2024.6",
+          amount: 700,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 10,
+          title: "亚巡cd",
+          amount: 900,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 11,
+          title: "亚巡cd",
+          amount: 900,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: "给mmk带"
+        },
+        {
+          index: 12,
+          title: "亚巡cd",
+          amount: 200,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: "给希可带"
+        },
+      ]
     },
     {
       index: 16,
@@ -234,6 +445,44 @@ export const niji7th = {
       timeOffset: -540,
       longitude: 139.630666,
       latitude: 35.464573,
+      expenses: [
+        {
+          index: 0,
+          title: "虹7th Day1 门票",
+          amount: 570,
+          currency: Currency.CNY,
+          type: ExpenseType.Ticket,
+          user: [1, 5, 9],
+          note: ""
+        },
+        {
+          index: 1,
+          title: "矿泉水",
+          amount: 120,
+          currency: Currency.JPY,
+          type: ExpenseType.Meal,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 3,
+          title: "场刊",
+          amount: 3500,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1, 5, 9],
+          note: ""
+        },
+        {
+          index: 4,
+          title: "场刊",
+          amount: 3500,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: "给mmk带"
+        },
+      ]
     },
     {
       index: 17,
@@ -243,6 +492,26 @@ export const niji7th = {
       timeOffset: -540,
       longitude: 139.696840,
       latitude: 35.531371,
+      expenses: [
+        {
+          index: 0,
+          title: "川崎天空之心",
+          amount: 372,
+          currency: Currency.CNY,
+          type: ExpenseType.Hotel,
+          user: [1, 5, 9],
+          note: ""
+        },
+        {
+          index: 1,
+          title: "川崎吉野家",
+          amount: 900,
+          currency: Currency.JPY,
+          type: ExpenseType.Meal,
+          user: [1, 5, 9],
+          note: ""
+        }
+      ]
     },
     {
       index: 18,
@@ -252,6 +521,35 @@ export const niji7th = {
       timeOffset: -540,
       longitude: 139.779078,
       latitude: 35.627694,
+      expenses: [
+        {
+          index: 0,
+          title: "电讯中心观景台",
+          amount: 500,
+          currency: Currency.JPY,
+          type: ExpenseType.Ticket,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 1,
+          title: "牛肉饭",
+          amount: 980,
+          currency: Currency.JPY,
+          type: ExpenseType.Meal,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 2,
+          title: "矿泉水",
+          amount: 140,
+          currency: Currency.JPY,
+          type: ExpenseType.Meal,
+          user: [1],
+          note: ""
+        }
+      ]
     },
     {
       index: 19,
@@ -261,6 +559,26 @@ export const niji7th = {
       timeOffset: -540,
       longitude: 139.630679,
       latitude: 35.464501,
+      expenses: [
+        {
+          index: 0,
+          title: "虹7th Day2 门票",
+          amount: 570,
+          currency: Currency.CNY,
+          type: ExpenseType.Ticket,
+          user: [1, 5, 9],
+          note: ""
+        },
+        {
+          index: 1,
+          title: "川崎寿司郎",
+          amount: 50,
+          currency: Currency.CNY,
+          type: ExpenseType.Meal,
+          user: [1, 5, 9],
+          note: ""
+        }
+      ]
     },
     {
       index: 20,
@@ -270,6 +588,26 @@ export const niji7th = {
       timeOffset: -540,
       longitude: 139.784460,
       latitude: 35.548252,
+      expenses: [
+        {
+          index: 0,
+          title: "矿泉水*2",
+          amount: 280,
+          currency: Currency.JPY,
+          type: ExpenseType.Meal,
+          user: [1],
+          note: ""
+        },
+        {
+          index: 1,
+          title: "白色恋人",
+          amount: 4800,
+          currency: Currency.JPY,
+          type: ExpenseType.Shopping,
+          user: [1],
+          note: "两盒18 一盒24"
+        }
+      ]
     },
     {
       index: 21,
@@ -596,6 +934,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1],
           note: "秋叶原下"
         },
       ]
@@ -612,6 +951,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5],
           note: "横滨下"
         },
       ]
@@ -628,6 +968,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5, 9],
           note: ""
         },
       ]
@@ -644,6 +985,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1],
           note: ""
         },
       ]
@@ -660,6 +1002,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1],
           note: ""
         },
         {
@@ -669,6 +1012,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1],
           note: ""
         },
         {
@@ -678,6 +1022,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1],
           note: ""
         },
       ]
@@ -694,6 +1039,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1, 5, 9],
           note: ""
         },
         {
@@ -703,6 +1049,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
+          user: [1],
           note: ""
         },
       ]
@@ -719,6 +1066,7 @@ export const niji7th = {
           currency: Currency.CNY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Flight,
+          user: [1],
           note: ""
         },
       ]
@@ -735,6 +1083,7 @@ export const niji7th = {
           currency: Currency.CNY,
           type: ExpenseType.Transportation,
           transportType: TransportType.Taxi,
+          user: [1],
           note: ""
         },
       ]
