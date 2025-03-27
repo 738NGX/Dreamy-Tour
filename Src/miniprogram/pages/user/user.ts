@@ -9,6 +9,7 @@ Component({
   },
   data: {
     isTestMode: app.globalData.testMode,
+    isDarkMode: wx.getSystemInfoSync().theme == 'dark',
     testUserList: [] as UserBasic[],
     currentUser: {} as UserBasic,
     userGroup: '',
@@ -16,6 +17,14 @@ Component({
     expLabel: '',
   },
   methods: {
+    onLoad(){
+      wx.onThemeChange((res) => {
+        this.setData({
+          isDarkMode: res.theme == 'dark'
+        });
+        console.log('当前主题：', res.theme)
+      });
+    },
     onShow() {
       this.setData({
         currentUser: app.currentUser(),

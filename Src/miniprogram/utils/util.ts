@@ -196,42 +196,7 @@ export function formatPostTime(timestamp: number): string {
     return `${diffDays}天前`;
   }
 
-  return `${target.getFullYear()}/${(target.getMonth() + 1).toString().padStart(2, '0')}/${target.getDate().toString().padStart(2, '0')}`;
-}
-
-export function formatPostTimeInList(timestamp: number): string {
-  const now = new Date();
-  const target = new Date(timestamp);
-  const diffSeconds = Math.floor((now.getTime() - timestamp) / 1000);
-
-  if (diffSeconds < 3) {
-    return `刚刚`;
-  }
-
-  if (diffSeconds < 60) {
-    return `${diffSeconds}秒前`;
-  }
-
-  const diffMinutes = Math.floor(diffSeconds / 60);
-  if (diffMinutes < 60) {
-    return `${diffMinutes}分钟前`;
-  }
-
-  const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) {
-    return `${diffHours}小时前`;
-  }
-
-  const diffDays = Math.floor(diffHours / 24);
-  if (diffDays === 1) {
-    return `昨天${target.getHours().toString().padStart(2, '0')}:${target.getMinutes().toString().padStart(2, '0')}`;
-  }
-
-  if (diffDays < 7) {
-    return `${diffDays}天前`;
-  }
-
-  return `${(target.getMonth() + 1).toString().padStart(2, '0')}-${target.getDate().toString().padStart(2, '0')}`;
+  return `${target.getFullYear()}-${(target.getMonth() + 1).toString().padStart(2, '0')}-${target.getDate().toString().padStart(2, '0')}`;
 }
 
 export function isSameDay(date1: number, date2: number): boolean {

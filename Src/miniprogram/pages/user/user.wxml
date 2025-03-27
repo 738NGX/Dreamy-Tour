@@ -24,13 +24,13 @@
       <t-progress style="margin: 0 30rpx 30rpx 30rpx;" theme="plump" color="{{ {  from: '#0052D9', to: '#48c6ef' } }}" label="{{expLabel}}" percentage="{{expPercentage}}" />
       <t-grid column="{{3}}">
         <t-grid-item t-class-image="image" text="每日签到" icon="assignment-checked">
-          <text slot="description" style="margin-top:10rpx; color:rgba(0,0,0,0.4); font-size:22rpx;">每日签到经验+5/次</text>
+          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">每日签到经验+5/次</text>
         </t-grid-item>
         <t-grid-item t-class-image="image" text="参与频道讨论" icon="chat-checked">
-          <text slot="description" style="margin-top:10rpx; color:rgba(0,0,0,0.4); font-size:22rpx;">发布帖子经验+10/次\n发布评论经验+3/次</text>
+          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">发布帖子经验+10/次\n发布评论经验+3/次</text>
         </t-grid-item>
         <t-grid-item t-class-image="image" text="完成一次行程" icon="map-checked">
-          <text slot="description" style="margin-top:10rpx; color:rgba(0,0,0,0.4); font-size:22rpx;">组织者经验+50/次\n参与者经验+20/次</text>
+          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">组织者经验+50/次\n参与者经验+20/次</text>
         </t-grid-item>
       </t-grid>
       <c-collapse header="个人信息">
@@ -62,20 +62,22 @@
         </t-cell>
       </c-collapse>
       <c-collapse header="选项设置">
-        <t-button theme="danger" style="width:100%;" bind:tap="quitLogin">退出登录</t-button>
+        <t-cell left-icon="{{isDarkMode?'mode-dark':'mode-light'}}" class="narrow-cell" bordered="{{false}}" title="{{isDarkMode?'深色主题':'浅色主题'}}已启用" description="应用主题默认跟随系统主题"/>
+        <t-button theme="danger" style="width:90%; margin:30rpx" bind:tap="quitLogin">退出登录</t-button>
       </c-collapse>
       <c-collapse header="关于我们">
+        <t-cell left-icon="history" class="narrow-cell" bordered="{{false}}" title="当前版本" note="1.0.0"/>
         <t-cell data-index="0" bind:click="copyInfo" left-icon="logo-github" class="narrow-cell" bordered="{{false}}" title="Github仓库地址" description="738NGX/Dreamy-Tour" hover arrow />
         <t-cell left-icon="code" class="narrow-cell" bordered="{{false}}" title="开发者" />
         <t-grid column="{{3}}" hover>
           <t-grid-item data-index="1" bind:click="copyInfo" t-class-image="image" text="738NGX" image="https://avatars.githubusercontent.com/u/79038651?v=4">
-            <text slot="description" style="margin-top:6rpx; color:rgba(0,0,0,0.4); font-size:22rpx;">Ningyue Ji\nFrom SCAI, SUFE</text>
+            <text slot="description" style="margin-top:6rpx; color:#aaa; font-size:22rpx;">Ningyue Ji\nFrom SCAI, SUFE</text>
           </t-grid-item>
           <t-grid-item data-index="2" bind:click="copyInfo" t-class-image="image" text="Franctoryer" image="https://avatars.githubusercontent.com/u/131339494?v=4">
-            <text slot="description" style="margin-top:6rpx; color:rgba(0,0,0,0.4); font-size:22rpx;">Litao Zhu\nFrom SCAI, SUFE</text>
+            <text slot="description" style="margin-top:6rpx; color:#aaa; font-size:22rpx;">Litao Zhu\nFrom SCAI, SUFE</text>
           </t-grid-item>
           <t-grid-item data-index="3" bind:click="copyInfo" t-class-image="image" text="Choihyobin111" image="https://avatars.githubusercontent.com/u/179166711?v=4">
-            <text slot="description" style="margin-top:6rpx; color:rgba(0,0,0,0.4); font-size:22rpx;">Yule Chen\nFrom SCAI, SUFE</text>
+            <text slot="description" style="margin-top:6rpx; color:#aaa; font-size:22rpx;">Yule Chen\nFrom SCAI, SUFE</text>
           </t-grid-item>
         </t-grid>
       </c-collapse>

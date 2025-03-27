@@ -16,19 +16,19 @@
   width: 100%;
   margin-bottom: 10px;
   background: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));
-  border-radius: 2px;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 8rpx;
+  box-shadow: 0 2rpx 2rpx rgba(0, 0, 0, 0.1);
   overflow: hidden;
   break-inside: avoid;
 }
 
 .post-card:active {
-  background-color: #eee !important;
+  background-color: var(--bg-color-container-active) !important;
 }
 
 .post-image {
   width: 100%;
-  border-radius: 8px 8px 0 0;
+  border-radius: 8rpx 8rpx 0 0;
 }
 
 .post-info {
@@ -62,7 +62,7 @@
 }
 
 .username {
-  color:rgba(0, 0, 0, 0.927);
+  color: var(--td-text-color-primary);
   flex-grow: 1;
   font-weight:500;
 }
