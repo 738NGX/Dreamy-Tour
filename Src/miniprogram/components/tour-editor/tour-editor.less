@@ -1,7 +1,7 @@
 @import url('../../components/fonts/transportation.less');
 
 .location {
-    background-color: #fff;
+    background-color: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));
     border-radius: 20rpx;
     border: 6rpx solid #0052d9;
     padding: 10rpx;
@@ -17,7 +17,7 @@
     display: flex;
     justify-content: flex-start;
     flex-wrap: wrap;
-    background-color: var(--td-bg-color-container, #fff);
+    background-color: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));
 }
 
 .box2 {
@@ -25,11 +25,11 @@
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    background-color: var(--td-bg-color-container, #fff);
+    background-color: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));
 }
 
 .transportation {
-    background-color: #fff;
+    background-color: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));
     border-radius: 20rpx;
     border: 6rpx solid #0052d9;
     padding: 10rpx;
@@ -109,7 +109,7 @@
 }
 
 .card__icon {
-    color: var(--td-bg-color-container, #fff);
+    color: #fff;
     position: absolute;
     left: 1.5px;
     top: 1.5px;

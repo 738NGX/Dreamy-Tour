@@ -1,5 +1,6 @@
 /**app.wxss**/
 @import url('./components/fonts/transportation.less');
+@import 'miniprogram_npm/tdesign-miniprogram/common/style/theme/_index.wxss';
 
 page {
     height: 100vh;
@@ -65,7 +66,7 @@ page {
 }
 
 .card {
-    background-color: #fff;
+    background-color: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));;
     border-radius: 10rpx;
     margin: 10rpx;
     padding: 10rpx;

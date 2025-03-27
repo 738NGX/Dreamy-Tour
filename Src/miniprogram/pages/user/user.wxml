@@ -42,7 +42,7 @@
         </t-input>
         <view class="narrow-input" style="font-size:32rpx; padding:10rpx;">
           <view style="margin-right:32rpx;">昵称</view>
-          <input type="nickname" value="{{currentUser.name}}" maxlength="{{15}}" bindchange="handleNickNameChange" bindblur="handleNickNameBlur" placeholder-style="input-placeholder" bind:blur="handleNickNameChange" placeholder="请输入昵称" />
+          <input type="nickname" value="{{currentUser.name}}" maxlength="{{15}}" bindchange="handleNickNameChange" placeholder-style="input-placeholder" bind:blur="handleNickNameChange" placeholder="请输入昵称" />
         </view>
         <view class="narrow-input" style="font-size:32rpx; padding:10rpx;">
           <view style="margin-right:32rpx;">性别</view>
@@ -53,6 +53,8 @@
           </t-radio-group>
         </view>
         <t-input class="narrow-input" bind:blur="handleSignatureChange" label="签名" placeholder="请输入个性签名" maxlength="{{30}}" value="{{currentUser.signature}}" />
+        <t-button theme="primary" style="width:100%;" bind:tap="handleUserBasicChange">确认修改</t-button>
+        <t-button style="width:100%; margin-top:20rpx;" bind:tap="handleUserBasicReset">取消修改</t-button>
       </c-collapse>
       <c-collapse wx:if="{{isTestMode}}" header="切换演示账号">
         <t-cell class="narrow-cell" bind:click="changeTestUser" wx:for="{{testUserList}}" wx:key="id" title="{{item.name}}" data-index="{{item.id}}" arrow hover>
@@ -63,12 +65,18 @@
         <t-button theme="danger" style="width:100%;" bind:tap="quitLogin">退出登录</t-button>
       </c-collapse>
       <c-collapse header="关于我们">
-        <t-cell left-icon="logo-github" class="narrow-cell" bordered="{{false}}" title="Github仓库地址" description="738NGX/Dreamy-Tour" hover arrow/>
+        <t-cell data-index="0" bind:click="copyInfo" left-icon="logo-github" class="narrow-cell" bordered="{{false}}" title="Github仓库地址" description="738NGX/Dreamy-Tour" hover arrow />
         <t-cell left-icon="code" class="narrow-cell" bordered="{{false}}" title="开发者" />
-        <t-grid column="{{3}}">
-          <t-grid-item t-class-image="image" text="@738NGX" description="From SCAI, SUFE" image="https://avatars.githubusercontent.com/u/79038651?v=4"/>
-          <t-grid-item t-class-image="image" text="@Franctoryer" description="From SCAI, SUFE" image="https://avatars.githubusercontent.com/u/131339494?v=4"/>
-          <t-grid-item t-class-image="image" text="@Choihyobin111" description="From SCAI, SUFE" image="https://avatars.githubusercontent.com/u/179166711?v=4"/>
+        <t-grid column="{{3}}" hover>
+          <t-grid-item data-index="1" bind:click="copyInfo" t-class-image="image" text="738NGX" image="https://avatars.githubusercontent.com/u/79038651?v=4">
+            <text slot="description" style="margin-top:6rpx; color:rgba(0,0,0,0.4); font-size:22rpx;">Ningyue Ji\nFrom SCAI, SUFE</text>
+          </t-grid-item>
+          <t-grid-item data-index="2" bind:click="copyInfo" t-class-image="image" text="Franctoryer" image="https://avatars.githubusercontent.com/u/131339494?v=4">
+            <text slot="description" style="margin-top:6rpx; color:rgba(0,0,0,0.4); font-size:22rpx;">Litao Zhu\nFrom SCAI, SUFE</text>
+          </t-grid-item>
+          <t-grid-item data-index="3" bind:click="copyInfo" t-class-image="image" text="Choihyobin111" image="https://avatars.githubusercontent.com/u/179166711?v=4">
+            <text slot="description" style="margin-top:6rpx; color:rgba(0,0,0,0.4); font-size:22rpx;">Yule Chen\nFrom SCAI, SUFE</text>
+          </t-grid-item>
         </t-grid>
       </c-collapse>
     </view>

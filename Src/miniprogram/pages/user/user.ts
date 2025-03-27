@@ -71,29 +71,23 @@ Component({
       await app.changeUserBasic(currentUser);
       this.caluculateExp();
     },
-    async handleNickNameChange(e: WechatMiniprogram.CustomEvent) {
+    handleNickNameChange(e: WechatMiniprogram.CustomEvent) {
       const { currentUser } = this.data;
       currentUser.name = e.detail.value;
       this.setData({ currentUser })
-      await app.changeUserBasic(currentUser);
     },
-    async handleGenderChange(e: WechatMiniprogram.CustomEvent) {
+    handleGenderChange(e: WechatMiniprogram.CustomEvent) {
       const { currentUser } = this.data;
       currentUser.gender = e.detail.value;
       this.setData({ currentUser })
-      await app.changeUserBasic(currentUser);
     },
-    async handleNickNameBlur(e: WechatMiniprogram.CustomEvent) {
-      if (!e.detail.value) {
-        wx.showToast({
-          title: '昵称不能为空',
-          icon: 'none',
-          duration: 1000
-        })
-        return;
-      }
+    handleSignatureChange(e: WechatMiniprogram.CustomEvent) {
       const { currentUser } = this.data;
-      currentUser.name = e.detail.value;
+      currentUser.signature = e.detail.value;
+      this.setData({ currentUser })
+    },
+    async handleUserBasicChange() {
+      const { currentUser } = this.data;
       this.setData({ currentUser })
       await app.changeUserBasic(currentUser);
       if(this.data.isTestMode) {
@@ -102,11 +96,10 @@ Component({
         })
       }
     },
-    async handleSignatureChange(e: WechatMiniprogram.CustomEvent) {
-      const { currentUser } = this.data;
-      currentUser.signature = e.detail.value;
-      this.setData({ currentUser })
-      await app.changeUserBasic(currentUser);
+    async handleUserBasicReset() {
+      this.setData({
+        currentUser: app.currentUser(),
+      });
     },
     uploadAvater() {
       wx.chooseImage({
@@ -117,6 +110,25 @@ Component({
           const src = res.tempFilePaths[0]
           wx.navigateTo({
             url: `../upload-avatar/upload-avatar?src=${src}`
+          })
+        }
+      })
+    },
+    copyInfo(e: WechatMiniprogram.CustomEvent){
+      const index = parseInt(e.currentTarget.dataset.index);
+      const linkList = [
+        'https://github.com/738NGX/Dreamy-Tour',
+        'https://github.com/738NGX',
+        'https://github.com/Franctoryer',
+        'https://github.com/Choihyobin111'
+      ]
+      wx.setClipboardData({
+        data: linkList[index],
+        success() {
+          wx.showToast({
+            title: index ? '已复制主页链接' : '已复制仓库链接',
+            icon: 'success',
+            duration: 1000
           })
         }
       })

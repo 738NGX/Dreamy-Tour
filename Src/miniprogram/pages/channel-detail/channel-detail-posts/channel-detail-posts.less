@@ -15,7 +15,7 @@
   display: inline-block;
   width: 100%;
   margin-bottom: 12px;
-  background: #fff;
+  background: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -71,7 +71,7 @@
 }
 
 .example-search {
-  background-color: #fff;
+  background-color: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));;
   padding: 16rpx 32rpx;
 }
 
