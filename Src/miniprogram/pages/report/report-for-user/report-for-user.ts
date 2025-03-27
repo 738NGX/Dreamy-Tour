@@ -67,7 +67,10 @@ Component({
     chartDataInTicket: {},
     chartDataInShopping: {},
 
-    totalTransportCurrency: 0,
+    totalTransportCurrency: '',
+    totalMainCurrency:'',
+    totalSubCurrency:'',
+    totalCurrency:'',
   },
  
   methods: {
@@ -170,7 +173,10 @@ Component({
         chartDataInTicket: reporter.typeList[3].chartData,
         chartDataInShopping: reporter.typeList[4].chartData,
 
-        totalTransportCurrency: totalTransportCurrency,
+        totalMainCurrency: reporter.expenseCalculator.total.mainCurrency.toFixed(2),
+        totalSubCurrency: reporter.expenseCalculator.total.subCurrency.toFixed(2),
+        totalCurrency: reporter.expenseCalculator.total.allCurrency.toFixed(2),
+        totalTransportCurrency: totalTransportCurrency.toFixed(2),
       })
     //  console.log("chartdatainhotel",this.data.chartDataInHotel)
     },

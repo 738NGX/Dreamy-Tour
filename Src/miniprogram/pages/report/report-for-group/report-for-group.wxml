@@ -9,15 +9,15 @@
 
       <view class="row" style="margin:0">
         <view>{{currencyList[reporter.mainCurrency].label}}:</view>
-        <view>{{reporter.expenseCalculator.total.mainCurrency}}</view>
+        <view>{{totalMainCurrency}}</view>
       </view>
       <view class="row" style="margin:0">
         <view>{{currencyList[reporter.subCurrency].label}}:</view>
-        <view>{{reporter.expenseCalculator.total.subCurrency}}</view>
+        <view>{{totalSubCurrency}}</view>
       </view>
       <view class="row" style="margin:0">
         <view style="font-weight:bold;">合计{{currencyList[reporter.mainCurrency].label}}:</view>
-        <view style="font-weight:bold;">{{reporter.expenseCalculator.total.allCurrency}}</view>
+        <view style="font-weight:bold;">{{totalCurrency}}</view>
       </view>
       <view class="row" style="margin:0">
         <view>参考汇率:</view>

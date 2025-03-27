@@ -217,23 +217,27 @@ export class ReporterForUser {
             this.expenseCalculator.totalInTransportType[expense.transportType].addMain(expense.amount / userNumForCalc, rate);
 
             this.typeList[expense.type].data.push(expenseItem);
-            let budgets = new Set(expense.budget)
-            for(let budget of budgets){
-              this.expenseCalculator.totalInBudget[budget].addMain(expense.amount / userNumForCalc / budgetNumForCalc, rate);
-              this.budgetList[budget].data.push(new ExpenseItem(
-                expense.amount / userNumForCalc / budgetNumForCalc,
-                0,
-                rate,
-                expense.title,
-                '',
-                formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
-              ));
+            if (expense.budget && expense.budget.length > 0) {
+              let budgets = new Set(expense.budget)
+              for(let budget of budgets){
+                this.expenseCalculator.totalInBudget[budget].addMain(expense.amount / userNumForCalc / budgetNumForCalc, rate);
+                this.budgetList[budget].data.push(new ExpenseItem(
+                  expense.amount / userNumForCalc / budgetNumForCalc,
+                  0,
+                  rate,
+                  expense.title,
+                  '',
+                  formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
+                ));
+              }
             }
 
-            for(const userId of expense.user){
-              const userIndex = this.tourData.users.indexOf(userId);
-              const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
-              this.expenseCalculator.totalInUser[userIndex].addMain(userAmount,rate)
+            if (expense.user && expense.user.length > 0) {
+              for(const userId of expense.user){
+                const userIndex = this.tourData.users.indexOf(userId);
+                const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
+                this.expenseCalculator.totalInUser[userIndex].addMain(userAmount,rate)
+              }
             }
           }
           else {
@@ -252,23 +256,27 @@ export class ReporterForUser {
             this.expenseCalculator.totalInTransportType[expense.transportType].addSub(expense.amount / userNumForCalc, rate);
 
             this.typeList[expense.type].data.push(expenseItem);
-            let budgets = new Set(expense.budget)
-            for(let budget of budgets){
-              this.expenseCalculator.totalInBudget[budget].addSub(expense.amount / userNumForCalc / budgetNumForCalc, rate);
-              this.budgetList[budget].data.push(new ExpenseItem(
-                0,
-                expense.amount / userNumForCalc / budgetNumForCalc,
-                rate,
-                expense.title,
-                '',
-                formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
-              ));
+            if (expense.budget && expense.budget.length > 0) {
+              let budgets = new Set(expense.budget)
+              for(let budget of budgets){
+                this.expenseCalculator.totalInBudget[budget].addSub(expense.amount / userNumForCalc / budgetNumForCalc, rate);
+                this.budgetList[budget].data.push(new ExpenseItem(
+                  0,
+                  expense.amount / userNumForCalc / budgetNumForCalc,
+                  rate,
+                  expense.title,
+                  '',
+                  formatDate(this.tourData.startDate + transportation.startOffset, transportation.timeOffset),
+                ));
+              }
             }
 
-            for(const userId of expense.user){
-              const userIndex = this.tourData.users.indexOf(userId);
-              const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
-              this.expenseCalculator.totalInUser[userIndex].addSub(userAmount,rate);
+            if (expense.user && expense.user.length > 0) {
+              for(const userId of expense.user){
+                const userIndex = this.tourData.users.indexOf(userId);
+                const userAmount = expense.amountType == AmountType.Total ? expense.amount / expense.user.length : expense.amount;
+                this.expenseCalculator.totalInUser[userIndex].addSub(userAmount,rate);
+              }
             }
           }
         }
