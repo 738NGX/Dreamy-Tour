@@ -70,7 +70,7 @@
 <t-fab icon="add" bind:click="handlePost" style="{{fabStyle}}"></t-fab>
 <!-- 发帖输入框 -->
 <t-popup-headered style="height:80vh;" visible="{{inputVisible}}" title="发布帖子" confirmText="发布" bind:visible-change="handlePost" bindConfirm="handleInputSend" bindCancel="handlePost" placement="bottom">
-  <t-input placeholder="请输入标题" bind:change="handleTitleInput" value="{{inputTitle}}" maxlength="{{30}}" />
+  <t-input placeholder="请输入标题" bind:change="handleTitleInput" value="{{inputTitle}}" maxlength="{{20}}" />
   <t-textarea bind:change="handleInput" value="{{inputValue}}" style="height:40vh;" placeholder="说点什么..." maxlength="1000" disableDefaultPadding="{{true}}" indicator />
   <view style="height:50rpx; padding:15rpx">上传图片（最多8张）</view>
   <t-upload draggable max="8" media-type="{{['image']}}" files="{{originFiles}}" bind:success="handleImageUploadSuccess" bind:remove="handleImageUploadRemove" bind:click="handleImageUploadClick" bind:drop="handleImageUploadDrop" />

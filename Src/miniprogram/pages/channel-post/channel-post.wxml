@@ -56,7 +56,7 @@
       </view> -->
       <view class="post-meta">
         <t-avatar class="avatar-example" image="{{avatarUrl}}" t-class-content="external-class-content" size="32px">{{ author[0] }}</t-avatar>
-        <view class="username" style="margin-left:10rpx">
+        <view class="username" style="margin-left:6rpx">
           {{ author }}
           <t-tag style="margin-left:10rpx;" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(authorGroup)}}">{{authorGroup}}</t-tag>
         </view>
@@ -67,6 +67,7 @@
         <t-icon name="bulletpoint" size="24" style="margin-left:10rpx" bind:click="onOptionsVisibleChange"/>
       </view>
     </view>
+    <!-- 评论区 -->
     <t-cell bind:click="handleCommentsSort" title="共{{structedComments.length}}条评论" hover note="{{commentsSortType}}" arrow />
     <block wx:for="{{structedComments}}" wx:key="id" wx:for-index="i">
       <view class="comment-item">
@@ -118,7 +119,7 @@
 </t-popup-headered>
 
 <!-- 帖子操作 -->
-<t-popup placement="bottom" style="height:auto;padding:15rpx" visible="{{optionsVisible}}" bind:visible-change="onOptionsVisibleChange" title="操作">
+<t-popup placement="bottom" style="height:auto;padding:15rpx 0rpx" visible="{{optionsVisible}}" bind:visible-change="onOptionsVisibleChange" title="操作">
   <view class="header">
     <view class="title">操作</view>
   </view>
@@ -126,11 +127,11 @@
     <view class="option" wx:if="{{isChannelAdmin||item.user==currentUserId}}">
       <t-icon class="t-icon" size="35px" name="align-top" bind:click="onPostStickyChange" wx:if="{{!currentPost.isSticky}}"/>
       <t-icon class="t-icon" size="35px" name="align-vertical" bind:click="onPostStickyChange" wx:if="{{currentPost.isSticky}}"/>
-      <text style="font-size:small">{{ currentPost.isSticky ? '取消置顶' : '置顶帖子' }}</text>
+      <text style="font-size:30rpx">{{ currentPost.isSticky ? '取消置顶' : '置顶帖子' }}</text>
     </view>
     <view class="option" wx:if="{{isChannelAdmin||item.user==currentUserId}}">
       <t-icon name="delete" size="35px" bind:click="onPostDelete"/>
-      <text style="font-size:small">删除帖子</text>
+      <text style="font-size:30rpx">删除帖子</text>
     </view>
   </view>
 </t-popup>
