@@ -1,5 +1,5 @@
 <view class="example-search">
-  <t-search placeholder="搜索帖子" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" />
+  <t-search placeholder="搜索帖子" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" shape="round" style="height:60rpx"/>
 </view>
 <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
   <view class="post-list">
@@ -15,12 +15,18 @@
                 <text>{{ item.isSticky ? '[置顶]' + item.title : item.title }}</text>
               </view>
             </view>
-            <!-- 用户信息 + 点赞 -->
+            <!-- 用户信息 + 时间 + 点赞 -->
             <view class="post-meta">
-              <t-avatar class="avatar-example" image="{{item.avatarUrl}}" t-class-content="external-class-content" size="24px">{{ item.username[0] }}</t-avatar>
-              <text class="username">{{ item.username }}</text>
+              <view style="display: flex;flex-direction: row;align-items: center;">
+                <t-avatar class="avatar-example" image="{{item.avatarUrl}}" t-class-content="external-class-content" size="30px">{{ item.username[0] }}</t-avatar>
+                <view class="post-basicinfo">
+                  <text class="username">{{ item.username }}</text>
+                  <text class="post-time">{{ item.timeStr }}</text>
+                </view>
+              </view>
               <view class="likes">
-                <t-icon name="heart" size="16" style="margin-right:10rpx;" />
+                <t-icon name="heart-filled" color="#FF0000" size="18" style="margin-right:10rpx;" wx-if="{{item.isLiked}}"/>
+                <t-icon name="heart" size="18" style="margin-right:10rpx;" wx-if="{{!item.isLiked}}"/>
                 {{ item.likes.length }}
               </view>
             </view>
@@ -38,10 +44,15 @@
                 <text>{{ item.isSticky ? '[置顶]' + item.title : item.title }}</text>
               </view>
             </view>
-            <!-- 用户信息 + 点赞 -->
+            <!-- 用户信息 + 时间 + 点赞 -->
             <view class="post-meta">
-              <t-avatar class="avatar-example" image="{{item.avatarUrl}}" t-class-content="external-class-content" size="24px">{{ item.username[0] }}</t-avatar>
-              <text class="username">{{ item.username }}</text>
+              <view style="display: flex;flex-direction: row;align-items: center;">
+                <t-avatar class="avatar-example" image="{{item.avatarUrl}}" t-class-content="external-class-content" size="30px">{{ item.username[0] }}</t-avatar>
+                <view class="post-basicinfo">
+                  <text class="username">{{ item.username }}</text>
+                  <text class="post-time">{{ item.timeStr }}</text>
+                </view>
+              </view>
               <view class="likes">
                 <t-icon name="heart" size="16" style="margin-right:10rpx;" />
                 {{ item.likes.length }}

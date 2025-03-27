@@ -3,7 +3,7 @@
  */
 import { Comment, Post, StructedComment } from "../../utils/channel/post";
 import { File } from "../../utils/tour/photo";
-import { Member } from "../../utils/user/user";
+import { Member, UserBasic } from "../../utils/user/user";
 import { formatPostTime, getImageBase64 } from "../../utils/util";
 
 const app = getApp<IAppOption>();
@@ -61,6 +61,7 @@ Component({
     refreshEnable: false,
 
     currentUserId: app.globalData.currentUserId,
+    currentUser: {} as UserBasic,
     isChannelAdmin: false,
     currentPost: {} as Post,
     imageProps: { mode: "widthFix" },
@@ -89,7 +90,7 @@ Component({
       const { postId } = options;
       const currentPost = await app.getFullPost(parseInt(postId)) as Post;
       const { isChannelAdmin } = await app.getUserAuthorityInChannel(currentPost.linkedChannel)
-      this.setData({ currentPost, isChannelAdmin });
+      this.setData({ currentPost, isChannelAdmin, currentUser: app.currentUser() });
       await this.init();
     },
     async onRefresh() {

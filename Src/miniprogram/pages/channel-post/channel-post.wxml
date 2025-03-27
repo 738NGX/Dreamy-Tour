@@ -68,7 +68,7 @@
     <t-cell bind:click="handleCommentsSort" title="共{{structedComments.length}}条评论" hover note="{{commentsSortType}}" arrow />
     <block wx:for="{{structedComments}}" wx:key="id" wx:for-index="i">
       <view class="comment-item">
-        <t-avatar image="{{item.avatarUrl}}" style="margin:10rpx 0rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.userName[0] }}</t-avatar>
+        <t-avatar image="{{item.avatarUrl}}" style="margin:10rpx 5rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.userName[0] }}</t-avatar>
         <view style="margin-left:20rpx; width:75%;" data-index="{{item.id}}" bindtap="handleReplyInput">
           <view class="username" style="margin:10rpx 0rpx;">
             <text>{{ item.userName }}</text>
@@ -99,10 +99,11 @@
     <view style="height:200rpx" />
   </t-pull-down-refresh>
   <view class="bottom-bar">
-    <t-button bind:tap="handleCommentInput" theme="light" t-class="bottom-bar-input" shape="round" icon="edit-2" content="说点什么..." size="medium"></t-button>
+    <t-avatar image="{{currentUser.avatarUrl}}" class="avatar" size="40px" style="margin-left:15rpx;" />
+    <t-button bind:tap="handleCommentInput" theme="light" t-class="bottom-bar-input" style="width:500rpx" shape="round" icon="edit-2" content="说点什么..." size="medium"></t-button>
     <view class="likes">
       <t-icon bind:click="handleLike" wx:if="{{!util.isInArray(currentPost.likes,currentUserId)}}" name="heart" size="30" style="margin-right:10rpx;" />
-      <t-icon bind:click="handleLike" wx:else color="#0052d9" name="heart-filled" size="30" style="margin-right:10rpx;" />
+      <t-icon bind:click="handleLike" wx:else color="#FF0000" name="heart-filled" size="30" style="margin-right:10rpx;" />
       {{ currentPost.likes.length >=10000 ? util.numberToFixed(currentPost.likes.length / 10000, 1) + 'w' : currentPost.likes.length }}
     </view>
   </view>

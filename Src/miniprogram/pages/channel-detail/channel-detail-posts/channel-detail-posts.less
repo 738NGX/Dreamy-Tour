@@ -1,10 +1,10 @@
 .post-list {
-  padding: 16px;
+  padding: 0px;
 }
 
 .post-grid {
   display: flex;
-  gap: 12px;
+  gap: 0px;
 }
 
 .column {
@@ -14,10 +14,10 @@
 .post-card {
   display: inline-block;
   width: 100%;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   background: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   break-inside: avoid;
 }
@@ -32,11 +32,13 @@
 }
 
 .post-info {
-  padding: 8px 12px;
+  padding: 4px 12px;
 }
 
 .post-title {
   font-size: 16px;
+  font-family: Microsoft YaHei !important;
+  font-weight:500;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -45,15 +47,31 @@
 .post-meta {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 8px 12px;
-  border-top: 1px solid #f0f0f0;
+  // border-top: 1px solid #f0f0f0;
   font-size: 14px;
   color: #666;
 }
 
-.username {
-  flex-grow: 1;
+.post-basicinfo{
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left:10rpx;
 }
+
+.username {
+  color:rgba(0, 0, 0, 0.927);
+  flex-grow: 1;
+  font-weight:500;
+}
+
+.post-time{
+  margin-right:10rpx;
+  font-size:12px;
+}
+
 
 .likes {
   display: flex;

@@ -11,6 +11,7 @@ import { File } from "./utils/tour/photo";
 import { Tour, TourBasic, TourStatus } from "./utils/tour/tour";
 import { Location, Transportation } from "./utils/tour/tourNode";
 import { Member, User, UserBasic } from "./utils/user/user";
+import { formatPostTimeInList } from "./utils/util";
 import { getImageBase64, getNewId, getUser, getUserGroupName, getUserGroupNameInChannel, getUserGroupNameInGroup } from "./utils/util";
 
 // app.ts
@@ -376,12 +377,15 @@ App<IAppOption>({
     if (!this.globalData.testMode) {
       return [];
     } else {
+      const currentUserId = this.globalData.currentUserId
       return this.getPostListCopy()
         .map((post) => {
           return {
             ...post,
             username: this.getUser(post.user)?.name ?? '未知用户',
             avatarUrl: this.getUser(post.user)?.avatarUrl ?? '',
+            timeStr: formatPostTimeInList(post.time) ?? '',
+            isLiked: post.likes.includes(currentUserId) ? true : false,
           }
         })
         .filter((post) =>
