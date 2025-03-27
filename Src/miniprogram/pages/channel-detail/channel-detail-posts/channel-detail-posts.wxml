@@ -12,7 +12,8 @@
             <!-- 文章信息 -->
             <view class="post-info">
               <view class="post-title">
-                <text>{{ item.isSticky ? '[置顶]' + item.title : item.title }}</text>
+                <t-tag class="t-tag" wx:if="{{ item.isSticky }}" style="margin-right:10rpx;" variant="light" theme="primary" icon="align-top">置顶</t-tag>
+                <text>{{ item.title }}</text>
               </view>
             </view>
             <!-- 用户信息 + 时间 + 点赞 -->
@@ -25,7 +26,7 @@
                 </view>
               </view>
               <view class="likes">
-                <t-icon name="heart-filled" color="#FF0000" size="18" style="margin-right:10rpx;" wx-if="{{item.isLiked}}"/>
+                <t-icon name="heart-filled" color="#DF0000" size="18" style="margin-right:10rpx;" wx-if="{{item.isLiked}}"/>
                 <t-icon name="heart" size="18" style="margin-right:10rpx;" wx-if="{{!item.isLiked}}"/>
                 {{ item.likes.length }}
               </view>
@@ -41,7 +42,8 @@
             <!-- 文章信息 -->
             <view class="post-info">
               <view class="post-title">
-                <text>{{ item.isSticky ? '[置顶]' + item.title : item.title }}</text>
+                <t-tag class="t-tag" wx:if="{{ item.isSticky }}" style="margin-right:10rpx;" variant="light" theme="primary" icon="align-top">置顶</t-tag>
+                <text>{{ item.title }}</text>
               </view>
             </view>
             <!-- 用户信息 + 时间 + 点赞 -->

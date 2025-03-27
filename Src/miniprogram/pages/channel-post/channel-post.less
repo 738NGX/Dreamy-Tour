@@ -28,6 +28,8 @@
   font-size: large;
   font-weight: bold;
   padding: 30rpx;
+  display:flex;
+  align-items: center;
 }
 
 .post-content-text {
@@ -107,4 +109,37 @@
   margin-right: 20rpx !important;
   font-weight: normal !important;
   background-color: rgba(0, 0, 0, 0) !important;
+}
+
+.options{
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.option{
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left:25rpx;
+}
+
+.option .t-icon{
+  margin-bottom:0rpx;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60rpx;
+}
+
+.title {
+  display:flex;
+  text-align: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 36rpx;
+  color: var(--td-text-color-primary);
 }

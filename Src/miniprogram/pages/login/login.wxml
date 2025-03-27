@@ -4,5 +4,5 @@
   <text class="app-name">梦·旅</text>
   <text class="slogan">Make a Fantastic Departure.</text>
   <t-button size="medium" shape="round" class="wx-login-btn" bind:tap="wxLogin" icon="logo-wechat-stroke">微信授权登录</t-button>
-  <t-button theme="primary" size="medium" shape="round" class="test-mode-btn" bind:tap="enterTestMode">进入演示模式</t-button>
+  <t-button theme="primary" size="medium" shape="round" class="test-mode-btn" bind:tap="enterTestMode" icon="adjustment">进入演示模式</t-button>
 </view>

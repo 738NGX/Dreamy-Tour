@@ -10,6 +10,7 @@
     "t-fab": "tdesign-miniprogram/fab/fab",
     "t-input": "tdesign-miniprogram/input/input",
     "t-textarea": "tdesign-miniprogram/textarea/textarea",
-    "t-upload": "tdesign-miniprogram/upload/upload"
+    "t-upload": "tdesign-miniprogram/upload/upload",
+    "t-tag": "tdesign-miniprogram/tag/tag"
   }
 }
