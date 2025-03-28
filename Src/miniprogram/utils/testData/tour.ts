@@ -467,7 +467,7 @@ export const tourList = [
     status: TourStatus.Planning,
     linkedChannel: 3,
     linkedGroup: 1,
-    users: [1, 2, 4, 5, 6, 7, 10, 11, 12],
+    users: [1, 2, 4, 5, 6, 7, 10, 11, 12, 15, 16],
     startDate: new Date(2025, 5, 20).getTime(),
     endDate: new Date(2025, 5, 22).getTime(),
     timeOffset: -540,
