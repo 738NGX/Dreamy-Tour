@@ -122,7 +122,7 @@ class HttpUtil {
         })
         .catch(e => { 
           wx.hideLoading();
-          console.log('error:',e); 
+          //console.log('error:',e); 
           if (e.status === 1) {
             wx.showToast({ title: "请求超时", icon: "error", time: 2000 });
             reject(e)

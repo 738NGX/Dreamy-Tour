@@ -224,6 +224,12 @@ Component({
       this.setData({ linkedTour });
       await app.changeTourBasic(linkedTour);
     },
+    async getRate() {
+      const linkedTour = this.data.linkedTour;
+      await linkedTour.getExchangeRate();
+      this.setData({ linkedTour });
+      await app.changeTourBasic(linkedTour);
+    },
     onPhotoUploadVisibleChange() {
       const that = this;
       wx.chooseImage({

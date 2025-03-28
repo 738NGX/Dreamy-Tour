@@ -1,3 +1,4 @@
+import HttpUtil from "./httpUtil";
 import { User, UserBasic } from "./user/user";
 
 export const MILLISECONDS = {
@@ -73,28 +74,25 @@ export function timeToMilliseconds(time: string) {
   return milliseconds;
 }
 
-export function exchangeCurrency(amount: number, from: string, to: string) {
-  return new Promise((resolve, reject) => {
-    wx.request({
-      url: 'https://books.738ngx.site/exchange-currency',
-      method: 'GET',
-      data: {
-        amount: amount,
-        from: from,
-        to: to
-      },
-      success(res) {
-        if (res.data && typeof res.data === 'object' && 'crdhldBillAmt' in res.data) {
-          resolve(res.data.crdhldBillAmt);
-        } else {
-          reject('No conversion data available');
-        }
-      },
-      fail(err) {
-        reject(err);
+export async function exchangeCurrency(amount: number, from: string, to: string) {
+  try {
+    const res = await HttpUtil.get({
+      url: "/currency/exchange-rate",
+      jsonData: {
+        fromCurrencyISO: from,
+        toCurrencyISO: to
       }
+    })
+    console.log(res);
+    const rate = res.data.data.exchangeRate;
+    return rate * amount;
+  } catch (err) {
+    wx.showToast({
+      title: '获取汇率失败',
+      icon: 'error',
     });
-  });
+    return 1;
+  }
 }
 
 export function getChartData(data: any) {

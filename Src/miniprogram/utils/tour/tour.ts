@@ -39,6 +39,18 @@ export class TourBasic {
     this.subCurrency = data.subCurrency ?? Currency.JPY;
     this.currencyExchangeRate = data.currencyExchangeRate ?? 1;
   }
+  async getExchangeRate() {
+    try {
+      const rate = await exchangeCurrency(
+        1,
+        currencyList[this.subCurrency].symbol,
+        currencyList[this.mainCurrency].symbol
+      );
+      this.currencyExchangeRate = rate as number;
+    } catch (err) {
+      console.error('Error:', err);
+    }
+  }
 }
 
 export class Tour extends TourBasic {
@@ -61,19 +73,6 @@ export class Tour extends TourBasic {
     this.transportations = (Array.isArray(data.transportations) && data.transportations.length)
       ? data.transportations.map((copy: any[]) => copy.map((transportation: any) => new Transportation(transportation)))
       : [[]];
-  }
-
-  async getExchangeRate() {
-    try {
-      const rate = await exchangeCurrency(
-        1,
-        currencyList[this.subCurrency].symbol,
-        currencyList[this.mainCurrency].symbol
-      );
-      this.currencyExchangeRate = rate as number;
-    } catch (err) {
-      console.error('Error:', err);
-    }
   }
 
   pushLocation(copyIndex: number = 0) {
