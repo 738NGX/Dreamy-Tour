@@ -1,4 +1,4 @@
-import { Channel } from "../../../utils/channel/channel";
+import { Channel, joinWayText } from "../../../utils/channel/channel";
 
 const app = getApp<IAppOption>();
 
@@ -7,6 +7,8 @@ Component({
 
   },
   data: {
+    joinWayText: joinWayText,
+    
     refreshEnable: false,
 
     channelList: [] as Channel[],
