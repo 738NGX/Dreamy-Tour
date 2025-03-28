@@ -77,6 +77,8 @@ Component({
     totalMainCurrency:'',
     totalSubCurrency:'',
     totalCurrency:'',
+
+    isCurrentUserInGroup:false,
   },
  
   methods: {
@@ -93,24 +95,54 @@ Component({
       this.initCharts();
     },
     updateData(){
+      const currentUserList = app.getUserListCopy()
+      .map(user => {
+        if (this.properties.currentTour.users.includes(user.id)) return new User(user);
+        else return null;
+      })
+      .filter((user: any) => user !== null)
+      .filter((user: any) => user.id !== this.data.currentUserId);
+
+      // 基于计算出的 currentUserList 设置其他字段
+      const selectedUserId = this.data.selectedUserId 
+        ? this.data.selectedUserId 
+        : (this.properties.currentTour.users.includes(this.data.currentUserId) 
+            ? this.data.currentUserId 
+            : currentUserList[0]?.id);
+
       this.setData({
         currentUserId: app.globalData.currentUserId,
         currentUserName: app.getUser(this.data.currentUserId)?.name,
-        selectedUserId:this.data.selectedUserId? this.data.selectedUserId : app.globalData.currentUserId,
+        isCurrentUserInGroup: this.properties.currentTour.users.includes(this.data.currentUserId),
+        
+        currentUserList: currentUserList,
+        selectedUserId:selectedUserId,
         selectedUserName:app.getUser(this.data.selectedUserId)?.name,
-        currentUserList: app.getUserListCopy().map(user => {
-          if (this.properties.currentTour.users.includes(user.id)) return new User(user);
-          else return null;
-          }).filter((user: any) => user !== null)
-            .filter((user: any) => user.id !== this.data.currentUserId)
       })
+      console.log("currentUserInGroup?",this.data.isCurrentUserInGroup)
     },
     initCharts(){
+      const getPixelRatio = () => {
+        let pixelRatio = 0
+        wx.getSystemInfo({
+          success: function (res) {
+            pixelRatio = res.pixelRatio
+          },
+          fail: function () {
+            pixelRatio = 0
+          }
+        })
+        return pixelRatio
+      }
+      // console.log(pixelRatio)
+      var dpr = getPixelRatio()
+
       const chartInType = this.selectComponent('#chartInType')
       chartInType.init((canvas:any, width:any,height:any) => {
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setChartOptionInType(chart);
         return chart
@@ -121,6 +153,7 @@ Component({
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setChartOptionInBudget(chart);
         return chart
@@ -131,6 +164,7 @@ Component({
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setChartOptionInTransportType(chart);
         return chart
@@ -141,6 +175,7 @@ Component({
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setStatisticChartOption(chart,this.data.chartDataInHotel);
         return chart
@@ -151,6 +186,7 @@ Component({
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setStatisticChartOption(chart,this.data.chartDataInMeal);
         return chart
@@ -161,6 +197,7 @@ Component({
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setStatisticChartOption(chart,this.data.chartDataInTicket);
         return chart
@@ -171,6 +208,7 @@ Component({
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setStatisticChartOption(chart,this.data.chartDataInShopping);
         return chart
@@ -248,6 +286,7 @@ Component({
             left: 'auto',
             top: 'center',
             orient:'hozizonal',
+            type: 'scroll'
           },
           toolbox: {
             show: true,
@@ -260,16 +299,23 @@ Component({
           },
           series: [
             {
-              name: 'Area Mode',
+              name: 'Access From',
               type: 'pie',
-              roseType:'radius',
-              label:{
-                show:false,
+              radius: ['40%', '70%'],
+              avoidLabelOverlap: false,
+              label: {
+                show: false,
+                position: 'center'
               },
-              radius: [20, 100],
-              center: ['50%', '50%'],
-              itemStyle: {
-                borderRadius: 3
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: 20,
+                  fontWeight: 'bold'
+                }
+              },
+              labelLine: {
+                show: false
               },
               data:this.data.chartDataInType
             }
@@ -299,6 +345,7 @@ Component({
             left: 'auto',
             top: 'buttom',
             orient:'hozizonal',
+            type: 'scroll'
           },
           toolbox: {
             show: true,
@@ -311,16 +358,23 @@ Component({
           },
           series: [
             {
-              name: 'Area Mode',
+              name: 'Access From',
               type: 'pie',
-              roseType:'radius',
-              label:{
-                show:false,
+              radius: ['40%', '70%'],
+              avoidLabelOverlap: false,
+              label: {
+                show: false,
+                position: 'center'
               },
-              radius: [20, 100],
-              center: ['50%', '50%'],
-              itemStyle: {
-                borderRadius: 3
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: 20,
+                  fontWeight: 'bold'
+                }
+              },
+              labelLine: {
+                show: false
               },
               data:this.data.chartDataInBudget
             }
@@ -348,6 +402,7 @@ Component({
             left: 'auto',
             top: 'buttom',
             orient:'hozizonal',
+            type: 'scroll'
           },
           toolbox: {
             show: true,
@@ -360,16 +415,23 @@ Component({
           },
           series: [
             {
-              name: 'Area Mode',
+              name: 'Access From',
               type: 'pie',
-              roseType:'radius',
-              label:{
-                show:false,
+              radius: ['40%', '70%'],
+              avoidLabelOverlap: false,
+              label: {
+                show: false,
+                position: 'center'
               },
-              radius: [20, 100],
-              center: ['50%', '50%'],
-              itemStyle: {
-                borderRadius: 3
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: 20,
+                  fontWeight: 'bold'
+                }
+              },
+              labelLine: {
+                show: false
               },
               data:this.data.chartDataInTransportType
             }
