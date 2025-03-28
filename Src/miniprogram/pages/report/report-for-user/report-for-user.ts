@@ -54,7 +54,7 @@ Component({
     currentUserList: [] as any[],
     selectingUserVisible: false,
     //selectedUserId 默认值为当前用户id
-    selectedUserId: 0 as number,
+    selectedUserId: -1 as number,
     selectedUserName: '' as string,
     currencyList:currencyList,
     ec:{
@@ -83,14 +83,8 @@ Component({
  
   methods: {
     init(){
-      // const tourId = options.tourId;
-      // const currentTourCopyIndex = options.currentTourCopyIndex
-      // this.setData({
-      //   currentTour: app.getTour(parseInt(tourId)) as Tour,
-      //   currentTourCopyIndex: currentTourCopyIndex
-      // })
       this.updateData();
-      console.log("currentUserList",this.data.currentUserList);
+      //console.log("currentUserList",this.data.currentUserList);
       this.initReport(this.properties.currentTour,this.properties.currentTourCopyIndex,this.data.selectedUserId);
       this.initCharts();
     },
@@ -104,12 +98,12 @@ Component({
       .filter((user: any) => user.id !== this.data.currentUserId);
 
       // 基于计算出的 currentUserList 设置其他字段
-      const selectedUserId = this.data.selectedUserId 
+      const selectedUserId = this.data.selectedUserId > 0
         ? this.data.selectedUserId 
-        : (this.properties.currentTour.users.includes(this.data.currentUserId) 
-            ? this.data.currentUserId 
+        : (this.properties.currentTour.users.includes(app.globalData.currentUserId) 
+            ? app.globalData.currentUserId
             : currentUserList[0]?.id);
-
+      //console.log(this.properties.currentTour.users.includes(this.data.currentUserId))
       this.setData({
         currentUserId: app.globalData.currentUserId,
         currentUserName: app.getUser(this.data.currentUserId)?.name,
@@ -119,7 +113,7 @@ Component({
         selectedUserId:selectedUserId,
         selectedUserName:app.getUser(this.data.selectedUserId)?.name,
       })
-      console.log("currentUserInGroup?",this.data.isCurrentUserInGroup)
+      //console.log(selectedUserId)
     },
     initCharts(){
       const getPixelRatio = () => {
@@ -261,7 +255,7 @@ Component({
     onSelectedUserChange(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
       this.setData({ selectedUserId: value });
-      console.log('新选中 ID:', value, '当前 selectedUserId:', this.data.selectedUserId);
+      // console.log('新选中 ID:', value, '当前 selectedUserId:', this.data.selectedUserId);
       this.init();
     },
 

@@ -78,14 +78,6 @@ Component({
  
   methods: {
     init(){
-      //console.log("onload执行")
-      // const tourId = options.tourId;
-      // const currentTourCopyIndex = options.currentTourCopyIndex
-      // this.setData({
-      //   currentTour: app.getTour(parseInt(tourId)) as Tour,
-      //   currentTourCopyIndex: currentTourCopyIndex
-      // })
-      // console.log("currTourin onload",this.properties.currentTour)
       this.initReport(this.properties.currentTour,this.properties.currentTourCopyIndex);
       this.initCharts();
     },
@@ -195,7 +187,7 @@ Component({
     initReport(value:any,copyIndex:number){
       //console.log("beforeinitReport",this.properties.currentTour,this.properties.currentTourCopyIndex)
       if (!value || typeof value !== 'object') {
-        console.error("Invalid tour data provided:", value);
+        //console.error("Invalid tour data provided:", value);
         return; // 或者设置默认值
       }
 
@@ -221,7 +213,7 @@ Component({
         totalTransportCurrency: totalTransportCurrency.toFixed(2),
       })
     //  console.log("chartdatainhotel",this.data.chartDataInHotel)
-    console.log("currentreporter",this.data.reporter)
+    //  console.log("currentreporter",this.data.reporter)
     },
     onTourUpdate(data : Tour){
       this.setData({ currentTour: data})

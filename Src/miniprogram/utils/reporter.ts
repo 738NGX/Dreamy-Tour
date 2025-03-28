@@ -96,7 +96,7 @@ export class Reporter {
   }
 
   private dealLocations(copyIndex: number) {
-    console.log("tourDataindealLocations",this.tourData)
+    //console.log("tourDataindealLocations",this.tourData)
     const rate = this.currencyExchangeRate;
 
     for (const location of this.tourData.locations[copyIndex]) {
@@ -348,7 +348,7 @@ export class Reporter {
 
   private calcBudgetChartData(){
     let i = 0;
-    console.log(this.tourData.budgets.length)
+    //console.log(this.tourData.budgets.length)
     for (const budget of this.tourData.budgets){
       const currencyExchangeRate = budget.currency == this.tourData.subCurrency? this.tourData.currencyExchangeRate : 1;
       const budgetAmount = budget.amount * currencyExchangeRate;
