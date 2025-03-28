@@ -12,6 +12,7 @@
     "t-picker": "tdesign-miniprogram/picker/picker",
     "t-picker-item": "tdesign-miniprogram/picker-item/picker-item",
     "c-collapse": "/components/c-collapse/c-collapse",
+    "c-usercard": "/components/c-usercard/c-usercard",
     "header": "/components/header/header",
     "t-tag": "tdesign-miniprogram/tag/tag",
     "t-icon": "tdesign-miniprogram/icon/icon",

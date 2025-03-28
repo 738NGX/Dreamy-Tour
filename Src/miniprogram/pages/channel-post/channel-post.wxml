@@ -1,39 +1,5 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
 <header class="custom-navbar" title="帖子详情" tabList="{{[]}}" />
-<!-- 回复详情 -->
-<t-popup style="height:60vh;" visible="{{repliesVisible}}" usingCustomNavbar bind:visible-change="handleRepliesDetail" placement="bottom">
-  <t-cell bind:click="handleRepliesSort" title="共{{replies.length}}条回复" hover note="{{repliesSortType}}" arrow />
-  <scroll-view class="scrollarea" scroll-y type="list" style="height: 55vh;">
-    <block wx:for="{{replies}}" wx:key="id" wx:for-index="i">
-      <view class="comment-item">
-        <t-avatar image="{{item.avatarUrl}}" style="margin:10rpx 0rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.userName[0] }}</t-avatar>
-        <view style="margin-left:20rpx; width:75%;" data-index="{{item.id}}" bindtap="handleReplyInput">
-          <view class="username" style="margin:10rpx 0rpx;">
-            <text>{{ item.userName }}</text>
-            <t-tag style="margin-left:10rpx;" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
-          </view>
-          <view style="margin:20rpx 0rpx;">
-            <text>{{ item.content }}</text>
-            <block wx:for="{{item.photos}}" wx:key="id">
-              <image src="{{item.value}}" mode="widthFix" style="width:100%;height:100px;margin-top:10rpx;" />
-            </block>
-          </view>
-          <view class="timestr" style="margin:10rpx 0rpx;">
-            <t-icon name="time" size="18" style="margin-right:10rpx;" />
-            {{ item.timeStr }}
-          </view>
-          <t-button bind:tap="onReplyDelete" data-index="{{item}}" class="text-btn" wx:if="{{isChannelAdmin||item.user==currentUserId}}" size="small" theme="danger" variant="text">删除</t-button>
-        </view>
-        <view class="comment-like">
-          <t-icon bind:click="handleReplyLike" data-index="{{[repliesParent,item.id]}}" wx:if="{{!util.isInArray(item.likes,currentUserId)}}" name="heart" size="24" />
-          <t-icon bind:click="handleReplyLike" data-index="{{[repliesParent,item.id]}}" wx:else color="#0052d9" name="heart-filled" size="24" />
-          {{ item.likes.length >=10000 ? util.numberToFixed(item.likes.length / 10000, 1) + 'w' : item.likes.length }}
-        </view>
-      </view>
-    </block>
-    <view style="height:150rpx;"/>
-  </scroll-view>
-</t-popup>
 <!-- 页面内容 -->
 <view>
   <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
@@ -55,23 +21,27 @@
         <t-button bind:tap="onPostStickyChange" class="text-btn" wx:if="{{isChannelAdmin}}" size="small" theme="primary" variant="text">{{ currentPost.isSticky ? '取消置顶' : '置顶帖子' }}</t-button>
       </view> -->
       <view class="post-meta">
-        <t-avatar class="avatar-example" image="{{avatarUrl}}" t-class-content="external-class-content" size="32px">{{ author[0] }}</t-avatar>
+        <view bind:tap="showUsercard" data-index="{{author.id}}">
+          <t-avatar class="avatar-example" image="{{author.avatarUrl}}" t-class-content="external-class-content" size="32px">{{ author.name[0] }}</t-avatar>
+        </view>
         <view class="username" style="margin-left:6rpx">
-          {{ author }}
-          <t-tag style="margin-left:10rpx;" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(authorGroup)}}">{{authorGroup}}</t-tag>
+          {{ author.name }}
+          <t-tag style="margin-left:10rpx;" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(author.userGroup)}}">{{author.userGroup}}</t-tag>
         </view>
         <view class="timestr">
           <t-icon name="time" size="18" style="margin-right:10rpx;" />
           {{ timeStr }}
         </view>
-        <t-icon name="bulletpoint" size="24" style="margin-left:10rpx" bind:click="onOptionsVisibleChange"/>
+        <t-icon name="bulletpoint" size="24" style="margin-left:10rpx" bind:click="onOptionsVisibleChange" />
       </view>
     </view>
     <!-- 评论区 -->
     <t-cell bind:click="handleCommentsSort" title="共{{structedComments.length}}条评论" hover note="{{commentsSortType}}" arrow />
     <block wx:for="{{structedComments}}" wx:key="id" wx:for-index="i">
       <view class="comment-item">
-        <t-avatar image="{{item.avatarUrl}}" style="margin:10rpx 5rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.userName[0] }}</t-avatar>
+        <view bind:tap="showUsercard" data-index="{{item.user}}">
+          <t-avatar image="{{item.avatarUrl}}" style="margin:10rpx 5rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.userName[0] }}</t-avatar>
+        </view>
         <view style="margin-left:20rpx; width:75%;" data-index="{{item.id}}" bindtap="handleReplyInput">
           <view class="username" style="margin:10rpx 0rpx;">
             <text>{{ item.userName }}</text>
@@ -111,13 +81,48 @@
     </view>
   </view>
 </view>
+<!-- 回复详情 -->
+<t-popup style="height:60vh;" visible="{{repliesVisible}}" usingCustomNavbar bind:visible-change="handleRepliesDetail" placement="bottom">
+  <t-cell bind:click="handleRepliesSort" title="共{{replies.length}}条回复" hover note="{{repliesSortType}}" arrow />
+  <scroll-view class="scrollarea" scroll-y type="list" style="height: 55vh;">
+    <block wx:for="{{replies}}" wx:key="id" wx:for-index="i">
+      <view class="comment-item">
+        <view bind:tap="showUsercard" data-index="{{item.user}}">
+          <t-avatar image="{{item.avatarUrl}}" style="margin:10rpx 0rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.userName[0] }}</t-avatar>
+        </view>
+        <view style="margin-left:20rpx; width:75%;" data-index="{{item.id}}" bindtap="handleReplyInput">
+          <view class="username" style="margin:10rpx 0rpx;">
+            <text>{{ item.userName }}</text>
+            <t-tag style="margin-left:10rpx;" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
+          </view>
+          <view style="margin:20rpx 0rpx;">
+            <text>{{ item.content }}</text>
+            <block wx:for="{{item.photos}}" wx:key="id">
+              <image src="{{item.value}}" mode="widthFix" style="width:100%;height:100px;margin-top:10rpx;" />
+            </block>
+          </view>
+          <view class="timestr" style="margin:10rpx 0rpx;">
+            <t-icon name="time" size="18" style="margin-right:10rpx;" />
+            {{ item.timeStr }}
+          </view>
+          <t-button bind:tap="onReplyDelete" data-index="{{item}}" class="text-btn" wx:if="{{isChannelAdmin||item.user==currentUserId}}" size="small" theme="danger" variant="text">删除</t-button>
+        </view>
+        <view class="comment-like">
+          <t-icon bind:click="handleReplyLike" data-index="{{[repliesParent,item.id]}}" wx:if="{{!util.isInArray(item.likes,currentUserId)}}" name="heart" size="24" />
+          <t-icon bind:click="handleReplyLike" data-index="{{[repliesParent,item.id]}}" wx:else color="#0052d9" name="heart-filled" size="24" />
+          {{ item.likes.length >=10000 ? util.numberToFixed(item.likes.length / 10000, 1) + 'w' : item.likes.length }}
+        </view>
+      </view>
+    </block>
+    <view style="height:150rpx;" />
+  </scroll-view>
+</t-popup>
 <!-- 评论/回复输入框 -->
 <t-popup-headered style="height:60vh;" visible="{{inputVisible}}" title="发布{{inputMode==1?'评论':'回复'}}" confirmText="发送" bind:visible-change="cancelInput" bindConfirm="handleInputSend" bindCancel="cancelInput" placement="bottom">
   <t-textarea bind:change="handleInput" value="{{inputValue}}" style="height:30vh;" placeholder="说点什么..." maxlength="1000" disableDefaultPadding="{{true}}" indicator />
   <view style="height:50rpx; padding:15rpx">上传图片（最多8张）</view>
   <t-upload draggable max="8" media-type="{{['image']}}" files="{{originFiles}}" bind:success="handleImageUploadSuccess" bind:remove="handleImageUploadRemove" bind:click="handleImageUploadClick" bind:drop="handleImageUploadDrop" />
 </t-popup-headered>
-
 <!-- 帖子操作 -->
 <t-popup placement="bottom" style="height:auto;padding:15rpx 0rpx" visible="{{optionsVisible}}" bind:visible-change="onOptionsVisibleChange" title="操作">
   <view class="header">
@@ -125,13 +130,14 @@
   </view>
   <view class="options">
     <view class="option" wx:if="{{isChannelAdmin||item.user==currentUserId}}">
-      <t-icon class="t-icon" size="35px" name="align-top" bind:click="onPostStickyChange" wx:if="{{!currentPost.isSticky}}"/>
-      <t-icon class="t-icon" size="35px" name="align-vertical" bind:click="onPostStickyChange" wx:if="{{currentPost.isSticky}}"/>
+      <t-icon class="t-icon" size="35px" name="align-top" bind:click="onPostStickyChange" wx:if="{{!currentPost.isSticky}}" />
+      <t-icon class="t-icon" size="35px" name="align-vertical" bind:click="onPostStickyChange" wx:if="{{currentPost.isSticky}}" />
       <text style="font-size:30rpx">{{ currentPost.isSticky ? '取消置顶' : '置顶帖子' }}</text>
     </view>
     <view class="option" wx:if="{{isChannelAdmin||item.user==currentUserId}}">
-      <t-icon name="delete" size="35px" bind:click="onPostDelete"/>
+      <t-icon name="delete" size="35px" bind:click="onPostDelete" />
       <text style="font-size:30rpx">删除帖子</text>
     </view>
   </view>
 </t-popup>
+<c-usercard bind:visible-change="showUsercard" visible="{{usercardVisible}}" userInfos="{{usercardInfos}}" />

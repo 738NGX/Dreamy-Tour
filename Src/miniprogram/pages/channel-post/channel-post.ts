@@ -67,14 +67,12 @@ Component({
     imageProps: { mode: "widthFix" },
 
     maxHeight: 0,
-    author: '',
-    authorGroup: '',
-    avatarUrl: '',
+    author: {} as Member,
     timeStr: '',
     structedComments: [] as StructedComment[],
     commentsSortType: '热度排序',
 
-    optionsVisible:false,
+    optionsVisible: false,
 
     repliesVisible: false,
     repliesParent: -1,
@@ -86,6 +84,10 @@ Component({
     inputValue: '',
     replyingComment: -1,
     originFiles: [] as File[],
+
+    members: [] as Member[],
+    usercardVisible: false,
+    usercardInfos: {} as Member,
   },
   methods: {
     async onLoad(options: any) {
@@ -107,12 +109,10 @@ Component({
       const { members } = await app.getMembersInChannel(currentPost.linkedChannel);
       const commentList = await app.getFullCommentsInPost(currentPost.id);
 
-      const author = members.find(member => member.id === currentPost.user)?.name ?? '未知用户';
-      const authorGroup = members.find(member => member.id === currentPost.user)?.userGroup ?? '未知用户组';
-      const avatarUrl = members.find(member => member.id === currentPost.user)?.avatarUrl ?? '';
+      const author = members.find(member => member.id === currentPost.user);
       const timeStr = this.data.currentPost ? formatPostTime(this.data.currentPost.time) : '';
       const structedComments = getStructuredComments(currentPost, members, commentList);
-      this.setData({ author, authorGroup, avatarUrl, timeStr, structedComments });
+      this.setData({ author, members, timeStr, structedComments });
     },
     onImageLoad(e: WechatMiniprogram.CustomEvent) {
       const { width, height } = e.detail;
@@ -125,6 +125,19 @@ Component({
           this.setData({ maxHeight: Math.max(this.data.maxHeight, newHeight) });
         }
       });
+    },
+    showUsercard(e: WechatMiniprogram.CustomEvent) {
+      const userId = e.currentTarget.dataset.index;
+      if (!userId) {
+        this.setData({ usercardVisible: false });
+        return;
+      }
+      const user = this.data.members.find((m) => m.id === userId);
+      if (!user) return;
+      this.setData({
+        usercardVisible: true,
+        usercardInfos: user
+      })
     },
     handleRepliesDetail(e: WechatMiniprogram.CustomEvent) {
       const repliesParent = e.currentTarget.dataset.index?.id;
@@ -261,7 +274,7 @@ Component({
         });
       }
     },
-    onOptionsVisibleChange(){
+    onOptionsVisibleChange() {
       this.setData({
         optionsVisible: !this.data.optionsVisible,
       })

@@ -6,7 +6,7 @@
   </t-cell>
   <c-collapse header="群成员">
     <t-swipe-cell wx:for="{{members}}" wx:key="id">
-      <t-cell bordered="{{false}}" title="{{item.name}}" class="narrow-cell">
+      <t-cell bind:click="showUsercard" data-index="{{item.id}}" bordered="{{false}}" title="{{item.name}}" class="narrow-cell">
         <t-avatar image="{{item.avatarUrl}}" slot="image" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
         <t-tag slot="note" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
       </t-cell>
@@ -82,3 +82,4 @@
 <t-picker visible="{{timezoneVisible}}" value="{{[selectingTimeOffset]}}" title="选择时区" cancelBtn="取消" confirmBtn="确认" usingCustomNavbar bindchange="onTourTimezonePickerChange" bindpick="onTimezoneColumnChange" bindcancel="onTimezonePickerClick">
   <t-picker-item options="{{timezoneList}}"></t-picker-item>
 </t-picker>
+<c-usercard bind:visible-change="showUsercard" visible="{{usercardVisible}}" userInfos="{{usercardInfos}}"/>

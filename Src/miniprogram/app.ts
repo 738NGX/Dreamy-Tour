@@ -17,7 +17,7 @@ import { formatPostTime, getImageBase64, getNewId, getUser, getUserGroupName, ge
 App<IAppOption>({
   globalData: {
     currentUserId: 1,
-    testMode: false,
+    testMode: true,
     currentData: testData,
     baseUrl: apiUrl,
   },

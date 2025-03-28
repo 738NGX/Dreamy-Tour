@@ -95,6 +95,21 @@ Component({
       currentUser.signature = e.detail.value;
       this.setData({ currentUser })
     },
+    handleBirthdayChange(e: WechatMiniprogram.CustomEvent) {
+      const { currentUser } = this.data;
+      currentUser.birthday = e.detail.value;
+      this.setData({ currentUser })
+    },
+    handlePhoneChange(e: WechatMiniprogram.CustomEvent) {
+      const { currentUser } = this.data;
+      currentUser.phone = e.detail.value;
+      this.setData({ currentUser })
+    },
+    handleEmailChange(e: WechatMiniprogram.CustomEvent) {
+      const { currentUser } = this.data;
+      currentUser.email = e.detail.value;
+      this.setData({ currentUser })
+    },
     async handleUserBasicChange() {
       const { currentUser } = this.data;
       this.setData({ currentUser })

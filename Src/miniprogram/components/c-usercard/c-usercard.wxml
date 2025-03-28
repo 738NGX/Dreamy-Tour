@@ -1,0 +1,23 @@
+<wxs module="util" src="../../utils/util.wxs"></wxs>
+<t-popup class="page" visible="{{visible}}" usingCustomNavbar bind:visible-change="onVisibleChange" placement="center">
+  <view class="name-card">
+    <view style="height:30rpx" />
+    <t-avatar bordered image="{{userInfos.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ userInfos.name[0] }}</t-avatar>
+    <view class="name-card-username">{{userInfos.name}}</view>
+    <view class="row">
+      <t-tag size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(userInfos.userGroup)}}">{{userInfos.userGroup}}</t-tag>
+      <view wx:if="{{userInfos.gender!='保密'}}" class="gender-icon" style="background-color:#{{userInfos.gender=='男'?'00a1d6':'ff548c'}};">
+        <t-icon name="{{userInfos.gender=='男'?'gender-male':'gender-female'}}" size="24rpx" />
+      </view>
+      <view class="name-card-uid" bind:tap="copyUid">UID: {{userInfos.id}}</view>
+    </view>
+    <view class="name-card-uid" style="margin-top:20rpx;">{{userInfos.signature}}</view>
+  </view>
+  <view class="user-main">
+    <t-progress style="margin: 0 30rpx 30rpx 30rpx;" theme="plump" color="{{ {  from: '#0052D9', to: '#48c6ef' } }}" label="{{expLabel}}" percentage="{{expPercentage}}" />
+    <t-cell bind:click="copyBirthday" class="narrow-cell" left-icon="cake" title="生日" description="{{userInfos.birthday?userInfos.birthday:'保密'}}" hover arrow/>
+    <t-cell bind:click="copyPhone" class="narrow-cell" left-icon="call" title="手机号" description="{{userInfos.phone?userInfos.phone:'保密'}}" hover arrow/>
+    <t-cell bind:click="copyEmail" class="narrow-cell" left-icon="mail" title="邮箱" description="{{userInfos.email?userInfos.email:'保密'}}" hover arrow/>
+    <view style="height:30rpx;"/>
+  </view>
+</t-popup>

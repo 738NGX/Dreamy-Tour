@@ -24,6 +24,9 @@ Component({
     isChannelOwner: false,
     isChannelAdmin: false,
     newMemberId: '',
+
+    usercardVisible: false,
+    usercardInfos: {} as Member,
   },
   lifetimes: {
     async ready() {
@@ -43,6 +46,19 @@ Component({
     async getAuthority() {
       const { isChannelOwner, isChannelAdmin } = await app.getUserAuthorityInChannel(this.data.channelId);
       this.setData({ isChannelOwner, isChannelAdmin });
+    },
+    showUsercard(e: WechatMiniprogram.CustomEvent) {
+      const userId = e.currentTarget.dataset.index;
+      if (!userId) {
+        this.setData({ usercardVisible: false });
+        return;
+      }
+      const user = this.data.members.find((m) => m.id === userId);
+      if (!user) return;
+      this.setData({
+        usercardVisible: true,
+        usercardInfos: user
+      })
     },
     onNewMemberIdInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ newMemberId: e.detail.value });

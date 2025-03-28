@@ -52,6 +52,9 @@ Component({
 
     photoUploadVisible: false,
     uploadedPhotos: [] as any[],
+
+    usercardVisible: false,
+    usercardInfos: {} as Member,
   },
   methods: {
     async onLoad(options: any) {
@@ -81,6 +84,19 @@ Component({
     },
     onNewMemberIdInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ newMemberId: e.detail.value });
+    },
+    showUsercard(e: WechatMiniprogram.CustomEvent) {
+      const userId = e.currentTarget.dataset.index;
+      if (!userId) {
+        this.setData({ usercardVisible: false });
+        return;
+      }
+      const user = this.data.members.find((m) => m.id === userId);
+      if (!user) return;
+      this.setData({
+        usercardVisible: true,
+        usercardInfos: user
+      })
     },
     async addMember() {
       if (await app.addMemberInGroup(
