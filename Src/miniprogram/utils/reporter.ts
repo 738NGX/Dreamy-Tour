@@ -38,7 +38,13 @@ export class Reporter {
   locationList: ExpenseItemList[];
 
   //分成员列表
- // userList: ExpenseItemList[];
+  // userList: ExpenseItemList[];
+
+  //
+  titleOfBudgets: string[];
+  budgets: number[];
+  costs: number[];
+  diff: number[];
 
   // 地图路径
   markers: any[] = [];
@@ -72,6 +78,10 @@ export class Reporter {
     this.locationList = Array(tour.locations[copyIndex].length).fill(null).map(() =>
       new ExpenseItemList(this.mainCurrency, this.subCurrency)
     );
+    this.titleOfBudgets = [];
+    this.budgets = [];
+    this.costs = [];
+    this.diff = [];
     // this.userList = Array(tour.users.length).fill(null).map(() =>
     //   new ExpenseItemList(this.mainCurrency, this.subCurrency)
     // )
@@ -82,6 +92,7 @@ export class Reporter {
     this.dealLocations(copyIndex);
     this.dealTransportations(copyIndex);
     this.updateAllLists();
+    this.calcBudgetChartData();
   }
 
   private dealLocations(copyIndex: number) {
@@ -334,7 +345,24 @@ export class Reporter {
     //   list.update();
     // }
   }
+
+  private calcBudgetChartData(){
+    let i = 0;
+    console.log(this.tourData.budgets.length)
+    for (const budget of this.tourData.budgets){
+      const currencyExchangeRate = budget.currency == this.tourData.subCurrency? this.tourData.currencyExchangeRate : 1;
+      const budgetAmount = budget.amount * currencyExchangeRate;
+      this.titleOfBudgets.push(budget.title);
+      this.budgets.push(budgetAmount);
+      this.costs.push(0 - this.expenseCalculator.totalInBudget[i].allCurrency);
+      this.diff.push(this.budgets[i] - this.costs[i]);
+      i++;
+    }
+  }
 }
+    
+  
+
 
 export class ExpenseItemList {
   data: ExpenseItem[] = [];
@@ -395,6 +423,7 @@ export class ExpenseItemList {
     this.chartData = JSON.parse(JSON.stringify(res));
   }
 
+  //返回前十条消费数据，利用JSON进行深拷贝
   private updateEChartData(){
     const data = this.data.slice(0, 10);
     let res = [

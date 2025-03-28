@@ -56,6 +56,8 @@ Component({
     reporter: null as Reporter | null,
 
     activeCollapses: [[], [], [], [], [], []],
+    //预算
+    expandedPanels: [],
 
     chartDataInType: null as [] | null,
     chartDataInBudget: null as [] | null,
@@ -65,6 +67,8 @@ Component({
     chartDataInMeal: {},
     chartDataInTicket: {},
     chartDataInShopping: {},
+
+    budgetChartData: {},
 
     totalTransportCurrency: '',
     totalMainCurrency:'',
@@ -86,11 +90,26 @@ Component({
       this.initCharts();
     },
     initCharts(){
+      const getPixelRatio = () => {
+        let pixelRatio = 0
+        wx.getSystemInfo({
+          success: function (res) {
+            pixelRatio = res.pixelRatio
+          },
+          fail: function () {
+            pixelRatio = 0
+          }
+        })
+        return pixelRatio
+      }
+      var dpr =getPixelRatio()
+
       const chartInType = this.selectComponent('#chartInType')
       chartInType.init((canvas:any, width:any,height:any) => {
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setChartOptionInType(chart);
         return chart
@@ -101,6 +120,7 @@ Component({
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setChartOptionInBudget(chart);
         return chart
@@ -111,6 +131,7 @@ Component({
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setChartOptionInTransportType(chart);
         return chart
@@ -121,6 +142,7 @@ Component({
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setStatisticChartOption(chart,this.data.chartDataInHotel);
         return chart
@@ -131,6 +153,7 @@ Component({
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setStatisticChartOption(chart,this.data.chartDataInMeal);
         return chart
@@ -141,6 +164,7 @@ Component({
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setStatisticChartOption(chart,this.data.chartDataInTicket);
         return chart
@@ -151,17 +175,30 @@ Component({
         const chart = echarts.init(canvas, null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setStatisticChartOption(chart,this.data.chartDataInShopping);
         return chart
       })
+
+      const budgetChart = this.selectComponent('#budgetChart')
+      budgetChart.init((canvas:any, width:any,height:any) => {
+        const chart = echarts.init(canvas, null, {
+          width: width,
+          height: height,
+          devicePixelRatio: dpr
+        });
+        this.setBudgetChartOption(chart);
+        return chart
+      })
     },
     initReport(value:any,copyIndex:number){
-      console.log("beforeinitReport",this.properties.currentTour,this.properties.currentTourCopyIndex)
+      //console.log("beforeinitReport",this.properties.currentTour,this.properties.currentTourCopyIndex)
       if (!value || typeof value !== 'object') {
         console.error("Invalid tour data provided:", value);
         return; // 或者设置默认值
       }
+
       const currentTour = new Tour(value);
       
       const reporter = new Reporter(currentTour,copyIndex);
@@ -184,6 +221,7 @@ Component({
         totalTransportCurrency: totalTransportCurrency.toFixed(2),
       })
     //  console.log("chartdatainhotel",this.data.chartDataInHotel)
+    console.log("currentreporter",this.data.reporter)
     },
     onTourUpdate(data : Tour){
       this.setData({ currentTour: data})
@@ -199,6 +237,13 @@ Component({
           }
       });
     },
+    handleBudgetCollapsesChange(e: WechatMiniprogram.CustomEvent) {
+      this.setData({
+        expandedPanels: e.detail.value
+      });
+      //console.log('当前展开的面板:', e.detail.value);
+    },
+
 
 
 /**
@@ -221,6 +266,7 @@ Component({
             left: 'auto',
             top: 'center',
             orient:'hozizonal',
+            type: 'scroll'
           },
           toolbox: {
             show: true,
@@ -233,16 +279,23 @@ Component({
           },
           series: [
             {
-              name: 'Area Mode',
+              name: 'Access From',
               type: 'pie',
-              roseType:'radius',
-              label:{
-                show:false,
+              radius: ['40%', '70%'],
+              avoidLabelOverlap: false,
+              label: {
+                show: false,
+                position: 'center'
               },
-              radius: [20, 100],
-              center: ['50%', '50%'],
-              itemStyle: {
-                borderRadius: 3
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: 20,
+                  fontWeight: 'bold'
+                }
+              },
+              labelLine: {
+                show: false
               },
               data:this.data.chartDataInType
             }
@@ -272,6 +325,7 @@ Component({
             left: 'auto',
             top: 'buttom',
             orient:'hozizonal',
+            type: 'scroll'
           },
           toolbox: {
             show: true,
@@ -284,16 +338,23 @@ Component({
           },
           series: [
             {
-              name: 'Area Mode',
+              name: 'Access From',
               type: 'pie',
-              roseType:'radius',
-              label:{
-                show:false,
+              radius: ['40%', '70%'],
+              avoidLabelOverlap: false,
+              label: {
+                show: false,
+                position: 'center'
               },
-              radius: [20, 100],
-              center: ['50%', '50%'],
-              itemStyle: {
-                borderRadius: 3
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: 20,
+                  fontWeight: 'bold'
+                }
+              },
+              labelLine: {
+                show: false
               },
               data:this.data.chartDataInBudget
             }
@@ -321,6 +382,7 @@ Component({
             left: 'auto',
             top: 'buttom',
             orient:'hozizonal',
+            type: 'scroll'
           },
           toolbox: {
             show: true,
@@ -333,16 +395,23 @@ Component({
           },
           series: [
             {
-              name: 'Area Mode',
+              name: 'Access From',
               type: 'pie',
-              roseType:'radius',
-              label:{
-                show:false,
+              radius: ['40%', '70%'],
+              avoidLabelOverlap: false,
+              label: {
+                show: false,
+                position: 'center'
               },
-              radius: [20, 100],
-              center: ['50%', '50%'],
-              itemStyle: {
-                borderRadius: 3
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: 20,
+                  fontWeight: 'bold'
+                }
+              },
+              labelLine: {
+                show: false
               },
               data:this.data.chartDataInTransportType
             }
@@ -352,6 +421,90 @@ Component({
       }
     },
     /**
+     * 预算表盈亏图设置
+     * @param chart 
+     * @param data 
+     */
+    setBudgetChartOption(chart:any){
+      if(this.data.reporter){
+        var option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
+          },
+          legend: {
+            data: ['盈亏', '消费', '预算']
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: [
+            {
+              type: 'value'
+            }
+          ],
+          yAxis: [
+            {
+              type: 'category',
+              axisTick: {
+                show: true
+              },
+              data: this.data.reporter.titleOfBudgets
+            }
+          ],
+          series: [
+            {
+              name: '盈亏',
+              type: 'bar',
+              label: {
+                show: true,
+                position: 'inside'
+              },
+              emphasis: {
+                focus: 'series'
+              },
+              data: this.data.reporter.diff
+            },
+            {
+              name: '预算',
+              type: 'bar',
+              stack: 'Total',
+              label: {
+                show: true
+              },
+              emphasis: {
+                focus: 'series'
+              },
+              data: this.data.reporter.budgets
+            },
+            {
+              name: '消费',
+              type: 'bar',
+              stack: 'Total',
+              label: {
+                show: true,
+                position: 'left'
+              },
+              emphasis: {
+                focus: 'series'
+              },
+              data: this.data.reporter.costs
+            }
+          ]
+        };
+        chart.setOption(option);
+      }
+    },
+
+
+
+
+  /**
  * 多y轴柱状图设置
  * @param chart 
  */

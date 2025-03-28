@@ -18,7 +18,7 @@ Component({
     copyOptions: [] as any[],
     currentCopyIndex: 0,
 
-    showUserReport: false,
+    showUserReport: true,
     //前端写这个有隐私安全
   },
   methods: {
