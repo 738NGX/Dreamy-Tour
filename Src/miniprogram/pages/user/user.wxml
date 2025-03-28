@@ -56,8 +56,8 @@
         <t-input borderless class="narrow-input" bind:blur="handleBirthdayChange" label="生日" placeholder="请输入生日(YYYY-mm-dd)格式" maxlength="{{10}}" value="{{currentUser.birthday}}" />
         <t-input borderless class="narrow-input" bind:blur="handlePhoneChange" label="手机" placeholder="请输入手机号" maxlength="{{11}}" value="{{currentUser.phone}}" />
         <t-input borderless class="narrow-input" bind:blur="handleEmailChange" label="邮箱" placeholder="请输入邮箱" maxlength="{{80}}" value="{{currentUser.email}}" />
-        <t-button theme="primary" style="width:100%;" bind:tap="handleUserBasicChange">确认修改</t-button>
-        <t-button style="width:100%; margin-top:20rpx;" bind:tap="handleUserBasicReset">取消修改</t-button>
+        <t-button theme="primary" style="width:95%; margin:10rpx" bind:tap="handleUserBasicChange">确认修改</t-button>
+        <t-button style="width:95%; margin:10rpx" bind:tap="handleUserBasicReset">取消修改</t-button>
       </c-collapse>
       <c-collapse wx:if="{{isTestMode}}" header="切换演示账号">
         <t-grid column="{{5}}" hover>

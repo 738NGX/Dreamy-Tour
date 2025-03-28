@@ -18,10 +18,10 @@
     <view style="height:30rpx" />
   </view>
   <view class="user-main">
-    <t-cell class="narrow-cell" left-icon="pen" title="个性签名" description="{{userInfos.signature?userInfos.signature:'请多关照!'}}" hover arrow />
-    <t-cell class="narrow-cell" left-icon="cake" title="生日" description="{{userInfos.birthday?userInfos.birthday:'保密'}}" hover arrow />
-    <t-cell bind:click="copyPhone" class="narrow-cell" left-icon="call" title="手机号" description="{{userInfos.phone?userInfos.phone:'保密'}}" hover arrow />
-    <t-cell bind:click="copyEmail" class="narrow-cell" left-icon="mail" title="邮箱" description="{{userInfos.email?userInfos.email:'保密'}}" hover arrow />
+    <t-cell bordered="{{false}}" class="narrow-cell" left-icon="pen" title="个性签名" description="{{userInfos.signature?userInfos.signature:'请多关照!'}}" hover arrow />
+    <t-cell bordered="{{false}}" class="narrow-cell" left-icon="cake" title="生日" description="{{userInfos.birthday?userInfos.birthday:'保密'}}" hover arrow />
+    <t-cell bordered="{{false}}" bind:click="copyPhone" class="narrow-cell" left-icon="call" title="手机号" description="{{userInfos.phone?userInfos.phone:'保密'}}" hover arrow />
+    <t-cell bordered="{{false}}" bind:click="copyEmail" class="narrow-cell" left-icon="mail" title="邮箱" description="{{userInfos.email?userInfos.email:'保密'}}" hover arrow />
     <view style="height:30rpx;" />
   </view>
 </t-popup>

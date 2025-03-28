@@ -35,7 +35,7 @@
       </view>
     </t-cell>
     <t-input value="{{linkedTour.currencyExchangeRate}}" label="汇率" placeholder="请输入汇率" type="number" format="{{rateFormat}}" bindchange="onRateInput" bindblur="onRateUpdate" tips="{{rateError ? '请输入正确的汇率' : ''}}">
-      <t-button slot="suffix" theme="primary" variant="outline" size="extra-small">获取汇率</t-button>
+      <t-button bind:tap="getRate" slot="suffix" theme="primary" variant="outline" size="extra-small">获取汇率</t-button>
     </t-input>
   </c-collapse>
   <c-collapse header="聊天群二维码">
