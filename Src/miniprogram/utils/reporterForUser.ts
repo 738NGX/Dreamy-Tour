@@ -17,6 +17,7 @@ if (PLUGIN_KEY) {
 import { Tour } from './tour/tour';
 import { formatDate, getEChartData } from './util';
 
+
 const app = getApp<IAppOption>();
 
 export class ReporterForUser {
@@ -39,7 +40,11 @@ export class ReporterForUser {
   // 分位置列表
   locationList: ExpenseItemList[];
 
-  currentUserId: number;
+  //当前用户id
+  // currentUserId: number;
+
+  //选中的用户Id，在构造函数中默认设置为当前用户id
+  selectedUserId: number;
 
   // 地图路径
   markers: any[] = [];
@@ -57,9 +62,10 @@ export class ReporterForUser {
     }
   };
 
-  constructor(tour: Tour,copyIndex:number) {
+  constructor(tour: Tour,copyIndex: number,selectedUserId? : number) {
     this.tourData = tour;
-    this.currentUserId = app.globalData.currentUserId;
+  //  this.currentUserId = app.globalData.currentUserId;
+    this.selectedUserId = selectedUserId ? selectedUserId : app.globalData.currentUserId 
 
     this.currencyExchangeRate = tour.currencyExchangeRate;
     this.mainCurrency = tour.mainCurrency;
@@ -101,7 +107,7 @@ export class ReporterForUser {
         //expenseItem存储单笔消费记录，如果为总价，则除以人数
         //平均存入budgetlist
       for (const expense of location.expenses) {
-        if(expense.user.includes(this.currentUserId)){
+        if(expense.user.includes(this.selectedUserId)){
           const userNumForCalc = expense.user && expense.amountType == AmountType.Average ? 1 : expense.user.length;
           const budgetNumForCalc = expense.budget ? expense.budget.length : 1;
 
@@ -197,7 +203,7 @@ export class ReporterForUser {
       this.polyline.segmentTexts.push({ name: transportation.getDurationString(), startIndex: transportation.index, endIndex: transportation.index + 1 });
 
       for (const expense of transportation.transportExpenses) {
-        if(expense.user.includes(this.currentUserId)){
+        if(expense.user.includes(this.selectedUserId)){
           const userNumForCalc = expense.user && expense.amountType == AmountType.Average ? 1 : expense.user.length;
           const budgetNumForCalc = expense.budget ? expense.budget.length : 1;
 

@@ -6,6 +6,7 @@ import { ReporterForUser } from '../../../utils/reporterForUser';
 import { Tour } from '../../../utils/tour/tour';
 import { currencyList } from '../../../utils/tour/expense'
 import { displayNumber } from '../../../utils/util';
+import { User } from '../../../utils/user/user';
 
 const app = getApp<IAppOption>();
 
@@ -16,7 +17,7 @@ Component({
 
     },
     attached() {
-
+      this.updateData()
     },
     moved() {
 
@@ -41,7 +42,7 @@ Component({
     'currentTour, currentTourCopyIndex': function (currentTour, currentTourCopyIndex) {
       if (currentTour && currentTourCopyIndex !== undefined) {
         // 参数就绪后执行初始化
-        this.onLoad();
+        this.init();
       }
     }
   },
@@ -49,7 +50,12 @@ Component({
   //  currentTour : null as Tour | null,
 
   //  currentTourCopyIndex : 0,
-
+    currentUserId: 0 as number,
+    currentUserList: [] as any[],
+    selectingUserVisible: false,
+    //selectedUserId 默认值为当前用户id
+    selectedUserId: 0 as number,
+    selectedUserName: '' as string,
     currencyList:currencyList,
     ec:{
       lazyLoad: true
@@ -74,15 +80,30 @@ Component({
   },
  
   methods: {
-    onLoad(){
+    init(){
       // const tourId = options.tourId;
       // const currentTourCopyIndex = options.currentTourCopyIndex
       // this.setData({
       //   currentTour: app.getTour(parseInt(tourId)) as Tour,
       //   currentTourCopyIndex: currentTourCopyIndex
       // })
-      this.initReport(this.properties.currentTour,this.properties.currentTourCopyIndex);
+      this.updateData();
+      console.log("currentUserList",this.data.currentUserList);
+      this.initReport(this.properties.currentTour,this.properties.currentTourCopyIndex,this.data.selectedUserId);
       this.initCharts();
+    },
+    updateData(){
+      this.setData({
+        currentUserId: app.globalData.currentUserId,
+        currentUserName: app.getUser(this.data.currentUserId)?.name,
+        selectedUserId:this.data.selectedUserId? this.data.selectedUserId : app.globalData.currentUserId,
+        selectedUserName:app.getUser(this.data.selectedUserId)?.name,
+        currentUserList: app.getUserListCopy().map(user => {
+          if (this.properties.currentTour.users.includes(user.id)) return new User(user);
+          else return null;
+          }).filter((user: any) => user !== null)
+            .filter((user: any) => user.id !== this.data.currentUserId)
+      })
     },
     initCharts(){
       const chartInType = this.selectComponent('#chartInType')
@@ -155,11 +176,11 @@ Component({
         return chart
       })
     },
-    initReport(value:any,copyIndex:number){
+    initReport(value:any,copyIndex:number,selectedUserId: number){
     //  console.log("beforeinitReport",this.properties.currentTour,this.properties.currentTourCopyIndex)
       const currentTour = new Tour(value);
       
-      const reporter = new ReporterForUser(currentTour,copyIndex);
+      const reporter = new ReporterForUser(currentTour,copyIndex,selectedUserId);
       
       const totalTransportCurrency = reporter.expenseCalculator.calculateTotalTransportCurrency()
       this.setData({
@@ -193,6 +214,17 @@ Component({
               [e.currentTarget.dataset.index]: e.detail.value
           }
       });
+    },
+    handleSelectingUser(){
+      this.setData({ 
+        selectingUserVisible: !this.data.selectingUserVisible
+      })
+    },
+    onSelectedUserChange(e: WechatMiniprogram.CustomEvent) {
+      const { value } = e.detail;
+      this.setData({ selectedUserId: value });
+      console.log('新选中 ID:', value, '当前 selectedUserId:', this.data.selectedUserId);
+      this.init();
     },
 
 

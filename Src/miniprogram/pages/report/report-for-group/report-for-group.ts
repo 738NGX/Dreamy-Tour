@@ -40,7 +40,7 @@ Component({
     'currentTour, currentTourCopyIndex': function (currentTour, currentTourCopyIndex) {
       if (currentTour !== undefined && currentTourCopyIndex !== undefined) {
         // 参数就绪后执行初始化
-        this.onLoad();
+        this.init();
       }
     }
   },
@@ -73,8 +73,8 @@ Component({
   },
  
   methods: {
-    onLoad(){
-      console.log("onload执行")
+    init(){
+      //console.log("onload执行")
       // const tourId = options.tourId;
       // const currentTourCopyIndex = options.currentTourCopyIndex
       // this.setData({
