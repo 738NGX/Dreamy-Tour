@@ -2,9 +2,13 @@
 <scroll-view class="scrollarea" scroll-y type="list">
   <view class="container">
     <view class="column">
-      <view style="font-weight:bold;">行程名称："{{reporter.tourData.title}}"</view>
+      <view style="font-weight:bold;">行程名称：{{reporter.tourData.title}}</view>
       <view style="font-weight:bold;">行程版本号：{{ currentTourCopyIndex }}</view>
-      <view style="font-weight:bold;">当前视图：个人</view>
+      
+      <view class="row" style="margin:0">
+        <view style="font-weight:bold;">当前成员视图：{{selectedUserName}}</view>
+        <t-button class="t-button" theme="primary" ghost size="extra-small" bind:tap="handleSelectingUser">切换</t-button>
+      </view>
       <view style="font-weight:bold;">本次行程总消费：</view>
 
       <view class="row" style="margin:0">
@@ -78,3 +82,18 @@
   
   </view>
 </scroll-view>
+<!-- 成员视图切换弹窗 -->
+<t-popup style="width:60% !important;" visible="{{selectingUserVisible}}" usingCustomNavbar bind:visible-change="handleSelectingUser" placement="left">
+  <t-collapse>
+    <t-collapse-panel header="成员视图选择">
+    <t-radio-group class="narrow-radio" bind:change="onSelectedUserChange" value="{{selectedUserId}}">
+      <t-radio value="{{currentUserId}}">
+        <text class="narrow-input">{{currentUserName}}（我）</text>
+      </t-radio>
+      <t-radio wx:for="{{currentUserList}}" wx:key="id" value="{{item.id}}" checked="{{item.id === selectedUserId}}">
+        <text class="narrow-input">{{item.name}}</text>
+      </t-radio>
+    </t-radio-group>
+    </t-collapse-panel>
+  </t-collapse>
+</t-popup>
