@@ -3,10 +3,19 @@
 @import url('../../../components/fonts/transportation.less');
 
 .container{
-  background-color: aliceblue;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
 }
+
 ec-canvas {
   width: 100%;
   height: 520rpx;
-  background-color: white;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.narrow-cell {
+  display: flex;
+  align-items: center;
+  --td-cell-vertical-padding: 10rpx;
 }

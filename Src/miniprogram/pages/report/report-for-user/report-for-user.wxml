@@ -1,46 +1,22 @@
 <!-- report-for-tour.wxml -->
 <scroll-view class="scrollarea" scroll-y type="list">
   <view class="container">
-    <view class="column">
-      <view style="font-weight:bold;">行程名称：{{reporter.tourData.title}}</view>
-      <view style="font-weight:bold;">行程版本号：{{ currentTourCopyIndex }}</view>
-      
-      <view class="row" style="margin:0">
-        <view style="font-weight:bold;">当前成员视图：{{selectedUserName}}</view>
-        <t-button class="t-button" theme="primary" ghost size="extra-small" bind:tap="handleSelectingUser">切换</t-button>
-      </view>
-      <view style="font-weight:bold;">本次行程总消费：</view>
-
-      <view class="row" style="margin:0">
-        <view>{{currencyList[reporter.mainCurrency].label}}:</view>
-        <view>{{totalMainCurrency}}</view>
-      </view>
-      <view class="row" style="margin:0">
-        <view>{{currencyList[reporter.subCurrency].label}}:</view>
-        <view>{{totalSubCurrency}}</view>
-      </view>
-      <view class="row" style="margin:0">
-        <view style="font-weight:bold;">合计{{currencyList[reporter.mainCurrency].label}}:</view>
-        <view style="font-weight:bold;">{{totalCurrency}}</view>
-      </view>
-      <view class="row" style="margin:0">
-        <view>参考汇率:</view>
-        <view>1{{currencyList[reporter.subCurrency].symbol}}=
-          {{reporter.currencyExchangeRate}}
-          {{currencyList[reporter.mainCurrency].symbol}}</view>
-      </view>
-    </view>
-
-    <view class="row" style="font-weight:bold;">分类统计(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <t-cell class="narrow-cell" title="行程名称" note="{{reporter.tourData.title}}" bordered="{{false}}" />
+    <t-cell class="narrow-cell" title="行程版本" note="{{currentTour.nodeCopyNames[currentTourCopyIndex]}}" bordered="{{false}}" />
+    <t-cell class="narrow-cell" title="报告视图" note="{{selectedUserName}}" bind:click="handleSelectingUser" bordered="{{false}}" hover arrow />
+    <t-cell class="narrow-cell" title="行程总消费:" bordered="{{false}}" />
+    <t-cell class="narrow-cell" title="{{currencyList[reporter.mainCurrency].label}}" note="{{totalMainCurrency}}" bordered="{{false}}" />
+    <t-cell class="narrow-cell" title="{{currencyList[reporter.subCurrency].label}}" note="{{totalSubCurrency}}" bordered="{{false}}" />
+    <t-cell class="narrow-cell" title="合计{{currencyList[reporter.mainCurrency].label}}" note="{{totalCurrency}}" bordered="{{false}}" />
+    <t-cell class="narrow-cell" title="参考汇率" note="1{{currencyList[reporter.subCurrency].symbol}}={{reporter.currencyExchangeRate}}{{currencyList[reporter.mainCurrency].symbol}}" bordered="{{false}}" />
+    <t-cell class="narrow-cell" title="分类统计(in {{currencyList[reporter.mainCurrency].symbol}})" bordered="{{false}}" />
     <ec-canvas id="chartInType" canvas-id="chartInType" ec="{{ec}}" canvas2d />
-
-    <view class="row" style="font-weight:bold;">分预算表统计(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <t-cell class="narrow-cell" title="分预算表统计(in {{currencyList[reporter.mainCurrency].symbol}})" bordered="{{false}}" />
     <ec-canvas id="chartInBudget" canvas-id="chartInBudget" ec="{{ec}}" canvas2d />
-  
-    <view class="row" style="font-weight:bold;">交通统计(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <t-cell class="narrow-cell" title="交通统计(in {{currencyList[reporter.mainCurrency].symbol}})" bordered="{{false}}" />
     <ec-canvas id="chartInTransportType" canvas-id="chartInTransportType" ec="{{ec}}" canvas2d />
-    <view class="row" style="font-weight:bold;">交通消费总计(in {{currencyList[reporter.mainCurrency].symbol}}): {{ totalTransportCurrency }}</view>
-    <view class="row" style="font-weight:bold;">住宿top10消费记录(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <t-cell class="narrow-cell" title="交通消费总计(in {{currencyList[reporter.mainCurrency].symbol}})" note="{{totalTransportCurrency}}" bordered="{{false}}" />
+    <t-cell class="narrow-cell" title="住宿top10消费记录(in {{currencyList[reporter.mainCurrency].symbol}})" bordered="{{false}}" />
     <ec-canvas id="chartInHotel" canvas-id="chartInHotel" ec="{{ec}}" canvas2d />
     <t-collapse value="{{activeCollapses[0]}}" bind:change="handleCollapsesChange" data-index="{{0}}">
       <t-collapse-panel header="住宿消费合计" header-right-content="{{reporter.expenseCalculator.totalInType[0].allCurrency}}{{currencyList[reporter.mainCurrency].symbol}}" value="{{0}}" expandIcon>
@@ -49,8 +25,7 @@
         </view>
       </t-collapse-panel>
     </t-collapse>
-  
-    <view class="row" style="font-weight:bold;">餐饮top10消费记录(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <t-cell class="narrow-cell" title="餐饮top10消费记录(in {{currencyList[reporter.mainCurrency].symbol}})" bordered="{{false}}" />
     <ec-canvas id="chartInMeal" canvas-id="chartInMeal" ec="{{ec}}" canvas2d />
     <t-collapse value="{{activeCollapses[1]}}" bind:change="handleCollapsesChange" data-index="{{1}}">
       <t-collapse-panel header="餐饮消费合计" header-right-content="{{reporter.expenseCalculator.totalInType[1].allCurrency}}{{currencyList[reporter.mainCurrency].symbol}}" value="{{0}}" expandIcon>
@@ -59,8 +34,7 @@
         </view>
       </t-collapse-panel>
     </t-collapse>
-  
-    <view class="row" style="font-weight:bold;">门票top10消费记录(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <t-cell class="narrow-cell" title="门票top10消费记录(in {{currencyList[reporter.mainCurrency].symbol}})" bordered="{{false}}" />
     <ec-canvas id="chartInTicket" canvas-id="chartInTicket" ec="{{ec}}" canvas2d />
     <t-collapse value="{{activeCollapses[2]}}" bind:change="handleCollapsesChange" data-index="{{2}}">
       <t-collapse-panel header="门票消费合计" header-right-content="{{reporter.expenseCalculator.totalInType[3].allCurrency}}{{currencyList[reporter.mainCurrency].symbol}}" value="{{0}}" expandIcon>
@@ -69,8 +43,7 @@
         </view>
       </t-collapse-panel>
     </t-collapse>
-  
-    <view class="row" style="font-weight:bold;">购物top10消费记录(in {{currencyList[reporter.mainCurrency].symbol}})</view>
+    <t-cell class="narrow-cell" title="购物top10消费记录(in {{currencyList[reporter.mainCurrency].symbol}})" bordered="{{false}}" />
     <ec-canvas id="chartInShopping" canvas-id="chartInShopping" ec="{{ec}}" canvas2d />
     <t-collapse value="{{activeCollapses[3]}}" bind:change="handleCollapsesChange" data-index="{{3}}">
       <t-collapse-panel header="购物消费合计" header-right-content="{{reporter.expenseCalculator.totalInType[4].allCurrency}}{{currencyList[reporter.mainCurrency].symbol}}" value="{{0}}" expandIcon>
@@ -79,21 +52,20 @@
         </view>
       </t-collapse-panel>
     </t-collapse>
-  
   </view>
 </scroll-view>
 <!-- 成员视图切换弹窗 -->
 <t-popup style="width:60% !important;" visible="{{selectingUserVisible}}" usingCustomNavbar bind:visible-change="handleSelectingUser" placement="left">
   <t-collapse>
     <t-collapse-panel header="成员视图选择">
-    <t-radio-group class="narrow-radio" bind:change="onSelectedUserChange" value="{{selectedUserId}}">
-      <t-radio wx:if="{{isCurrentUserInGroup}}" value="{{currentUserId}}">
-        <text class="narrow-input">{{currentUserName}}（我）</text>
-      </t-radio>
-      <t-radio wx:for="{{currentUserList}}" wx:key="id" value="{{item.id}}" checked="{{item.id === selectedUserId}}">
-        <text class="narrow-input">{{item.name}}</text>
-      </t-radio>
-    </t-radio-group>
+      <t-radio-group class="narrow-radio" bind:change="onSelectedUserChange" value="{{selectedUserId}}">
+        <t-radio wx:if="{{isCurrentUserInGroup}}" value="{{currentUserId}}">
+          <text class="narrow-input">{{currentUserName}}（我）</text>
+        </t-radio>
+        <t-radio wx:for="{{currentUserList}}" wx:key="id" value="{{item.id}}" checked="{{item.id === selectedUserId}}">
+          <text class="narrow-input">{{item.name}}</text>
+        </t-radio>
+      </t-radio-group>
     </t-collapse-panel>
   </t-collapse>
 </t-popup>

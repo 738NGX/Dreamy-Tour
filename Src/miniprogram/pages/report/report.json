@@ -1,9 +1,7 @@
 {
   "usingComponents": {
-      "header": "/components/header/header",
-     
-      "report-for-group": "./report-for-group/report-for-group",
-      "report-for-user": "./report-for-user/report-for-user"
-
+    "header": "/components/header/header",
+    "report-for-group": "./report-for-group/report-for-group",
+    "report-for-user": "./report-for-user/report-for-user"
   }
 }

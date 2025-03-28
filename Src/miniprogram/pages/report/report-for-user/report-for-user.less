@@ -3,7 +3,9 @@
 @import url('../../../components/fonts/transportation.less');
 
 .container{
-  background-color: aliceblue;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
 }
 
 .narrow-radio {
@@ -17,11 +19,16 @@
 ec-canvas {
   width: 100%;
   height: 520rpx;
-  background-color: white;
 }
 
 .t-button{
   display:flex;
   justify-content: flex-end;
   margin:0;
+}
+
+.narrow-cell {
+  display: flex;
+  align-items: center;
+  --td-cell-vertical-padding: 10rpx;
 }
