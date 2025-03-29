@@ -1,4 +1,6 @@
-class Tour {
+import VO from "@/base/vo";
+
+class TourBasicVo extends VO<TourBasicVo> {
   // 行程ID
   tourId: number;
   // 行程名称
@@ -23,20 +25,6 @@ class Tour {
   subCurrency: number;
   // 行程货币汇率
   currencyExchangeRate: number;
-  // 行程用户列表
-  users: string;
-  // 行程版本名称列表
-  nodeCopyNames: string;
-  // 行程预算表列表
-  budgets: string;
-  // 行程地点列表
-  locations: string;
-  // 行程交通列表
-  transportations: string;
-  // 行程创建时间
-  createdAt: number;
-  // 行程更新时间
-  updatedAt: number;
 }
 
-export default Tour;
+export default TourBasicVo;
