@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-08 20:31:05 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-21 22:14:19
+ * @Last Modified time: 2025-03-29 14:37:43
  */
 
 import dbPromise from "@/config/databaseConfig";
@@ -51,7 +51,7 @@ class ChannelUtil {
     }
     // 如果是该频道的频道主或者频道管理员，返回 true（用联合查询介绍数据库查询次数）
     const db = await dbPromise;
-    const exists = await db.get<number>(
+    const exists = await db.get<{ _: number }>(
       `SELECT 1 WHERE EXISTS (
         SELECT 1 FROM channels 
         WHERE channelId = ? AND masterId = ?
@@ -104,7 +104,7 @@ class ChannelUtil {
     }
     // 如果是该频道的频道主，返回 true
     const db = await dbPromise;
-    const row = await db.get<number>(
+    const row = await db.get<{ _: number }>(
       `SELECT channelId FROM channels
        WHERE channelId = ? AND masterId = ?`,
       [
@@ -123,7 +123,7 @@ class ChannelUtil {
   static async hasExitPermission(uid: number, channelId: number) {
     // 如果该用户是频道主，没有权限退出频道；只有将频道主转让给别人后，才可以退出
     const db = await dbPromise;
-    const row = await db.get<number>(
+    const row = await db.get<{ _: number }>(
       `SELECT channelId FROM channels
        WHERE channelId = ? AND masterId = ?`,
       [
@@ -150,7 +150,7 @@ class ChannelUtil {
       return true;
     }
     const db = await dbPromise;
-    const exists = await db.get<number>(
+    const exists = await db.get<{ _: number }>(
       `SELECT 1 WHERE EXISTS (
         SELECT 1 FROM channels 
         WHERE channelId = ? AND masterId = ?
@@ -180,7 +180,7 @@ class ChannelUtil {
       return true;
     }
     const db = await dbPromise;
-    const exists = await db.get<number>(
+    const exists = await db.get<{ _: number }>(
       `SELECT 1 WHERE EXISTS (
         SELECT 1 FROM channels 
         WHERE channelId = ? AND masterId = ?

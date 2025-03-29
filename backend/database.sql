@@ -63,7 +63,7 @@ CREATE TABLE posts (
     uid INTEGER,
     channelId INTEGER,
     categoryId INTEGER,
-    title TEXT UNIQUE,
+    title TEXT,
     pictureUrls TEXT,
     content TEXT,
     clickSum INTEGER,

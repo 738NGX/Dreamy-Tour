@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 22:13:32 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-21 22:07:00
+ * @Last Modified time: 2025-03-29 14:59:43
  */
 class MessageConstant {
   static readonly SUCCESSFUL_RETURN = '返回成功';
@@ -14,8 +14,10 @@ class MessageConstant {
   static readonly UNKNOWN_ERROR = "未知异常";
   static readonly SUCCESSFUL_CREATED = "创建成功";
   static readonly SUCCESSFUL_MODIFIED = "修改成功";
+  static readonly SUCCESSFUL_DELETE = "删除成功";
   static readonly SUCCESSFUL_UNREGISTER = "注销成功";
   static readonly SUCCESSFUL_TRANSFER = "转让成功";
+  static readonly SUCCESSFUL_TOP = "置顶成功";
   static readonly SUCCESSFUL_DISSOLVE = "解散成功";
   static readonly SUCCESSFUL_PUBLISH = "发布成功";
   static readonly SUCCESSFUL_LIKE = "点赞成功";

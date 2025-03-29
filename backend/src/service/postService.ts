@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-03 13:59:07 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-25 21:26:51
+ * @Last Modified time: 2025-03-29 15:28:34
  */
 
 import PostListBo from "@/bo/post/postListBo";
@@ -12,8 +12,10 @@ import ChannelConstant from "@/constant/channelConstant";
 import CosConstant from "@/constant/cosConstant";
 import PostConstant from "@/constant/postConstant";
 import PostPublishDto from "@/dto/post/postPublishDto";
+import ForbiddenError from "@/exception/forbiddenError";
 import ParamsError from "@/exception/paramsError";
 import CosUtil from "@/util/cosUtil";
+import PostUtil from "@/util/postUtil";
 import RoleUtil from "@/util/roleUtil";
 import PostListVo from "@/vo/post/postListVo";
 
@@ -23,6 +25,13 @@ class PostService {
    * @param postPublishDto 发布帖子需要的参数
    */
   static async publish(postPublishDto: PostPublishDto): Promise<void> {
+    if (
+      !await PostUtil.hasPublishPermission(
+        postPublishDto.uid, postPublishDto.channelId
+      )
+    ) {
+      throw new ForbiddenError("请先加入该频道后再发布帖子！")
+    }
     // 异步将帖子图片上传至腾讯云 COS
     const pictures = postPublishDto.pictures;
     if (!pictures) {
@@ -213,6 +222,174 @@ class PostService {
       },
       action: {
         isLiked: Boolean(row.isLiked)
+      }
+    }));
+  }
+
+  /**
+   * 置顶某个帖子
+   * @param postId 帖子 ID
+   * @param uid 用户 ID
+   * @param roleId 角色 ID
+   */
+  static async top(postId: number, uid: number, roleId: number): Promise<void> {
+    if (!await PostUtil.hasTopPermission(uid, roleId, postId)) {
+      throw new ForbiddenError("您没有权限置顶该帖子！")
+    }
+    // 更新该帖子的 isSticky 字段
+    const db = await dbPromise;
+    await db.run(
+      `
+      UPDATE posts SET isSticky = 1
+      WHERE postId = ?
+      `,
+      [postId]
+    )
+  }
+
+  /**
+   * 取消置顶某个帖子
+   * @param postId 帖子 ID
+   * @param uid 用户 ID
+   * @param roleId 角色 ID
+   */
+  static async unTop(postId: number, uid: number, roleId: number): Promise<void> {
+    if (!await PostUtil.hasTopPermission(uid, roleId, postId)) {
+      throw new ForbiddenError("您没有权限置顶该帖子！")
+    }
+    // 更新该帖子的 isSticky 字段
+    const db = await dbPromise;
+    await db.run(
+      `
+      UPDATE posts SET isSticky = 0
+      WHERE postId = ?
+      `,
+      [postId]
+    )
+  }
+
+  /**
+   * 删除某个帖子
+   * @param postId 帖子 ID
+   * @param uid 用户 ID
+   * @param roleId 角色 ID
+   */
+  static async delete(postId: number, uid: number, roleId: number): Promise<void> {
+    if (!await PostUtil.hasDeletePermission(uid, roleId, postId)) {
+      throw new ForbiddenError("您没有权限删除该帖子");
+    }
+    // 删除该帖子
+    const db = await dbPromise;
+    await db.run(
+      `
+      DELETE FROM posts WHERE postId = ?
+      `,
+      [postId]
+    )
+  }
+
+  /**
+   * 获取某用户点赞过的帖子
+   * @param uid 用户 ID
+   */
+  static async getLikedPostList(uid: number) {
+    const db = await dbPromise;
+    const rows = await db.all<PostListBo[]>(
+      `
+      SELECT 
+        p.postId,
+        p.channelId,
+        p.pictureUrls,
+        p.title,
+        p.isSticky,
+        p.createdAt AS postCreatedAt,
+        p.updatedAt AS postUpdatedAt,
+        u.uid,
+        u.nickname,
+        u.avatarUrl,
+        u.roleId,
+        u.createdAt AS userCreatedAt,
+        u.updatedAt AS userUpdatedAt,
+        pl.createdAt AS likeTime
+      FROM posts p
+      INNER JOIN users u ON p.uid = u.uid
+      INNER JOIN post_likes pl ON 
+        p.postId = pl.postId AND 
+        pl.uid = ?
+      ORDER BY pl.createdAt DESC
+      `,
+      [
+        uid
+      ]
+    );
+    return rows.map(row => new PostListVo({
+      postId: row.postId,
+      channelId: row.channelId,
+      pictureUrl: row.pictureUrls.split(",")[0],
+      title: row.title,
+      isSticky: Boolean(row.isSticky),
+      createdAt: row.postCreatedAt,
+      updatedAt: row.postUpdatedAt,
+      user: {
+        uid: row.uid,
+        nickname: row.nickname,
+        avatarUrl: row.avatarUrl,
+        role: RoleUtil.roleNumberToString(row.roleId),
+        createdAt: row.userCreatedAt,
+        updatedAt: row.userUpdatedAt
+      }
+    }));
+  }
+
+  /**
+   * 获取某用户收藏的帖子
+   * @param uid 用户 ID
+   */
+  static async getFavoritePostList(uid: number) {
+    const db = await dbPromise;
+    const rows = await db.all<PostListBo[]>(
+      `
+        SELECT 
+        p.postId,
+        p.channelId,
+        p.pictureUrls,
+        p.title,
+        p.isSticky,
+        p.createdAt AS postCreatedAt,
+        p.updatedAt AS postUpdatedAt,
+        u.uid,
+        u.nickname,
+        u.avatarUrl,
+        u.roleId,
+        u.createdAt AS userCreatedAt,
+        u.updatedAt AS userUpdatedAt,
+        pf.createdAt AS likeTime
+      FROM posts p
+      INNER JOIN users u ON p.uid = u.uid
+      INNER JOIN post_favorites pf ON 
+        p.postId = pf.postId AND 
+        pf.uid = ?
+      ORDER BY pf.createdAt DESC
+      `,
+      [
+        uid
+      ]
+    );
+    return rows.map(row => new PostListVo({
+      postId: row.postId,
+      channelId: row.channelId,
+      pictureUrl: row.pictureUrls.split(",")[0],
+      title: row.title,
+      isSticky: Boolean(row.isSticky),
+      createdAt: row.postCreatedAt,
+      updatedAt: row.postUpdatedAt,
+      user: {
+        uid: row.uid,
+        nickname: row.nickname,
+        avatarUrl: row.avatarUrl,
+        role: RoleUtil.roleNumberToString(row.roleId),
+        createdAt: row.userCreatedAt,
+        updatedAt: row.userUpdatedAt
       }
     }))
   }

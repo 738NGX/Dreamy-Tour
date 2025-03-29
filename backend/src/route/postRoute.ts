@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-08 15:44:06 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-21 22:25:48
+ * @Last Modified time: 2025-03-29 15:01:18
  */
 
 import AuthConstant from "@/constant/authConstant";
@@ -158,7 +158,14 @@ postRoute.delete('/post/:postId/favorite', async (req: Request, res: Response) =
  * @path /post/favorite/list
  */
 postRoute.get('/post/favorite/list', async (req: Request, res: Response) => {
-  
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取帖子列表
+  const postListVos = await PostService.getFavoritePostList(uid);
+  // 返回响应
+  res.json(
+    Result.success(postListVos)
+  );
 })
 
 /**
@@ -167,7 +174,69 @@ postRoute.get('/post/favorite/list', async (req: Request, res: Response) => {
  * @path /post/liked/list 
  */
 postRoute.get('/post/liked/list', async (req: Request, res: Response) => {
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取帖子列表
+  const postListVos = await PostService.getLikedPostList(uid);
+  // 返回响应
+  res.json(
+    Result.success(postListVos)
+  );
+})
 
+/**
+ * @description 删除某个帖子
+ * @method DELETE
+ * @path /post/:postId
+ */
+postRoute.delete('/post/:postId', async (req: Request, res: Response) => {
+  // 获取用户 ID 和角色 ID
+  const { uid, roleId } = JwtUtil.getUidAndRoleId(
+    req.header(AuthConstant.TOKEN_HEADER) as string
+  );
+  const postId = Number(req.params.postId)
+  await PostService.delete(postId, uid, roleId);
+  // 返回响应
+  res.json(
+    Result.success(MessageConstant.SUCCESSFUL_DELETE)
+  );
+})
+
+/**
+ * @description 置顶某个帖子
+ * @method POST
+ * @path /post/:postId/top
+ */
+postRoute.post('/post/:postId/top', async (req: Request, res: Response) => {
+   // 获取用户 ID 和角色 ID
+   const { uid, roleId } = JwtUtil.getUidAndRoleId(
+    req.header(AuthConstant.TOKEN_HEADER) as string
+  );
+  const postId = Number(req.params.postId)
+  await PostService.top(postId, uid, roleId);
+  // 返回响应
+  res.status(StatusCodes.CREATED)
+    .json(
+    Result.success(MessageConstant.SUCCESSFUL_TOP)
+  );
+})
+
+/**
+ * @description 取消置顶某个帖子
+ * @method POST
+ * @path /post/:postId/top
+ */
+postRoute.delete('/post/:postId/top', async (req: Request, res: Response) => {
+   // 获取用户 ID 和角色 ID
+   const { uid, roleId } = JwtUtil.getUidAndRoleId(
+    req.header(AuthConstant.TOKEN_HEADER) as string
+  );
+  const postId = Number(req.params.postId)
+  await PostService.unTop(postId, uid, roleId);
+   // 返回响应
+   res.json(
+    Result.success(MessageConstant.SUCCESSFUL_CANCEL)
+  );
 })
 
 
