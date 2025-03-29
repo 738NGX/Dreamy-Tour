@@ -325,6 +325,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Shopping,
           user: [1],
+          budget: [7],
           note: ""
         },
         {
@@ -334,6 +335,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Shopping,
           user: [1],
+          budget: [7],
           note: ""
         },
         {
@@ -343,6 +345,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Shopping,
           user: [1],
+          budget: [7],
           note: ""
         },
         {
@@ -352,6 +355,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Shopping,
           user: [1],
+          budget: [7],
           note: ""
         },
         {
@@ -361,6 +365,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Shopping,
           user: [1],
+          budget: [7],
           note: ""
         },
         {
@@ -370,6 +375,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Shopping,
           user: [1],
+          budget: [4],
           note: "给mmk带"
         },
         {
@@ -379,6 +385,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Shopping,
           user: [1],
+          budget: [7],
           note: ""
         },
         {
@@ -388,6 +395,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Shopping,
           user: [1],
+          budget: [6],
           note: "给消除带"
         },
         {
@@ -415,6 +423,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Shopping,
           user: [1],
+          budget: [7],
           note: ""
         },
         {
@@ -424,6 +433,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Shopping,
           user: [1],
+          budget: [4],
           note: "给mmk带"
         },
         {
@@ -433,6 +443,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Shopping,
           user: [1],
+          budget: [9],
           note: "给希可带"
         },
       ]
@@ -480,6 +491,7 @@ export const niji7th = {
           currency: Currency.JPY,
           type: ExpenseType.Shopping,
           user: [1],
+          budget: [4],
           note: "给mmk带"
         },
       ]
@@ -935,6 +947,7 @@ export const niji7th = {
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
           user: [1],
+          budget: [0],
           note: "秋叶原下"
         },
       ]
@@ -952,6 +965,7 @@ export const niji7th = {
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
           user: [1, 5],
+          budget: [0],
           note: "横滨下"
         },
       ]
@@ -969,6 +983,7 @@ export const niji7th = {
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
           user: [1, 5, 9],
+          budget: [0],
           note: ""
         },
       ]
@@ -986,6 +1001,7 @@ export const niji7th = {
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
           user: [1],
+          budget: [0],
           note: ""
         },
       ]
@@ -1003,6 +1019,7 @@ export const niji7th = {
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
           user: [1],
+          budget: [0],
           note: ""
         },
         {
@@ -1013,6 +1030,7 @@ export const niji7th = {
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
           user: [1],
+          budget: [0],
           note: ""
         },
         {
@@ -1023,6 +1041,7 @@ export const niji7th = {
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
           user: [1],
+          budget: [0],
           note: ""
         },
       ]
@@ -1040,6 +1059,7 @@ export const niji7th = {
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
           user: [1, 5, 9],
+          budget: [0],
           note: ""
         },
         {
@@ -1050,6 +1070,7 @@ export const niji7th = {
           type: ExpenseType.Transportation,
           transportType: TransportType.Metro,
           user: [1],
+          budget: [0],
           note: ""
         },
       ]

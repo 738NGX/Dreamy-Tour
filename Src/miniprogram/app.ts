@@ -493,6 +493,7 @@ App<IAppOption>({
         mainCurrency: newTourCurrency[0],
         subCurrency: newTourCurrency[1],
       })
+      await newTour.getExchangeRate();
       if (tourTemplate) {
         newTour.startDate = tourTemplate.startDate;
         newTour.endDate = tourTemplate.endDate;

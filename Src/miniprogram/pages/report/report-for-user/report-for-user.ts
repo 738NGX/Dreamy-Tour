@@ -1,7 +1,7 @@
 /**
  * 行程统计信息
  */
-import * as echarts from '../../../components/ec-canvas/echarts'
+var echarts = require('../../../components/ec-canvas/echarts');
 import { ReporterForUser } from '../../../utils/reporterForUser';
 import { Tour } from '../../../utils/tour/tour';
 import { currencyList } from '../../../utils/tour/expense'
@@ -33,12 +33,12 @@ Component({
       // 默认值
       value: {}
     },
-    currentTourCopyIndex:{
+    currentTourCopyIndex: {
       type: Number,
       value: 0,
     }
   },
-  observers: {     
+  observers: {
     'currentTour, currentTourCopyIndex': function (currentTour, currentTourCopyIndex) {
       if (currentTour && currentTourCopyIndex !== undefined) {
         // 参数就绪后执行初始化
@@ -47,17 +47,17 @@ Component({
     }
   },
   data: {
-  //  currentTour : null as Tour | null,
+    //  currentTour : null as Tour | null,
 
-  //  currentTourCopyIndex : 0,
+    //  currentTourCopyIndex : 0,
     currentUserId: 0 as number,
     currentUserList: [] as any[],
     selectingUserVisible: false,
     //selectedUserId 默认值为当前用户id
-    selectedUserId: 0 as number,
+    selectedUserId: -1 as number,
     selectedUserName: '' as string,
-    currencyList:currencyList,
-    ec:{
+    currencyList: currencyList,
+    ec: {
       lazyLoad: true
     },
     reporter: null as ReporterForUser | null,
@@ -74,121 +74,161 @@ Component({
     chartDataInShopping: {},
 
     totalTransportCurrency: '',
-    totalMainCurrency:'',
-    totalSubCurrency:'',
-    totalCurrency:'',
+    totalMainCurrency: '',
+    totalSubCurrency: '',
+    totalCurrency: '',
+
+    isCurrentUserInGroup: false,
   },
- 
+
   methods: {
-    init(){
-      // const tourId = options.tourId;
-      // const currentTourCopyIndex = options.currentTourCopyIndex
-      // this.setData({
-      //   currentTour: app.getTour(parseInt(tourId)) as Tour,
-      //   currentTourCopyIndex: currentTourCopyIndex
-      // })
+    init() {
       this.updateData();
-      console.log("currentUserList",this.data.currentUserList);
-      this.initReport(this.properties.currentTour,this.properties.currentTourCopyIndex,this.data.selectedUserId);
+      //console.log("currentUserList",this.data.currentUserList);
+      this.initReport(this.properties.currentTour, this.properties.currentTourCopyIndex, this.data.selectedUserId);
       this.initCharts();
     },
-    updateData(){
+    updateData() {
+      const currentUserList = app.getUserListCopy()
+        .map(user => {
+          if (this.properties.currentTour.users.includes(user.id)) return new User(user);
+          else return null;
+        })
+        .filter((user: any) => user !== null)
+        .filter((user: any) => user.id !== this.data.currentUserId);
+
+      // 基于计算出的 currentUserList 设置其他字段
+      const selectedUserId = this.data.selectedUserId > 0
+        ? this.data.selectedUserId
+        : (this.properties.currentTour.users.includes(app.globalData.currentUserId)
+          ? app.globalData.currentUserId
+          : currentUserList[0]?.id);
+      //console.log(this.properties.currentTour.users.includes(this.data.currentUserId))
       this.setData({
         currentUserId: app.globalData.currentUserId,
         currentUserName: app.getUser(this.data.currentUserId)?.name,
-        selectedUserId:this.data.selectedUserId? this.data.selectedUserId : app.globalData.currentUserId,
-        selectedUserName:app.getUser(this.data.selectedUserId)?.name,
-        currentUserList: app.getUserListCopy().map(user => {
-          if (this.properties.currentTour.users.includes(user.id)) return new User(user);
-          else return null;
-          }).filter((user: any) => user !== null)
-            .filter((user: any) => user.id !== this.data.currentUserId)
+        isCurrentUserInGroup: this.properties.currentTour.users.includes(this.data.currentUserId),
+
+        currentUserList: currentUserList,
+        selectedUserId: selectedUserId,
+        selectedUserName: app.getUser(this.data.selectedUserId)?.name,
       })
+      //console.log(selectedUserId)
     },
-    initCharts(){
+    initCharts() {
+      const getPixelRatio = () => {
+        let pixelRatio = 0
+        wx.getSystemInfo({
+          success: function (res) {
+            pixelRatio = res.pixelRatio
+          },
+          fail: function () {
+            pixelRatio = 0
+          }
+        })
+        return pixelRatio
+      }
+      // console.log(pixelRatio)
+      var dpr = getPixelRatio()
+
       const chartInType = this.selectComponent('#chartInType')
-      chartInType.init((canvas:any, width:any,height:any) => {
-        const chart = echarts.init(canvas, null, {
+      const isDarkMode = wx.getSystemInfoSync().theme == 'dark'
+      chartInType.init((canvas: any, width: any, height: any) => {
+        const chart = echarts.init(canvas, isDarkMode ? 'dark' : null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setChartOptionInType(chart);
+        chart.setOption({ backgroundColor: 'transparent' });
         return chart
       })
 
       const chartInBudget = this.selectComponent('#chartInBudget')
-      chartInBudget.init((canvas:any, width:any,height:any) => {
-        const chart = echarts.init(canvas, null, {
+      chartInBudget.init((canvas: any, width: any, height: any) => {
+        const chart = echarts.init(canvas, isDarkMode ? 'dark' : null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setChartOptionInBudget(chart);
+        chart.setOption({ backgroundColor: 'transparent' });
         return chart
       })
 
       const chartInTransportType = this.selectComponent('#chartInTransportType')
-      chartInTransportType.init((canvas:any, width:any,height:any) => {
-        const chart = echarts.init(canvas, null, {
+      chartInTransportType.init((canvas: any, width: any, height: any) => {
+        const chart = echarts.init(canvas, isDarkMode ? 'dark' : null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
         this.setChartOptionInTransportType(chart);
+        chart.setOption({ backgroundColor: 'transparent' });
         return chart
       })
 
       const chartInHotel = this.selectComponent('#chartInHotel')
-      chartInHotel.init((canvas:any, width:any,height:any) => {
-        const chart = echarts.init(canvas, null, {
+      chartInHotel.init((canvas: any, width: any, height: any) => {
+        const chart = echarts.init(canvas, isDarkMode ? 'dark' : null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
-        this.setStatisticChartOption(chart,this.data.chartDataInHotel);
+        this.setStatisticChartOption(chart, this.data.chartDataInHotel);
+        chart.setOption({ backgroundColor: 'transparent' });
         return chart
       })
-      
+
       const chartInMeal = this.selectComponent('#chartInMeal')
-      chartInMeal.init((canvas:any, width:any,height:any) => {
-        const chart = echarts.init(canvas, null, {
+      chartInMeal.init((canvas: any, width: any, height: any) => {
+        const chart = echarts.init(canvas, isDarkMode ? 'dark' : null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
-        this.setStatisticChartOption(chart,this.data.chartDataInMeal);
+        this.setStatisticChartOption(chart, this.data.chartDataInMeal);
+        chart.setOption({ backgroundColor: 'transparent' });
         return chart
       })
 
       const chartInTicket = this.selectComponent('#chartInTicket')
-      chartInTicket.init((canvas:any, width:any,height:any) => {
-        const chart = echarts.init(canvas, null, {
+      chartInTicket.init((canvas: any, width: any, height: any) => {
+        const chart = echarts.init(canvas, isDarkMode ? 'dark' : null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
-        this.setStatisticChartOption(chart,this.data.chartDataInTicket);
+        this.setStatisticChartOption(chart, this.data.chartDataInTicket);
+        chart.setOption({ backgroundColor: 'transparent' });
         return chart
       })
 
       const chartInShopping = this.selectComponent('#chartInShopping')
-      chartInShopping.init((canvas:any, width:any,height:any) => {
-        const chart = echarts.init(canvas, null, {
+      chartInShopping.init((canvas: any, width: any, height: any) => {
+        const chart = echarts.init(canvas, isDarkMode ? 'dark' : null, {
           width: width,
           height: height,
+          devicePixelRatio: dpr
         });
-        this.setStatisticChartOption(chart,this.data.chartDataInShopping);
+        this.setStatisticChartOption(chart, this.data.chartDataInShopping);
+        chart.setOption({ backgroundColor: 'transparent' });
         return chart
       })
     },
-    initReport(value:any,copyIndex:number,selectedUserId: number){
-    //  console.log("beforeinitReport",this.properties.currentTour,this.properties.currentTourCopyIndex)
+    initReport(value: any, copyIndex: number, selectedUserId: number) {
+      //  console.log("beforeinitReport",this.properties.currentTour,this.properties.currentTourCopyIndex)
       const currentTour = new Tour(value);
-      
-      const reporter = new ReporterForUser(currentTour,copyIndex,selectedUserId);
-      
+
+      const reporter = new ReporterForUser(currentTour, copyIndex, selectedUserId);
+
       const totalTransportCurrency = reporter.expenseCalculator.calculateTotalTransportCurrency()
       this.setData({
-        reporter:reporter,
+        reporter: reporter,
         chartDataInType: reporter.expenseCalculator.getChartDataInType(),
-        chartDataInBudget: reporter.expenseCalculator.getChartDataInBudget(),
-        chartDataInTransportType: reporter.expenseCalculator.getChartDataInTransportType(), 
-    
+        chartDataInBudget: reporter.expenseCalculator.getChartDataInBudget(currentTour.budgets.map(budget => budget.title)),
+        chartDataInTransportType: reporter.expenseCalculator.getChartDataInTransportType(),
+
         chartDataInHotel: reporter.typeList[0].chartData,
         chartDataInMeal: reporter.typeList[1].chartData,
         chartDataInTicket: reporter.typeList[3].chartData,
@@ -199,56 +239,52 @@ Component({
         totalCurrency: reporter.expenseCalculator.total.allCurrency.toFixed(2),
         totalTransportCurrency: totalTransportCurrency.toFixed(2),
       })
-    //  console.log("chartdatainhotel",this.data.chartDataInHotel)
+      //  console.log("chartdatainhotel",this.data.chartDataInHotel)
     },
-    onTourUpdate(data : Tour){
-      this.setData({ currentTour: data})
+    onTourUpdate(data: Tour) {
+      this.setData({ currentTour: data })
     },
     onCopyChange(index: number) {
       this.setData({ currentTourCopyIndex: index });
     },
     handleCollapsesChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({
-          activeCollapses: {
-              ...this.data.activeCollapses,
-              [e.currentTarget.dataset.index]: e.detail.value
-          }
+        activeCollapses: {
+          ...this.data.activeCollapses,
+          [e.currentTarget.dataset.index]: e.detail.value
+        }
       });
     },
-    handleSelectingUser(){
-      this.setData({ 
+    handleSelectingUser() {
+      this.setData({
         selectingUserVisible: !this.data.selectingUserVisible
       })
     },
     onSelectedUserChange(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
       this.setData({ selectedUserId: value });
-      console.log('新选中 ID:', value, '当前 selectedUserId:', this.data.selectedUserId);
+      // console.log('新选中 ID:', value, '当前 selectedUserId:', this.data.selectedUserId);
       this.init();
     },
 
 
-/**
- * 类型区分饼图设置
- * @param chart 
- */
-    setChartOptionInType(chart: any){
-      if(this.data.reporter){
+    /**
+     * 类型区分饼图设置
+     * @param chart 
+     */
+    setChartOptionInType(chart: any) {
+      if (this.data.reporter) {
         var option = {
-          title: {
-            text: '不同类别消费额',
-            left: 'center',
-            top: 'auto',
-          },
           tooltip: {
             trigger: 'item',
             formatter: '{b} : {c} ({d}%)'
           },
-          legend: {
-            left: 'auto',
-            top: 'center',
-            orient:'hozizonal',
-          },
+          //legend: {
+          //  left: 'auto',
+          //  top: 'center',
+          //  orient: 'hozizonal',
+          //  type: 'scroll'
+          //},
           toolbox: {
             show: true,
             feature: {
@@ -260,46 +296,51 @@ Component({
           },
           series: [
             {
-              name: 'Area Mode',
+              name: 'Access From',
               type: 'pie',
-              roseType:'radius',
-              label:{
-                show:false,
+              radius: ['40%', '70%'],
+              avoidLabelOverlap: false,
+              label: {
+                show: false,
+                position: 'center'
               },
-              radius: [20, 100],
-              center: ['50%', '50%'],
-              itemStyle: {
-                borderRadius: 3
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: 20,
+                  fontWeight: 'bold'
+                }
               },
-              data:this.data.chartDataInType
+              labelLine: {
+                show: false
+              },
+              data: this.data.chartDataInType
             }
           ]
         };
-        
-        
+
+
         chart.setOption(option);
       }
     },
     /**
- * 预算区分饼图设置
- * @param chart 
- */
-    setChartOptionInBudget(chart: any){
-      if(this.data.reporter){
+     * 预算区分饼图设置
+     * @param chart 
+     */
+    setChartOptionInBudget(chart: any) {
+      if (this.data.reporter) {
         var option = {
-          title: {
-            text: '各预算表消费额',
-            left: 'center'
-          },
+          color: ['#f0f0f0', '#ff9547', '#ff9eac', '#27c1b7', '#db0839', '#66c0ff', '#c1cad4', '#ffd010', '#c252c6', '#ff6fbe'],
           tooltip: {
             trigger: 'item',
             formatter: '{b} : {c} ({d}%)'
           },
-          legend: {
-            left: 'auto',
-            top: 'buttom',
-            orient:'hozizonal',
-          },
+          //legend: {
+          //  left: 'auto',
+          //  top: 'buttom',
+          //  orient: 'hozizonal',
+          //  type: 'scroll'
+          //},
           toolbox: {
             show: true,
             feature: {
@@ -311,18 +352,25 @@ Component({
           },
           series: [
             {
-              name: 'Area Mode',
+              name: 'Access From',
               type: 'pie',
-              roseType:'radius',
-              label:{
-                show:false,
+              radius: ['40%', '70%'],
+              avoidLabelOverlap: false,
+              label: {
+                show: false,
+                position: 'center'
               },
-              radius: [20, 100],
-              center: ['50%', '50%'],
-              itemStyle: {
-                borderRadius: 3
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: 20,
+                  fontWeight: 'bold'
+                }
               },
-              data:this.data.chartDataInBudget
+              labelLine: {
+                show: false
+              },
+              data: this.data.chartDataInBudget
             }
           ]
         };
@@ -330,25 +378,22 @@ Component({
       }
     },
     /**
- * 交通区分饼图设置
- * @param chart 
- */
-    setChartOptionInTransportType(chart: any){
-      if(this.data.reporter){
+     * 交通区分饼图设置
+     * @param chart 
+     */
+    setChartOptionInTransportType(chart: any) {
+      if (this.data.reporter) {
         var option = {
-          title: {
-            text: '不同交通方式消费额',
-            left: 'center'
-          },
           tooltip: {
             trigger: 'item',
             formatter: '{b} : {c} ({d}%)'
           },
-          legend: {
-            left: 'auto',
-            top: 'buttom',
-            orient:'hozizonal',
-          },
+          //legend: {
+          //  left: 'auto',
+          //  top: 'buttom',
+          //  orient: 'hozizonal',
+          //  type: 'scroll'
+          //},
           toolbox: {
             show: true,
             feature: {
@@ -360,18 +405,25 @@ Component({
           },
           series: [
             {
-              name: 'Area Mode',
+              name: 'Access From',
               type: 'pie',
-              roseType:'radius',
-              label:{
-                show:false,
+              radius: ['40%', '70%'],
+              avoidLabelOverlap: false,
+              label: {
+                show: false,
+                position: 'center'
               },
-              radius: [20, 100],
-              center: ['50%', '50%'],
-              itemStyle: {
-                borderRadius: 3
+              emphasis: {
+                label: {
+                  show: true,
+                  fontSize: 20,
+                  fontWeight: 'bold'
+                }
               },
-              data:this.data.chartDataInTransportType
+              labelLine: {
+                show: false
+              },
+              data: this.data.chartDataInTransportType
             }
           ]
         };
@@ -379,12 +431,12 @@ Component({
       }
     },
     /**
- * 多y轴柱状图设置
- * @param chart 
- */
-    setStatisticChartOption(chart:any,data:any){
+     * 多y轴柱状图设置
+     * @param chart 
+     */
+    setStatisticChartOption(chart: any, data: any) {
       const colors = ['#5470C6', '#EE6666', '#91CC75'];
-      if(this.data.reporter){
+      if (this.data.reporter) {
         var option = {
           color: colors,
 
@@ -413,7 +465,7 @@ Component({
               axisTick: {
                 alignWithLabel: true
               },
-              data: ['1','2','3','4','5','6','7','8','9','10']
+              data: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
             }
           ],
           yAxis: [
@@ -467,7 +519,7 @@ Component({
           series: data
         };
         chart.setOption(option);
-      } 
+      }
     },
   },
 });
