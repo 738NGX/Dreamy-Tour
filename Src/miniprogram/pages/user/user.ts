@@ -148,17 +148,10 @@ Component({
         currentUser: await app.getCurrentUser(),
       });
     },
-    uploadAvater() {
-      wx.chooseImage({
-        count: 1,
-        sizeType: ['original', 'compressed'],
-        sourceType: ['album', 'camera'],
-        success(res) {
-          const src = res.tempFilePaths[0]
-          wx.navigateTo({
-            url: `../upload-avatar/upload-avatar?src=${src}`
-          })
-        }
+    uploadAvater(e: WechatMiniprogram.CustomEvent) {
+      const src = e.detail.avatarUrl;
+      wx.navigateTo({
+        url: `../upload-avatar/upload-avatar?src=${src}`
       })
     },
     copyInfo(e: WechatMiniprogram.CustomEvent) {
