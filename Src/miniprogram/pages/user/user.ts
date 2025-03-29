@@ -1,5 +1,5 @@
 import { UserBasic } from "../../utils/user/user";
-import { getUserGroupName, userExpTarget } from "../../utils/util";
+import { getByteLength, getUserGroupName, userExpTarget } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -8,7 +8,7 @@ Component({
 
   },
   data: {
-    isTestMode: app.globalData.testMode,
+    isTestMode: false,
     isDarkMode: wx.getSystemInfoSync().theme == 'dark',
     testUserList: [] as UserBasic[],
     currentUser: {} as UserBasic,
@@ -17,7 +17,7 @@ Component({
     expLabel: '',
   },
   methods: {
-    onLoad(){
+    onLoad() {
       wx.onThemeChange((res) => {
         this.setData({
           isDarkMode: res.theme == 'dark'
@@ -25,9 +25,10 @@ Component({
         console.log('当前主题：', res.theme)
       });
     },
-    onShow() {
+    async onShow() {
       this.setData({
-        currentUser: app.currentUser(),
+        isTestMode: app.globalData.testMode,
+        currentUser: await app.getCurrentUser(),
         testUserList: app.getUserListCopy()
       });
       this.caluculateExp();
@@ -110,19 +111,41 @@ Component({
       currentUser.email = e.detail.value;
       this.setData({ currentUser })
     },
-    async handleUserBasicChange() {
+    async handleUserNameChangeConfirm() {
       const { currentUser } = this.data;
+
+      if (getByteLength(currentUser.name) > 20) {
+        wx.showToast({
+          title: '昵称过长',
+          icon: 'none',
+          duration: 1000
+        });
+        return;
+      }
       this.setData({ currentUser })
-      await app.changeUserBasic(currentUser);
-      if(this.data.isTestMode) {
+      if (!await app.changeUserName(currentUser.name)) {
+        this.setData({
+          currentUser: await app.getCurrentUser()
+        });
+      }
+      if (this.data.isTestMode) {
         this.setData({
           testUserList: app.getUserListCopy()
         })
       }
     },
+    async handleUserBasicChange() {
+      const { currentUser } = this.data;
+      this.setData({ currentUser })
+      if (!await app.changeUserBasic(currentUser)) {
+        this.setData({
+          currentUser: await app.getCurrentUser()
+        });
+      }
+    },
     async handleUserBasicReset() {
       this.setData({
-        currentUser: app.currentUser(),
+        currentUser: await app.getCurrentUser(),
       });
     },
     uploadAvater() {
@@ -138,7 +161,7 @@ Component({
         }
       })
     },
-    copyInfo(e: WechatMiniprogram.CustomEvent){
+    copyInfo(e: WechatMiniprogram.CustomEvent) {
       const index = parseInt(e.currentTarget.dataset.index);
       const linkList = [
         'https://github.com/738NGX/Dreamy-Tour',

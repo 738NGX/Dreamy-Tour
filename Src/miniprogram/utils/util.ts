@@ -235,3 +235,6 @@ export async function getImageBase64(tempFilePath: string): Promise<string> {
   });
   return base64 as string;
 }
+
+export const getByteLength = (str: string): number =>
+  str.replace(/[^\x00-\xff]/g, 'aa').length;

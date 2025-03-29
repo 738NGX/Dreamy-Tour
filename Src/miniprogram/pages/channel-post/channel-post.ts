@@ -94,15 +94,13 @@ Component({
       const { postId } = options;
       const currentPost = await app.getFullPost(parseInt(postId)) as Post;
       const { isChannelAdmin } = await app.getUserAuthorityInChannel(currentPost.linkedChannel)
-      this.setData({ currentPost, isChannelAdmin, currentUser: app.currentUser() });
+      this.setData({ currentPost, isChannelAdmin, currentUser: await app.getCurrentUser() });
       await this.init();
     },
     async onRefresh() {
       this.setData({ refreshEnable: true });
-      setTimeout(() => {
-        this.setData({ refreshEnable: false });
-      }, 500);
       await this.init();
+      this.setData({ refreshEnable: false });
     },
     async init() {
       const { currentPost } = this.data;

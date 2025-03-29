@@ -7,7 +7,7 @@ import { testData } from "./utils/testData";
 import { Budget } from "./utils/tour/budget";
 import { Currency } from "./utils/tour/expense";
 import { FootPrint } from "./utils/tour/footprint";
-import { File } from "./utils/tour/photo";
+import { File, Photo } from "./utils/tour/photo";
 import { Tour, TourBasic, TourStatus } from "./utils/tour/tour";
 import { Location, Transportation } from "./utils/tour/tourNode";
 import { Member, User, UserBasic } from "./utils/user/user";
@@ -374,7 +374,36 @@ App<IAppOption>({
   // for channel-detail-post.ts
   async getFullPostsInChannel(channelId: number): Promise<PostCard[]> {
     if (!this.globalData.testMode) {
-      return [];
+      try {
+        const channelId = 1;
+        const url = channelId == 1 ? '/post/list' : `/channel/${channelId}/post/list`;
+        const results = await HttpUtil.get({ url });
+        const fullPosts = results.data.data.map((res: any) => {
+          return {
+            id: res.postId,
+            title: res.title,
+            content: '',
+            linkedChannel: res.channelId,
+            user: res.user.uid,
+            time: res.createdAt,
+            likes: [],
+            photos: [new Photo({ value: res.pictureUrl })],
+            isSticky: res.isSticky,
+            username: res.user.nickname,
+            avatarUrl: res.user.avatarUrl,
+            timeStr: formatPostTime(res.createdAt) ?? '',
+            isLiked: res.action.isLiked,
+          } as PostCard;
+        });
+        return fullPosts;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: "加载失败",
+          icon: "error"
+        });
+        return [];
+      }
     } else {
       const currentUserId = this.globalData.currentUserId
       return this.getPostListCopy()
@@ -866,7 +895,20 @@ App<IAppOption>({
   // for channel-post.ts
   async getFullPost(postId: number): Promise<Post | undefined> {
     if (!this.globalData.testMode) {
-      return undefined;
+      try {
+        const res = await HttpUtil.get({ url: `/post/${postId}/detail` });
+        const post = res.data.data as Post;
+        console.log(post);
+        return post;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: "加载失败",
+          icon: "error"
+        });
+        wx.navigateBack();
+        return undefined;
+      }
     } else {
       return this.getPost(postId);
     }
@@ -1273,12 +1315,64 @@ App<IAppOption>({
       return true;
     }
   },
+
+  // for user.ts
+  async getCurrentUser(): Promise<UserBasic | undefined> {
+    if (!this.globalData.testMode) {
+      try {
+        const res = await HttpUtil.get({ url: `/user/detail` });
+        const user = new UserBasic({
+          id: res.data.data.uid,
+          name: res.data.data.nickname,
+          exp: 0,
+          isAdmin: false,
+          gender: res.data.data.gender,
+          avatarUrl: res.data.data.avatarUrl,
+          email: res.data.data.email,
+          phone: res.data.data.phone,
+          signature: res.data.data.signature,
+          birthday: res.data.data.birthday,
+        });
+        return user;
+      }
+      catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: "加载失败",
+          icon: "error"
+        });
+        return undefined;
+      }
+    } else {
+      return this.currentUser();
+    }
+  },
+  async changeUserName(nickname: string): Promise<boolean> {
+    if (!this.globalData.testMode) {
+      try {
+        await HttpUtil.put({ url: '/user/nickname', jsonData: { nickname } });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: "修改失败",
+          icon: "error"
+        });
+        return false;
+      }
+    } else {
+      const currentUser = this.currentUser();
+      currentUser.name = nickname;
+      this.updateUser(currentUser);
+      return true;
+    }
+  },
   async changeUserBasic(user: UserBasic): Promise<boolean> {
     if (!this.globalData.testMode) {
       return false;
     } else {
       const currentUser = this.currentUser();
-      const { id, ...rest } = user;
+      const { id, name, ...rest } = user;
       Object.assign(currentUser, rest);
       this.updateUser(currentUser);
       return true;
@@ -1292,6 +1386,38 @@ App<IAppOption>({
       currentUser.avatarUrl = avatar;
       this.updateUser(currentUser);
       return true;
+    }
+  },
+
+  //for tour-editor.ts
+  async loadFullTour(tourId: number): Promise<Tour> {
+    if (!this.globalData.testMode) {
+      return {} as Tour;
+    }
+    else {
+      return this.getTour(tourId) as Tour;
+    }
+  },
+  async changeFullTour(tour: Tour): Promise<boolean> {
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      this.updateTour(tour);
+      return true;
+    }
+  },
+  async changeTourLocationPhotos(tourId: number, copyIndex: number, location: Location): Promise<boolean> {
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentTour = this.getTour(tourId) as Tour;
+      if (location.index !== -1) {
+        currentTour.locations[copyIndex][location.index].photos = location.photos;
+        this.updateTour(currentTour);
+        return true;
+      } else {
+        return false;
+      }
     }
   },
 })

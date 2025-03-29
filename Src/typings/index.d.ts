@@ -6,6 +6,7 @@ import { Currency } from "../miniprogram/utils/tour/expense";
 import { FootPrint } from "../miniprogram/utils/tour/footprint";
 import { File } from "../miniprogram/utils/tour/photo";
 import { Tour, TourBasic } from "../miniprogram/utils/tour/tour";
+import { Location } from "../miniprogram/utils/tour/tourNode";
 import { Member, User, UserBasic } from "../miniprogram/utils/user/user";
 
 /// <reference path="./types/index.d.ts" />
@@ -295,7 +296,14 @@ declare global {
     endGroupTour(groupId: number, linkedTourId: number): Promise<boolean>;
 
     // for user.ts
+    getCurrentUser(): Promise<UserBasic | undefined>;
+    changeUserName(name: string): Promise<boolean>;
     changeUserBasic(user: UserBasic): Promise<boolean>;
-    changeUserAvatar(url:string): Promise<boolean>;
+    changeUserAvatar(url: string): Promise<boolean>;
+
+    //for tour-editor.ts
+    loadFullTour(tourId: number): Promise<Tour>;
+    changeFullTour(tour: Tour): Promise<boolean>;
+    changeTourLocationPhotos(tourId: number, copyIndex: number, location: Location): Promise<boolean>;
   }
 }

@@ -31,14 +31,12 @@ Component({
   methods: {
     async onRefresh() {
       this.setData({ refreshEnable: true });
-      setTimeout(() => {
-        this.setData({ refreshEnable: false });
-      }, 500);
       await this.loadChannelList();
       this.setData({
-        channelList: this.data.fullChannelList.filter(
-          channel => channel.name.includes(this.data.searchingValue))
+      channelList: this.data.fullChannelList.filter(
+        channel => channel.name.includes(this.data.searchingValue))
       });
+      this.setData({ refreshEnable: false });
     },
     async loadChannelList() {
       const channelList = await app.getCurrentUserUnjoinedChannels();

@@ -47,11 +47,9 @@ Component({
   methods: {
     async onRefresh() {
       this.setData({ refreshEnable: true });
-      setTimeout(() => {
-        this.setData({ refreshEnable: false });
-      }, 500);
       await this.getFullPosts();
       this.searchPosts(this.data.searchingValue);
+      this.setData({ refreshEnable: false });
     },
     async getFullPosts() {
       const fullPosts = await app.getFullPostsInChannel(this.properties.currentChannel.id);

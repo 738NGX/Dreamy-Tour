@@ -206,7 +206,7 @@ Component({
     /**
      * 位置节点标题修改
      */
-    handleLocationTitleInput(e: WechatMiniprogram.CustomEvent) {
+    async handleLocationTitleInput(e: WechatMiniprogram.CustomEvent) {
       const currentTour = this.data.currentTour;
       if (!currentTour) return;
 
@@ -215,13 +215,13 @@ Component({
 
       currentTour.locations[this.data.currentTourCopyIndex][id].title = e.detail.value;
       this.setData({ currentTour: currentTour });
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
     },
     /**
      * 位置节点起始日期修改
      */
-    handleNodeStartDateSelect(e: WechatMiniprogram.CustomEvent) {
+    async handleNodeStartDateSelect(e: WechatMiniprogram.CustomEvent) {
       const currentTour = this.data.currentTour;
       if (!currentTour) return;
       if (e.currentTarget.dataset.index != undefined) {
@@ -239,13 +239,13 @@ Component({
         selectingDatetime: selectingDatetime,
         datetimeEditMode: DatetimeEditMode.StartDate
       });
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
     },
     /**
      * 位置节点结束日期修改
      */
-    handleNodeEndDateSelect(e: WechatMiniprogram.CustomEvent) {
+    async handleNodeEndDateSelect(e: WechatMiniprogram.CustomEvent) {
       const currentTour = this.data.currentTour;
       if (!currentTour) return;
       if (e.currentTarget.dataset.index != undefined) {
@@ -263,7 +263,7 @@ Component({
         selectingDatetime: selectingDatetime,
         datetimeEditMode: DatetimeEditMode.EndDate
       });
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
     },
     /**
@@ -275,7 +275,7 @@ Component({
     /**
      * 确认修改datetime
      */
-    onDatetimeConfirm() {
+    async onDatetimeConfirm() {
       if (
         !this.data.currentTour ||
         !this.data.currentStartDateStrList ||
@@ -330,7 +330,7 @@ Component({
         datetimeVisible: false,
         datetimeEditMode: DatetimeEditMode.None
       });
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
     },
     /**
@@ -363,7 +363,7 @@ Component({
     /**
      * 更换时区后更新datetime
      */
-    onTimezonePickerChange() {
+    async onTimezonePickerChange() {
       if (
         !this.data.currentTour ||
         !this.data.currentTimezoneStrList ||
@@ -403,7 +403,7 @@ Component({
         currentStartDateStrList: newStartDateStrList,
         currentEndDateStrList: newEndDateStrList
       });
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
     },
 
@@ -434,7 +434,7 @@ Component({
     onDurationColumnChange(e: WechatMiniprogram.CustomEvent) {
       this.setData({ selectingDuration: e.detail.value });
     },
-    onDurationConfirm() {
+    async onDurationConfirm() {
       if (
         !this.data.currentTour ||
         !this.data.currentStartDateStrList ||
@@ -469,7 +469,7 @@ Component({
         durationVisible: false,
         editingTransportationId: -1
       });
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
     },
     onDurationCancel() {
@@ -532,7 +532,7 @@ Component({
      * 更新节点位置信息
      * @returns 
      */
-    changeLocation() {
+    async changeLocation() {
       if (!this.data.currentTour) return;
 
       const currentTour = this.data.currentTour;
@@ -543,7 +543,7 @@ Component({
 
       currentTour.locations[this.data.currentTourCopyIndex][id].latitude = this.data.mapLocation[0];
       currentTour.locations[this.data.currentTourCopyIndex][id].longitude = this.data.mapLocation[1];
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
       this.setData({ currentTour: currentTour, mapVisible: false });
     },
@@ -622,11 +622,11 @@ Component({
       editingLocation.photos.splice(id, 1);
       this.setData({ editingLocation: editingLocation });
     },
-    onPhotoConfirm() {
+    async onPhotoConfirm() {
       const { currentTour, currentTourCopyIndex, editingLocationId, editingLocation } = this.data;
       if (!currentTour || !editingLocation) return;
       currentTour.locations[currentTourCopyIndex][editingLocationId] = editingLocation
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
       this.setData({ 
         currentTour: currentTour, 
@@ -683,7 +683,7 @@ Component({
      * 主辅货币切换金额显示更新
      * @returns 
      */
-    changeExpense() {
+    async changeExpense() {
       if (!this.data.currentTour || !this.data.editingLocation) return;
 
       const currentTour = this.data.currentTour;
@@ -693,7 +693,7 @@ Component({
       if (id === -1) return;
 
       currentTour.locations[this.data.currentTourCopyIndex][id] = this.data.editingLocation;
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
       this.setData({ currentTour: currentTour, expenseVisible: false });
     },
@@ -877,7 +877,7 @@ Component({
     onNoteInput(e: WechatMiniprogram.CustomEvent) {
       this.setData({ editingNote: e.detail.value });
     },
-    changeNote() {
+    async changeNote() {
       if (!this.data.currentTour || this.data.editingLocationId < 0) return;
 
       const currentTour = this.data.currentTour;
@@ -890,7 +890,7 @@ Component({
         editingLocationId: -1,
         editingNote: ''
       });
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
     },
 
@@ -900,7 +900,7 @@ Component({
     /**
      * 添加消费
      */
-    addTransportExpense(e: WechatMiniprogram.CustomEvent) {
+    async addTransportExpense(e: WechatMiniprogram.CustomEvent) {
       if (e.currentTarget.dataset.index != undefined) {
         this.setData({ editingTransportationId: e.currentTarget.dataset.index });
       }
@@ -914,7 +914,7 @@ Component({
       editingTransportation.addTransportExpense(currentTour.mainCurrency);
 
       this.setData({ currentTour: currentTour });
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
     //  console.log("editingtrans", editingTransportation)
     },
@@ -923,7 +923,7 @@ Component({
      * @param e 
      * @returns 
      */
-    removeTransportExpense(e: WechatMiniprogram.CustomEvent) {
+    async removeTransportExpense(e: WechatMiniprogram.CustomEvent) {
       if (e.currentTarget.dataset.index != undefined) {
         this.setData({
           editingTransportationId: e.currentTarget.dataset.index[0],
@@ -941,7 +941,7 @@ Component({
       editingTransportation.removeTransportExpense(expense_id);
 
       this.setData({ currentTour: currentTour });
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
     },
     /**
@@ -1092,7 +1092,7 @@ Component({
     /**
      * 切换消费
      */ 
-    changeTransExpense() {
+    async changeTransExpense() {
       if (!this.data.editingTransExpense) return;
       if (!this.data.currentTour || this.data.editingTransportationId < 0) return;
 
@@ -1104,7 +1104,7 @@ Component({
       const editingTransportation = currentTour.transportations[this.data.currentTourCopyIndex][trans_id];
       editingTransportation.transportExpenses[expense_id] = this.data.editingTransExpense;
 
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
       this.setData({
         currentTour: currentTour,
@@ -1160,12 +1160,12 @@ Component({
      * @param e 
      * @returns 
      */
-    handleLocationInsert(e: WechatMiniprogram.CustomEvent) {
+    async handleLocationInsert(e: WechatMiniprogram.CustomEvent) {
       const currentTour = this.data.currentTour;
       const index = e.currentTarget.dataset.index;
       if (!currentTour || index === undefined) return;
       currentTour.insertLocation(index, this.data.currentTourCopyIndex);
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
       this.setData({
         currentTour: currentTour,
@@ -1195,7 +1195,7 @@ Component({
      * @param e 
      * @returns 
      */
-    handleLocationRemove(e: WechatMiniprogram.CustomEvent) {
+    async handleLocationRemove(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.currentTour
         || !this.data.currentStartDateStrList
         || !this.data.currentEndDateStrList
@@ -1225,7 +1225,7 @@ Component({
       );
       currentTour.removeLocation(id, this.data.currentTourCopyIndex);
 
-      app.updateTour(currentTour);
+      await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
       this.filterNodeByDate(this.properties.dateFilter);
       this.setData({
