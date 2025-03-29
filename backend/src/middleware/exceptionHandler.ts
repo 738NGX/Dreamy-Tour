@@ -82,9 +82,9 @@ const exceptionHandler = (
   }
 
   // 未知错误处理（日志 + 统一响应）
-  console.error(`${err.name}: ${err.message}\n${err.stack}`);
+  console.error(`${err.name}: ${err.message}`);
   res.status(StatusCodes.INTERNAL_SERVER_ERROR)
-    .json(Result.error("未知异常"));
+    .json(Result.error("未知异常，请检查服务器日志"));
 };
 
 export default exceptionHandler;

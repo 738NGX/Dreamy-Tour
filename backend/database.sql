@@ -70,6 +70,7 @@ CREATE TABLE posts (
     likeSum INTEGER,
     commentSum INTEGER,
     forwardSum INTEGER,
+    favoriteSum INTEGER,
     status INTEGER,
     ipAddress TEXT,
     hotScore REAL,

@@ -18,6 +18,9 @@ class MessageConstant {
   static readonly SUCCESSFUL_TRANSFER = "转让成功";
   static readonly SUCCESSFUL_DISSOLVE = "解散成功";
   static readonly SUCCESSFUL_PUBLISH = "发布成功";
+  static readonly SUCCESSFUL_LIKE = "点赞成功";
+  static readonly SUCCESSFUL_CANCEL = "取消成功";
+  static readonly SUCCESSFUL_FAVORITE = "收藏成功";
   static readonly SUCCESSFUL_GRANT = "授权成果";
   static readonly SUCCESSFUL_JOIN = "加入成功";
   static readonly SUCCESSFUL_EXIT = "退出成功";

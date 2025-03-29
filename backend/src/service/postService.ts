@@ -6,12 +6,16 @@
  * @Last Modified time: 2025-03-25 21:26:51
  */
 
+import PostListBo from "@/bo/post/postListBo";
 import dbPromise from "@/config/databaseConfig";
+import ChannelConstant from "@/constant/channelConstant";
 import CosConstant from "@/constant/cosConstant";
 import PostConstant from "@/constant/postConstant";
 import PostPublishDto from "@/dto/post/postPublishDto";
 import ParamsError from "@/exception/paramsError";
 import CosUtil from "@/util/cosUtil";
+import RoleUtil from "@/util/roleUtil";
+import PostListVo from "@/vo/post/postListVo";
 
 class PostService {
   /**
@@ -70,7 +74,7 @@ class PostService {
       SELECT ?1, ?2, ?3, ?4
       WHERE NOT EXISTS (
         SELECT 1 FROM post_favorites 
-        WHERE user_id = ?1 AND post_id = ?2
+        WHERE uid = ?1 AND postId = ?2
       )
       `,
       [
@@ -108,11 +112,11 @@ class PostService {
     // 如果存在点赞记录，不重复插入；如果不存在点赞记录，插入点赞记录（使用子查询减少数据库查询次数）
     await db.run(
       `
-      INSERT INTO post_likes (uid, postId, createdAt, updatedAt)
-      SELECT ?1, ?2, ?3, ?4
+      INSERT INTO likes (uid, objType, objId, createdAt, updatedAt)
+      SELECT ?1, 0, ?2, ?3, ?4
       WHERE NOT EXISTS (
-        SELECT 1 FROM post_likes
-        WHERE user_id = ?1 AND post_id = ?2
+        SELECT 1 FROM likes
+        WHERE uid = ?1 AND objType = 0 AND objId = ?2
       )
       `,
       [
@@ -132,7 +136,10 @@ class PostService {
   static async unLike(uid: number, postId: number): Promise<void> {
     const db = await dbPromise;
     await db.run(
-      `DELETE FROM post_likes WHERE uid = ? AND postId = ?`,
+      `
+      DELETE FROM likes 
+      WHERE uid = ? AND objType = 0 AND objId = ?
+      `,
       [
         uid,
         postId
@@ -142,16 +149,72 @@ class PostService {
 
   /**
    * 获取公共频道的帖子文本
+   * @param uid 用户 ID
    */
-  static async getPublicPostList() {
-
+  static async getPublicPostList(uid: number): Promise<PostListVo[]> {
+    return await this.getPostListByChannelId(
+      uid, ChannelConstant.WORLD_CHANNEL_ID
+    );
   }
 
   /**
    * 获取某一特定频道下的帖子列表
+   * @param uid 用户 ID
+   * @param channelId 频道 ID
    */
-  static async getPostListByChannelId() {
+  static async getPostListByChannelId(uid: number, channelId: number): Promise<PostListVo[]> {
+    const db = await dbPromise;
+    const rows = await db.all<PostListBo[]>(
+      `
+      SELECT 
+        posts.postId AS postId,
+        posts.channelId As channelId,
+        posts.pictureUrls AS pictureUrls,
+        posts.title AS title,
+        posts.isSticky AS isSticky,
+        posts.createdAt AS postCreatedAt,
+        posts.updatedAt AS postUpdatedAt,
+        users.uid AS uid,
+        users.nickname AS nickname,
+        users.avatarUrl AS avatarUrl,
+        users.roleId AS roleId,
+        users.createdAt AS userCreatedAt,
+        users.updatedAt AS userUpdatedAt,
+        CASE WHEN post_likes.uid IS NOT NULL THEN 1 ELSE 0 END AS isLiked
+      FROM posts
+      INNER JOIN users ON posts.uid = users.uid
+      LEFT JOIN post_likes 
+        ON posts.postId = post_likes.postId 
+        AND post_likes.uid = ?
+      WHERE posts.channelId = ?
+      ORDER BY posts.isSticky DESC, posts.createdAt DESC
+      `,
+      [
+        uid,
+        channelId
+      ]
+    );
 
+    return rows.map(row => new PostListVo({
+      postId: row.postId,
+      channelId: row.channelId,
+      pictureUrl: row.pictureUrls.split(",")[0],
+      title: row.title,
+      isSticky: Boolean(row.isSticky),
+      createdAt: row.postCreatedAt,
+      updatedAt: row.postUpdatedAt,
+      user: {
+        uid: row.uid,
+        nickname: row.nickname,
+        avatarUrl: row.avatarUrl,
+        role: RoleUtil.roleNumberToString(row.roleId),
+        createdAt: row.userCreatedAt,
+        updatedAt: row.userUpdatedAt
+      },
+      action: {
+        isLiked: Boolean(row.isLiked)
+      }
+    }))
   }
 }
 

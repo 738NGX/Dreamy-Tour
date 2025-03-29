@@ -44,7 +44,13 @@ postRoute.post('/post', async (req: Request, res: Response) => {
  * @path /post/list
  */
 postRoute.get('/post/list', async (req: Request, res: Response) => {
-
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  const postListVos = await PostService.getPublicPostList(uid);
+  // 返回响应
+  res.json(
+    Result.success(postListVos)
+  );
 })
 
 /**
@@ -53,7 +59,15 @@ postRoute.get('/post/list', async (req: Request, res: Response) => {
  * @path /channel/:channelId/post/list
  */
 postRoute.get('/channel/:channelId/post/list', async (req: Request, res: Response) => {
-
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取 channelId
+  const channelId: number = Number(req.params.channelId);
+  const postListVos = await PostService.getPostListByChannelId(uid, channelId);
+  // 返回响应
+  res.json(
+    Result.success(postListVos)
+  );
 })
 
 /**
@@ -62,7 +76,6 @@ postRoute.get('/channel/:channelId/post/list', async (req: Request, res: Respons
  * @path /post/:postId/detail
  */
 postRoute.get('/post/:postId/detail', async (req: Request, res: Response) => {
-
 })
 
 /**
@@ -71,7 +84,17 @@ postRoute.get('/post/:postId/detail', async (req: Request, res: Response) => {
  * @path /post/:postId/like
  */
 postRoute.post('/post/:postId/like', async (req: Request, res: Response) => {
-
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取帖子 ID
+  const postId = Number(req.params.postId);
+  // 点赞
+  await PostService.like(uid, postId);
+  // 返回响应
+  res.status(StatusCodes.CREATED)
+    .json(
+      Result.success(MessageConstant.SUCCESSFUL_LIKE)
+    );
 })
 
 /**
@@ -80,7 +103,16 @@ postRoute.post('/post/:postId/like', async (req: Request, res: Response) => {
  * @path /post/:postId/like
  */
 postRoute.delete('/post/:postId/like', async (req: Request, res: Response) => {
-
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取帖子 ID
+  const postId = Number(req.params.postId);
+  // 取消点赞
+  await PostService.unLike(uid, postId);
+  // 返回响应
+  res.json(
+    Result.success(MessageConstant.SUCCESSFUL_CANCEL)
+  );
 })
 
 /**
@@ -89,7 +121,17 @@ postRoute.delete('/post/:postId/like', async (req: Request, res: Response) => {
  * @path /post/:postId/favorite
  */
 postRoute.post('/post/:postId/favorite', async (req: Request, res: Response) => {
-
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取帖子 ID
+  const postId = Number(req.params.postId);
+  // 收藏帖子
+  await PostService.favorite(uid, postId);
+  // 返回响应
+  res.status(StatusCodes.CREATED)
+    .json(
+      Result.success(MessageConstant.SUCCESSFUL_FAVORITE)
+    );
 })
 
 /**
@@ -98,7 +140,16 @@ postRoute.post('/post/:postId/favorite', async (req: Request, res: Response) => 
  * @path /post/:postId/favorite
  */
 postRoute.delete('/post/:postId/favorite', async (req: Request, res: Response) => {
-
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取帖子 ID
+  const postId = Number(req.params.postId);
+  // 取消收藏
+  await PostService.unFavorite(uid, postId);
+  // 返回响应
+  res.json(
+    Result.success(MessageConstant.SUCCESSFUL_CANCEL)
+  );
 })
 
 /**
@@ -107,7 +158,7 @@ postRoute.delete('/post/:postId/favorite', async (req: Request, res: Response) =
  * @path /post/favorite/list
  */
 postRoute.get('/post/favorite/list', async (req: Request, res: Response) => {
-
+  
 })
 
 /**

@@ -1,3 +1,5 @@
+import { randomInt } from "crypto";
+
 /*
  * 用户相关的工具类
  * @Author: Franctoryer 
@@ -20,5 +22,15 @@ export class UserUtil {
       default:
         return "保密";
     }
+  }
+
+  /**
+   * 生成默认头像地址
+   * @returns 默认头像地址
+   */
+  static generateDefaultAvatarUrl(): string {
+    const rand = randomInt(1, 30);
+    const defaultAvatarUrl = `https://dreamy-tour-1319433252.cos.ap-shanghai.myqcloud.com/avatar/default${rand}.png`
+    return defaultAvatarUrl;
   }
 }

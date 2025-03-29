@@ -17,7 +17,9 @@ const app: Application = express()
 
 // 中间件
 app.use(logger);  // 日志记录
-app.use(express.json()); // 解析 JSON 格式的请求体
+app.use(express.json({
+  limit: '20mb' // 请求体最大 20MB（默认是 100 KB，但是这样图片没法上传）
+})); // 解析 JSON 格式的请求体
 app.use(express.urlencoded({ extended: true })); // 解析 URL 编码格式的请求体
 app.use(authInterceptor); // 用户认证拦截器
 

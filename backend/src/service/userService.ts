@@ -260,7 +260,7 @@ class UserService {
         defaultNickname,
         openid,
         UserConstant.CONFIDENTIAL,
-        UserConstant.DEFAULT_AVATAR_URL,
+        UserUtil.generateDefaultAvatarUrl(),
         UserConstant.DEFAULT_ROLE,
         UserConstant.STATUS_ENABLE,
         Date.now(),
