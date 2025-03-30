@@ -3,7 +3,7 @@ import { apiUrl } from "../../utils/httpUtil";
 // pages/login/login.ts
 Page({
   data: {
-    image: "https://dreamy-tour-1319433252.cos.ap-shanghai.myqcloud.com/LOGO2.png",
+    image: "https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/LOGO2.png",
   },
   onShow() {
     wx.removeStorageSync("token");
