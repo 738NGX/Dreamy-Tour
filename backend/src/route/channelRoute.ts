@@ -64,7 +64,10 @@ channelRoute.get('/channel/list', async (req: Request, res: Response) => {
 channelRoute.get('/channel/:channelId/detail', async (req: Request, res: Response) => {
   // 获取频道 ID
   const channelId = Number(req.params.channelId);
-
+  // 获取频道详情
+  const channelDetailVo = await ChannelService.getDetailByChannelId(channelId);
+  // 返回响应
+  res.json(Result.success(channelDetailVo));
 })
 
 /**
@@ -73,7 +76,10 @@ channelRoute.get('/channel/:channelId/detail', async (req: Request, res: Respons
  * @path channel/:channelId/detail
  */
 channelRoute.get('/world-channel/detail', async (req: Request, res: Response) => {
-  
+  // 获取频道详情
+  const channelDetailVo = await ChannelService.getWorldChannelDetail();
+  // 返回响应
+  res.json(Result.success(channelDetailVo));
 })
 
 /**

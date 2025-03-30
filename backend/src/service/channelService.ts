@@ -92,8 +92,9 @@ class ChannelService {
     const db = await dbPromise;
     const row = await db.get<Partial<Channel>>(
       `
-      SELECT channelId, name, description, level
+      SELECT channelId, name, description, level,
         humanCount, joinWay, createdAt, updatedAt
+      FROM channels
       WHERE channelId = ?
       `,
       [channelId]
@@ -101,6 +102,7 @@ class ChannelService {
     if (!row) {
       throw new NotFoundError("该频道不存在");
     }
+    console.log(row)
     return new ChannelDetailVo({
       channelId: row.channelId,
       name: row.name,
