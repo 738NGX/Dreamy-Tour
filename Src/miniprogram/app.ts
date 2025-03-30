@@ -246,15 +246,14 @@ App<IAppOption>({
             name: name,
             description: description,
             joinWay: "FREE",
-            level: "A"
+            level: "C"
           }
         });
         return true;
       } catch (err: any) {
-        console.log('失败! ',err);
         wx.showToast({
-          title: "创建频道失败",
-          icon: "error"
+          title: err.response.data.msg,
+          icon: "none"
         });
         return false;
       }
