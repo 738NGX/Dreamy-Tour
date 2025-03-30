@@ -1,6 +1,6 @@
 import DTO from "@/base/dto";
 import { Expose, Type } from "class-transformer";
-import { Length, Matches } from "class-validator";
+import { IsNotEmpty, Length, Matches } from "class-validator";
 
 class ChannelDto extends DTO<ChannelDto> {
   // 频道名称
@@ -26,6 +26,14 @@ class ChannelDto extends DTO<ChannelDto> {
   })
   @Type(() => String)
   level: string
+
+  // 加入方式（0: Free; 1: Invite）
+  @Expose()
+  @IsNotEmpty({
+    message: "加入方式不能为空：只能填 free 或 invite"
+  })
+  @Type(() => String)
+  joinWay: string
 }
 
 export default ChannelDto;

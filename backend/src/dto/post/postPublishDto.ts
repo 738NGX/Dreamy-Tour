@@ -30,7 +30,7 @@ class PostPublishDto extends DTO<PostPublishDto> {
 
   // 帖子标题
   @Expose()
-  @Length(1, 15, {
+  @Length(1, 50, {
     message: "标题长度必须在 $constraint1 到 $constraint2 个字符之间"
   })
   @Type(() => String)

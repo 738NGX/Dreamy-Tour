@@ -33,6 +33,8 @@ class PostListVo extends VO<PostListVo> {
   title: string
   // 是否置顶
   isSticky: boolean
+  // 点赞数
+  likeSum: number
   // 创建时间
   createdAt: number
   // 更新时间

@@ -11,6 +11,8 @@ import ChannelConstant from "@/constant/channelConstant";
 import MessageConstant from "@/constant/messageConstant";
 import RoleConstant from "@/constant/RoleConstant";
 import InternalError from "@/exception/internalError";
+import NotFoundError from "@/exception/notFoundError";
+import ParamsError from "@/exception/paramsError";
 
 
 class ChannelUtil {
@@ -195,6 +197,28 @@ class ChannelUtil {
   }
 
   /**
+   * 检查是否有加入该频道的权限
+   * @param channelId 频道 ID
+   * @returns 
+   */
+  static async hasJoinPermission(
+    channelId: number
+  ): Promise<boolean> {
+    const db = await dbPromise;
+    const row = await db.get<{ joinWay: number }>(
+      `
+      SELECT joinWay FROM channels WHERE channelId = ?
+      `,
+      [channelId]
+    )
+    if (!row) {
+      throw new NotFoundError("该频道不存在！");
+    }
+    // 检查加入方式是否是free
+    return row.joinWay === ChannelConstant.JOINWAY_FREE;
+  }
+
+  /**
    * 频道类型字母转数字
    * @param levelLetter 频道类型字母
    * @returns 频道类型数字
@@ -274,6 +298,36 @@ class ChannelUtil {
       }
     } else {
       throw new InternalError(MessageConstant.NONEXISTENT_CHANNEL);
+    }
+  }
+
+  /**
+   * 将加入方式的数字转成字符串
+   * @param joinWay 加入方式
+   */
+  static joinWayNumberToStr(joinWay: number): string {
+    switch(joinWay) {
+      case 0:
+        return "FREE";
+      case 1:
+        return "INVITE";
+      default:
+        throw new ParamsError("该加入方式不存在！");
+    }
+  }
+
+  /**
+   * 将加入方式的字符串转成数字
+   * @param joinWay 加入方式
+   */
+  static joinWayStrToNumber(joinWay: string): number {
+    switch(joinWay.toUpperCase()) {
+      case "FREE":
+        return ChannelConstant.JOINWAY_FREE;
+      case "INVITE":
+        return ChannelConstant.JOINWAY_INVITE;
+      default:
+        throw new ParamsError("该加入方式不存在");
     }
   }
 }

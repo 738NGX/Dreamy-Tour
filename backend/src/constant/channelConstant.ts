@@ -28,6 +28,10 @@ class ChannelConstant {
   static readonly ENABLED = 0
   // 禁用
   static readonly DISABLED = 1
+  // 直接加入
+  static readonly JOINWAY_FREE = 0
+  // 仅限邀请
+  static readonly JOINWAY_INVITE = 1
 }
 
 export default ChannelConstant;

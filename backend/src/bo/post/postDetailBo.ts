@@ -11,6 +11,12 @@ interface PostListBo {
   isSticky: number
   // 点赞数
   likeSum: number
+  // 评论数
+  commentSum: number
+  // 转发数
+  forwardSum: number
+  // 收藏数
+  favoriteSum: number
   // 帖子创建时间
   postCreatedAt: number
   // 帖子更新时间
@@ -29,6 +35,8 @@ interface PostListBo {
   userUpdatedAt: number
   // 该用户是否点赞该帖子
   isLiked: number
+  // 该用户是否收藏该帖子
+  isFavorite: number
 }
 
 export default PostListBo;

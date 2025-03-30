@@ -16,6 +16,9 @@ class ChannelListVo extends VO<ChannelListVo> {
   // 频道人数
   humanCount: number
 
+  // 加入方式
+  joinWay: string
+
   // 频道创建时间
   createdAt: number
 

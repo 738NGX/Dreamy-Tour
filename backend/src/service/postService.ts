@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-03 13:59:07 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-29 15:28:34
+ * @Last Modified time: 2025-03-29 15:41:36
  */
 
 import PostListBo from "@/bo/post/postListBo";
@@ -181,6 +181,7 @@ class PostService {
         posts.pictureUrls AS pictureUrls,
         posts.title AS title,
         posts.isSticky AS isSticky,
+        posts.likeSum AS likeSum,
         posts.createdAt AS postCreatedAt,
         posts.updatedAt AS postUpdatedAt,
         users.uid AS uid,
@@ -210,6 +211,7 @@ class PostService {
       pictureUrl: row.pictureUrls.split(",")[0],
       title: row.title,
       isSticky: Boolean(row.isSticky),
+      likeSum: row.likeSum,
       createdAt: row.postCreatedAt,
       updatedAt: row.postUpdatedAt,
       user: {
@@ -302,6 +304,7 @@ class PostService {
         p.pictureUrls,
         p.title,
         p.isSticky,
+        p.likeSum,
         p.createdAt AS postCreatedAt,
         p.updatedAt AS postUpdatedAt,
         u.uid,
@@ -328,6 +331,7 @@ class PostService {
       pictureUrl: row.pictureUrls.split(",")[0],
       title: row.title,
       isSticky: Boolean(row.isSticky),
+      likeSum: row.likeSum,
       createdAt: row.postCreatedAt,
       updatedAt: row.postUpdatedAt,
       user: {
@@ -355,6 +359,7 @@ class PostService {
         p.pictureUrls,
         p.title,
         p.isSticky,
+        p.likeSum,
         p.createdAt AS postCreatedAt,
         p.updatedAt AS postUpdatedAt,
         u.uid,
@@ -381,6 +386,7 @@ class PostService {
       pictureUrl: row.pictureUrls.split(",")[0],
       title: row.title,
       isSticky: Boolean(row.isSticky),
+      likeSum: row.likeSum,
       createdAt: row.postCreatedAt,
       updatedAt: row.postUpdatedAt,
       user: {
@@ -392,6 +398,17 @@ class PostService {
         updatedAt: row.userUpdatedAt
       }
     }))
+  }
+
+  /**
+   * 获取某一帖子的详情
+   * @param postId 
+   * @param uid 
+   * @param roleId 
+   */
+  static async getDetailByPostId(postId: number) {
+    const db = await dbPromise;
+    
   }
 }
 

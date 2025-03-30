@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-08 20:09:17 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-21 22:21:50
+ * @Last Modified time: 2025-03-30 01:48:26
  */
 import dbPromise from "@/config/databaseConfig";
 import ChannelConstant from "@/constant/channelConstant";
@@ -13,8 +13,12 @@ import ChannelTransferDto from "@/dto/channel/channelTransferDto";
 import GrantAdminDto from "@/dto/channel/grantAdminDto";
 import Channel from "@/entity/channel";
 import ForbiddenError from "@/exception/forbiddenError";
+import NotFoundError from "@/exception/notFoundError";
+import ParamsError from "@/exception/paramsError";
 import ChannelUtil from "@/util/channelUtil";
+import ChannelDetailVo from "@/vo/channel/channelDetailVo";
 import ChannelListVo from "@/vo/channel/channelListVo";
+import PostDetailVo from "@/vo/post/postDetailVo";
 
 
 class ChannelService {
@@ -61,6 +65,10 @@ class ChannelService {
    */
   static async join(uid: number, channelId: number): Promise<void> {
     const db = await dbPromise;
+    // 先检查是否有权限加入该频道
+    if (!await ChannelUtil.hasJoinPermission(channelId)) {
+      throw new ForbiddenError("该频道仅限邀请，您没有权限加入！");
+    }
     // 插入用户加入频道的记录，如果之前已经加入过了，就更新 updatedAt
     await db.run(
       `INSERT INTO channel_users (uid, channelId, createdAt, updatedAt)
@@ -75,6 +83,44 @@ class ChannelService {
     );
   }
   
+  /**
+   * 获取某一频道的详情
+   * @param channelId 频道 ID
+   * @returns 
+   */
+  static async getDetailByChannelId(channelId: number): Promise<ChannelDetailVo> {
+    const db = await dbPromise;
+    const row = await db.get<Partial<Channel>>(
+      `
+      SELECT channelId, name, description, level
+        humanCount, joinWay, createdAt, updatedAt
+      WHERE channelId = ?
+      `,
+      [channelId]
+    );
+    if (!row) {
+      throw new NotFoundError("该频道不存在");
+    }
+    return new ChannelDetailVo({
+      channelId: row.channelId,
+      name: row.name,
+      description: row.description,
+      level: ChannelUtil.levelNumberToLetter(row.level as number),
+      humanCount: row.humanCount,
+      joinWay: ChannelUtil.joinWayNumberToStr(row.joinWay as number),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt
+    })
+  }
+
+  /**
+   * 获取世界频道详情
+   * @returns 
+   */
+  static async getWorldChannelDetail(): Promise<ChannelDetailVo> {
+    return await this.getDetailByChannelId(ChannelConstant.WORLD_CHANNEL_ID);
+  }
+
   /**
    * 转让某个频道
    * @param ChannelTransferDto 转让需要的参数
@@ -125,7 +171,7 @@ class ChannelService {
     const rows = await db.all<Partial<Channel>[]>(
       `
       SELECT channels.channelId, name, description, level, 
-        humanCount, channels.createdAt, channels.updatedAt
+        joinWay, humanCount, channels.createdAt, channels.updatedAt
       FROM channels
       WHERE EXISTS (
         SELECT 1 FROM channel_users 
@@ -140,7 +186,8 @@ class ChannelService {
     // 定义一个 VO 列表作为返回值
     const channelListVos = rows.map(row => ({
       ...row,
-      level: ChannelUtil.levelNumberToLetter(row.level as number)
+      level: ChannelUtil.levelNumberToLetter(row.level as number),
+      joinWay: ChannelUtil.joinWayNumberToStr(row.joinWay as number)
     })) as ChannelListVo[];
     // 返回结果
     return channelListVos;
@@ -155,7 +202,7 @@ class ChannelService {
     const rows = await db.all<Partial<Channel>[]>(
       `
       SELECT channels.channelId, name, description, level, 
-        humanCount, channels.createdAt, channels.updatedAt
+        joinWay, humanCount, channels.createdAt, channels.updatedAt
       FROM channels
       WHERE NOT EXISTS (
         SELECT 1 FROM channel_users
@@ -169,7 +216,8 @@ class ChannelService {
     // 定义一个 VO 列表作为返回值
     const channelListVos = rows.map(row => ({
       ...row,
-      level: ChannelUtil.levelNumberToLetter(row.level as number)
+      level: ChannelUtil.levelNumberToLetter(row.level as number),
+      joinWay: ChannelUtil.joinWayNumberToStr(row.joinWay as number)
     })) as ChannelListVo[];
     // 返回结果
     return channelListVos;
@@ -182,14 +230,17 @@ class ChannelService {
   static async getChannelList(): Promise<ChannelListVo[]> {
     const db = await dbPromise;
     const rows = await db.all<Partial<Channel>[]>(
-      `SELECT channelId, name, description, level, 
-       humanCount, createdAt, updatedAt
-       FROM channels`
+      `
+      SELECT channelId, name, description, level, 
+        joinWay, humanCount, createdAt, updatedAt
+      FROM channels
+      `
     );
     // 定义一个 VO 列表作为返回值
     const channelListVos = rows.map(row => ({
       ...row,
-      level: ChannelUtil.levelNumberToLetter(row.level as number)
+      level: ChannelUtil.levelNumberToLetter(row.level as number),
+      joinWay: ChannelUtil.joinWayNumberToStr(row.joinWay as number)
     })) as ChannelListVo[];
     // 返回结果
     return channelListVos;
@@ -208,11 +259,12 @@ class ChannelService {
     const db = await dbPromise;
     await db.run(
       `UPDATE channels SET
-       name = ?, description = ?
+       name = ?, description = ?, joinWay = ?
        WHERE channelId = ?`,
       [
         channelModifyDto.name,
         channelModifyDto.description,
+        channelModifyDto.joinWay,
         channelId
       ]
     )

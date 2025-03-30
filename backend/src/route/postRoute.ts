@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-08 15:44:06 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-29 15:01:18
+ * @Last Modified time: 2025-03-29 15:50:35
  */
 
 import AuthConstant from "@/constant/authConstant";
@@ -76,6 +76,7 @@ postRoute.get('/channel/:channelId/post/list', async (req: Request, res: Respons
  * @path /post/:postId/detail
  */
 postRoute.get('/post/:postId/detail', async (req: Request, res: Response) => {
+  
 })
 
 /**

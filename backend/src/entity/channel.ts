@@ -25,6 +25,9 @@ class Channel {
   // 频道状态
   status: number
 
+  // 加入方式
+  joinWay: number
+
   // 频道内的人数
   humanCount: number
 

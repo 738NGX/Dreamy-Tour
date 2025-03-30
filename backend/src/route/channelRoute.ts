@@ -57,6 +57,26 @@ channelRoute.get('/channel/list', async (req: Request, res: Response) => {
 });
 
 /**
+ * @description 获取某一频道详情
+ * @method GET
+ * @path channel/:channelId/detail
+ */
+channelRoute.get('/channel/:channelId/detail', async (req: Request, res: Response) => {
+  // 获取频道 ID
+  const channelId = Number(req.params.channelId);
+
+})
+
+/**
+ * @description 获取某一频道详情
+ * @method GET
+ * @path channel/:channelId/detail
+ */
+channelRoute.get('/world-channel/detail', async (req: Request, res: Response) => {
+  
+})
+
+/**
  * @description 加入某个频道
  * @method POST
  * @path /channel/:channelId/join
