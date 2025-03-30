@@ -31,9 +31,9 @@ class ChannelService {
     // 获取频道类型数字
     const level = ChannelUtil.levelLetterToNumber(channelDto.level);
     // 判断用户是否有权限，如果没有权限，抛出权限异常
-    if (!ChannelUtil.hasCreatePermission(roleId, level)) {
-      throw new ForbiddenError('您没有权限创建该等级的频道');
-    }
+    // if (!ChannelUtil.hasCreatePermission(roleId, level)) {
+    //   throw new ForbiddenError('您没有权限创建该等级的频道');
+    // }
     const db = await dbPromise;
     // 插入新频道
     const newChannel = await db.run(

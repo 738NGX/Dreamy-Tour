@@ -33,7 +33,7 @@ CREATE TABLE channels (
     joinWay INTEGER,                        -- 频道加入方式：0 表示可直接加入，1 表示仅限邀请
     createdAt INTEGER,                      -- 创建时间戳
     updatedAt INTEGER,                      -- 更新时间戳
-    FOREIGN KEY (masterId) REFERENCES users(uid)
+    FOREIGN KEY (masterId) REFERENCES users(uid) ON DELETE CASCADE
 );
 
 -- 频道个人表
@@ -43,8 +43,8 @@ CREATE TABLE channel_users (
     createdAt INTEGER,
     updatedAt INTEGER,
     PRIMARY KEY (uid, channelId),
-    FOREIGN KEY (uid) REFERENCES users(uid),
-    FOREIGN KEY (channelId) REFERENCES channels(channelId)
+    FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
+    FOREIGN KEY (channelId) REFERENCES channels(channelId) ON DELETE CASCADE
 );
 
 -- 频道管理员表
@@ -54,8 +54,8 @@ CREATE TABLE channel_admins (
     createdAt INTEGER,
     updatedAt INTEGER,
     PRIMARY KEY (uid, channelId),
-    FOREIGN KEY (uid) REFERENCES users(uid),
-    FOREIGN KEY (channelId) REFERENCES channels(channelId)
+    FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
+    FOREIGN KEY (channelId) REFERENCES channels(channelId) ON DELETE CASCADE
 );
 
 -- 帖子表
@@ -78,8 +78,8 @@ CREATE TABLE posts (
     isSticky INTEGER,
     createdAt INTEGER,
     updatedAt INTEGER,
-    FOREIGN KEY (uid) REFERENCES users(uid) 
-    FOREIGN KEY (channelId) REFERENCES channels(channelId)
+    FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
+    FOREIGN KEY (channelId) REFERENCES channels(channelId) ON DELETE CASCADE
 );
 
 -- 点赞表 likes
@@ -90,7 +90,7 @@ CREATE TABLE likes (
     uid INTEGER,
     createdAt INTEGER,
     updatedAt INTEGER,
-    FOREIGN KEY (uid) REFERENCES users(uid)
+    FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE
 );
 
 -- 帖子收藏表 post_favorites
@@ -112,8 +112,8 @@ CREATE TABLE comments (
     content TEXT,
     createdAt INTEGER,
     updatedAt INTEGER,
-    FOREIGN KEY (uid) REFERENCES user_info(uid),
-    FOREIGN KEY (postId) REFERENCES posts(postId)
+    FOREIGN KEY (uid) REFERENCES user_info(uid) ON DELETE CASCADE,
+    FOREIGN KEY (postId) REFERENCES posts(postId) ON DELETE CASCADE
 );
 
 -- 群组表 groups 
@@ -130,8 +130,8 @@ CREATE TABLE groups (
     joinWay INTEGER,
     createdAt INTEGER,
     updatedAt INTEGER,
-    FOREIGN KEY (linkedChannel) REFERENCES channels(channelId),
-    FOREIGN KEY (masterId) REFERENCES users(uid)
+    FOREIGN KEY (linkedChannel) REFERENCES channels(channelId) ON DELETE CASCADE,
+    FOREIGN KEY (masterId) REFERENCES users(uid) ON DELETE CASCADE
 );
 
 -- 群组个人表
@@ -141,8 +141,8 @@ CREATE TABLE group_users (
     createdAt INTEGER,
     updatedAt INTEGER,
     PRIMARY KEY (uid, groupId),
-    FOREIGN KEY (uid) REFERENCES users(uid),
-    FOREIGN KEY (groupId) REFERENCES groups(groupId)
+    FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
+    FOREIGN KEY (groupId) REFERENCES groups(groupId) ON DELETE CASCADE
 );
 
 -- 群组管理员表
@@ -152,8 +152,8 @@ CREATE TABLE group_admins (
     createdAt INTEGER,
     updatedAt INTEGER,
     PRIMARY KEY (uid, groupId),
-    FOREIGN KEY (uid) REFERENCES users(uid),
-    FOREIGN KEY (groupId) REFERENCES groups(groupId)
+    FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
+    FOREIGN KEY (groupId) REFERENCES groups(groupId) ON DELETE CASCADE
 );
 
 -- 行程表 tours
@@ -177,8 +177,8 @@ CREATE TABLE tours (
     transportations TEXT,
     createdAt INTEGER,
     updatedAt INTEGER,
-    FOREIGN KEY (linkedChannel) REFERENCES channels(channelId),
-    FOREIGN KEY (linkedGroup) REFERENCES groups(groupId)
+    FOREIGN KEY (linkedChannel) REFERENCES channels(channelId) ON DELETE CASCADE,
+    FOREIGN KEY (linkedGroup) REFERENCES groups(groupId) ON DELETE CASCADE
 );
 
 
