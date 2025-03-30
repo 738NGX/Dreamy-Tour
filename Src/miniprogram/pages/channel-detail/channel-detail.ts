@@ -28,8 +28,16 @@ Component({
       this.setData({
         currentChannel: await app.loadChannel(parseInt(channelId)),
       });
+      await this.onShow();
     },
     async onShow() {
+      const homeComponent = this.selectComponent('#home');
+      if (homeComponent) {
+        await homeComponent.generateTourSaves();
+        homeComponent.generateFullFootprints();
+        homeComponent.generateFullMarkers();
+        await homeComponent.generateUserRankings();
+      }
       const postsComponent = this.selectComponent('#posts');
       if (postsComponent) {
         await postsComponent.getFullPosts();
@@ -39,6 +47,12 @@ Component({
       if (groupsComponent) {
         await groupsComponent.classifyGroups();
         await groupsComponent.getTourTemplates();
+      }
+      const settingsComponent = this.selectComponent('#settings');
+      if (settingsComponent) {
+        settingsComponent.setData({ channelId: this.data.currentChannel?.id });
+        await settingsComponent.getMembers();
+        await settingsComponent.getAuthority();
       }
     },
     onChildPageChange(e: WechatMiniprogram.CustomEvent) {

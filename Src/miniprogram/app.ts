@@ -214,7 +214,14 @@ App<IAppOption>({
     if (!this.globalData.testMode) {
       try {
         const res = await HttpUtil.get({ url: "/channel/unjoined/list" });
-        const channelList = res.data.data as Channel[];
+        const channelList = res.data.data.map((res: any) => {
+          return new Channel({
+            id: res.channelId,
+            name: res.name,
+            description: res.description,
+            joinWay: res.joinWay == "FREE" ? JoinWay.Free : res.joinWay == "APPROVAL" ? JoinWay.Approval : JoinWay.Invite,
+          })
+        }) as Channel[];
         return channelList;
       } catch {
         wx.showToast({
@@ -232,7 +239,25 @@ App<IAppOption>({
   },
   async createChannel(name: string, description: string): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.post({
+          url: "/channel",
+          jsonData: {
+            name: name,
+            description: description,
+            joinWay: "FREE",
+            level: "A"
+          }
+        });
+        return true;
+      } catch (err: any) {
+        console.log('失败! ',err);
+        wx.showToast({
+          title: "创建频道失败",
+          icon: "error"
+        });
+        return false;
+      }
     } else {
       const newChannelId = getNewId(this.globalData.currentData.channelList);
       const channel = new Channel({
@@ -250,7 +275,20 @@ App<IAppOption>({
   },
   async joinChannel(channelId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.post({ url: `/channel/${channelId}/join` });
+        wx.showToast({
+          title: '加入成功,请返回频道列表查看',
+          icon: 'none'
+        });
+        return true;
+      } catch (err: any) {
+        wx.showToast({
+          title: "加入频道失败",
+          icon: "error"
+        });
+        return false;
+      }
     } else {
       const channel = this.getChannel(channelId) as Channel;
       if (channel.joinWay == JoinWay.Approval) {
@@ -294,7 +332,14 @@ App<IAppOption>({
     if (!this.globalData.testMode) {
       try {
         const res = await HttpUtil.get({ url: "/channel/joined/list" });
-        const channelList = res.data.data as Channel[]
+        const channelList = res.data.data.map((res: any) => {
+          return new Channel({
+            id: res.channelId,
+            name: res.name,
+            description: res.description,
+            joinWay: res.joinWay == "FREE" ? JoinWay.Free : res.joinWay == "APPROVAL" ? JoinWay.Approval : JoinWay.Invite,
+          })
+        }) as Channel[];
         return channelList;
       } catch {
         wx.showToast({
@@ -314,7 +359,23 @@ App<IAppOption>({
   // for channel-detail.ts
   async loadChannel(channelId: number): Promise<ChannelBasic | undefined> {
     if (!this.globalData.testMode) {
-      return undefined;
+      try {
+        const res = await HttpUtil.get({ url: `/channel/${channelId}/detail` });
+        const channel = {
+          id: res.data.data.channelId,
+          name: res.data.data.name,
+          description: res.data.data.description,
+          joinWay: res.data.data.joinWay == "FREE" ? JoinWay.Free : res.data.data.joinWay == "APPROVAL" ? JoinWay.Approval : JoinWay.Invite,
+        };
+        return new ChannelBasic(channel);
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: "加载失败",
+          icon: "error"
+        });
+        return undefined;
+      }
     } else {
       const channel = this.getChannel(channelId);
       if (channel) {
@@ -326,7 +387,23 @@ App<IAppOption>({
   },
   async loadPublicChannel(): Promise<ChannelBasic | undefined> {
     if (!this.globalData.testMode) {
-      return undefined;
+      try {
+        const res = await HttpUtil.get({ url: `/world-channel/detail` });
+        const channel = {
+          id: res.data.data.channelId,
+          name: res.data.data.name,
+          description: res.data.data.description,
+          joinWay: res.data.data.joinWay == "FREE" ? JoinWay.Free : res.data.data.joinWay == "APPROVAL" ? JoinWay.Approval : JoinWay.Invite,
+        };
+        return new ChannelBasic(channel);
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: "加载失败",
+          icon: "error"
+        });
+        return undefined;
+      }
     } else {
       const channel = this.getChannel(1);
       if (channel) {
@@ -375,7 +452,6 @@ App<IAppOption>({
   async getFullPostsInChannel(channelId: number): Promise<PostCard[]> {
     if (!this.globalData.testMode) {
       try {
-        const channelId = 1;
         const url = channelId == 1 ? '/post/list' : `/channel/${channelId}/post/list`;
         const results = await HttpUtil.get({ url });
         const fullPosts = results.data.data.map((res: any) => {
@@ -386,7 +462,7 @@ App<IAppOption>({
             linkedChannel: res.channelId,
             user: res.user.uid,
             time: res.createdAt,
-            likes: [],
+            likes: Array(res.likeSum).fill(0),
             photos: [new Photo({ value: res.pictureUrl })],
             isSticky: res.isSticky,
             username: res.user.nickname,
@@ -427,7 +503,6 @@ App<IAppOption>({
   async createPost(channelId: number, title: string, content: string, originFiles: File[]): Promise<boolean> {
     if (!this.globalData.testMode) {
       try {
-        const channelId = 1;
         await HttpUtil.post({
           url: "/post",
           jsonData: {
@@ -778,7 +853,36 @@ App<IAppOption>({
   },
   async quitChannel(channelId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      return new Promise((resolve) => {
+        wx.showModal({
+          title: '警告',
+          content: '确定要退出该频道吗？同时将退出频道中你加入的所有群组',
+          async success(res) {
+            if (res.confirm) {
+              try {
+                await HttpUtil.delete({ url: `/channel/${channelId}/join` });
+                wx.showToast({
+                  title: '退出成功',
+                  icon: 'success',
+                  time: 2000,
+                });
+                resolve(true);
+              } catch (err: any) {
+                wx.showToast({
+                  title: "退出频道失败",
+                  icon: "error"
+                });
+                resolve(false);
+              }
+            } else {
+              resolve(false);
+            }
+          },
+          fail() {
+            resolve(false);
+          }
+        });
+      });
     } else {
       const that = this;
       const currentUser = that.currentUser();

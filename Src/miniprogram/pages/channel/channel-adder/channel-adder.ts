@@ -87,7 +87,13 @@ Component({
     },
     async joinChannel(e: WechatMiniprogram.CustomEvent) {
       const channelId = parseInt(e.currentTarget.dataset.index);
-      if (await app.joinChannel(channelId)) { await this.onRefresh(); }
+      if (await app.joinChannel(channelId)) { 
+        await this.onRefresh(); 
+        wx.showToast({
+          title: '加入成功, 请返回频道列表查看',
+          icon: 'none',
+        });
+      }
     }
   }
 });
