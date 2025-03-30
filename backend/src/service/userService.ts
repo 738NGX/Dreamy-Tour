@@ -50,7 +50,7 @@ class UserService {
       phone: row.phone,
       signature: row.signature,
       birthday: row.birthday,
-      roleId: row.roleId
+      role: RoleUtil.roleNumberToString(row.roleId as number)
     })
   }
 

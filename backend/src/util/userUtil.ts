@@ -1,3 +1,4 @@
+import CosConstant from "@/constant/cosConstant";
 import { randomInt } from "crypto";
 
 /*
@@ -30,7 +31,7 @@ export class UserUtil {
    */
   static generateDefaultAvatarUrl(): string {
     const rand = randomInt(1, 30);
-    const defaultAvatarUrl = `https://dreamy-tour-1319433252.cos.ap-shanghai.myqcloud.com/avatar/default${rand}.png`
+    const defaultAvatarUrl = `${CosConstant.BASE_URL}/${CosConstant.AVATAR_FOLDER}/default${rand}.png`
     return defaultAvatarUrl;
   }
 }

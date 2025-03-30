@@ -36,7 +36,7 @@ class UserDetailVo extends VO<UserDetailVo> {
   birthday: string
 
   // 角色
-  roleId: number
+  role: string
 }
 
 export default UserDetailVo;
