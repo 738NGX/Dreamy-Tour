@@ -17,6 +17,13 @@ Page({
     this.handleLogin();
   },
   handleLogin() {
+    // 先检查缓存是否有 token，如果有，就直接登录
+    const token = wx.getStorageSync("Authorization");
+    if (token) {
+      wx.switchTab({
+        url: "/pages/channel/channel"
+      });
+    }
     wx.showLoading({
       title: "加载中…"
     })

@@ -5,6 +5,7 @@
  * @Last Modified by: Franctoryer
  * @Last Modified time: 2025-03-08 16:15:25
  */
+import dbPromise from "@/config/databaseConfig";
 import AuthConstant from "@/constant/authConstant";
 import UnauthorizedError from "@/exception/unauthorizedError";
 import jwt, { JsonWebTokenError, JwtPayload, TokenExpiredError } from "jsonwebtoken"
@@ -23,6 +24,22 @@ class JwtUtil {
       }, 
       AuthConstant.SECRET
     );
+  }
+
+  /**
+   * 根据 uid 生成更新后的 jwt
+   * @param uid 
+   */
+  static async updateByUid(uid: number): Promise<string> {
+    const db = await dbPromise;
+    // 先查询 roleId
+    const row = await db.get<{ roleId: number }>(
+      `
+      SELECT roleId FROM users WHERE uid = ?
+      `,
+      [uid]
+    ) as { roleId: number }
+    return this.generateByUid(uid, row.roleId);
   }
 
   /**
@@ -83,6 +100,15 @@ class JwtUtil {
   static getUidAndRoleId(token: string): { uid: number, roleId: number } {
     const { uid, roleId } = jwt.decode(token) as JwtPayload;  // 直接解析载荷部分
     return { uid, roleId };   // 对象属性简写，如果属性名和引用变量名相同时，可以省略
+  }
+
+  /**
+   * 获取 token 过期的时间戳
+   * @param token jwt
+   */
+  static getExpiredTime(token: string): number {
+    const { exp } = jwt.decode(token) as JwtPayload; // 直接解析载荷部分
+    return exp as number;
   }
 }
 
