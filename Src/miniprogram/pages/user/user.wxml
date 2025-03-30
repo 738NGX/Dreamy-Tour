@@ -42,7 +42,7 @@
         </t-input>
         <view borderless class="narrow-input" style="font-size:32rpx; padding:10rpx;">
           <view style="margin-right:32rpx;">昵称</view>
-          <input type="nickname" value="{{currentUser.name}}" maxlength="{{15}}" bindchange="handleNickNameChange" placeholder-style="input-placeholder" bind:blur="handleNickNameChange" placeholder="请输入昵称" />
+          <input type="nickname" value="{{currentUser.name}}" maxlength="{{15}}" bindchange="handleNickNameChange" placeholder-style="input-placeholder" bind:blur="handleUserNameChangeConfirm" placeholder="请输入昵称" />
         </view>
         <view borderless class="narrow-input" style="font-size:32rpx; padding:10rpx;">
           <view style="margin-right:32rpx;">性别</view>

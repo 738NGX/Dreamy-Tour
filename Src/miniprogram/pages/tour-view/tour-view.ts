@@ -22,9 +22,9 @@ Component({
     //前端写这个有隐私安全
   },
   methods: {
-    onLoad(options: any) {
+    async onLoad(options: any) {
       const { tourId } = options;
-      const currentTour = app.getTour(parseInt(tourId)) as Tour;
+      const currentTour = await app.loadFullTour(parseInt(tourId)) as Tour;
       const dateRange = this.getDateRange(currentTour!.startDate, currentTour!.endDate);
       const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
       this.setData({ currentTour, dateRange, copyOptions,

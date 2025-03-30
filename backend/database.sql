@@ -116,6 +116,70 @@ CREATE TABLE comments (
     FOREIGN KEY (postId) REFERENCES posts(postId)
 );
 
+-- 群组表 groups 
+CREATE TABLE groups (
+    groupId INTEGER PRIMARY KEY,
+    name TEXT,
+    description TEXT,
+    masterId INTEGER,
+    status INTEGER,
+    humanCount INTEGER,
+    linkedChannel INTEGER,
+    qrCode TEXT,
+    level INTEGER,
+    joinWay INTEGER,
+    createdAt INTEGER,
+    updatedAt INTEGER,
+    FOREIGN KEY (linkedChannel) REFERENCES channels(channelId),
+    FOREIGN KEY (masterId) REFERENCES users(uid)
+);
+
+-- 群组个人表
+CREATE TABLE group_users (
+    uid INTEGER,
+    groupId INTEGER,
+    createdAt INTEGER,
+    updatedAt INTEGER,
+    PRIMARY KEY (uid, groupId),
+    FOREIGN KEY (uid) REFERENCES users(uid),
+    FOREIGN KEY (groupId) REFERENCES groups(groupId)
+);
+
+-- 群组管理员表
+CREATE TABLE group_admins (
+    uid INTEGER,
+    groupId INTEGER,
+    createdAt INTEGER,
+    updatedAt INTEGER,
+    PRIMARY KEY (uid, groupId),
+    FOREIGN KEY (uid) REFERENCES users(uid),
+    FOREIGN KEY (groupId) REFERENCES groups(groupId)
+);
+
+-- 行程表 tours
+CREATE TABLE tours (
+    tourId INTEGER PRIMARY KEY,
+    title TEXT,
+    status INTEGER,
+    linkedChannel INTEGER,
+    channelVisible INTEGER,
+    linkedGroup INTEGER,
+    startDate INTEGER,
+    endDate INTEGER,
+    timeOffset INTEGER,
+    mainCurrency INTEGER,
+    subCurrency INTEGER,
+    currencyExchangeRate INTEGER,
+    users TEXT,
+    nodeCopyNames TEXT,
+    budgets TEXT,
+    locations TEXT,
+    transportations TEXT,
+    createdAt INTEGER,
+    updatedAt INTEGER,
+    FOREIGN KEY (linkedChannel) REFERENCES channels(channelId),
+    FOREIGN KEY (linkedGroup) REFERENCES groups(groupId)
+);
 
 
 -- @@@@@@@@@@@@@ 触发器 @@@@@@@@@@@@@
@@ -136,6 +200,25 @@ BEGIN
     UPDATE channels
     SET humanCount = humanCount - 1
     WHERE channelId = OLD.channelId;
+END;
+
+-- @@@@@@@@@@@@@ 群组表（groups）@@@@@@@@@@@@@
+-- 创建加入群组时的触发器
+CREATE TRIGGER IF NOT EXISTS increment_group_human_count
+AFTER INSERT ON group_users
+BEGIN
+    UPDATE groups
+    SET humanCount = humanCount + 1
+    WHERE groupId = NEW.groupId;
+END;
+
+-- 创建退出群组时的触发器
+CREATE TRIGGER IF NOT EXISTS decrement_group_human_count
+AFTER DELETE ON group_users
+BEGIN
+    UPDATE groups
+    SET humanCount = humanCount - 1
+    WHERE groupId = OLD.groupId;
 END;
 
 

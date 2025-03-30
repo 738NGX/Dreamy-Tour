@@ -41,13 +41,13 @@ Component({
     },
   },
   methods: {
-    onLoad(options:any){
+    async onLoad(options:any){
       const tourId = options.tourId;
       const currentTourCopyIndex = options.currentTourCopyIndex;
       const showUserReport = options.showUserReport === 'true';
       
       this.setData({
-        currentTour: app.getTour(parseInt(tourId)) as Tour,
+        currentTour: await app.loadFullTour(parseInt(tourId)) as Tour,
         currentTourCopyIndex: currentTourCopyIndex,
         showUserReport: showUserReport
       })

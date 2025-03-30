@@ -12,11 +12,11 @@ Page({
     getApp<IAppOption>().globalData.testMode = false;
     this.handleLogin();
   },
-  enterTestMode(){
+  enterTestMode() {
     getApp<IAppOption>().globalData.testMode = true;
     this.handleLogin();
   },
-  handleLogin(){
+  handleLogin() {
     wx.showLoading({
       title: "加载中…"
     })
@@ -38,8 +38,9 @@ Page({
                 url: "/pages/channel/channel"
               });
             },
-            fail() {
+            fail(err: any) {
               wx.hideLoading();
+              console.error("登录失败", err);
               wx.showToast({
                 title: "登录失败",
                 icon: "error"

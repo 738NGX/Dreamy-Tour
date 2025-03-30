@@ -60,15 +60,13 @@ Component({
   methods: {
     async onRefresh() {
       this.setData({ refreshEnable: true });
-      setTimeout(() => {
-        this.setData({ refreshEnable: false });
-      }, 500);
       await this.classifyGroups();
       this.setData({
         joinedGroups: this.data.fullJoinedGroups.filter(group => group.name.includes(this.data.searchingValue)),
         unJoinedGroups: this.data.fullUnJoinedGroups.filter(group => group.name.includes(this.data.searchingValue)),
       });
       await this.getTourTemplates();
+      this.setData({ refreshEnable: false });
     },
     async getTourTemplates() {
       const currentChannel = this.properties.currentChannel as Channel;

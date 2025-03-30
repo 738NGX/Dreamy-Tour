@@ -1,10 +1,18 @@
 // API 地址配置
-const usingDomain = true;   // 是否使用域名  
-export const apiUrl = usingDomain ? "https://dreamy-tour.738ngx.site/api" : "http://117.72.15.170/api";
+const usingDomain = true;   // 是否使用域名
+const usingLocal = false;   // 是否使用本地 IP
+export const apiUrl = usingLocal ? "http://127.0.0.1:8080" : (
+  usingDomain
+  ? "https://dreamy-tour.738ngx.site/api"
+  : "http://117.72.15.170/api"
+);
 
 import { Fly as IFly } from "./fly/fly"
 var Fly = require("./fly/fly.min")
 const fly = new Fly() as IFly;
+
+const debug = true; // 是否开启调试模式
+console.log("debug:", debug);
 
 /**
  * 所有请求的参数类型
@@ -104,6 +112,8 @@ class HttpUtil {
       data: req.jsonData
     };
 
+    if (debug) { console.log('backend request:', requestParams) };
+
     // ================== 发送请求 ==================
     return new Promise((resolve, reject) => {
       fly.request(
@@ -112,22 +122,22 @@ class HttpUtil {
         {
           method: requestParams.method,
           headers: requestParams.header,
-          timeout: 5000
+          timeout: 60000
         }
       )
-        .then(d => { 
-          //console.log('result:',d); 
+        .then(d => {
+          if (debug) { console.log('backend result:', d) };
           wx.hideLoading();
-          resolve(d); 
+          resolve(d);
         })
-        .catch(e => { 
+        .catch(e => {
           wx.hideLoading();
-          //console.log('error:',e); 
+          if (debug) { console.error('backend error:', e) };
           if (e.status === 1) {
             wx.showToast({ title: "请求超时", icon: "error", time: 2000 });
             reject(e)
           }
-          else if(e.status === 400) {
+          else if (e.status === 400) {
             reject({ ...e, errMsg: "请求参数错误" });
           }
           else if (e.status === 401) {
@@ -140,9 +150,8 @@ class HttpUtil {
             wx.showToast({ title: "服务器异常", icon: "error", time: 2000 });
             reject({ ...e, errMsg: "服务器异常" });
           }
-          else
-          {
-            reject(e); 
+          else {
+            reject(e);
           }
         });
       /** 微信原生, 已弃用
