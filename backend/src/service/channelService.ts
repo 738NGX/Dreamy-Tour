@@ -102,7 +102,6 @@ class ChannelService {
     if (!row) {
       throw new NotFoundError("该频道不存在");
     }
-    console.log(row)
     return new ChannelDetailVo({
       channelId: row.channelId,
       name: row.name,
@@ -266,7 +265,7 @@ class ChannelService {
       [
         channelModifyDto.name,
         channelModifyDto.description,
-        channelModifyDto.joinWay,
+        ChannelUtil.joinWayStrToNumber(channelModifyDto.joinWay),
         channelId
       ]
     )
