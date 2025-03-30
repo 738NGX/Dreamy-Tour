@@ -91,6 +91,7 @@ Component({
 
   methods: {
     async generateTourSaves() {
+      if (!this.properties.currentChannel) return;
       const tourSaves = await app.generateTourSaves(this.properties.currentChannel.id);
       this.setData({ tourSaves: tourSaves });
     },

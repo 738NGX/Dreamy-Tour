@@ -1,6 +1,6 @@
 <header class="custom-navbar" title="{{currentChannel.name || '频道'}}" tabList="{{tabList}}" bind:childPageChange="onChildPageChange" />
 <block wx:if="{{childPage == 0}}">
-  <channel-detail-home currentChannel="{{currentChannel}}" />
+  <channel-detail-home id="home" currentChannel="{{currentChannel}}" />
 </block>
 <block wx:if="{{childPage == 1}}">
   <channel-detail-posts id="posts" currentChannel="{{currentChannel}}" />

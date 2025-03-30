@@ -3,8 +3,8 @@ const usingDomain = true;   // 是否使用域名
 const usingLocal = false;   // 是否使用本地 IP
 export const apiUrl = usingLocal ? "http://127.0.0.1:8080" : (
   usingDomain
-  ? "https://dreamy-tour.738ngx.site/api"
-  : "http://117.72.15.170/api"
+    ? "https://dreamy-tour.738ngx.site/api"
+    : "http://117.72.15.170/api"
 );
 
 import { Fly as IFly } from "./fly/fly"
@@ -115,45 +115,39 @@ class HttpUtil {
     if (debug) { console.log('backend request:', requestParams) };
 
     // ================== 发送请求 ==================
-    return new Promise((resolve, reject) => {
-      fly.request(
-        requestParams.url,
-        requestParams.data,
-        {
-          method: requestParams.method,
-          headers: requestParams.header,
-          timeout: 60000
+    return new Promise(async (resolve, reject) => {
+      try {
+        const d = await fly.request(
+          requestParams.url,
+          requestParams.data,
+          {
+            method: requestParams.method,
+            headers: requestParams.header,
+            timeout: 60000
+          }
+        );
+        if (debug) { console.log('backend result:', d) };
+        wx.hideLoading();
+        resolve(d);
+      } catch (e: any) {
+        wx.hideLoading();
+        if (debug) { console.error('backend error:', e) };
+
+        if (e.status === 1) {
+          wx.showToast({ title: "请求超时", icon: "error", time: 2000 });
+        } else if (e.status === 400) {
+          e = { ...e, errMsg: "请求参数错误" };
+        } else if (e.status === 401) {
+          wx.removeStorageSync("token");  // 清除失效 Token
+          wx.redirectTo({ url: "/pages/login/login" });
+          wx.showToast({ title: "登陆已过期", icon: "error", time: 2000 });
+          e = { ...e, errMsg: "登录已过期" };
+        } else if (e.status >= 500) {
+          wx.showToast({ title: "服务器异常", icon: "error", time: 2000 });
+          e = { ...e, errMsg: "服务器异常" };
         }
-      )
-        .then(d => {
-          if (debug) { console.log('backend result:', d) };
-          wx.hideLoading();
-          resolve(d);
-        })
-        .catch(e => {
-          wx.hideLoading();
-          if (debug) { console.error('backend error:', e) };
-          if (e.status === 1) {
-            wx.showToast({ title: "请求超时", icon: "error", time: 2000 });
-            reject(e)
-          }
-          else if (e.status === 400) {
-            reject({ ...e, errMsg: "请求参数错误" });
-          }
-          else if (e.status === 401) {
-            wx.removeStorageSync("token");  // 清除失效 Token
-            wx.redirectTo({ url: "/pages/login/login" });
-            wx.showToast({ title: "登陆已过期", icon: "error", time: 2000 });
-            reject({ ...e, errMsg: "登录已过期" });
-          }
-          else if (e.status >= 500) {
-            wx.showToast({ title: "服务器异常", icon: "error", time: 2000 });
-            reject({ ...e, errMsg: "服务器异常" });
-          }
-          else {
-            reject(e);
-          }
-        });
+        reject(e);
+      }
       /** 微信原生, 已弃用
       wx.request({
         ...requestParams,

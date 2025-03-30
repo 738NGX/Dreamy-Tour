@@ -8,7 +8,7 @@ Component({
   },
   data: {
     joinWayText: joinWayText,
-    
+
     refreshEnable: false,
 
     channelList: [] as Channel[],
@@ -33,8 +33,8 @@ Component({
       this.setData({ refreshEnable: true });
       await this.loadChannelList();
       this.setData({
-      channelList: this.data.fullChannelList.filter(
-        channel => channel.name.includes(this.data.searchingValue))
+        channelList: this.data.fullChannelList.filter(
+          channel => channel.name.includes(this.data.searchingValue))
       });
       this.setData({ refreshEnable: false });
     },
@@ -73,21 +73,28 @@ Component({
         })
         return;
       }
-      await app.createChannel(inputTitle, inputValue);
-      this.setData({
-        createChannelVisible: false,
-        inputTitle: '',
-        inputValue: '',
-      })
-      await this.onRefresh();
-      wx.showToast({
-        title: '创建成功,请返回频道列表查看',
-        icon: 'none',
-      });
+      if (await app.createChannel(inputTitle, inputValue)) {
+        this.setData({
+          createChannelVisible: false,
+          inputTitle: '',
+          inputValue: '',
+        })
+        await this.onRefresh();
+        wx.showToast({
+          title: '创建成功,请返回频道列表查看',
+          icon: 'none',
+        });
+      }
     },
     async joinChannel(e: WechatMiniprogram.CustomEvent) {
       const channelId = parseInt(e.currentTarget.dataset.index);
-      if (await app.joinChannel(channelId)) { await this.onRefresh(); }
+      if (await app.joinChannel(channelId)) {
+        await this.onRefresh();
+        wx.showToast({
+          title: '加入成功, 请返回频道列表查看',
+          icon: 'none',
+        });
+      }
     }
   }
 });
