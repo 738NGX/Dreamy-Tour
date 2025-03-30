@@ -14,9 +14,9 @@ class CosConstant {
   // 存储桶名称
   static readonly BUCKET_NAME = 'dreamy-tour-1319433252';
   // 地址
-  static readonly REGION = 'ap-shanghai';
+  static readonly REGION = 'ap-beijing';
   // 所有对象存储的图片 url 都以这个开头
-  static readonly BASE_URL = 'https://dreamy-tour-1319433252.cos.ap-shanghai.myqcloud.com';
+  static readonly BASE_URL = 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com';
   // 存储用户头像的文件夹名
   static readonly AVATAR_FOLDER = 'avatar';
   // 存储帖子图片的文件夹名
