@@ -1,3 +1,6 @@
+import MessageConstant from "@/constant/messageConstant";
+import TourBasicDto from "@/dto/tour/tourBasicDto";
+import TourDto from "@/dto/tour/tourDto";
 import TourService from "@/service/tourService";
 import Result from "@/vo/result";
 import express, { Request, Response } from "express"
@@ -34,6 +37,25 @@ tourRoute.get('/tour/:tourId/full', async (req: Request, res: Response) => {
   const tourFullVo = await TourService.getFullByTourId(tourId);
   // 返回响应
   res.json(Result.success(tourFullVo));
+})
+
+tourRoute.put('/tour', async (req: Request, res: Response) => {
+  // 获取频道详情
+  const tourBasicDto = await TourBasicDto.from(req.body);
+  await TourService.updateTourBasic(tourBasicDto);
+  // 返回响应
+  res.json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
+})
+
+tourRoute.put('/tour/full', async (req: Request, res: Response) => {
+  // 获取频道详情
+  console.log(req.body);
+  //const tourDto = await TourDto.from(req.body);
+  const tourDto = new TourDto(req.body);
+  console.log(tourDto);
+  await TourService.updateTour(tourDto);
+  // 返回响应
+  res.json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
 })
 
 export default tourRoute;

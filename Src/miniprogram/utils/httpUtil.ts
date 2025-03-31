@@ -29,7 +29,7 @@ type Request = {
   // 请求参数
   params?: Record<string, string>;
   // 请求体的参数（统一都用 JSON）
-  jsonData?: Record<string, number | string | string[]>;
+  jsonData?: Record<string, number | string | string[] | any>;
 }
 
 /**
@@ -45,7 +45,7 @@ type MethodRequest = {
   // 请求参数
   params?: Record<string, string>;
   // 请求体的参数（统一都用 JSON）
-  jsonData?: Record<string, number | string | string[]>;
+  jsonData?: Record<string, number | string | string[] | any>;
 }
 
 /**

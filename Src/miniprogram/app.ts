@@ -743,7 +743,14 @@ App<IAppOption>({
           if (group === "系统管理员") return 0;
           if (group === "频道主") return 1;
           if (group === "频道管理员") return 2;
-          return 3;
+          if (group === "Lv6.探险家") return 3;
+          if (group === "Lv5.船长") return 4;
+          if (group === "Lv4.大副") return 5;
+          if (group === "Lv3.轮机长") return 6;
+          if (group === "Lv2.水手长") return 7;
+          if (group === "Lv1.水手") return 8;
+          if (group === "Lv0.船客") return 9;
+          return 10;
         };
         return getPriority(a.userGroup) - getPriority(b.userGroup);
       });
@@ -1257,7 +1264,14 @@ App<IAppOption>({
           if (group === "系统管理员") return 0;
           if (group === "群主") return 1;
           if (group === "群管理员") return 2;
-          return 3;
+          if (group === "Lv6.探险家") return 3;
+          if (group === "Lv5.船长") return 4;
+          if (group === "Lv4.大副") return 5;
+          if (group === "Lv3.轮机长") return 6;
+          if (group === "Lv2.水手长") return 7;
+          if (group === "Lv1.水手") return 8;
+          if (group === "Lv0.船客") return 9;
+          return 10;
         };
         return getPriority(a.userGroup) - getPriority(b.userGroup);
       });
@@ -1424,7 +1438,17 @@ App<IAppOption>({
   },
   async changeTourBasic(tour: TourBasic): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.put({ url: `/tour`, jsonData: tour });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const currentTour = this.getTour(tour.id) as Tour;
       const { id, ...rest } = tour;
@@ -1595,9 +1619,52 @@ App<IAppOption>({
       return this.getTour(tourId) as Tour;
     }
   },
+  async getMembersInTour(tourId: number): Promise<Member[]> {
+    if (!this.globalData.testMode) {
+      return [];
+    } else {
+      const userList = this.getUserListCopy();
+      const currentTour = this.getTour(tourId) as Tour;
+      const memberList = userList.filter(
+        (user: User) => currentTour.users.includes(user.id)
+      );
+      const members = memberList.map((member: User) => {
+        return new Member({
+          ...member,
+          userGroup: getUserGroupName(member),
+        });
+      }).sort((a, b) => {
+        const getPriority = (group: string) => {
+          if (group === "系统管理员") return 0;
+          if (group === "频道主") return 1;
+          if (group === "频道管理员") return 2;
+          if (group === "Lv6.探险家") return 3;
+          if (group === "Lv5.船长") return 4;
+          if (group === "Lv4.大副") return 5;
+          if (group === "Lv3.轮机长") return 6;
+          if (group === "Lv2.水手长") return 7;
+          if (group === "Lv1.水手") return 8;
+          if (group === "Lv0.船客") return 9;
+          return 10;
+        };
+        return getPriority(a.userGroup) - getPriority(b.userGroup);
+      });
+      return members;
+    }
+  },
   async changeFullTour(tour: Tour): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.put({ url: `/tour/full`, jsonData: tour });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       this.updateTour(tour);
       return true;

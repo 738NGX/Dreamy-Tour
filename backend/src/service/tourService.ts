@@ -7,6 +7,8 @@ import ParamsError from "@/exception/paramsError";
 import TourBasicVo from "@/vo/tour/tourBasicVo";
 import TourVo from "@/vo/tour/tourVo";
 import Tour from "@/entity/tour";
+import TourDto from "@/dto/tour/tourDto";
+import TourBasicDto from "@/dto/tour/tourBasicDto";
 
 class TourService {
   static async createTour(groupId: number, groupDto: GroupDto, uid: number): Promise<void> {
@@ -172,21 +174,81 @@ class TourService {
     if (!row) {
       throw new ParamsError("该行程不存在");
     }
-    const users = await db.all<Partial<number>[]>(
+    const users = await db.all<Partial<{ uid: number }>[]>(
       `
       SELECT uid FROM tour_users WHERE tourId = ?
       `,
       [tourId]
     );
+    if (!users) {
+      throw new ParamsError("该行程没有用户");
+    }
     const { nodeCopyNames, budgets, locations, transportations, ...rowRest } = row;
     return new TourVo({
       ...rowRest,
-      users: users,
+      users: users.map(user => user.uid!),
       nodeCopyNames: JSON.parse(nodeCopyNames as string),
       budgets: JSON.parse(budgets as string),
       locations: JSON.parse(locations as string),
       transportations: JSON.parse(transportations as string)
     });
+  }
+
+  static async updateTourBasic(tourBasicDto: TourBasicDto) {
+    const db = await dbPromise;
+    const { id: tourId, ...rest } = tourBasicDto;
+    await db.run(
+      `UPDATE tours SET title = ?, status = ?, linkedChannel = ?, channelVisible = ?,
+        linkedGroup = ?, startDate = ?, endDate = ?, timeOffset = ?,
+        mainCurrency = ?, subCurrency = ?, currencyExchangeRate = ?,
+        updatedAt = ? WHERE tourId = ?`,
+      [
+        rest.title,
+        rest.status,
+        rest.linkedChannel,
+        rest.channelVisible,
+        rest.linkedGroup,
+        rest.startDate,
+        rest.endDate,
+        rest.timeOffset,
+        rest.mainCurrency,
+        rest.subCurrency,
+        rest.currencyExchangeRate,
+        Date.now(),
+        tourId
+      ]
+    );
+  }
+
+  static async updateTour(tourDto: TourDto) {
+    const db = await dbPromise;
+    const { id: tourId, ...rest } = tourDto;
+    await db.run(
+      `UPDATE tours SET title = ?, status = ?, linkedChannel = ?, channelVisible = ?,
+        linkedGroup = ?, startDate = ?, endDate = ?, timeOffset = ?,
+        mainCurrency = ?, subCurrency = ?, currencyExchangeRate = ?,
+        nodeCopyNames = ?, budgets = ?, locations = ?, transportations = ?,
+        updatedAt = ? WHERE tourId = ?`,
+      [
+        rest.title,
+        rest.status,
+        rest.linkedChannel,
+        rest.channelVisible,
+        rest.linkedGroup,
+        rest.startDate,
+        rest.endDate,
+        rest.timeOffset,
+        rest.mainCurrency,
+        rest.subCurrency,
+        rest.currencyExchangeRate,
+        JSON.stringify(rest.nodeCopyNames),
+        JSON.stringify(rest.budgets),
+        JSON.stringify(rest.locations),
+        JSON.stringify(rest.transportations),
+        Date.now(),
+        tourId
+      ]
+    );
   }
 }
 

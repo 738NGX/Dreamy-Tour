@@ -124,15 +124,15 @@ class GroupService {
       SELECT groups.groupId, name, description, level, 
         joinWay, humanCount, groups.createdAt, groups.updatedAt
       FROM groups
-      WHERE EXISTS (
+      WHERE groups.linkedChannel = ?
+      AND EXISTS (
         SELECT 1 FROM group_users 
         WHERE
           group_users.groupId = groups.groupId AND
-          group_users.uid = ? AND 
-          groups.linkedChannel = ?
+          group_users.uid = ?
       )
       `,
-      [uid, channelId]
+      [channelId, uid]
     );
     // 定义一个 VO 列表作为返回值
     const groupListVos = rows.map(row => ({
@@ -155,15 +155,15 @@ class GroupService {
       SELECT groups.groupId, name, description, level, 
         joinWay, humanCount, groups.createdAt, groups.updatedAt
       FROM groups
-      WHERE NOT EXISTS (
+      WHERE groups.linkedChannel = ?
+      AND NOT EXISTS (
         SELECT 1 FROM group_users
         WHERE
           group_users.groupId = groups.groupId AND
-          group_users.uid = ? AND 
-          groups.linkedChannel = ?
+          group_users.uid = ?
       )
       `,
-      [uid, channelId]
+      [channelId, uid]
     );
     // 定义一个 VO 列表作为返回值
     const groupListVos = rows.map(row => ({

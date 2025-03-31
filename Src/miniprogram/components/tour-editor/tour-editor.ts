@@ -32,7 +32,6 @@ import { transportList, expenseList, budgetList, TransportExpense, currencyList,
 import { timezoneList } from '../../utils/tour/timezone';
 import { MILLISECONDS, formatDate, formatNumber, formatTime, timeToMilliseconds } from '../../utils/util';
 import { isSameDate } from '../../miniprogram_npm/tdesign-miniprogram/common/shared/date';
-import { User } from '../../utils/user/user';
 import { Photo } from '../../utils/tour/photo';
 
 enum DatetimeEditMode { None, StartDate, EndDate };
@@ -158,7 +157,7 @@ Component({
      * 初始化行程信息与关联用户到缓存
      * @param value 
      */
-    init(value: any) {
+    async init(value: any) {
       const currentTour = new Tour(value);
       this.setData({
         currentTour: currentTour,
@@ -187,10 +186,7 @@ Component({
           copy => copy.map(transportation => {
             return new Transportation(transportation).getDurationString();
           })),
-        currentUserList: app.getUserListCopy().map(user => {
-          if (currentTour.users.includes(user.id)) return new User(user);
-          else return null;
-        }).filter((user: any) => user !== null)
+        currentUserList: (await app.getMembersInTour(currentTour.id)),
       });
     },
     /**

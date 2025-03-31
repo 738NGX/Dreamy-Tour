@@ -307,6 +307,7 @@ declare global {
 
     //for tour-editor.ts
     loadFullTour(tourId: number): Promise<Tour>;
+    getMembersInTour(tourId: number): Promise<Member[]>;
     changeFullTour(tour: Tour): Promise<boolean>;
     changeTourLocationPhotos(tourId: number, copyIndex: number, location: Location): Promise<boolean>;
   }
