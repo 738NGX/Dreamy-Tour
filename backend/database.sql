@@ -170,7 +170,6 @@ CREATE TABLE tours (
     mainCurrency INTEGER,
     subCurrency INTEGER,
     currencyExchangeRate INTEGER,
-    users TEXT,
     nodeCopyNames TEXT,
     budgets TEXT,
     locations TEXT,

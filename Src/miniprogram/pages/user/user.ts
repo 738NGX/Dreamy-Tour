@@ -1,5 +1,5 @@
 import { UserBasic } from "../../utils/user/user";
-import { getByteLength, getUserGroupName, userExpTarget, userRoleName } from "../../utils/util";
+import { getByteLength, getImageBase64, getUserGroupName, userExpTarget, userRoleName } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -153,11 +153,15 @@ Component({
         currentUser: await app.getCurrentUser(),
       });
     },
-    uploadAvater(e: WechatMiniprogram.CustomEvent) {
+    async uploadAvater(e: WechatMiniprogram.CustomEvent) {
       const src = e.detail.avatarUrl;
-      wx.navigateTo({
-        url: `../upload-avatar/upload-avatar?src=${src}`
-      })
+      // 可以用原生方式
+      //wx.navigateTo({
+      //  url: `../upload-avatar/upload-avatar?src=${src}`
+      //})
+      console.log('src:', src)
+      await app.changeUserAvatar(await getImageBase64(src));
+      await this.onShow();
     },
     copyInfo(e: WechatMiniprogram.CustomEvent) {
       const index = parseInt(e.currentTarget.dataset.index);

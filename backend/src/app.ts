@@ -11,6 +11,8 @@ import authInterceptor from './middleware/authInterceptor';
 import currencyRoute from './route/currencyRoute';
 import channelRoute from './route/channelRoute';
 import postRoute from './route/postRoute';
+import tourRoute from './route/tourRoute';
+import groupRoute from './route/groupRoute';
 
 
 const app: Application = express()
@@ -28,6 +30,8 @@ app.use(userRoute);     // 用户相关路由
 app.use(currencyRoute); // 货币相关路由
 app.use(channelRoute);  // 频道相关路由
 app.use(postRoute);     // 帖子相关路由
+app.use(tourRoute);     // 行程相关路由
+app.use(groupRoute);    // 群组相关路由
 
 // 托底路由，捕获以上路由均无法匹配的 url，返回 404
 app.use((req: Request, res: Response) => {

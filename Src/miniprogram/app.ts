@@ -5,7 +5,7 @@ import { UserRanking } from "./utils/channel/userRanking";
 import HttpUtil, { apiUrl } from "./utils/httpUtil";
 import { testData } from "./utils/testData";
 import { Budget } from "./utils/tour/budget";
-import { Currency } from "./utils/tour/expense";
+import { Currency, currencyList } from "./utils/tour/expense";
 import { FootPrint } from "./utils/tour/footprint";
 import { File, Photo } from "./utils/tour/photo";
 import { Tour, TourBasic, TourStatus } from "./utils/tour/tour";
@@ -236,7 +236,7 @@ App<IAppOption>({
           })
         }) as Channel[];
         return channelList;
-      } catch(err: any) {
+      } catch (err: any) {
         console.error(err);
         wx.showToast({
           title: err.response.data.msg,
@@ -356,7 +356,7 @@ App<IAppOption>({
           })
         }) as Channel[];
         return channelList;
-      } catch(err: any) {
+      } catch (err: any) {
         console.error(err);
         wx.showToast({
           title: err.response.data.msg,
@@ -566,7 +566,38 @@ App<IAppOption>({
   // for channel-detail-group.ts
   async classifyGroups(channelId: number): Promise<{ joinedGroups: GroupBasic[], unJoinedGroups: GroupBasic[] }> {
     if (!this.globalData.testMode) {
-      return { joinedGroups: [], unJoinedGroups: [] };
+      try {
+        const joinedRes = await HttpUtil.get({ url: `/group/${channelId}/joined/list` });
+        const joinedGroups = joinedRes.data.data.map((res: any) => {
+          return new GroupBasic({
+            id: res.groupId,
+            name: res.name,
+            description: res.description,
+            linkedChannel: res.linkedChannel,
+            qrCode: res.qrCode,
+            joinWay: res.joinWay == "FREE" ? JoinWay.Free : res.joinWay == "APPROVAL" ? JoinWay.Approval : JoinWay.Invite,
+          })
+        }) as GroupBasic[];
+        const unjoinedRes = await HttpUtil.get({ url: `/group/${channelId}/unjoined/list` });
+        const unJoinedGroups = unjoinedRes.data.data.map((res: any) => {
+          return new GroupBasic({
+            id: res.groupId,
+            name: res.name,
+            description: res.description,
+            linkedChannel: res.linkedChannel,
+            qrCode: res.qrCode,
+            joinWay: res.joinWay == "FREE" ? JoinWay.Free : res.joinWay == "APPROVAL" ? JoinWay.Approval : JoinWay.Invite,
+          })
+        }) as GroupBasic[];
+        return { joinedGroups, unJoinedGroups };
+      } catch(err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return { joinedGroups: [], unJoinedGroups: [] };
+      }
     } else {
       const groups = this.getGroupListCopy();
       const currentUser = this.currentUser();
@@ -582,16 +613,38 @@ App<IAppOption>({
     }
   },
   async createGroup(channelId: number, name: string, description: string, newTourCurrency: Currency[], tourTemplateId: number): Promise<boolean> {
-    if (!this.globalData.testMode) {
+    if (!name || !description) {
+      wx.showToast({
+        title: '请填写完整信息',
+        icon: 'none',
+      })
       return false;
-    } else {
-      if (!name || !description) {
+    }
+    if (!this.globalData.testMode) {
+      try {
+        await HttpUtil.post({
+          url: "/group",
+          jsonData: {
+            name: name,
+            description: description,
+            linkedChannel: channelId,
+            mainCurrency: currencyList.find(c => c.value == newTourCurrency[0])!.symbol,
+            subCurrency: currencyList.find(c => c.value == newTourCurrency[1])!.symbol,
+            tourTemplateId: tourTemplateId,
+            level: "A",
+            joinWay: "free",
+          }
+        });
+        return true;
+      } catch (err: any) {
+        console.error(err);
         wx.showToast({
-          title: '请填写完整信息',
-          icon: 'none',
-        })
+          title: err.response.data.msg,
+          icon: "none"
+        });
         return false;
       }
+    } else {
       const newGroupId = getNewId(this.globalData.currentData.groupList);
       const group = new Group({
         id: newGroupId,
@@ -1158,7 +1211,22 @@ App<IAppOption>({
   // for channel-detail-group.ts
   async loadGroup(groupId: number): Promise<{ currentGroup: GroupBasic, linkedTour: TourBasic }> {
     if (!this.globalData.testMode) {
-      return { currentGroup: {} as GroupBasic, linkedTour: {} as TourBasic };
+      try {
+        const currentGroupRes = await HttpUtil.get({ url: `/group/${groupId}/detail` });
+        const { groupId: currentGroupId, ...groupRest } = currentGroupRes.data.data;
+        const currentGroup = new GroupBasic({ id: currentGroupId, ...groupRest });
+        const linkedTourRes = await HttpUtil.get({ url: `/tour/${currentGroup.id}/detailByGroup` });
+        const { tourId, ...tourRest } = linkedTourRes.data.data;
+        const linkedTour = new TourBasic({ id: tourId, ...tourRest });
+        return { currentGroup, linkedTour };
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return { currentGroup: {} as GroupBasic, linkedTour: {} as TourBasic };
+      }
     } else {
       const currentGroup = new GroupBasic(this.getGroup(groupId));
       const linkedTour = new TourBasic(this.getTourListCopy().find(
@@ -1509,7 +1577,19 @@ App<IAppOption>({
   //for tour-editor.ts
   async loadFullTour(tourId: number): Promise<Tour> {
     if (!this.globalData.testMode) {
-      return {} as Tour;
+      try {
+        const res = await HttpUtil.get({ url: `/tour/${tourId}/full` });
+        const { tourId: id, ...tourRest } = res.data.data;
+        const tour = new Tour({ id: id, ...tourRest });
+        return tour;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return {} as Tour;
+      }
     }
     else {
       return this.getTour(tourId) as Tour;
