@@ -61,7 +61,12 @@
       </c-collapse>
       <c-collapse wx:if="{{isTestMode}}" header="切换演示账号">
         <t-grid column="{{5}}" hover>
-          <t-grid-item data-index="{{item.id}}" bind:click="changeTestUser" t-class-image="image" text="{{item.name}}" wx:for="{{testUserList}}" wx:key="id" icon="{{item.avatarUrl ? '' : 'user-1'}}" image="{{item.avatarUrl}}"/>
+          <t-grid-item data-index="{{item.id}}" bind:click="changeTestUser" icon="{{item.avatarUrl ? '' : 'user-1'}}" text="{{item.name}}" wx:for="{{testUserList}}" wx:key="id" image="{{item.avatarUrl}}"/>
+        </t-grid>
+      </c-collapse>
+      <c-collapse wx:if="{{!isTestMode}}" header="切换账号权限">
+        <t-grid column="{{4}}" hover>
+          <t-grid-item data-index="{{item}}" bind:click="changeUserRole" text="{{item}}" wx:for="{{userRoleList}}" wx:key="id" icon="user-1" />
         </t-grid>
       </c-collapse>
       <c-collapse header="选项设置">

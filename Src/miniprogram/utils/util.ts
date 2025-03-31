@@ -107,6 +107,7 @@ export function getEChartData(data: any) {
 }
 
 const userGroupName = ['Lv.0船客', 'Lv.1水手', 'Lv.2水手长', 'Lv.3轮机长', 'Lv.4大副', 'Lv.5船长', 'Lv.6探险家'];
+export const userRoleName = ['PASSENGER', 'SAILOR', 'BOATSWAIN', 'CHIEF_ENGINEER', 'FIRST_MATE', 'CAPTAIN', 'EXPLORER', 'ADMIN'];
 
 export const userExpTarget = {
   [userGroupName[0]]: 20,
@@ -238,3 +239,22 @@ export async function getImageBase64(tempFilePath: string): Promise<string> {
 
 export const getByteLength = (str: string): number =>
   str.replace(/[^\x00-\xff]/g, 'aa').length;
+
+export function getExpFromRole(role: string): number {
+  switch (role) {
+    case userRoleName[1]:
+      return 20;
+    case userRoleName[2]:
+      return 150;
+    case userRoleName[3]:
+      return 450;
+    case userRoleName[4]:
+      return 1080;
+    case userRoleName[5]:
+      return 2880;
+    case userRoleName[6]:
+      return 10000;
+    default:
+      return 0;
+  }
+}

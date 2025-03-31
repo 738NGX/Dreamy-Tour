@@ -11,7 +11,7 @@ import { File, Photo } from "./utils/tour/photo";
 import { Tour, TourBasic, TourStatus } from "./utils/tour/tour";
 import { Location, Transportation } from "./utils/tour/tourNode";
 import { Member, User, UserBasic } from "./utils/user/user";
-import { formatPostTime, getImageBase64, getNewId, getUser, getUserGroupName, getUserGroupNameInChannel, getUserGroupNameInGroup } from "./utils/util";
+import { formatPostTime, getExpFromRole, getImageBase64, getNewId, getUser, getUserGroupName, getUserGroupNameInChannel, getUserGroupNameInGroup } from "./utils/util";
 
 // app.ts
 App<IAppOption>({
@@ -29,6 +29,19 @@ App<IAppOption>({
   },
   currentUser() {
     return this.getUser(this.globalData.currentUserId) as User;
+  },
+  async privilege(role: string) {
+    await HttpUtil.post({
+      url: `/user/privilege`,
+      jsonData: { role }
+    });
+    wx.showToast({
+      title: '权限提升成功',
+      icon: 'none'
+    });
+    wx.reLaunch({
+      url: '/pages/login/login'
+    });
   },
 
   getUserListCopy() {
@@ -223,10 +236,11 @@ App<IAppOption>({
           })
         }) as Channel[];
         return channelList;
-      } catch {
+      } catch(err: any) {
+        console.error(err);
         wx.showToast({
-          title: "加载失败",
-          icon: "error"
+          title: err.response.data.msg,
+          icon: "none"
         });
         return [];
       }
@@ -245,12 +259,13 @@ App<IAppOption>({
           jsonData: {
             name: name,
             description: description,
-            joinWay: "FREE",
-            level: "C"
+            joinWay: "free",
+            level: "A"
           }
         });
         return true;
       } catch (err: any) {
+        console.error(err);
         wx.showToast({
           title: err.response.data.msg,
           icon: "none"
@@ -282,9 +297,10 @@ App<IAppOption>({
         });
         return true;
       } catch (err: any) {
+        console.error(err);
         wx.showToast({
-          title: "加入频道失败",
-          icon: "error"
+          title: err.response.data.msg,
+          icon: "none"
         });
         return false;
       }
@@ -340,10 +356,11 @@ App<IAppOption>({
           })
         }) as Channel[];
         return channelList;
-      } catch {
+      } catch(err: any) {
+        console.error(err);
         wx.showToast({
-          title: "加载失败",
-          icon: "error"
+          title: err.response.data.msg,
+          icon: "none"
         });
         return [];
       }
@@ -370,8 +387,8 @@ App<IAppOption>({
       } catch (err: any) {
         console.error(err);
         wx.showToast({
-          title: "加载失败",
-          icon: "error"
+          title: err.response.data.msg,
+          icon: "none"
         });
         return undefined;
       }
@@ -398,8 +415,8 @@ App<IAppOption>({
       } catch (err: any) {
         console.error(err);
         wx.showToast({
-          title: "加载失败",
-          icon: "error"
+          title: err.response.data.msg,
+          icon: "none"
         });
         return undefined;
       }
@@ -472,10 +489,9 @@ App<IAppOption>({
         });
         return fullPosts;
       } catch (err: any) {
-        console.error(err);
         wx.showToast({
-          title: "加载失败",
-          icon: "error"
+          title: err.response.data.msg,
+          icon: "none"
         });
         return [];
       }
@@ -513,13 +529,11 @@ App<IAppOption>({
         });
         return true;
       } catch (err: any) {
-        if (err.status == 400) {
-          wx.showToast({
-            title: (err.response.data.msg as string).slice(5),
-            icon: 'none',
-            time: 2000,
-          });
-        }
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: 'none',
+          time: 2000,
+        });
         return false;
       }
     } else {
@@ -868,7 +882,7 @@ App<IAppOption>({
                 resolve(true);
               } catch (err: any) {
                 wx.showToast({
-                  title: "退出频道失败",
+                  title: err.response.data.msg,
                   icon: "error"
                 });
                 resolve(false);
@@ -1006,8 +1020,8 @@ App<IAppOption>({
       } catch (err: any) {
         console.error(err);
         wx.showToast({
-          title: "加载失败",
-          icon: "error"
+          title: err.response.data.msg,
+          icon: "none"
         });
         wx.navigateBack();
         return undefined;
@@ -1427,8 +1441,8 @@ App<IAppOption>({
         const user = new UserBasic({
           id: res.data.data.uid,
           name: res.data.data.nickname,
-          exp: 0,
-          isAdmin: false,
+          exp: getExpFromRole(res.data.data.role),
+          isAdmin: res.data.data.role == 'ADMIN',
           gender: res.data.data.gender,
           avatarUrl: res.data.data.avatarUrl,
           email: res.data.data.email,
@@ -1441,8 +1455,8 @@ App<IAppOption>({
       catch (err: any) {
         console.error(err);
         wx.showToast({
-          title: "加载失败",
-          icon: "error"
+          title: err.response.data.msg,
+          icon: "none"
         });
         return undefined;
       }
@@ -1458,8 +1472,8 @@ App<IAppOption>({
       } catch (err: any) {
         console.error(err);
         wx.showToast({
-          title: "修改失败",
-          icon: "error"
+          title: err.response.data.msg,
+          icon: "none"
         });
         return false;
       }
