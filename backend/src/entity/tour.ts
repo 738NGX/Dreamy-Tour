@@ -23,8 +23,6 @@ class Tour {
   subCurrency: number;
   // 行程货币汇率
   currencyExchangeRate: number;
-  // 行程用户列表
-  users: string;
   // 行程版本名称列表
   nodeCopyNames: string;
   // 行程预算表列表

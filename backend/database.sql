@@ -181,6 +181,17 @@ CREATE TABLE tours (
     FOREIGN KEY (linkedGroup) REFERENCES groups(groupId) ON DELETE CASCADE
 );
 
+-- 行程个人表
+CREATE TABLE tour_users (
+    uid INTEGER,
+    tourId INTEGER,
+    createdAt INTEGER,
+    updatedAt INTEGER,
+    PRIMARY KEY (uid, tourId),
+    FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
+    FOREIGN KEY (tourId) REFERENCES tours(tourId) ON DELETE CASCADE
+);
+
 
 -- @@@@@@@@@@@@@ 触发器 @@@@@@@@@@@@@
 -- @@@@@@@@@@@@@ 频道表（channels）@@@@@@@@@@@@@
