@@ -23,6 +23,10 @@ declare global {
      * 获取当前用户的实例（目前仅供前端测试）
      */
     currentUser(): User;
+    /**
+     * 提升当前用户的权限（目前仅供开发测试）
+     */
+    privilege(role: string): Promise<void>;
 
     getUserListCopy(): User[];
     getTourListCopy(): Tour[];

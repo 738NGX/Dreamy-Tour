@@ -1,5 +1,5 @@
 import { UserBasic } from "../../utils/user/user";
-import { getByteLength, getUserGroupName, userExpTarget } from "../../utils/util";
+import { getByteLength, getUserGroupName, userExpTarget, userRoleName } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -11,6 +11,7 @@ Component({
     isTestMode: false,
     isDarkMode: wx.getSystemInfoSync().theme == 'dark',
     testUserList: [] as UserBasic[],
+    userRoleList: userRoleName,
     currentUser: {} as UserBasic,
     userGroup: '',
     expPercentage: 0,
@@ -61,6 +62,10 @@ Component({
         })
         this.caluculateExp();
       }
+    },
+    async changeUserRole(e: WechatMiniprogram.CustomEvent) {
+      const role = e.currentTarget.dataset.index;
+      await app.privilege(role);
     },
     caluculateExp() {
       const exp = this.data.currentUser.exp;
