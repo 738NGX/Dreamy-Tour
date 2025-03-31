@@ -6,6 +6,7 @@
  * @Last Modified time: 2025-03-29 15:41:36
  */
 
+import PostDetailBo from "@/bo/post/postDetailBo";
 import PostListBo from "@/bo/post/postListBo";
 import dbPromise from "@/config/databaseConfig";
 import ChannelConstant from "@/constant/channelConstant";
@@ -409,6 +410,14 @@ class PostService {
    */
   static async getDetailByPostId(postId: number) {
     const db = await dbPromise;
+    const rows = await db.all<PostDetailBo[]>(
+      `
+      
+      `,
+      [
+
+      ]
+    )
     
   }
 }

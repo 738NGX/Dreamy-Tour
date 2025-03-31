@@ -16,6 +16,7 @@ import ForbiddenError from "@/exception/forbiddenError";
 import NotFoundError from "@/exception/notFoundError";
 import ParamsError from "@/exception/paramsError";
 import ChannelUtil from "@/util/channelUtil";
+import JwtUtil from "@/util/jwtUtil";
 import ChannelDetailVo from "@/vo/channel/channelDetailVo";
 import ChannelListVo from "@/vo/channel/channelListVo";
 import PostDetailVo from "@/vo/post/postDetailVo";
@@ -39,9 +40,9 @@ class ChannelService {
     const newChannel = await db.run(
       `INSERT INTO channels(
         name, description, masterId, status, 
-        humanCount, level, createdAt, updatedAt
+        humanCount, level, joinWay, createdAt, updatedAt
       ) VALUES (
-        ?, ?, ?, ?, ?, ?, ?, ? 
+        ?, ?, ?, ?, ?, ?, ?, ?, ?
       )`,
       [
         channelDto.name,
@@ -50,6 +51,7 @@ class ChannelService {
         ChannelConstant.ENABLED,
         0,
         ChannelUtil.levelLetterToNumber(channelDto.level),
+        ChannelUtil.joinWayStrToNumber(channelDto.joinWay),
         Date.now(),
         Date.now()
       ]

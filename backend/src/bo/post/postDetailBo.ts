@@ -1,4 +1,4 @@
-interface PostListBo {
+interface PostDetailBo {
   // 帖子 ID
   postId: number
   // 频道 ID
@@ -39,4 +39,4 @@ interface PostListBo {
   isFavorite: number
 }
 
-export default PostListBo;
+export default PostDetailBo;
