@@ -282,6 +282,7 @@ class PostService {
     }
     // 删除该帖子
     const db = await dbPromise;
+    // TODO: 异步删除 COS 上的帖子图片
     await db.run(
       `
       DELETE FROM posts WHERE postId = ?

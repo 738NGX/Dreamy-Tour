@@ -10,7 +10,7 @@ import UnauthorizedError from "@/exception/unauthorizedError";
 import JwtUtil from "@/util/jwtUtil";
 import { NextFunction, Request, Response } from "express";
 
-const authInterceptor = (
+const authInterceptor = async (
   req: Request, 
   res: Response, 
   next: NextFunction
@@ -31,7 +31,30 @@ const authInterceptor = (
   }
   // 如果校验不通过，抛出认证异常；如通过，直接 next()
   JwtUtil.verify(token);
+  // 校验通过后，检查是否要刷新 token
+  const expiredTime: number = JwtUtil.getExpiredTime(token);  // 过期时间戳
+  const currentTime: number = Math.floor(Date.now() / 1000)   // 当前时间戳
+  const uid = JwtUtil.getUid(token)
+  let needUpdate = false;
+  // 如果快过期了或者在更新集合里面，自动更新 token
+  if (AuthConstant.UPDATE_UID_LIST.has(uid)) {
+    AuthConstant.UPDATE_UID_LIST.delete(uid);
+    needUpdate = true;
+  } else if (expiredTime - currentTime <= AuthConstant.REFRESH_DUE_TIME) {
+    needUpdate = true;
+  }
+  // 更新 token
+  if (needUpdate) {
+    await updateToken(req, res, uid);
+  }
   next();
+}
+
+const updateToken = async (req: Request, res: Response, uid: number) => {
+  const refreshToken = await JwtUtil.updateByUid(uid);
+  // 更新请求头和响应头
+  (req.header as Record<string, any>)[AuthConstant.TOKEN_HEADER] = refreshToken;
+  res.setHeader(AuthConstant.REFRESH_TOKEN_HEADER, refreshToken)
 }
 
 export default authInterceptor;

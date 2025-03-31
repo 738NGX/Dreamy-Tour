@@ -23,7 +23,7 @@ class MessageConstant {
   static readonly SUCCESSFUL_LIKE = "点赞成功";
   static readonly SUCCESSFUL_CANCEL = "取消成功";
   static readonly SUCCESSFUL_FAVORITE = "收藏成功";
-  static readonly SUCCESSFUL_GRANT = "授权成果";
+  static readonly SUCCESSFUL_GRANT = "授权成功";
   static readonly SUCCESSFUL_JOIN = "加入成功";
   static readonly SUCCESSFUL_EXIT = "退出成功";
   static readonly FAILED_UPLOAD = "文件上传失败";

@@ -195,7 +195,7 @@ channelRoute.delete('/channel/:channelId', async (req: Request, res: Response) =
  * @method POST
  * @path /channel/:channelId/grant-admin
  */
-channelRoute.post('/channel/:channelId/grant-admin', async (req: Request, res: Response) => {
+channelRoute.post('/channel/grant-admin', async (req: Request, res: Response) => {
   // 获取用户 ID 和角色 ID
   const { uid: grantorId, roleId: grantorRoleId } = JwtUtil.getUidAndRoleId(
     req.header(AuthConstant.TOKEN_HEADER) as string
@@ -212,9 +212,9 @@ channelRoute.post('/channel/:channelId/grant-admin', async (req: Request, res: R
 /**
  * @description 收回某用户频道管理员身份（只有频道住或者系统管理员）
  * @method DELETE
- * @path /channel/:channelId/grant-admin
+ * @path /channel/grant-admin
  */
-channelRoute.delete('/channel/:channelId/grant-admin', async (req: Request, res: Response) => {
+channelRoute.delete('/channel/grant-admin', async (req: Request, res: Response) => {
    // 获取用户 ID 和角色 ID
    const { uid: grantorId, roleId: grantorRoleId } = JwtUtil.getUidAndRoleId(
     req.header(AuthConstant.TOKEN_HEADER) as string
