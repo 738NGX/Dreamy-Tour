@@ -1,5 +1,6 @@
 import RoleConstant from "@/constant/RoleConstant";
 import ParamsError from "@/exception/paramsError";
+import GroupService from "@/service/groupService";
 
 /*
  * 角色相关的工具类
@@ -63,8 +64,7 @@ class RoleUtil {
       default:
         throw new ParamsError("未知角色类型");
     }
-}
-
+  }
 }
 
 export default RoleUtil;

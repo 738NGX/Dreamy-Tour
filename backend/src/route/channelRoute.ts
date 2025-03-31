@@ -228,4 +228,24 @@ channelRoute.delete('/channel/grant-admin', async (req: Request, res: Response) 
   );
 })
 
+channelRoute.get('/channel/:channelId/members', async (req: Request, res: Response) => {
+  // 获取频道 ID
+  const channelId = Number(req.params.channelId);
+  // 获取成员列表
+  const members = await ChannelService.getMembersInChannel(channelId);
+  // 返回响应
+  res.json(Result.success(members));
+})
+
+channelRoute.get('/channel/:channelId/authority', async (req: Request, res: Response) => {
+  // 获取频道 ID
+  const channelId = Number(req.params.channelId);
+  // 获取用户 ID
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取权限
+  const authority = await ChannelService.getUserAuthorityInChannel(channelId, uid);
+  // 返回响应
+  res.json(Result.success(authority));
+})
+
 export default channelRoute;

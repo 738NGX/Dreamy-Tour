@@ -12,14 +12,19 @@ import ChannelModifyDto from "@/dto/channel/channelModifyDto";
 import ChannelTransferDto from "@/dto/channel/channelTransferDto";
 import GrantAdminDto from "@/dto/channel/grantAdminDto";
 import Channel from "@/entity/channel";
+import User from "@/entity/user";
 import ForbiddenError from "@/exception/forbiddenError";
 import NotFoundError from "@/exception/notFoundError";
 import ParamsError from "@/exception/paramsError";
 import ChannelUtil from "@/util/channelUtil";
 import JwtUtil from "@/util/jwtUtil";
+import RoleUtil from "@/util/roleUtil";
+import { UserUtil } from "@/util/userUtil";
 import ChannelDetailVo from "@/vo/channel/channelDetailVo";
 import ChannelListVo from "@/vo/channel/channelListVo";
 import PostDetailVo from "@/vo/post/postDetailVo";
+import AuthorityVo from "@/vo/user/authorityVo";
+import UserDetailVo from "@/vo/user/userDetailVo";
 
 
 class ChannelService {
@@ -355,6 +360,84 @@ class ChannelService {
         channelId
       ]
     )
+  }
+
+  static async getUserAuthorityInChannel(channelId: number, uid: number): Promise<AuthorityVo> {
+    const db = await dbPromise;
+    const channelRow = await db.get<Partial<Channel>>(
+      `
+      SELECT masterId
+      FROM channels
+      WHERE channelId = ?
+      `,
+      [channelId]
+    );
+    if (!channelRow) {
+      throw new NotFoundError("该频道不存在");
+    }
+    const isOwner = channelRow.masterId === uid;
+    const adminRows = await db.all<Partial<{ uid: number }>[]>( 
+      `
+      SELECT uid FROM channel_admins WHERE channelId = ?
+      `,
+      [channelId]
+    );
+    const isAdmin = isOwner || adminRows.some(row => row.uid === uid);
+    return new AuthorityVo({ isOwner, isAdmin });
+  }
+
+  static async getMembersInChannel(channelId: number): Promise<UserDetailVo[]> {
+    const db = await dbPromise;
+    // 获取频道主
+    const channelInfo = await db.get<Partial<{ masterId: number }>>(
+      `SELECT masterId FROM channels WHERE channelId = ?`,
+      [channelId]
+    );
+    if (!channelInfo) {
+      throw new NotFoundError("频道不存在");
+    }
+    // 获取频道管理员列表
+    const adminRows = await db.all<Partial<{ uid: number }>[]>( 
+      `SELECT uid FROM channel_admins WHERE channelId = ?`,
+      [channelId]
+    );
+    const adminSet = new Set(adminRows.map(row => row.uid));
+    // 查询频道成员
+    const rows = await db.all<Partial<User>[]>( 
+      `
+      SELECT uid, nickname, gender, avatarUrl, email,
+      phone, signature, birthday, roleId
+      FROM users
+      WHERE EXISTS (
+        SELECT 1 FROM channel_users
+        WHERE channel_users.uid = users.uid AND channelId = ?
+      )
+      `,
+      [channelId]
+    );
+    // 根据频道主和管理员信息判断角色
+    const memberList = rows.map(row => {
+      let role: string;
+      if (row.uid === channelInfo.masterId) {
+        role = 'CHANNEL_OWNER';
+      } else if (adminSet.has(row.uid!)) {
+        role = 'CHANNEL_ADMIN';
+      } else {
+        role = RoleUtil.roleNumberToString(row.roleId as number);
+      }
+      return {
+        uid: row.uid,
+        nickname: row.nickname,
+        gender: UserUtil.getGenderStr(row.gender),
+        avatarUrl: row.avatarUrl,
+        email: row.email,
+        phone: row.phone,
+        signature: row.signature,
+        birthday: row.birthday,
+        role
+      } as UserDetailVo;
+    });
+    return memberList;
   }
 }
 

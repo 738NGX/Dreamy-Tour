@@ -63,12 +63,32 @@ groupRoute.get('/group/:channelId/unjoined/list', async (req: Request, res: Resp
  * @path group/:groupId/detail
  */
 groupRoute.get('/group/:groupId/detail', async (req: Request, res: Response) => {
-  // 获取频道 ID
+  // 获取群组 ID
   const groupId = Number(req.params.groupId);
-  // 获取频道详情
+  // 获取群组详情
   const groupDetailVo = await GroupService.getDetailByGroupId(groupId);
   // 返回响应
   res.json(Result.success(groupDetailVo));
+})
+
+groupRoute.get('/group/:groupId/members', async (req: Request, res: Response) => {
+  // 获取群组 ID
+  const groupId = Number(req.params.groupId);
+  // 获取成员列表
+  const members = await GroupService.getMembersInGroup(groupId);
+  // 返回响应
+  res.json(Result.success(members));
+})
+
+groupRoute.get('/group/:groupId/authority', async (req: Request, res: Response) => {
+  // 获取群组 ID
+  const groupId = Number(req.params.groupId);
+  // 获取用户 ID
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取权限
+  const authority = await GroupService.getUserAuthorityInGroup(groupId, uid);
+  // 返回响应
+  res.json(Result.success(authority));
 })
 
 export default groupRoute;

@@ -11,7 +11,7 @@ import { File, Photo } from "./utils/tour/photo";
 import { Tour, TourBasic, TourStatus } from "./utils/tour/tour";
 import { Location, Transportation } from "./utils/tour/tourNode";
 import { Member, User, UserBasic } from "./utils/user/user";
-import { formatPostTime, getExpFromRole, getImageBase64, getNewId, getUser, getUserGroupName, getUserGroupNameInChannel, getUserGroupNameInGroup } from "./utils/util";
+import { formatPostTime, getExpFromRole, getImageBase64, getNewId, getPriority, getUser, getUserGroupName, getUserGroupNameInChannel, getUserGroupNameInGroup, translateUserRole } from "./utils/util";
 
 // app.ts
 App<IAppOption>({
@@ -590,7 +590,7 @@ App<IAppOption>({
           })
         }) as GroupBasic[];
         return { joinedGroups, unJoinedGroups };
-      } catch(err: any) {
+      } catch (err: any) {
         console.error(err);
         wx.showToast({
           title: err.response.data.msg,
@@ -724,7 +724,34 @@ App<IAppOption>({
   // for channel-detail-setting.ts
   async getMembersInChannel(channelId: number): Promise<{ members: Member[], waitingUsers: Member[] }> {
     if (!this.globalData.testMode) {
-      return { members: [], waitingUsers: [] };
+      try {
+        const membersRes = await HttpUtil.get({ url: `/channel/${channelId}/members` });
+        const members = membersRes.data.data.map((res: any) => {
+          return new Member({
+            id: res.uid,
+            name: res.nickname,
+            exp: getExpFromRole(res.role),
+            isAdmin: res.role == 'ADMIN',
+            gender: res.gender,
+            avatarUrl: res.avatarUrl,
+            email: res.email,
+            phone: res.phone,
+            signature: res.signature,
+            birthday: res.birthday,
+            userGroup: translateUserRole(res.role),
+          });
+        }).sort((a: any, b: any) => {
+          return getPriority(a.userGroup) - getPriority(b.userGroup);
+        }) as Member[];
+        return { members, waitingUsers: [] };
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return { members: [], waitingUsers: [] };
+      }
     } else {
       const userList = this.getUserListCopy();
       const memberList = userList.filter(
@@ -739,19 +766,6 @@ App<IAppOption>({
           userGroup: getUserGroupNameInChannel(member, channelId),
         });
       }).sort((a, b) => {
-        const getPriority = (group: string) => {
-          if (group === "系统管理员") return 0;
-          if (group === "频道主") return 1;
-          if (group === "频道管理员") return 2;
-          if (group === "Lv6.探险家") return 3;
-          if (group === "Lv5.船长") return 4;
-          if (group === "Lv4.大副") return 5;
-          if (group === "Lv3.轮机长") return 6;
-          if (group === "Lv2.水手长") return 7;
-          if (group === "Lv1.水手") return 8;
-          if (group === "Lv0.船客") return 9;
-          return 10;
-        };
         return getPriority(a.userGroup) - getPriority(b.userGroup);
       });
       const waitingUsers = waitingUsersList.map((user) => {
@@ -762,7 +776,17 @@ App<IAppOption>({
   },
   async getUserAuthorityInChannel(channelId: number): Promise<{ isChannelOwner: boolean, isChannelAdmin: boolean }> {
     if (!this.globalData.testMode) {
-      return { isChannelOwner: false, isChannelAdmin: false };
+      try {
+        const res = await HttpUtil.get({ url: `/channel/${channelId}/authority` });
+        return { isChannelOwner: res.data.data.isOwner, isChannelAdmin: res.data.data.isAdmin };
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return { isChannelOwner: false, isChannelAdmin: false };
+      }
     } else {
       const userGroup = getUserGroupNameInChannel(this.currentUser(), channelId);
       return {
@@ -1244,7 +1268,34 @@ App<IAppOption>({
   },
   async getMembersInGroup(groupId: number): Promise<{ members: Member[], waitingUsers: Member[] }> {
     if (!this.globalData.testMode) {
-      return { members: [], waitingUsers: [] };
+      try {
+        const membersRes = await HttpUtil.get({ url: `/group/${groupId}/members` });
+        const members = membersRes.data.data.map((res: any) => {
+          return new Member({
+            id: res.uid,
+            name: res.nickname,
+            exp: getExpFromRole(res.role),
+            isAdmin: res.role == 'ADMIN',
+            gender: res.gender,
+            avatarUrl: res.avatarUrl,
+            email: res.email,
+            phone: res.phone,
+            signature: res.signature,
+            birthday: res.birthday,
+            userGroup: translateUserRole(res.role),
+          });
+        }).sort((a: any, b: any) => {
+          return getPriority(a.userGroup) - getPriority(b.userGroup);
+        }) as Member[];
+        return { members, waitingUsers: [] };
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return { members: [], waitingUsers: [] };
+      }
     } else {
       const userList = this.getUserListCopy();
       const currentGroup = this.getGroup(groupId) as Group;
@@ -1260,19 +1311,6 @@ App<IAppOption>({
           userGroup: getUserGroupNameInGroup(member, groupId),
         };
       }).sort((a: any, b: any) => {
-        const getPriority = (group: string) => {
-          if (group === "系统管理员") return 0;
-          if (group === "群主") return 1;
-          if (group === "群管理员") return 2;
-          if (group === "Lv6.探险家") return 3;
-          if (group === "Lv5.船长") return 4;
-          if (group === "Lv4.大副") return 5;
-          if (group === "Lv3.轮机长") return 6;
-          if (group === "Lv2.水手长") return 7;
-          if (group === "Lv1.水手") return 8;
-          if (group === "Lv0.船客") return 9;
-          return 10;
-        };
         return getPriority(a.userGroup) - getPriority(b.userGroup);
       });
       const waitingUsers = waitingUsersList.map((user: any) => {
@@ -1283,7 +1321,17 @@ App<IAppOption>({
   },
   async getUserAuthorityInGroup(groupId: number): Promise<{ isGroupOwner: boolean, isGroupAdmin: boolean }> {
     if (!this.globalData.testMode) {
-      return { isGroupOwner: false, isGroupAdmin: false };
+      try {
+        const res = await HttpUtil.get({ url: `/group/${groupId}/authority` });
+        return { isGroupOwner: res.data.data.isOwner, isGroupAdmin: res.data.data.isAdmin };
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return { isGroupOwner: false, isGroupAdmin: false };
+      }
     } else {
       const userGroup = getUserGroupNameInGroup(this.currentUser(), groupId);
       return {
@@ -1634,19 +1682,6 @@ App<IAppOption>({
           userGroup: getUserGroupName(member),
         });
       }).sort((a, b) => {
-        const getPriority = (group: string) => {
-          if (group === "系统管理员") return 0;
-          if (group === "频道主") return 1;
-          if (group === "频道管理员") return 2;
-          if (group === "Lv6.探险家") return 3;
-          if (group === "Lv5.船长") return 4;
-          if (group === "Lv4.大副") return 5;
-          if (group === "Lv3.轮机长") return 6;
-          if (group === "Lv2.水手长") return 7;
-          if (group === "Lv1.水手") return 8;
-          if (group === "Lv0.船客") return 9;
-          return 10;
-        };
         return getPriority(a.userGroup) - getPriority(b.userGroup);
       });
       return members;

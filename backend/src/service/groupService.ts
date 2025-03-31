@@ -8,6 +8,12 @@ import GroupUtil from "@/util/groupUtil";
 import GroupDetailVo from "@/vo/group/groupDetailVo";
 import GroupListVo from "@/vo/group/groupListVo";
 import TourService from "./tourService";
+import UserDetailVo from "@/vo/user/userDetailVo";
+import User from "@/entity/user";
+import UserService from "./userService";
+import AuthorityVo from "@/vo/user/authorityVo";
+import { UserUtil } from "@/util/userUtil";
+import RoleUtil from "@/util/roleUtil";
 
 class GroupService {
   /**
@@ -173,6 +179,84 @@ class GroupService {
     })) as GroupListVo[];
     // 返回结果
     return groupListVos;
+  }
+
+  static async getUserAuthorityInGroup(groupId: number, uid: number): Promise<AuthorityVo> {
+    const db = await dbPromise;
+    const groupRow = await db.get<Partial<Group>>(
+      `
+      SELECT masterId
+      FROM groups
+      WHERE groupId = ?
+      `,
+      [groupId]
+    )
+    if (!groupRow) {
+      throw new NotFoundError("该群组不存在");
+    }
+    const isOwner = groupRow.masterId === uid;
+    const adminRows = await db.all<Partial<{ uid: number }>[]>(
+      `
+      SELECT uid FROM group_admins WHERE groupId = ?
+      `,
+      [groupId]
+    );
+    const isAdmin = isOwner || adminRows.some(row => row.uid === uid);
+    return new AuthorityVo({ isOwner, isAdmin });
+  }
+
+  static async getMembersInGroup(groupId: number): Promise<UserDetailVo[]> {
+    const db = await dbPromise;
+    // 获取群主
+    const groupInfo = await db.get<Partial<{ masterId: number }>>(
+      `SELECT masterId FROM groups WHERE groupId = ?`,
+      [groupId]
+    );
+    if (!groupInfo) {
+      throw new NotFoundError("群组不存在");
+    }
+    // 获取群管理员列表
+    const adminRows = await db.all<Partial<{ uid: number }>[]>(
+      `SELECT uid FROM group_admins WHERE groupId = ?`,
+      [groupId]
+    );
+    const adminSet = new Set(adminRows.map(row => row.uid));
+    // 查询群组成员
+    const rows = await db.all<Partial<User>[]>(
+      `
+      SELECT uid, nickname, gender, avatarUrl, email,
+      phone, signature, birthday, roleId
+      FROM users
+      WHERE EXISTS (
+        SELECT 1 FROM group_users
+        WHERE group_users.uid = users.uid AND groupId = ?
+      )
+      `,
+      [groupId]
+    );
+    // 根据群主和管理员信息判断角色
+    const memberList = rows.map(row => {
+      let role: string;
+      if (row.uid === groupInfo.masterId) {
+        role = 'GROUP_OWNER';
+      } else if (adminSet.has(row.uid!)) {
+        role = 'GROUP_ADMIN';
+      } else {
+        role = RoleUtil.roleNumberToString(row.roleId as number);
+      }
+      return {
+        uid: row.uid,
+        nickname: row.nickname,
+        gender: UserUtil.getGenderStr(row.gender),
+        avatarUrl: row.avatarUrl,
+        email: row.email,
+        phone: row.phone,
+        signature: row.signature,
+        birthday: row.birthday,
+        role
+      } as UserDetailVo;
+    });
+    return memberList;
   }
 }
 

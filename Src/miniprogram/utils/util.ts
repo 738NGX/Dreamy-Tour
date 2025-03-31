@@ -106,8 +106,56 @@ export function getEChartData(data: any) {
   return JSON.parse(JSON.stringify(res));
 }
 
-const userGroupName = ['Lv.0船客', 'Lv.1水手', 'Lv.2水手长', 'Lv.3轮机长', 'Lv.4大副', 'Lv.5船长', 'Lv.6探险家'];
+const userGroupName = ['Lv.0船客', 'Lv.1水手', 'Lv.2水手长', 'Lv.3轮机长', 'Lv.4大副', 'Lv.5船长', 'Lv.6探险家', '系统管理员'];
+
 export const userRoleName = ['PASSENGER', 'SAILOR', 'BOATSWAIN', 'CHIEF_ENGINEER', 'FIRST_MATE', 'CAPTAIN', 'EXPLORER', 'ADMIN'];
+
+export const translateUserRole = (role: string) => {
+  switch (role) {
+    case userRoleName[0]:
+      return userGroupName[0];
+    case userRoleName[1]:
+      return userGroupName[1];
+    case userRoleName[2]:
+      return userGroupName[2];
+    case userRoleName[3]:
+      return userGroupName[3];
+    case userRoleName[4]:
+      return userGroupName[4];
+    case userRoleName[5]:
+      return userGroupName[5];
+    case userRoleName[6]:
+      return userGroupName[6];
+    case userRoleName[7]:
+      return userGroupName[7];
+    case 'GROUP_ADMIN':
+      return '群管理员';
+    case 'CHANNEL_ADMIN':
+      return '频道管理员';
+    case 'GROUP_OWNER':
+      return '群主';
+    case 'CHANNEL_OWNER':
+      return '频道主';
+    default:
+      return '未知用户组';
+  }
+}
+
+export const getPriority = (group: string) => {
+  if (group === "系统管理员") return 0;
+  if (group === "群主") return 1;
+  if (group === "频道主") return 1;
+  if (group === "群管理员") return 2;
+  if (group === "频道管理员") return 2;
+  if (group === "Lv6.探险家") return 3;
+  if (group === "Lv5.船长") return 4;
+  if (group === "Lv4.大副") return 5;
+  if (group === "Lv3.轮机长") return 6;
+  if (group === "Lv2.水手长") return 7;
+  if (group === "Lv1.水手") return 8;
+  if (group === "Lv0.船客") return 9;
+  return 10;
+};
 
 export const userExpTarget = {
   [userGroupName[0]]: 20,
