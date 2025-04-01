@@ -9,7 +9,7 @@ import DTO from "@/base/dto";
 import { Expose, Type } from "class-transformer";
 import { IsInt } from "class-validator";
 
-class GrantAdminDto extends DTO<GrantAdminDto> {
+class ChannelGrantAdminDto extends DTO<ChannelGrantAdminDto> {
   // 被授权的用户 ID
   @Expose()
   @IsInt({
@@ -27,4 +27,4 @@ class GrantAdminDto extends DTO<GrantAdminDto> {
   channelId: number
 }
 
-export default GrantAdminDto;
+export default ChannelGrantAdminDto;

@@ -10,7 +10,7 @@ import ChannelConstant from "@/constant/channelConstant";
 import ChannelDto from "@/dto/channel/channelDto";
 import ChannelModifyDto from "@/dto/channel/channelModifyDto";
 import ChannelTransferDto from "@/dto/channel/channelTransferDto";
-import GrantAdminDto from "@/dto/channel/grantAdminDto";
+import ChannelGrantAdminDto from "@/dto/channel/channelGrantAdminDto";
 import Channel from "@/entity/channel";
 import User from "@/entity/user";
 import ForbiddenError from "@/exception/forbiddenError";
@@ -303,10 +303,10 @@ class ChannelService {
    * @param granteeId 被授权者
    * @param channelId 频道 ID
    */
-  static async grantAdminstrator(
+  static async grantAdministrator(
     grantorId: number, 
     grantorRoleId: number,
-    grantAdminDto: GrantAdminDto,
+    grantAdminDto: ChannelGrantAdminDto,
   ): Promise<void> {
     // 获取参数
     const { granteeId, channelId } = grantAdminDto;
@@ -337,10 +337,10 @@ class ChannelService {
    * @param grantorRoleId 授权者角色 ID
    * @param grantAdminDto 授权需要的传参（被授权者和频道 ID）
    */
-  static async revokeAdminstrator(
+  static async revokeAdministrator(
     grantorId: number, 
     grantorRoleId: number,
-    grantAdminDto: GrantAdminDto,
+    grantAdminDto: ChannelGrantAdminDto,
   ): Promise<void> {
     // 获取参数
     const { granteeId, channelId } = grantAdminDto;

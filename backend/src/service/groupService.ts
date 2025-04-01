@@ -10,10 +10,12 @@ import GroupListVo from "@/vo/group/groupListVo";
 import TourService from "./tourService";
 import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
-import UserService from "./userService";
 import AuthorityVo from "@/vo/user/authorityVo";
 import { UserUtil } from "@/util/userUtil";
 import RoleUtil from "@/util/roleUtil";
+import GroupTransferDto from "@/dto/group/groupTransferDto";
+import GroupGrantAdminDto from "@/dto/group/groupGrantAdminDto";
+import GroupModifyDto from "@/dto/group/groupModifyDto";
 
 class GroupService {
   /**
@@ -81,6 +83,45 @@ class GroupService {
         Date.now(),
         Date.now()
       ]
+    );
+  }
+
+  /**
+   * 转让某个群组
+   * @param GroupTransferDto 转让需要的参数
+   * @param uid 用户 ID
+   */
+  static async transfer(GroupTransferDto: GroupTransferDto, uid: number, roleId: number): Promise<void> {
+    // 先判断是否有权限转让
+    if (!await GroupUtil.hasTransferPermission(uid, roleId, GroupTransferDto.groupId)) {
+      throw new ForbiddenError('您没有权限转让该群组');
+    }
+    // 更新数据库
+    const db = await dbPromise;
+    await db.run(
+      `UPDATE groups SET masterId = ? WHERE groupId = ?`,
+      [
+        GroupTransferDto.masterId,
+        GroupTransferDto.groupId
+      ]
+    )
+  }
+
+  /**
+   * 退出该群组
+   * @param uid 用户 ID
+   * @param groupId 群组 ID
+   */
+  static async exit(uid: number, groupId: number): Promise<void> {
+    if (!await GroupUtil.hasExitPermission(uid, groupId)) {
+      throw new ForbiddenError('您是该群组的群主，请转让后再退出');
+    }
+    const db = await dbPromise;
+    // 删除该用户的加入记录
+    await db.run(
+      `DELETE FROM group_users
+       WHERE uid = ? AND groupId = ?`,
+      [uid, groupId]
     );
   }
 
@@ -181,6 +222,120 @@ class GroupService {
     return groupListVos;
   }
 
+  /**
+   * 更新群组的基本信息
+   * @param groupModifyDto 群组基本信息
+   */
+  static async modifyGroupInfo(groupModifyDto: GroupModifyDto, uid: number, roleId: number, groupId: number): Promise<void> {
+    // 先检查是否有权限修改
+    if (!await GroupUtil.hasModifyPermission(uid, roleId, groupId)) {
+      throw new ForbiddenError('您没有权限修改该群组');
+    }
+    // 更新数据库
+    const db = await dbPromise;
+    await db.run(
+      `UPDATE groups SET
+       name = ?, description = ?, joinWay = ?
+       WHERE groupId = ?`,
+      [
+        groupModifyDto.name,
+        groupModifyDto.description,
+        GroupUtil.joinWayStrToNumber(groupModifyDto.joinWay),
+        groupId
+      ]
+    )
+  }
+
+  /**
+   * 解散某个群组
+   * @param uid 用户 ID
+   * @param roleId 角色 ID
+   * @param groupId 群组 ID
+   */
+  static async dissolveGroup(uid: number, roleId: number, groupId: number): Promise<void> {
+    // 先判断是否有权限解散该群组
+    if (!await GroupUtil.hasDissolvePermission(uid, roleId, groupId)) {
+      throw new ForbiddenError('您没有权限解散该群组');
+    }
+    // 更新数据库
+    const db = await dbPromise;
+    await db.run(
+      `DELETE FROM groups WHERE groupId = ?`,
+      [groupId]
+    )
+  }
+
+  /**
+   * 赋予某用户群组管理员身份
+   * @param grantorId 授权者
+   * @param granteeId 被授权者
+   * @param groupId 群组 ID
+   */
+  static async grantAdministrator(
+    grantorId: number, 
+    grantorRoleId: number,
+    grantAdminDto: GroupGrantAdminDto,
+  ): Promise<void> {
+    // 获取参数
+    const { granteeId, groupId } = grantAdminDto;
+    // 只有群主和系统管理员有这个权限
+    if (!await GroupUtil.hasGrantAdminstratorPermission(grantorId, grantorRoleId, groupId)) {
+      throw new ForbiddenError("您没有权限授予其他成为群组管理员！");
+    }
+    // 在群组管理员表添加记录，如果之前添加过了，就更新 updatedAt 字段
+    const db = await dbPromise;
+    await db.run(
+      `
+        INSERT INTO group_admins (uid, groupId, createdAt, updatedAt)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(uid, groupId) DO UPDATE SET updatedAt = excluded.updatedAt
+      `,
+      [
+        granteeId,
+        groupId,
+        Date.now(),
+        Date.now()
+      ]
+    )
+  }
+  
+  /**
+   * 收回群组管理员权限
+   * @param grantorId 授权者用户 ID
+   * @param grantorRoleId 授权者角色 ID
+   * @param grantAdminDto 授权需要的传参（被授权者和群组 ID）
+   */
+  static async revokeAdministrator(
+    grantorId: number, 
+    grantorRoleId: number,
+    grantAdminDto: GroupGrantAdminDto,
+  ): Promise<void> {
+    // 获取参数
+    const { granteeId, groupId } = grantAdminDto;
+    // 只有该群组的群主和系统管理员有这个权限
+    if(!await GroupUtil.hasRevokeAdminstratorPermission(grantorId, grantorRoleId, groupId)) {
+      throw new ForbiddenError("您没有权限收回其他用户群组管理员的身份！");
+    }
+    // 在 group_admins 中删除记录
+    const db = await dbPromise;
+    await db.run(
+      `
+        DELETE FROM group_admins
+        WHERE uid = ? AND groupId = ?
+      `,
+      [
+        granteeId,
+        groupId
+      ]
+    )
+  }
+
+  /**
+   * 
+   * @param groupId 
+   * @param uid 
+   * @returns 
+   */
   static async getUserAuthorityInGroup(groupId: number, uid: number): Promise<AuthorityVo> {
     const db = await dbPromise;
     const groupRow = await db.get<Partial<Group>>(
@@ -205,6 +360,11 @@ class GroupService {
     return new AuthorityVo({ isOwner, isAdmin });
   }
 
+  /**
+   * 
+   * @param groupId 
+   * @returns 
+   */
   static async getMembersInGroup(groupId: number): Promise<UserDetailVo[]> {
     const db = await dbPromise;
     // 获取群主

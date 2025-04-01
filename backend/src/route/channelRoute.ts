@@ -10,7 +10,7 @@ import MessageConstant from "@/constant/messageConstant";
 import ChannelDto from "@/dto/channel/channelDto";
 import ChannelModifyDto from "@/dto/channel/channelModifyDto";
 import ChannelTransferDto from "@/dto/channel/channelTransferDto";
-import GrantAdminDto from "@/dto/channel/grantAdminDto";
+import ChannelGrantAdminDto from "@/dto/channel/channelGrantAdminDto";
 import ChannelService from "@/service/channelService";
 import JwtUtil from "@/util/jwtUtil";
 import Result from "@/vo/result";
@@ -71,7 +71,7 @@ channelRoute.get('/channel/:channelId/detail', async (req: Request, res: Respons
 })
 
 /**
- * @description 获取某一频道详情
+ * @description 获取世界频道详情
  * @method GET
  * @path channel/:channelId/detail
  */
@@ -201,8 +201,8 @@ channelRoute.post('/channel/grant-admin', async (req: Request, res: Response) =>
     req.header(AuthConstant.TOKEN_HEADER) as string
   );
   // 获取 body 传参
-  const grantAdminDto = await GrantAdminDto.from(req.body);
-  await ChannelService.grantAdminstrator(grantorId, grantorRoleId, grantAdminDto);
+  const grantAdminDto = await ChannelGrantAdminDto.from(req.body);
+  await ChannelService.grantAdministrator(grantorId, grantorRoleId, grantAdminDto);
   // 响应结果
   res.json(
     Result.success(MessageConstant.SUCCESSFUL_GRANT)
@@ -220,14 +220,19 @@ channelRoute.delete('/channel/grant-admin', async (req: Request, res: Response) 
     req.header(AuthConstant.TOKEN_HEADER) as string
   );
   // 获取 body 传参
-  const grantAdminDto = await GrantAdminDto.from(req.body);
-  await ChannelService.revokeAdminstrator(grantorId, grantorRoleId, grantAdminDto);
+  const grantAdminDto = await ChannelGrantAdminDto.from(req.body);
+  await ChannelService.revokeAdministrator(grantorId, grantorRoleId, grantAdminDto);
   // 响应结果
   res.json(
     Result.success(MessageConstant.SUCCESSFUL_MODIFIED)
   );
 })
 
+/**
+ * @description 获得频道下的成员列表
+ * @method GET
+ * @path /channel/:channelId/members
+ */
 channelRoute.get('/channel/:channelId/members', async (req: Request, res: Response) => {
   // 获取频道 ID
   const channelId = Number(req.params.channelId);
@@ -237,6 +242,11 @@ channelRoute.get('/channel/:channelId/members', async (req: Request, res: Respon
   res.json(Result.success(members));
 })
 
+/**
+ * @description 获取用户在频道中的权限
+ * @method GET
+ * @path /channel/:channelId/authority
+ */
 channelRoute.get('/channel/:channelId/authority', async (req: Request, res: Response) => {
   // 获取频道 ID
   const channelId = Number(req.params.channelId);

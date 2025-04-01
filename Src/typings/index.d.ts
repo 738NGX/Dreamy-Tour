@@ -294,6 +294,7 @@ declare global {
     removeMemberInGroup(groupId: number, linkedTourId: number, userId: number): Promise<boolean>;
     transferGroupOwner(groupId: number, newOwnerId: number): Promise<boolean>;
     changeGroupBasic(group: GroupBasic): Promise<boolean>;
+    changeGroupQrCode(groupId:number, qrCodeUrl:string): Promise<boolean>;
     changeTourBasic(tour: TourBasic): Promise<boolean>;
     quitGroup(groupId: number, linkedTourId: number): Promise<boolean>;
     disbandGroup(groupId: number, linkedTourId: number): Promise<boolean>;

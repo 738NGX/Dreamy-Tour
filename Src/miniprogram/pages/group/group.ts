@@ -241,7 +241,7 @@ Component({
           const { currentGroup } = that.data;
           currentGroup.qrCode = await getImageBase64(src);
           that.setData({ currentGroup, photoUploadVisible: false });
-          await app.changeGroupBasic(currentGroup);
+          await app.changeGroupQrCode(currentGroup.id, currentGroup.qrCode);
         }
       })
       //this.setData({

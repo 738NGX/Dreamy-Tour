@@ -1485,6 +1485,16 @@ App<IAppOption>({
       return true;
     }
   },
+  async changeGroupQrCode(groupId: number, qrCodeUrl: string):Promise<boolean> {
+    if (!this.globalData.testMode) {
+      return false;
+    } else {
+      const currentGroup = this.getGroup(groupId) as Group;
+      currentGroup.qrCode = qrCodeUrl;
+      this.updateGroup(currentGroup);
+      return true;
+    }
+  },
   async changeTourBasic(tour: TourBasic): Promise<boolean> {
     if (!this.globalData.testMode) {
       try {

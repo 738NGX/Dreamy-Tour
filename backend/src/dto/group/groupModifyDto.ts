@@ -2,11 +2,11 @@ import DTO from "@/base/dto";
 import { Expose, Type } from "class-transformer";
 import { IsNotEmpty, Length } from "class-validator";
 
-class ChannelModifyDto extends DTO<ChannelModifyDto> {
+class GroupModifyDto extends DTO<GroupModifyDto> {
   // 频道名称
   @Expose()
   @Length(1, 20, {
-    message: "频道名称必须由 $constraint1 到 $constraint2 个字符组成"
+    message: "群组名称必须由 $constraint1 到 $constraint2 个字符组成"
   })
   @Type(() => String)
   name: string
@@ -14,7 +14,7 @@ class ChannelModifyDto extends DTO<ChannelModifyDto> {
   // 频道描述
   @Expose()
   @Length(1, 30, {
-    message: "频道描述必须由 $constraint1 到 $constraint2 个字符组成"
+    message: "群组描述必须由 $constraint1 到 $constraint2 个字符组成"
   })
   @Type(() => String)
   description: string
@@ -28,4 +28,4 @@ class ChannelModifyDto extends DTO<ChannelModifyDto> {
   joinWay: string
 }
 
-export default ChannelModifyDto;
+export default GroupModifyDto;
