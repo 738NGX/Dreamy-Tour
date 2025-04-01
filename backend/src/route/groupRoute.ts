@@ -86,6 +86,36 @@ groupRoute.delete('/group/:groupId/join', async (req: Request, res: Response) =>
     .json(Result.success(MessageConstant.SUCCESSFUL_EXIT));
 });
 
+groupRoute.put('/group/:groupId/join/:memberId/:linkedTourId', async (req: Request, res: Response) => {
+  // 获取用户 ID 和角色 ID
+  const { uid, roleId } = JwtUtil.getUidAndRoleId(
+    req.header(AuthConstant.TOKEN_HEADER) as string
+  );
+  // 获取群组 ID 和成员 ID
+  const groupId = Number(req.params.groupId);
+  const memberId = Number(req.params.memberId);
+  const linkedTourId = Number(req.params.linkedTourId);
+  // 更新成员身份
+  await GroupService.addMemberToGroup(uid, roleId, memberId, groupId, linkedTourId);
+  // 返回响应
+  res.json(Result.success(MessageConstant.SUCCESSFUL_JOIN));
+});
+
+groupRoute.delete('/group/:groupId/join/:memberId/:linkedTourId', async (req: Request, res: Response) => {
+  // 获取用户 ID 和角色 ID
+  const { uid, roleId } = JwtUtil.getUidAndRoleId(
+    req.header(AuthConstant.TOKEN_HEADER) as string
+  );
+  // 获取群组 ID 和成员 ID
+  const groupId = Number(req.params.groupId);
+  const memberId = Number(req.params.memberId);
+  const linkedTourId = Number(req.params.linkedTourId);
+  // 更新成员身份
+  await GroupService.removeMemberFromGroup(uid, roleId, memberId, groupId, linkedTourId);
+  // 返回响应
+  res.json(Result.success(MessageConstant.SUCCESSFUL_EXIT));
+});
+
 /**
  * @description 创建新的群组
  * @method POST

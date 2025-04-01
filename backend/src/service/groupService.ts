@@ -66,10 +66,10 @@ class GroupService {
    * @param uid 用户 ID
    * @param groupId 群组 ID
    */
-  static async join(uid: number, groupId: number): Promise<void> {
+  static async join(uid: number, groupId: number, needCheck = true): Promise<void> {
     const db = await dbPromise;
     // 先检查是否有权限加入该群组
-    if (!await GroupUtil.hasJoinPermission(groupId)) {
+    if (needCheck && !await GroupUtil.hasJoinPermission(groupId)) {
       throw new ForbiddenError("该群组仅限邀请，您没有权限加入！");
     }
     // 插入用户加入群组的记录，如果之前已经加入过了，就更新 updatedAt
@@ -84,6 +84,34 @@ class GroupService {
         Date.now()
       ]
     );
+  }
+
+  /**
+   * 
+   * @param uid 
+   * @param roleId 
+   * @param groupId 
+   */
+  static async addMemberToGroup(uid: number, roleId: number, memberId: number, groupId: number, linkedTourId: number): Promise<void> {
+    if (!await GroupUtil.hasModifyPermission(uid, roleId, groupId)) {
+      throw new ForbiddenError('您没有权限增加成员');
+    }
+    await this.join(memberId, groupId, false);
+    await TourService.join(memberId, linkedTourId);
+  }
+
+  /**
+   * 
+   * @param uid 
+   * @param roleId 
+   * @param groupId 
+   */
+  static async removeMemberFromGroup(uid: number, roleId: number, memberId: number, groupId: number, linkedTourId: number): Promise<void> {
+    if (!await GroupUtil.hasModifyPermission(uid, roleId, groupId)) {
+      throw new ForbiddenError('您没有权限删除成员');
+    }
+    await this.exit(memberId, groupId);
+    await TourService.exit(memberId, linkedTourId);
   }
 
   /**
@@ -272,7 +300,7 @@ class GroupService {
    * @param groupId 群组 ID
    */
   static async grantAdministrator(
-    grantorId: number, 
+    grantorId: number,
     grantorRoleId: number,
     grantAdminDto: GroupGrantAdminDto,
   ): Promise<void> {
@@ -298,7 +326,7 @@ class GroupService {
       ]
     )
   }
-  
+
   /**
    * 收回群组管理员权限
    * @param grantorId 授权者用户 ID
@@ -306,14 +334,14 @@ class GroupService {
    * @param grantAdminDto 授权需要的传参（被授权者和群组 ID）
    */
   static async revokeAdministrator(
-    grantorId: number, 
+    grantorId: number,
     grantorRoleId: number,
     grantAdminDto: GroupGrantAdminDto,
   ): Promise<void> {
     // 获取参数
     const { granteeId, groupId } = grantAdminDto;
     // 只有该群组的群主和系统管理员有这个权限
-    if(!await GroupUtil.hasRevokeAdminstratorPermission(grantorId, grantorRoleId, groupId)) {
+    if (!await GroupUtil.hasRevokeAdminstratorPermission(grantorId, grantorRoleId, groupId)) {
       throw new ForbiddenError("您没有权限收回其他用户群组管理员的身份！");
     }
     // 在 group_admins 中删除记录

@@ -797,7 +797,24 @@ App<IAppOption>({
   },
   async addMemberInChannel(channelId: number, newMemberIdInput: string): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.put({
+          url: `/channel/${channelId}/join/${newMemberIdInput}`,
+          jsonData: { userId: newMemberIdInput }
+        });
+        wx.showToast({
+          title: '添加成功',
+          icon: 'none'
+        });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       if (newMemberIdInput === '') {
         wx.showToast({
@@ -888,7 +905,24 @@ App<IAppOption>({
   },
   async removeMemberInChannel(channelId: number, userId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.delete({
+          url: `/channel/${channelId}/join/${userId}`,
+          jsonData: { userId: userId }
+        });
+        wx.showToast({
+          title: '添加成功',
+          icon: 'none'
+        });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const that = this;
       return new Promise((resolve) => {
@@ -1343,7 +1377,24 @@ App<IAppOption>({
   },
   async addMemberInGroup(groupId: number, linkedTourId: number, newMemberIdInput: string): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.put({
+          url: `/group/${groupId}/join/${newMemberIdInput}/${linkedTourId}`,
+          jsonData: { userId: newMemberIdInput }
+        });
+        wx.showToast({
+          title: '添加成功',
+          icon: 'none'
+        });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       if (newMemberIdInput === '') {
         wx.showToast({
@@ -1437,7 +1488,24 @@ App<IAppOption>({
   },
   async removeMemberInGroup(groupId: number, linkedTourId: number, userId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.delete({
+          url: `/group/${groupId}/join/${userId}/${linkedTourId}`,
+          jsonData: { userId: userId }
+        });
+        wx.showToast({
+          title: '添加成功',
+          icon: 'none'
+        });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const currentGroup = this.getGroup(groupId) as Group;
       const user = this.getUser(userId);

@@ -64,16 +64,16 @@ class ChannelService {
     // 频道创建者一定要加入该频道
     await this.join(uid, newChannel.lastID as number)
   }
-  
+
   /**
    * 某个用户加入某个频道
    * @param uid 用户 ID
    * @param channelId 频道 ID
    */
-  static async join(uid: number, channelId: number): Promise<void> {
+  static async join(uid: number, channelId: number, needCheck = true): Promise<void> {
     const db = await dbPromise;
     // 先检查是否有权限加入该频道
-    if (!await ChannelUtil.hasJoinPermission(channelId)) {
+    if (needCheck && !await ChannelUtil.hasJoinPermission(channelId)) {
       throw new ForbiddenError("该频道仅限邀请，您没有权限加入！");
     }
     // 插入用户加入频道的记录，如果之前已经加入过了，就更新 updatedAt
@@ -89,7 +89,7 @@ class ChannelService {
       ]
     );
   }
-  
+
   /**
    * 获取某一频道的详情
    * @param channelId 频道 ID
@@ -127,6 +127,32 @@ class ChannelService {
    */
   static async getWorldChannelDetail(): Promise<ChannelDetailVo> {
     return await this.getDetailByChannelId(ChannelConstant.WORLD_CHANNEL_ID);
+  }
+
+  /**
+   * 
+   * @param uid 
+   * @param roleId 
+   * @param channelId 
+   */
+  static async addMemberToChannel(uid: number, roleId: number, memberId: number, channelId: number): Promise<void> {
+    if (!await ChannelUtil.hasModifyPermission(uid, roleId, channelId)) {
+      throw new ForbiddenError('您没有权限增加成员');
+    }
+    await this.join(memberId, channelId, false);
+  }
+
+  /**
+   * 
+   * @param uid 
+   * @param roleId 
+   * @param channelId 
+   */
+  static async removeMemberFromChannel(uid: number, roleId: number, memberId: number, channelId: number): Promise<void> {
+    if (!await ChannelUtil.hasModifyPermission(uid, roleId, channelId)) {
+      throw new ForbiddenError('您没有权限删除成员');
+    }
+    await this.exit(memberId, channelId);
   }
 
   /**
@@ -304,7 +330,7 @@ class ChannelService {
    * @param channelId 频道 ID
    */
   static async grantAdministrator(
-    grantorId: number, 
+    grantorId: number,
     grantorRoleId: number,
     grantAdminDto: ChannelGrantAdminDto,
   ): Promise<void> {
@@ -330,7 +356,7 @@ class ChannelService {
       ]
     )
   }
-  
+
   /**
    * 收回频道管理员权限
    * @param grantorId 授权者用户 ID
@@ -338,14 +364,14 @@ class ChannelService {
    * @param grantAdminDto 授权需要的传参（被授权者和频道 ID）
    */
   static async revokeAdministrator(
-    grantorId: number, 
+    grantorId: number,
     grantorRoleId: number,
     grantAdminDto: ChannelGrantAdminDto,
   ): Promise<void> {
     // 获取参数
     const { granteeId, channelId } = grantAdminDto;
     // 只有该频道的频道主和系统管理员有这个权限
-    if(!await ChannelUtil.hasRevokeAdminstratorPermission(grantorId, grantorRoleId, channelId)) {
+    if (!await ChannelUtil.hasRevokeAdminstratorPermission(grantorId, grantorRoleId, channelId)) {
       throw new ForbiddenError("您没有权限授予收回其他用户频道管理员的身份！");
     }
     // 在 channel_admins 中删除记录
@@ -376,7 +402,7 @@ class ChannelService {
       throw new NotFoundError("该频道不存在");
     }
     const isOwner = channelRow.masterId === uid;
-    const adminRows = await db.all<Partial<{ uid: number }>[]>( 
+    const adminRows = await db.all<Partial<{ uid: number }>[]>(
       `
       SELECT uid FROM channel_admins WHERE channelId = ?
       `,
@@ -397,13 +423,13 @@ class ChannelService {
       throw new NotFoundError("频道不存在");
     }
     // 获取频道管理员列表
-    const adminRows = await db.all<Partial<{ uid: number }>[]>( 
+    const adminRows = await db.all<Partial<{ uid: number }>[]>(
       `SELECT uid FROM channel_admins WHERE channelId = ?`,
       [channelId]
     );
     const adminSet = new Set(adminRows.map(row => row.uid));
     // 查询频道成员
-    const rows = await db.all<Partial<User>[]>( 
+    const rows = await db.all<Partial<User>[]>(
       `
       SELECT uid, nickname, gender, avatarUrl, email,
       phone, signature, birthday, roleId

@@ -137,6 +137,15 @@ class TourService {
     );
   }
 
+  static async exit(uid: number, tourId: number): Promise<void> {
+    const db = await dbPromise;
+    // 删除用户加入行程的记录
+    await db.run(
+      `DELETE FROM tour_users WHERE uid = ? AND tourId = ?`,
+      [uid, tourId]
+    );
+  }
+
   /**
    * 
    * @param tourId 
