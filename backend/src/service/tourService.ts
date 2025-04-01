@@ -9,8 +9,18 @@ import TourVo from "@/vo/tour/tourVo";
 import Tour from "@/entity/tour";
 import TourDto from "@/dto/tour/tourDto";
 import TourBasicDto from "@/dto/tour/tourBasicDto";
+import UserDetailVo from "@/vo/user/userDetailVo";
+import User from "@/entity/user";
+import { UserUtil } from "@/util/userUtil";
+import RoleUtil from "@/util/roleUtil";
 
 class TourService {
+  /**
+   * 
+   * @param groupId 
+   * @param groupDto 
+   * @param uid 
+   */
   static async createTour(groupId: number, groupDto: GroupDto, uid: number): Promise<void> {
     const tourTemplateId = groupDto.tourTemplateId;
     const tourName = groupDto.name;
@@ -106,6 +116,11 @@ class TourService {
     }
   }
 
+  /**
+   * 
+   * @param uid 
+   * @param tourId 
+   */
   static async join(uid: number, tourId: number): Promise<void> {
     const db = await dbPromise;
     // 插入用户加入行程的记录，如果之前已经加入过了，就更新 updatedAt
@@ -122,6 +137,48 @@ class TourService {
     );
   }
 
+  /**
+   * 
+   * @param tourId 
+   * @returns 
+   */
+  static async getMembersInTour(tourId: number): Promise<UserDetailVo[]> {
+    const db = await dbPromise;
+    const rows = await db.all<Partial<User>[]>(
+      `
+      SELECT uid, nickname, gender, avatarUrl, email,
+      phone, signature, birthday, roleId
+      FROM users
+      WHERE EXISTS (
+      SELECT 1 FROM tour_users
+      WHERE tour_users.uid = users.uid AND tourId = ?
+      )
+      `,
+      [tourId]
+    );
+    if (!rows) {
+      throw new ParamsError("该行程没有用户");
+    }
+    return rows.map(row => {
+      return {
+        uid: row.uid,
+        nickname: row.nickname,
+        gender: UserUtil.getGenderStr(row.gender),
+        avatarUrl: row.avatarUrl,
+        email: row.email,
+        phone: row.phone,
+        signature: row.signature,
+        birthday: row.birthday,
+        role: RoleUtil.roleNumberToString(row.roleId as number)
+      } as UserDetailVo;
+    });
+  }
+
+  /**
+   * 
+   * @param tourId 
+   * @returns 
+   */
   static async getDetailByTourId(tourId: number): Promise<TourBasicVo> {
     const db = await dbPromise;
     const row = await db.get<Partial<Tour>>(
@@ -140,6 +197,11 @@ class TourService {
     return new TourBasicVo(row);
   }
 
+  /**
+   * 
+   * @param groupId 
+   * @returns 
+   */
   static async getDetailByGroupId(groupId: number): Promise<TourBasicVo> {
     const db = await dbPromise;
     const row = await db.get<Partial<Tour>>(
@@ -158,6 +220,11 @@ class TourService {
     return new TourBasicVo(row);
   }
 
+  /**
+   * 
+   * @param tourId 
+   * @returns 
+   */
   static async getFullByTourId(tourId: number): Promise<TourVo> {
     const db = await dbPromise;
     const row = await db.get<Partial<Tour>>(
@@ -194,6 +261,10 @@ class TourService {
     });
   }
 
+  /**
+   * 
+   * @param tourBasicDto 
+   */
   static async updateTourBasic(tourBasicDto: TourBasicDto) {
     const db = await dbPromise;
     const { id: tourId, ...rest } = tourBasicDto;
@@ -220,6 +291,10 @@ class TourService {
     );
   }
 
+  /**
+   * 
+   * @param tourDto 
+   */
   static async updateTour(tourDto: TourDto) {
     const db = await dbPromise;
     const { id: tourId, ...rest } = tourDto;

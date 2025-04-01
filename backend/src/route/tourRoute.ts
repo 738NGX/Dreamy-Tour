@@ -13,48 +13,47 @@ const tourRoute = express.Router();
  * @path tour/:tourId/detail
  */
 tourRoute.get('/tour/:tourId/detail', async (req: Request, res: Response) => {
-  // 获取频道 ID
   const tourId = Number(req.params.tourId);
-  // 获取频道详情
   const tourDetailVo = await TourService.getDetailByTourId(tourId);
   // 返回响应
   res.json(Result.success(tourDetailVo));
 })
 
+/**
+ * @description 获取某一行程详情（根据群组 ID）
+ * @method GET
+ * @path tour/:groupId/detailByGroup
+ */
 tourRoute.get('/tour/:groupId/detailByGroup', async (req: Request, res: Response) => {
-  // 获取频道 ID
   const groupId = Number(req.params.groupId);
-  // 获取频道详情
   const tourDetailVo = await TourService.getDetailByGroupId(groupId);
-  // 返回响应
   res.json(Result.success(tourDetailVo));
 })
 
+
 tourRoute.get('/tour/:tourId/full', async (req: Request, res: Response) => {
-  // 获取频道 ID
   const tourId = Number(req.params.tourId);
-  // 获取频道详情
   const tourFullVo = await TourService.getFullByTourId(tourId);
-  // 返回响应
   res.json(Result.success(tourFullVo));
 })
 
 tourRoute.put('/tour', async (req: Request, res: Response) => {
-  // 获取频道详情
   const tourBasicDto = await TourBasicDto.from(req.body);
   await TourService.updateTourBasic(tourBasicDto);
-  // 返回响应
   res.json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
 })
 
+tourRoute.get('/tour/:tourId/members', async (req: Request, res: Response) => {
+  const tourId = Number(req.params.tourId);
+  const members = await TourService.getMembersInTour(tourId);
+  res.json(Result.success(members));
+})
+
 tourRoute.put('/tour/full', async (req: Request, res: Response) => {
-  // 获取频道详情
-  console.log(req.body);
-  //const tourDto = await TourDto.from(req.body);
+  // 暂时跳过检查
+  // const tourDto = await TourDto.from(req.body);
   const tourDto = new TourDto(req.body);
-  console.log(tourDto);
   await TourService.updateTour(tourDto);
-  // 返回响应
   res.json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
 })
 

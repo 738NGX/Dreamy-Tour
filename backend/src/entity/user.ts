@@ -34,6 +34,9 @@ class User {
   // 生日
   birthday: string
 
+  // 经验值
+  exp: number
+
   // 角色 ID
   roleId: number
 

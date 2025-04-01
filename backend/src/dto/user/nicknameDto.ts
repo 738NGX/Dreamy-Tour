@@ -12,7 +12,7 @@ import { Length, Matches } from "class-validator";
 
 class NicknameDto extends DTO<NicknameDto>{
   @Expose()
-  @Length(1, 10, {
+  @Length(1, 20, {
     message: '昵称长度必须在 $constraint1 到 $constraint2 个字符之间'
   })
   @Matches(/^[\p{L}0-9_]+$/u, {

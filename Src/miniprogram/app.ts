@@ -1244,8 +1244,9 @@ App<IAppOption>({
     if (!this.globalData.testMode) {
       try {
         const currentGroupRes = await HttpUtil.get({ url: `/group/${groupId}/detail` });
-        const { groupId: currentGroupId, ...groupRest } = currentGroupRes.data.data;
-        const currentGroup = new GroupBasic({ id: currentGroupId, ...groupRest });
+        const { groupId: currentGroupId, joinWay: joinWayStr, ...groupRest } = currentGroupRes.data.data;
+        const joinWay = joinWayStr == "FREE" ? JoinWay.Free : joinWayStr == "APPROVAL" ? JoinWay.Approval : JoinWay.Invite;
+        const currentGroup = new GroupBasic({ id: currentGroupId, joinWay, ...groupRest });
         const linkedTourRes = await HttpUtil.get({ url: `/tour/${currentGroup.id}/detailByGroup` });
         const { tourId, ...tourRest } = linkedTourRes.data.data;
         const linkedTour = new TourBasic({ id: tourId, ...tourRest });
@@ -1581,7 +1582,7 @@ App<IAppOption>({
         const user = new UserBasic({
           id: res.data.data.uid,
           name: res.data.data.nickname,
-          exp: getExpFromRole(res.data.data.role),
+          exp: res.data.data.exp,
           isAdmin: res.data.data.role == 'ADMIN',
           gender: res.data.data.gender,
           avatarUrl: res.data.data.avatarUrl,
@@ -1626,7 +1627,26 @@ App<IAppOption>({
   },
   async changeUserBasic(user: UserBasic): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.put({
+          url: '/user/info', 
+          jsonData: {
+            gender: user.gender == '女' ? 0 : user.gender == '男' ? 1 : 2,
+            email: user.email,
+            phone: user.phone,
+            signature: user.signature,
+            birthday: user.birthday,
+          }
+        });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const currentUser = this.currentUser();
       const { id, name, ...rest } = user;
@@ -1669,7 +1689,34 @@ App<IAppOption>({
   },
   async getMembersInTour(tourId: number): Promise<Member[]> {
     if (!this.globalData.testMode) {
-      return [];
+      try {
+        const membersRes = await HttpUtil.get({ url: `/tour/${tourId}/members` });
+        const members = membersRes.data.data.map((res: any) => {
+          return new Member({
+            id: res.uid,
+            name: res.nickname,
+            exp: getExpFromRole(res.role),
+            isAdmin: res.role == 'ADMIN',
+            gender: res.gender,
+            avatarUrl: res.avatarUrl,
+            email: res.email,
+            phone: res.phone,
+            signature: res.signature,
+            birthday: res.birthday,
+            userGroup: translateUserRole(res.role),
+          });
+        }).sort((a: any, b: any) => {
+          return getPriority(a.userGroup) - getPriority(b.userGroup);
+        }) as Member[];
+        return members;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return [];
+      }
     } else {
       const userList = this.getUserListCopy();
       const currentTour = this.getTour(tourId) as Tour;

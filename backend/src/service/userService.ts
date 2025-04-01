@@ -29,6 +29,7 @@ import axios from "axios";
 import { StatusCodes } from "http-status-codes";
 import RoleDto from "@/dto/user/roleDto";
 import RoleUtil from "@/util/roleUtil";
+import RoleConstant from "@/constant/RoleConstant";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
@@ -36,8 +37,8 @@ class UserService {
     const row = await db.get<Partial<User>>(
       `SELECT 
       uid, nickname, gender, avatarUrl, email,
-      phone, signature, birthday, roleId
-      FROM users WHERE uid = ?`, 
+      phone, signature, birthday, exp, roleId
+      FROM users WHERE uid = ?`,
       [uid]
     );
     if (!row) throw new NotFoundError("该用户不存在");
@@ -50,6 +51,7 @@ class UserService {
       phone: row.phone,
       signature: row.signature,
       birthday: row.birthday,
+      exp: row.exp,
       role: RoleUtil.roleNumberToString(row.roleId as number)
     })
   }
@@ -69,11 +71,11 @@ class UserService {
       grant_type: 'authorization_code',
     };
     const res = await axios.get(url, { params })
-    
+
     // 先检查状态码是否正常
     if (res.status != StatusCodes.OK) throw new WxServiceError();
     const resJson = await res.data;
-    
+
     // 获取错误码，如果错误码不是 0，抛出异常
     const errcode = resJson.errcode;
     if (errcode && errcode !== 0) {
@@ -88,7 +90,7 @@ class UserService {
     }
     // 如果正常响应，获取 openid
     const openid: string = resJson.openid;
-    
+
     // 查询数据库中是否已经存在该用户
     const db = await dbPromise;
     let user = await this.findUserByOpenid(db, openid);
@@ -113,7 +115,7 @@ class UserService {
       })
     } else {
       throw new Error("用户 ID 生成异常");
-    } 
+    }
   }
 
   /**
@@ -148,7 +150,7 @@ class UserService {
     await db.run(
       `UPDATE users
       SET nickname = ?
-      WHERE uid = ?`, 
+      WHERE uid = ?`,
       [
         nicknameDto.nickname,
         uid
@@ -193,7 +195,7 @@ class UserService {
   static async unRegister(uid: number): Promise<void> {
     const db = await dbPromise;
     await db.run(
-      `DELETE FROM users WHERE uid = ?`, 
+      `DELETE FROM users WHERE uid = ?`,
       [uid]
     )
   }
@@ -207,6 +209,28 @@ class UserService {
     const roleId = RoleUtil.roleStringToNumber(roleDto.role);
     // 更新用户表对应用户的 roleId 字段
     const db = await dbPromise;
+    const getExp = (roleId: number): number => {
+      switch (roleId) {
+        case RoleConstant.PASSENGER:
+          return 0;
+        case RoleConstant.SAILOR:
+          return 20;
+        case RoleConstant.BOATSWAIN:
+          return 150;
+        case RoleConstant.CHIEF_ENGINEER:
+          return 450;
+        case RoleConstant.FIRST_MATE:
+          return 1080;
+        case RoleConstant.CAPTAIN:
+          return 2880;
+        case RoleConstant.EXPLORER:
+          return 10000;
+        case RoleConstant.ADMIN:
+          return 0;
+        default:
+          throw new ParamsError("角色类型错误");
+      }
+    }
     await db.run(
       `
       UPDATE users SET roleId = ?
@@ -217,8 +241,18 @@ class UserService {
         uid
       ]
     )
+    await db.run(
+      `
+      UPDATE users SET exp = ?
+      WHERE uid = ?
+      `,
+      [
+        getExp(roleId),
+        uid
+      ]
+    )
   }
-  
+
   /**
    * 根据 openid 查询用户 id
    * @param db 数据库对象
@@ -233,7 +267,7 @@ class UserService {
     if (!row) {
       return undefined;
     }
-    return { 
+    return {
       uid: row.uid,
       roleId: row.roleId
     };
@@ -247,7 +281,7 @@ class UserService {
    */
   private static async createUser(db: Database, openid: string): Promise<{ uid: number; roleId: number }> {
     const defaultNickname = `微信用户_${Math.random().toString(36).substr(2, 5)}`;
-    
+
     // 插入新用户，并返回新的用户 id
     const { lastID } = await db.run(
       `INSERT INTO users (
@@ -270,7 +304,7 @@ class UserService {
     );
 
     if (!lastID) throw new Error('用户创建失败');
-    
+
     // 新用户自动加入世界频道
     ChannelService.join(lastID, ChannelConstant.WORLD_CHANNEL_ID);
     // 返回 uid 和 roleId 用于生成 jwt

@@ -289,6 +289,23 @@ BEGIN
     WHERE postId = OLD.postId;
 END;
 
+-- 创建用户roleId对于exp的触发器,当exp改变且roleId不为7时,根据exp的值重新确定roleId
+CREATE TRIGGER IF NOT EXISTS update_roleId_on_exp_change
+AFTER UPDATE OF exp ON users
+WHEN NEW.exp <> OLD.exp AND NEW.roleId <> 7
+BEGIN
+    UPDATE users
+    SET roleId = CASE 
+            WHEN NEW.exp < 20 THEN 0
+            WHEN NEW.exp < 150 THEN 1
+            WHEN NEW.exp < 450 THEN 2
+            WHEN NEW.exp < 1080 THEN 3
+            WHEN NEW.exp < 2880 THEN 4
+            WHEN NEW.exp < 10000 THEN 5
+            ELSE 6
+        END
+    WHERE uid = NEW.uid;
+END;
 
 
 -- @@@@@@@@@@@@@ 视图 @@@@@@@@@@@@@
