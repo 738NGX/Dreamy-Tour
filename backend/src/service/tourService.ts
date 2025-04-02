@@ -47,7 +47,7 @@ class TourService {
           tourName,
           0,
           linkedChannel,
-          0,
+          1,
           linkedGroup,
           Date.now(),
           Date.now(),
@@ -267,6 +267,34 @@ class TourService {
       budgets: JSON.parse(budgets as string),
       locations: JSON.parse(locations as string),
       transportations: JSON.parse(transportations as string)
+    });
+  }
+
+  static async getTourSavesByChannelId(channelId: number): Promise<TourVo[]> {
+    const db = await dbPromise;
+    const rows = await db.all<Partial<Tour>[]>(
+      `
+      SELECT tourId, title, status, linkedChannel, channelVisible,
+        linkedGroup, startDate, endDate, timeOffset,
+        mainCurrency, subCurrency, currencyExchangeRate,
+        nodeCopyNames, budgets, locations, transportations
+      FROM tours
+      WHERE linkedChannel = ? AND channelVisible = 1 AND status = 2
+      `,
+      [channelId]
+    );
+    if (!rows) {
+      throw new ParamsError("该行程不存在");
+    }
+    return rows.map(row => {
+      const { nodeCopyNames, budgets, locations, transportations, ...rowRest } = row;
+      return new TourVo({
+        ...rowRest,
+        nodeCopyNames: JSON.parse(nodeCopyNames as string),
+        budgets: JSON.parse(budgets as string),
+        locations: JSON.parse(locations as string),
+        transportations: JSON.parse(transportations as string)
+      });
     });
   }
 

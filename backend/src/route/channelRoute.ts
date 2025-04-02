@@ -16,6 +16,7 @@ import JwtUtil from "@/util/jwtUtil";
 import Result from "@/vo/result";
 import express, { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
+import TourService from "@/service/tourService";
 
 const channelRoute = express.Router();
 
@@ -250,6 +251,15 @@ channelRoute.get('/channel/:channelId/members', async (req: Request, res: Respon
   const members = await ChannelService.getMembersInChannel(channelId);
   // 返回响应
   res.json(Result.success(members));
+})
+
+channelRoute.get('/channel/:channelId/toursaves', async (req: Request, res: Response) => {
+  // 获取频道 ID
+  const channelId = Number(req.params.channelId);
+  // 获取行程列表
+  const tourSaves = await TourService.getTourSavesByChannelId(channelId);
+  // 返回响应
+  res.json(Result.success(tourSaves));
 })
 
 /**

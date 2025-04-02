@@ -72,6 +72,9 @@ class GroupService {
     if (needCheck && !await GroupUtil.hasJoinPermission(groupId)) {
       throw new ForbiddenError("该群组仅限邀请，您没有权限加入！");
     }
+    if (!await GroupUtil.hasJoinedLinkedChannel(groupId, uid)) {
+      throw new ForbiddenError("用户并不在当前频道中，无法加入该群组！");
+    }
     // 插入用户加入群组的记录，如果之前已经加入过了，就更新 updatedAt
     await db.run(
       `INSERT INTO group_users (uid, groupId, createdAt, updatedAt)
@@ -328,6 +331,32 @@ class GroupService {
     }
 
     const db = await dbPromise;
+
+    // 给群组中的成员加经验值,群主和管理员加80，普通成员加50
+    // 查询群成员、群管理员和群主
+    const groupMembers = await db.all(`SELECT uid FROM group_users WHERE groupId = ?`, [groupId]);
+    const groupAdmins = await db.all(`SELECT uid FROM group_admins WHERE groupId = ?`, [groupId]);
+    const groupOwner = await db.get(`SELECT masterId AS uid FROM groups WHERE groupId = ?`, [groupId]);
+
+    // 将管理员和群主合并为一个集合（经验80）
+    const adminOrOwnerSet = new Set(groupAdmins.map(row => row.uid));
+    adminOrOwnerSet.add(groupOwner.uid);
+
+    // 合并所有用户 uid
+    const allUserIds = new Set([
+      ...groupMembers.map(row => row.uid),
+      ...adminOrOwnerSet
+    ]);
+
+    // 遍历更新经验值：管理员/群主加80，普通成员加50
+    for (const uid of allUserIds) {
+      const experience = adminOrOwnerSet.has(uid) ? 80 : 50;
+      await db.run(
+        `UPDATE users SET exp = exp + ? WHERE uid = ?`,
+        [experience, uid]
+      );
+    }
+
 
     // 找到关联的行程并解除关联
     await db.run(

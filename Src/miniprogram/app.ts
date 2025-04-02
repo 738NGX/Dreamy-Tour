@@ -433,7 +433,24 @@ App<IAppOption>({
   // for channel-detail-home.ts
   async generateTourSaves(channelId: number): Promise<Tour[]> {
     if (!this.globalData.testMode) {
-      return [];
+      try {
+        const res = await HttpUtil.get({ url: `/channel/${channelId}/toursaves` });
+        const constructTour = (data: any): Tour => {
+          const { tourId: id, ...tourRest } = data;
+          if (tourRest && Array.isArray(tourRest.children)) {
+            tourRest.children = tourRest.children.map(constructTour);
+          }
+          return new Tour({ id, ...tourRest });
+        }
+        return res.data.data.map(constructTour);
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return [];
+      }
     } else {
       const tourSaves = (this.globalData.currentData.tourList as Tour[])
         .filter(tour => tour.linkedChannel == channelId && tour.status == TourStatus.Finished && tour.channelVisible)
@@ -1806,7 +1823,7 @@ App<IAppOption>({
   async endGroupTour(groupId: number, linkedTourId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
       try {
-        await HttpUtil.delete({ url: `/endTour/${groupId}/${linkedTourId}` });
+        await HttpUtil.post({ url: `/endTour/${groupId}/${linkedTourId}` });
         wx.showToast({
           title: '结束成功',
           icon: 'success',

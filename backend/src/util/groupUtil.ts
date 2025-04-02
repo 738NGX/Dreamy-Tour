@@ -210,6 +210,20 @@ class GroupUtil {
     return row.joinWay === GroupConstant.JOINWAY_FREE;
   }
 
+  static async hasJoinedLinkedChannel(groupId: number, uid: number): Promise<boolean> {
+    const db = await dbPromise;
+    const row = await db.get<{ _: number }>(
+      `SELECT 1
+       FROM channel_users
+       WHERE channelId = (
+       SELECT linkedChannel FROM groups WHERE groupId = ?
+       )
+       AND uid = ?`,
+      [groupId, uid]
+    );
+    return typeof row !== 'undefined';
+  }
+
   /**
    * 群组类型字母转数字
    * @param levelLetter 群组类型字母

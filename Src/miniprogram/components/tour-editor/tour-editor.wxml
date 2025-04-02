@@ -8,9 +8,10 @@
 <!-- 持续时间选择弹窗 -->
 <t-date-time-picker title="选择持续时间" visible="{{durationVisible}}" mode="{{['null', 'minute']}}" value="{{selectingDuration}}" format="HH:mm" start="{{0}}" value="{{selectingDuration}}" bindchange="onDurationConfirm" bindpick="onDurationColumnChange" bindcancel="onDurationCancel" />
 <!-- 查看位置弹窗 -->
-<t-popup-headered visible="{{mapVisible}}" title="查看位置" bind:visible-change="onMapVisibleChange" bindConfirm="changeLocation" bindCancel="onMapVisibleChange" placement="bottom" style="height: 50vh;">
-  <map style="width:100%;height:500rpx;" latitude="{{mapLocation[0]}}" longitude="{{mapLocation[1]}}" markers="{{markers}}" bind:tap="onTapMap" />
-  <view class="column" style="width:90%;">当前位置:{{mapLocation[0]}},{{mapLocation[1]}}</view>
+<t-popup-headered visible="{{mapVisible}}" title="查看位置" bind:visible-change="onMapVisibleChange" bindConfirm="changeLocation" bindCancel="onMapVisibleChange" placement="bottom" style="height: 70vh;">
+  <map style="width:100%;height:800rpx;" latitude="{{mapLocation[0]}}" longitude="{{mapLocation[1]}}" markers="{{markers}}" bind:tap="onTapMap" />
+  <t-cell title="当前纬度" note="{{mapLocation[0]}}" />
+  <t-cell title="当前经度" note="{{mapLocation[1]}}" />
 </t-popup-headered>
 <!-- 查看图片弹窗 -->
 <t-popup-headered visible="{{photoVisible}}" title="编辑图片" bind:visible-change="onPhotoVisibleChange" bindConfirm="onPhotoConfirm" bindCancel="onPhotoVisibleChange" placement="bottom" style="height: 60vh;">

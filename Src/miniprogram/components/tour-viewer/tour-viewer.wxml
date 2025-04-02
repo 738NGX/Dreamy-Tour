@@ -1,8 +1,9 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
 <!-- 查看位置弹窗 -->
-<t-popup-headered visible="{{mapVisible}}" title="查看位置" bind:visible-change="onMapVisibleChange" bindConfirm="onMapVisibleChange" bindCancel="onMapVisibleChange" placement="bottom" style="height: 50vh;">
-  <map style="width:100%;height:500rpx;" latitude="{{mapLocation[0]}}" longitude="{{mapLocation[1]}}" markers="{{markers}}" />
-  <view class="column" style="width:90%;">当前位置:{{mapLocation[0]}},{{mapLocation[1]}}</view>
+<t-popup-headered visible="{{mapVisible}}" title="查看位置" bind:visible-change="onMapVisibleChange" bindConfirm="onMapVisibleChange" bindCancel="onMapVisibleChange" placement="bottom" style="height: 80vh;">
+  <map style="width:100%;height:1000rpx;" latitude="{{mapLocation[0]}}" longitude="{{mapLocation[1]}}" markers="{{markers}}" />
+  <t-cell title="当前纬度" note="{{mapLocation[0]}}"/>
+  <t-cell title="当前经度" note="{{mapLocation[1]}}"/>
 </t-popup-headered>
 <!-- 查看图片弹窗 -->
 <t-popup-headered visible="{{photoVisible}}" title="查看图片" bind:visible-change="onPhotoVisibleChange" bindConfirm="onPhotoVisibleChange" bindCancel="onPhotoVisibleChange" placement="bottom" style="height: 60vh;">
