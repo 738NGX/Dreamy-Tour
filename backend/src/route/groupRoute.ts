@@ -175,24 +175,6 @@ groupRoute.post('/group/transfer', async (req: Request, res: Response) => {
 });
 
 /**
- * @description 解散某个群组（只有群组主和系统管理员可以解散）
- * @method DELETE
- * @path /group/:groupId
- */
-groupRoute.delete('/group/:groupId', async (req: Request, res: Response) => {
-  // 获取用户 ID 和角色 ID
-  const { uid, roleId } = JwtUtil.getUidAndRoleId(
-    req.header(AuthConstant.TOKEN_HEADER) as string
-  );
-  // 获取 groupId
-  const groupId = Number(req.params.groupId);
-  // 执行解散逻辑
-  await GroupService.dissolveGroup(uid, roleId, groupId);
-  // 响应结果
-  res.json(Result.success(MessageConstant.SUCCESSFUL_DISSOLVE));
-});
-
-/**
  * @description 赋予某用户群组管理员身份（只能群组主或者系统管理员）
  * @method POST
  * @path /group/grant-admin
@@ -255,5 +237,48 @@ groupRoute.get('/group/:groupId/authority', async (req: Request, res: Response) 
   // 返回响应
   res.json(Result.success(authority));
 })
+
+groupRoute.get('/group/:groupId/authority/:uid', async (req: Request, res: Response) => {
+  // 获取群组 ID
+  const groupId = Number(req.params.groupId);
+  // 获取用户 ID
+  const uid = Number(req.params.uid);
+  // 获取权限
+  const authority = await GroupService.getUserAuthorityInGroup(groupId, uid);
+  // 返回响应
+  res.json(Result.success(authority));
+})
+
+/**
+ * @description 解散某个群组（只有群组主和系统管理员可以解散）
+ * @method DELETE
+ * @path /group/:groupId
+ */
+groupRoute.delete('/group/:groupId', async (req: Request, res: Response) => {
+  // 获取用户 ID 和角色 ID
+  const { uid, roleId } = JwtUtil.getUidAndRoleId(
+    req.header(AuthConstant.TOKEN_HEADER) as string
+  );
+  // 获取 groupId
+  const groupId = Number(req.params.groupId);
+  // 执行解散逻辑
+  await GroupService.dissolveGroup(uid, roleId, groupId);
+  // 响应结果
+  res.json(Result.success(MessageConstant.SUCCESSFUL_DISSOLVE));
+});
+
+groupRoute.post('/endTour/:groupId/:linkedTour', async (req: Request, res: Response) => {
+  // 获取用户 ID 和角色 ID
+  const { uid, roleId } = JwtUtil.getUidAndRoleId(
+    req.header(AuthConstant.TOKEN_HEADER) as string
+  );
+  // 获取 groupId
+  const groupId = Number(req.params.groupId);
+  const linkedTour = Number(req.params.linkedTour);
+  // 执行解散逻辑
+  await GroupService.endGroupTour(uid, roleId, groupId, linkedTour);
+  // 响应结果
+  res.json(Result.success(MessageConstant.SUCCESSFUL_END));
+});
 
 export default groupRoute;

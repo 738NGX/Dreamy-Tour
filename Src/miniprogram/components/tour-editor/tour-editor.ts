@@ -186,7 +186,7 @@ Component({
           copy => copy.map(transportation => {
             return new Transportation(transportation).getDurationString();
           })),
-        currentUserList: (await app.getMembersInTour(currentTour.id)),
+        currentUserList: await app.getMembersInTour(currentTour.id),
       });
     },
     /**

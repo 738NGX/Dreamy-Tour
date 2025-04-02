@@ -14,7 +14,10 @@ const dbPath = path.resolve(process.cwd(), 'database.db');
 const dbPromise = open({
   filename: dbPath,
   driver: sqlite3.Database
-})
+}).then(async (db) => {
+  await db.exec("PRAGMA foreign_keys = ON");
+  return db;
+});
 
 
 export default dbPromise;

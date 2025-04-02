@@ -151,6 +151,21 @@ class GroupService {
        WHERE uid = ? AND groupId = ?`,
       [uid, groupId]
     );
+    // 删除该用户的管理员记录
+    await db.run(
+      `DELETE FROM group_admins
+       WHERE uid = ? AND groupId = ?`,
+      [uid, groupId]
+    );
+    // 删除该用户的行程记录
+    await db.run(
+      `DELETE FROM tour_users
+       WHERE uid = ? AND tourId IN (
+         SELECT tourId FROM tours WHERE linkedGroup = ?
+        )
+      `,
+      [uid, groupId]
+    );
   }
 
   /**
@@ -272,6 +287,14 @@ class GroupService {
         groupId
       ]
     )
+    // 找到关联的行程并修改行程名
+    await db.run(
+      `UPDATE tours SET name = ? WHERE linkedGroup = ?`,
+      [
+        groupModifyDto.name,
+        groupId
+      ]
+    )
   }
 
   /**
@@ -287,6 +310,31 @@ class GroupService {
     }
     // 更新数据库
     const db = await dbPromise;
+    await db.run(
+      `DELETE FROM groups WHERE groupId = ?`,
+      [groupId]
+    )
+  }
+
+  /**
+   * 
+   * @param uid 
+   * @param roleId 
+   * @param groupId 
+   */
+  static async endGroupTour(uid: number, roleId: number, groupId: number, linkedTourId: number): Promise<void> {
+    if (!await GroupUtil.hasDissolvePermission(uid, roleId, groupId)) {
+      throw new ForbiddenError('您没有权限结束行程');
+    }
+
+    const db = await dbPromise;
+
+    // 找到关联的行程并解除关联
+    await db.run(
+      `UPDATE tours SET linkedGroup = NULL, status = 2 WHERE tourId = ?`,
+      [linkedTourId]
+    )
+
     await db.run(
       `DELETE FROM groups WHERE groupId = ?`,
       [groupId]

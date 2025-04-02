@@ -112,7 +112,7 @@ CREATE TABLE comments (
     content TEXT,
     createdAt INTEGER,
     updatedAt INTEGER,
-    FOREIGN KEY (uid) REFERENCES user_info(uid) ON DELETE CASCADE,
+    FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
     FOREIGN KEY (postId) REFERENCES posts(postId) ON DELETE CASCADE
 );
 
@@ -334,29 +334,30 @@ WHERE objType = 1;
 
 -- @@@@@@@@@@@@@@@@ 插入假数据 @@@@@@@@@@@@@@@@
 -- 用户表 users
-INSERT INTO users (nickname, wxOpenid, gender, avatarUrl, email, phone, signature, birthday, roleId, lastLoginAt, status, createdAt, updatedAt) VALUES
-  ('Franctoryer', 'o2_CL7Rs3-9QvoE8zBY8XQrw_804', 2, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default7.png', '643612824@qq.com', '13636452530', '手持两把锟斤拷，口中疾呼烫烫烫', '2003-09-26', 1, 1741518410157, 0, 1741483017852, 1741483017852),
-  ('EvelynSmith', 'o2_8VtFp9Lq3mNkZwXyAbC_805', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default14.png', 'evelyn.smith@example.com', '+13015102345', '追风赶月莫停留，平芜尽处是春山', '1992-05-18', 1, 1741518710234, 0, 1741483017852, 1741483017852),
-  ('张伟', 'o2_LpMnOqRt5sUvXzYwAbD_806', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default23.png', 'zhangwei@example.com.cn', '8613912345678', '仰天大笑出门去，我辈岂是蓬蒿人', '1988-03-20', 2, 1741519010311, 0, 1741483017852, 1741483017852),
-  ('LilyJohnson', 'o2_MpSoUhJk7vBnCmDeEf_807', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default11.png', 'lily.johnson@example.co.uk', '+447912345678', '人生如逆旅，我亦是行人', '2000-07-15', 1, 1741519310388, 0, 1741483017852, 1741483017852),
-  ('王芳', 'o2_NqTrGhIj8vDfXkLmNo_808', 3, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default19.png', 'wangfang@example.com', '8613812345678', '一蓑烟雨任平生', '1995-11-30', 1, 1741519610465, 0, 1741483017852, 1741483017852),
-  ('DavidLee', 'o2_PqWzXyAbClDfGhIjK_809', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default5.png', 'david.lee@example.com', '+8613800138000', '曾经沧海难为水，除却巫山不是云', '1985-04-20', 2, 1741519910542, 0, 1741483017852, 1741483017852),
-  ('EmilyWang', 'o2_QrTfGhIjKlMnOpQ_810', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default27.png', 'emily.wang@example.com', '+8613912345679', '问君能有几多愁？恰似一江春水向东流', '1998-06-15', 1, 1741520210617, 0, 1741483017852, 1741483017852),
-  ('李明', 'o2_RsTuVwXyAbCdEfGh_811', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default16.png', 'liming@example.com', '8613712345678', '天生我材必有用，千金散尽还复来', '1990-02-28', 2, 1741520510692, 0, 1741483017852, 1741483017852),
-  ('SophiaBrown', 'o2_TuVwXyAbCdEfGhIj_812', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default3.png', 'sophia.brown@example.com', '+447712345678', '不畏浮云遮望眼，自缘身在最高层', '2002-11-05', 1, 1741520810767, 0, 1741483017852, 1741483017852),
-  ('陈浩', 'o2_UvXyAbCdEfGhIjKl_813', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default21.png', 'chenhao@example.com.cn', '8613612345678', '大鹏一日同风起，扶摇直上九万里', '1987-08-15', 2, 1741521110842, 0, 1741483017852, 1741483017852),
-  ('OliviaDavis', 'o2_VwXyAbCdEfGhIjKl_814', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default10.png', 'olivia.davis@example.com', '+13025102345', '莫道不销魂，帘卷西风，人比黄花瘦', '1993-03-22', 1, 1741521410917, 0, 1741483017852, 1741483017852),
-  ('周强', 'o2_WxYzAbCdEfGhIjKl_815', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default25.png', 'zhouqiang@example.com', '8613512345678', '千淘万漉虽辛苦，吹尽狂沙始到金', '1989-07-10', 2, 1741521710992, 0, 1741483017852, 1741483017852),
-  ('AmandaClark', 'o2_XyZaBcDeFgHiJkLm_816', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default2.png', 'amanda.clark@example.com', '+447412345678', '竹杖芒鞋轻胜马，谁怕？一蓑烟雨任平生', '2001-04-30', 1, 1741522011067, 0, 1741483017852, 1741483017852),
-  ('吴刚', 'o2_YzAbCdEfGhIjKlMn_817', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default28.png', 'wugang@example.com', '8613412345678', '会当凌绝顶，一览众山小', '1986-12-25', 2, 1741522311142, 0, 1741483017852, 1741483017852),
-  ('GraceKim', 'o2_ZaBcDeFgHiJkLmNo_818', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default12.png', 'grace.kim@example.com', '+8613912345677', '人间有味是清欢', '1994-09-15', 1, 1741522611217, 0, 1741483017852, 1741483017852),
-  ('郑晓琳', 'o2_aBcDeFgHiJkLmNoP_819', 3, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default18.png', 'zhengxiaolin@example.com', '8613812345676', '采菊东篱下，悠然见南山', '1997-02-14', 1, 1741522911292, 0, 1741483017852, 1741483017852),
-  ('JamesWilson', 'o2_BcDeFgHiJkLmNoPQ_820', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default6.png', 'james.wilson@example.com', '+13035102345', '路漫漫其修远兮，吾将上下而求索', '1984-06-20', 2, 1741523211367, 0, 1741483017852, 1741483017852),
-  ('林悦', 'o2_cDeFgHiJkLmNoPQr_821', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default24.png', 'linyue@example.com', '8613712345676', '等闲识得东风面，万紫千红总是春', '2000-05-21', 1, 1741523511442, 0, 1741483017852, 1741483017852),
-  ('MichaelThomas', 'o2_dEfGhIjKlMnOpQrS_822', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default9.png', 'michael.thomas@example.com', '8613612345676', '天生我材必有用，千金散尽还复来', '1983-11-08', 2, 1741523811517, 0, 1741483017852, 1741483017852),
-  ('AmyZhou', 'o2_eFgHiJkLmNoPQrSt_823', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default22.png', 'amy.zhou@example.com', '+8613912345675', '举杯邀明月，对影成三人', '1996-03-20', 1, 1741524111592, 0, 1741483017852, 1741483017852),
-  ('周涛', 'o2_fGhIjKlMnOpQrStU_824', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default15.png', 'zhoutao@example.com', '8613512345675', '长风破浪会有时，直挂云帆济沧海', '1985-07-12', 2, 1741524411667, 0, 1741483017852, 1741483017852),
-  ('HannahMoore', 'o2_gHiJkLmNoPQrStUv_825', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default20.png', 'hannah.moore@example.com', '+447312345678', '两情若是久长时，又岂在朝朝暮暮', '1999-08-22', 1, 1741524711742, 0, 1741483017852, 1741483017852);
+INSERT INTO users (nickname, wxOpenid, gender, avatarUrl, email, phone, signature, birthday, exp, roleId, lastLoginAt, status, createdAt, updatedAt) VALUES
+  ('Franctoryer', 'o2_CL7Rs3-9QvoE8zBY8XQrw_804', 2, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default7.png', '643612824@qq.com', '13636452530', '手持两把锟斤拷，口中疾呼烫烫烫', '2003-09-26', 55, 1, 1741518410157, 0, 1741483017852, 1741483017852),
+  ('738NGX', 'o2_CL7Wa9ja0M95V3Eg7Y0hfKTdc', 2, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default27.png', 'jny738ngx@gmail.com', '17317371970', '未来ずら～', '2004-02-10', 12345, 6, 1741518410157, 0, 1741483017852, 1741483017852),
+  ('EvelynSmith', 'o2_8VtFp9Lq3mNkZwXyAbC_805', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default14.png', 'evelyn.smith@example.com', '+13015102345', '追风赶月莫停留，平芜尽处是春山', '1992-05-18', 55, 1, 1741518710234, 0, 1741483017852, 1741483017852),
+  ('张伟', 'o2_LpMnOqRt5sUvXzYwAbD_806', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default23.png', 'zhangwei@example.com.cn', '8613912345678', '仰天大笑出门去，我辈岂是蓬蒿人', '1988-03-20', 155, 2, 1741519010311, 0, 1741483017852, 1741483017852),
+  ('LilyJohnson', 'o2_MpSoUhJk7vBnCmDeEf_807', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default11.png', 'lily.johnson@example.co.uk', '+447912345678', '人生如逆旅，我亦是行人', '2000-07-15', 55, 1, 1741519310388, 0, 1741483017852, 1741483017852),
+  ('王芳', 'o2_NqTrGhIj8vDfXkLmNo_808', 3, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default19.png', 'wangfang@example.com', '8613812345678', '一蓑烟雨任平生', '1995-11-30', 55, 1, 1741519610465, 0, 1741483017852, 1741483017852),
+  ('DavidLee', 'o2_PqWzXyAbClDfGhIjK_809', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default5.png', 'david.lee@example.com', '+8613800138000', '曾经沧海难为水，除却巫山不是云', '1985-04-20', 155, 2, 1741519910542, 0, 1741483017852, 1741483017852),
+  ('EmilyWang', 'o2_QrTfGhIjKlMnOpQ_810', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default27.png', 'emily.wang@example.com', '+8613912345679', '问君能有几多愁？恰似一江春水向东流', '1998-06-15', 55, 1, 1741520210617, 0, 1741483017852, 1741483017852),
+  ('李明', 'o2_RsTuVwXyAbCdEfGh_811', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default16.png', 'liming@example.com', '8613712345678', '天生我材必有用，千金散尽还复来', '1990-02-28', 155, 2, 1741520510692, 0, 1741483017852, 1741483017852),
+  ('SophiaBrown', 'o2_TuVwXyAbCdEfGhIj_812', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default3.png', 'sophia.brown@example.com', '+447712345678', '不畏浮云遮望眼，自缘身在最高层', '2002-11-05', 55, 1, 1741520810767, 0, 1741483017852, 1741483017852),
+  ('陈浩', 'o2_UvXyAbCdEfGhIjKl_813', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default21.png', 'chenhao@example.com.cn', '8613612345678', '大鹏一日同风起，扶摇直上九万里', '1987-08-15', 155, 2, 1741521110842, 0, 1741483017852, 1741483017852),
+  ('OliviaDavis', 'o2_VwXyAbCdEfGhIjKl_814', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default10.png', 'olivia.davis@example.com', '+13025102345', '莫道不销魂，帘卷西风，人比黄花瘦', '1993-03-22', 55, 1, 1741521410917, 0, 1741483017852, 1741483017852),
+  ('周强', 'o2_WxYzAbCdEfGhIjKl_815', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default25.png', 'zhouqiang@example.com', '8613512345678', '千淘万漉虽辛苦，吹尽狂沙始到金', '1989-07-10', 155, 2, 1741521710992, 0, 1741483017852, 1741483017852),
+  ('AmandaClark', 'o2_XyZaBcDeFgHiJkLm_816', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default2.png', 'amanda.clark@example.com', '+447412345678', '竹杖芒鞋轻胜马，谁怕？一蓑烟雨任平生', '2001-04-30', 55, 1, 1741522011067, 0, 1741483017852, 1741483017852),
+  ('吴刚', 'o2_YzAbCdEfGhIjKlMn_817', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default28.png', 'wugang@example.com', '8613412345678', '会当凌绝顶，一览众山小', '1986-12-25', 155, 2, 1741522311142, 0, 1741483017852, 1741483017852),
+  ('GraceKim', 'o2_ZaBcDeFgHiJkLmNo_818', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default12.png', 'grace.kim@example.com', '+8613912345677', '人间有味是清欢', '1994-09-15', 55, 1, 1741522611217, 0, 1741483017852, 1741483017852),
+  ('郑晓琳', 'o2_aBcDeFgHiJkLmNoP_819', 3, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default18.png', 'zhengxiaolin@example.com', '8613812345676', '采菊东篱下，悠然见南山', '1997-02-14', 55, 1, 1741522911292, 0, 1741483017852, 1741483017852),
+  ('JamesWilson', 'o2_BcDeFgHiJkLmNoPQ_820', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default6.png', 'james.wilson@example.com', '+13035102345', '路漫漫其修远兮，吾将上下而求索', '1984-06-20', 155, 2, 1741523211367, 0, 1741483017852, 1741483017852),
+  ('林悦', 'o2_cDeFgHiJkLmNoPQr_821', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default24.png', 'linyue@example.com', '8613712345676', '等闲识得东风面，万紫千红总是春', '2000-05-21', 55, 1, 1741523511442, 0, 1741483017852, 1741483017852),
+  ('MichaelThomas', 'o2_dEfGhIjKlMnOpQrS_822', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default9.png', 'michael.thomas@example.com', '8613612345676', '天生我材必有用，千金散尽还复来', '1983-11-08', 155, 2, 1741523811517, 0, 1741483017852, 1741483017852),
+  ('AmyZhou', 'o2_eFgHiJkLmNoPQrSt_823', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default22.png', 'amy.zhou@example.com', '+8613912345675', '举杯邀明月，对影成三人', '1996-03-20', 55, 1, 1741524111592, 0, 1741483017852, 1741483017852),
+  ('周涛', 'o2_fGhIjKlMnOpQrStU_824', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default15.png', 'zhoutao@example.com', '8613512345675', '长风破浪会有时，直挂云帆济沧海', '1985-07-12', 155, 2, 1741524411667, 0, 1741483017852, 1741483017852),
+  ('HannahMoore', 'o2_gHiJkLmNoPQrStUv_825', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default20.png', 'hannah.moore@example.com', '+447312345678', '两情若是久长时，又岂在朝朝暮暮', '1999-08-22', 55, 1, 1741524711742, 0, 1741483017852, 1741483017852);
 
 -- 频道表 channels
 INSERT INTO channels (channelId, name, description, masterId, status, humanCount, level, joinWay, createdAt, updatedAt) VALUES

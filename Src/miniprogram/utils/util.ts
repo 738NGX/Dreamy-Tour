@@ -147,13 +147,13 @@ export const getPriority = (group: string) => {
   if (group === "频道主") return 1;
   if (group === "群管理员") return 2;
   if (group === "频道管理员") return 2;
-  if (group === "Lv6.探险家") return 3;
-  if (group === "Lv5.船长") return 4;
-  if (group === "Lv4.大副") return 5;
-  if (group === "Lv3.轮机长") return 6;
-  if (group === "Lv2.水手长") return 7;
-  if (group === "Lv1.水手") return 8;
-  if (group === "Lv0.船客") return 9;
+  if (group === "Lv.6探险家") return 3;
+  if (group === "Lv.5船长") return 4;
+  if (group === "Lv.4大副") return 5;
+  if (group === "Lv.3轮机长") return 6;
+  if (group === "Lv.2水手长") return 7;
+  if (group === "Lv.1水手") return 8;
+  if (group === "Lv.0船客") return 9;
   return 10;
 };
 

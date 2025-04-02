@@ -22,7 +22,6 @@ import { transportList, expenseList, budgetList, TransportExpense, currencyList 
 import { timezoneList } from '../../utils/tour/timezone';
 import { MILLISECONDS, formatDate, formatTime } from '../../utils/util';
 import { isSameDate } from '../../miniprogram_npm/tdesign-miniprogram/common/shared/date';
-import { User } from '../../utils/user/user';
 
 enum DatetimeEditMode { None, StartDate, EndDate };
 
@@ -104,7 +103,7 @@ Component({
     created() {
 
     },
-    ready() {
+    async ready() {
       this.setData({
         currentTour: new Tour(this.properties.tour),
       });
@@ -136,10 +135,7 @@ Component({
             copy => copy.map(transportation => {
               return new Transportation(transportation).getDurationString();
             })),
-          currentUserList: app.getUserListCopy().map(user => {
-            if (currentTour.users.includes(user.id)) return new User(user);
-            else return null;
-          }).filter((user: any) => user !== null)
+          currentUserList: await app.getMembersInTour(currentTour.id)
         });
       }
       else {

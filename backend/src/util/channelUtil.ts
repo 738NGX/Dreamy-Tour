@@ -137,6 +137,22 @@ class ChannelUtil {
   }
 
   /**
+   * 检查用户是否在频道中拥有群组
+   */
+  static async hasGroupInChannel(uid: number, channelId: number): Promise<boolean> {
+    const db = await dbPromise;
+    const row = await db.get<{ _: number }>(
+      `SELECT groupId FROM groups
+       WHERE linkedChannel = ? AND masterId = ?`,
+      [
+        channelId,
+        uid
+      ]
+    )
+    return typeof row !== 'undefined';
+  }
+
+  /**
    * 判断该用户是否有权限授予其他用户频道管理员的身份
    * @param grantorId 授权者 ID
    * @param grantorRoleId 授权者角色 ID

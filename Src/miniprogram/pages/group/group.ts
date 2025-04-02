@@ -205,8 +205,8 @@ Component({
       linkedTour.mainCurrency = newMainCurrency;
       linkedTour.subCurrency = newSubCurrency;
       linkedTour.currencyExchangeRate = Number((1 / linkedTour.currencyExchangeRate).toFixed(7));
-      this.setData({ linkedTour });
       await app.changeTourBasic(linkedTour);
+      this.setData({ linkedTour });
     },
     onRateInput(e: WechatMiniprogram.CustomEvent) {
       const { rateError } = this.data;
@@ -221,14 +221,14 @@ Component({
       }
       const linkedTour = this.data.linkedTour;
       linkedTour.currencyExchangeRate = Number(e.detail.value);
-      this.setData({ linkedTour });
       await app.changeTourBasic(linkedTour);
+      this.setData({ linkedTour });
     },
     async getRate() {
       const linkedTour = this.data.linkedTour;
       await linkedTour.getExchangeRate();
-      this.setData({ linkedTour });
       await app.changeTourBasic(linkedTour);
+      this.setData({ linkedTour });
     },
     onPhotoUploadVisibleChange() {
       const that = this;
@@ -240,8 +240,8 @@ Component({
           const src = res.tempFilePaths[0]
           const { currentGroup } = that.data;
           currentGroup.qrCode = await getImageBase64(src);
-          that.setData({ currentGroup, photoUploadVisible: false });
           await app.changeGroupQrCode(currentGroup.id, currentGroup.qrCode);
+          that.setData({ currentGroup, photoUploadVisible: false });
         }
       })
       //this.setData({
@@ -269,28 +269,28 @@ Component({
       if (this.data.uploadedPhotos.length === 0) return;
       const { currentGroup } = this.data;
       currentGroup.qrCode = await getImageBase64(this.data.uploadedPhotos[0].url);
+      await app.changeGroupQrCode(currentGroup.id, currentGroup.qrCode);
       this.setData({ currentGroup, photoUploadVisible: false });
-      await app.changeGroupBasic(currentGroup);
     },
     async handleTitleUpdate(e: WechatMiniprogram.CustomEvent) {
       const { currentGroup, linkedTour } = this.data;
       currentGroup.name = e.detail.value;
       linkedTour.title = e.detail.value;
-      this.setData({ currentGroup, linkedTour });
       await app.changeGroupBasic(currentGroup);
       await app.changeTourBasic(linkedTour);
+      this.setData({ currentGroup, linkedTour });
     },
     async handleDescriptionUpdate(e: WechatMiniprogram.CustomEvent) {
       const { currentGroup } = this.data;
       currentGroup.description = e.detail.value;
-      this.setData({ currentGroup });
       await app.changeGroupBasic(currentGroup);
+      this.setData({ currentGroup });
     },
     async onJoinWayChange(e: WechatMiniprogram.CustomEvent) {
       const { currentGroup } = this.data;
       currentGroup.joinWay = e.detail.value;
-      this.setData({ currentGroup });
       await app.changeGroupBasic(currentGroup);
+      this.setData({ currentGroup });
     },
     quitGroup() {
       const that = this;

@@ -686,7 +686,21 @@ App<IAppOption>({
   },
   async joinGroup(groupId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.post({ url: `/group/${groupId}/join` });
+        wx.showToast({
+          title: '加入成功',
+          icon: 'none'
+        });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const group = this.getGroup(groupId) as Group;
       if (group.joinWay == JoinWay.Approval) {
@@ -846,7 +860,24 @@ App<IAppOption>({
   },
   async changeChannelBasic(channel: ChannelBasic): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.put({
+          url: `/channel/${channel.id}`,
+          jsonData: {
+            name: channel.name,
+            description: channel.description,
+            joinWay: channel.joinWay == JoinWay.Free ? "FREE" : channel.joinWay == JoinWay.Approval ? "INVITE" : "INVITE",
+          }
+        });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const currentChannel = this.getChannel(channel.id) as Channel;
       currentChannel.name = channel.name;
@@ -886,7 +917,29 @@ App<IAppOption>({
   },
   async userAdminChangeInChannel(channelId: number, userId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        const res = await HttpUtil.get({ url: `/channel/${channelId}/authority/${userId}` });
+        const isChannelAdmin = res.data.data.isAdmin;
+        if (isChannelAdmin) {
+          await HttpUtil.delete({
+            url: `/channel/grant-admin`,
+            jsonData: { channelId: channelId, granteeId: userId }
+          });
+        } else {
+          await HttpUtil.post({
+            url: `/channel/grant-admin`,
+            jsonData: { channelId: channelId, granteeId: userId }
+          });
+        }
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const user = this.getUser(userId);
       if (!user) { return false; }
@@ -953,10 +1006,38 @@ App<IAppOption>({
     }
   },
   async transferChannelOwner(channelId: number, newOwnerId: number): Promise<boolean> {
+    const that = this;
     if (!this.globalData.testMode) {
-      return false;
+      return new Promise((resolve) => {
+        wx.showModal({
+          title: '警告',
+          content: '确定要转让频道主身份给该成员吗？',
+          success(res) {
+            if (res.confirm) {
+              try {
+                HttpUtil.post({
+                  url: `/channel/transfer`,
+                  jsonData: { channelId: channelId, masterId: newOwnerId }
+                });
+                resolve(true);
+              } catch (err: any) {
+                console.error(err);
+                wx.showToast({
+                  title: err.response.data.msg,
+                  icon: "none"
+                });
+                resolve(true);
+              }
+            } else {
+              resolve(false);
+            }
+          },
+          fail() {
+            resolve(false);
+          }
+        });
+      });
     } else {
-      const that = this;
       return new Promise((resolve) => {
         wx.showModal({
           title: '警告',
@@ -1001,7 +1082,7 @@ App<IAppOption>({
               } catch (err: any) {
                 wx.showToast({
                   title: err.response.data.msg,
-                  icon: "error"
+                  icon: "none"
                 });
                 resolve(false);
               }
@@ -1057,10 +1138,40 @@ App<IAppOption>({
     }
   },
   async disbandChannel(channelId: number): Promise<boolean> {
+    const that = this;
     if (!this.globalData.testMode) {
-      return false;
+      return new Promise((resolve) => {
+        wx.showModal({
+          title: '警告',
+          content: '确定要解散该频道吗？',
+          success(res) {
+            if (res.confirm) {
+              try {
+                HttpUtil.delete({ url: `/channel/${channelId}` });
+                wx.showToast({
+                  title: '解散成功',
+                  icon: 'success',
+                  time: 2000,
+                });
+                resolve(true);
+              } catch (err: any) {
+                wx.showToast({
+                  title: err.response.data.msg,
+                  icon: "none"
+                });
+                resolve(false);
+              }
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          },
+          fail() {
+            resolve(false);
+          }
+        });
+      });
     } else {
-      const that = this;
       return new Promise((resolve) => {
         wx.showModal({
           title: '警告',
@@ -1468,7 +1579,29 @@ App<IAppOption>({
   },
   async userAdminChangeInGroup(groupId: number, userId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        const res = await HttpUtil.get({ url: `/group/${groupId}/authority/${userId}` });
+        const isGroupAdmin = res.data.data.isAdmin;
+        if (isGroupAdmin) {
+          await HttpUtil.delete({
+            url: `/group/grant-admin`,
+            jsonData: { groupId: groupId, granteeId: userId }
+          });
+        } else {
+          await HttpUtil.post({
+            url: `/group/grant-admin`,
+            jsonData: { groupId: groupId, granteeId: userId }
+          });
+        }
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const currentGroup = this.getGroup(groupId) as Group;
       const user = this.getUser(userId);
@@ -1525,7 +1658,20 @@ App<IAppOption>({
   },
   async transferGroupOwner(groupId: number, newOwnerId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        HttpUtil.post({
+          url: `/group/transfer`,
+          jsonData: { groupId: groupId, masterId: newOwnerId }
+        });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const newOwner = this.getUser(newOwnerId);
       const currentOwner = this.currentUser();
@@ -1544,7 +1690,24 @@ App<IAppOption>({
   },
   async changeGroupBasic(groupBasic: GroupBasic): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.put({
+          url: `/group/${groupBasic.id}`,
+          jsonData: {
+            name: groupBasic.name,
+            description: groupBasic.description,
+            joinWay: groupBasic.joinWay == JoinWay.Free ? "FREE" : groupBasic.joinWay == JoinWay.Approval ? "INVITE" : "INVITE"
+          }
+        });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const currentGroup = this.getGroup(groupBasic.id) as Group;
       const { id, ...rest } = groupBasic;
@@ -1553,7 +1716,7 @@ App<IAppOption>({
       return true;
     }
   },
-  async changeGroupQrCode(groupId: number, qrCodeUrl: string):Promise<boolean> {
+  async changeGroupQrCode(groupId: number, qrCodeUrl: string): Promise<boolean> {
     if (!this.globalData.testMode) {
       return false;
     } else {
@@ -1606,7 +1769,21 @@ App<IAppOption>({
   },
   async disbandGroup(groupId: number, linkedTourId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        HttpUtil.delete({ url: `/group/${groupId}` });
+        wx.showToast({
+          title: '解散成功',
+          icon: 'success',
+          time: 2000,
+        });
+        return true;
+      } catch (err: any) {
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const userList = this.getUserListCopy();
       userList.forEach((user) => {
@@ -1628,7 +1805,22 @@ App<IAppOption>({
   },
   async endGroupTour(groupId: number, linkedTourId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.delete({ url: `/endTour/${groupId}/${linkedTourId}` });
+        wx.showToast({
+          title: '结束成功',
+          icon: 'success',
+          time: 2000,
+        });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const userList = this.getUserListCopy();
       userList.forEach((user: User) => {
@@ -1707,7 +1899,7 @@ App<IAppOption>({
     if (!this.globalData.testMode) {
       try {
         await HttpUtil.put({
-          url: '/user/info', 
+          url: '/user/info',
           jsonData: {
             gender: user.gender == '女' ? 0 : user.gender == '男' ? 1 : 2,
             email: user.email,

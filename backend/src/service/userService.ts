@@ -127,7 +127,7 @@ class UserService {
     await db.run(
       `UPDATE users
       SET gender = ?, email = ?, phone = ?,
-      signature = ?, birthday = ?, updatedAt = datetime('now', 'localtime')
+      signature = ?, birthday = ?, updatedAt = ?
       WHERE uid = ?
       `,
       [
@@ -136,6 +136,7 @@ class UserService {
         userInfoDto.phone,
         userInfoDto.signature,
         userInfoDto.birthday,
+        Date.now(),
         uid
       ]
     );

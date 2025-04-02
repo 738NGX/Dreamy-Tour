@@ -185,11 +185,43 @@ class ChannelService {
     if (!await ChannelUtil.hasExitPermission(uid, channelId)) {
       throw new ForbiddenError('您是该频道的频道主，请转让后再退出');
     }
+    if(await ChannelUtil.hasGroupInChannel(uid, channelId)) {
+      throw new ForbiddenError('频道中还拥有群组，请转让、解散群组或结束行程');
+    }
     const db = await dbPromise;
     // 删除该用户的加入记录
     await db.run(
       `DELETE FROM channel_users
        WHERE uid = ? AND channelId = ?`,
+      [uid, channelId]
+    );
+    // 删除该用户的频道管理员记录
+    await db.run(
+      `DELETE FROM channel_admins
+        WHERE uid = ? AND channelId = ?`,
+      [uid, channelId]
+    );
+    // 退出所有群组
+    await db.run(
+      `DELETE FROM group_users
+        WHERE uid = ? AND groupId IN (
+          SELECT groupId FROM groups WHERE linkedChannel = ?
+        )`,
+      [uid, channelId]
+    );
+    await db.run(
+      `DELETE FROM group_admins
+        WHERE uid = ? AND groupId IN (
+          SELECT groupId FROM groups WHERE linkedChannel = ?
+        )`,
+      [uid, channelId]
+    );
+    await db.run(
+      `DELETE FROM tour_users
+       WHERE uid = ? AND tourId IN (
+         SELECT tourId FROM tours WHERE linkedChannel = ?
+        )
+      `,
       [uid, channelId]
     );
   }

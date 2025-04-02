@@ -14,7 +14,7 @@ import ChannelGrantAdminDto from "@/dto/channel/channelGrantAdminDto";
 import ChannelService from "@/service/channelService";
 import JwtUtil from "@/util/jwtUtil";
 import Result from "@/vo/result";
-import express, {Request, Response} from "express";
+import express, { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
 const channelRoute = express.Router();
@@ -123,7 +123,7 @@ channelRoute.put('/channel/:channelId/join/:memberId', async (req: Request, res:
   const channelId = Number(req.params.channelId);
   const memberId = Number(req.params.memberId);
   // 更新成员身份
-  await ChannelService.addMemberToChannel(uid, roleId, channelId, memberId);
+  await ChannelService.addMemberToChannel(uid, roleId, memberId, channelId);
   // 返回响应
   res.json(Result.success(MessageConstant.SUCCESSFUL_JOIN));
 });
@@ -137,7 +137,7 @@ channelRoute.delete('/channel/:channelId/join/:memberId', async (req: Request, r
   const channelId = Number(req.params.channelId);
   const memberId = Number(req.params.memberId);
   // 更新成员身份
-  await ChannelService.removeMemberFromChannel(uid, roleId, channelId, memberId);
+  await ChannelService.removeMemberFromChannel(uid, roleId, memberId, channelId);
   // 返回响应
   res.json(Result.success(MessageConstant.SUCCESSFUL_EXIT));
 });
@@ -158,8 +158,8 @@ channelRoute.post('/channel', async (req: Request, res: Response) => {
   // 返回响应
   res.status(StatusCodes.CREATED)
     .json(
-    Result.success(MessageConstant.SUCCESSFUL_CREATED)
-  );
+      Result.success(MessageConstant.SUCCESSFUL_CREATED)
+    );
 });
 
 /**
@@ -201,24 +201,6 @@ channelRoute.post('/channel/transfer', async (req: Request, res: Response) => {
 });
 
 /**
- * @description 解散某个频道（只有频道主和系统管理员可以解散）
- * @method DELETE
- * @path /channel/:channelId
- */
-channelRoute.delete('/channel/:channelId', async (req: Request, res: Response) => {
-  // 获取用户 ID 和角色 ID
-  const { uid, roleId } = JwtUtil.getUidAndRoleId(
-    req.header(AuthConstant.TOKEN_HEADER) as string
-  );
-  // 获取 channelId
-  const channelId = Number(req.params.channelId);
-  // 执行解散逻辑
-  await ChannelService.dissolveChannel(uid, roleId, channelId);
-  // 响应结果
-  res.json(Result.success(MessageConstant.SUCCESSFUL_DISSOLVE));
-});
-
-/**
  * @description 赋予某用户频道管理员身份（只能频道主或者系统管理员）
  * @method POST
  * @path /channel/:channelId/grant-admin
@@ -243,8 +225,8 @@ channelRoute.post('/channel/grant-admin', async (req: Request, res: Response) =>
  * @path /channel/grant-admin
  */
 channelRoute.delete('/channel/grant-admin', async (req: Request, res: Response) => {
-   // 获取用户 ID 和角色 ID
-   const { uid: grantorId, roleId: grantorRoleId } = JwtUtil.getUidAndRoleId(
+  // 获取用户 ID 和角色 ID
+  const { uid: grantorId, roleId: grantorRoleId } = JwtUtil.getUidAndRoleId(
     req.header(AuthConstant.TOKEN_HEADER) as string
   );
   // 获取 body 传参
@@ -285,5 +267,34 @@ channelRoute.get('/channel/:channelId/authority', async (req: Request, res: Resp
   // 返回响应
   res.json(Result.success(authority));
 })
+
+channelRoute.get('/channel/:channelId/authority/:uid', async (req: Request, res: Response) => {
+  // 获取频道 ID
+  const channelId = Number(req.params.channelId);
+  // 获取用户 ID
+  const uid = Number(req.params.uid);
+  // 获取权限
+  const authority = await ChannelService.getUserAuthorityInChannel(channelId, uid);
+  // 返回响应
+  res.json(Result.success(authority));
+})
+
+/**
+ * @description 解散某个频道（只有频道主和系统管理员可以解散）
+ * @method DELETE
+ * @path /channel/:channelId
+ */
+channelRoute.delete('/channel/:channelId', async (req: Request, res: Response) => {
+  // 获取用户 ID 和角色 ID
+  const { uid, roleId } = JwtUtil.getUidAndRoleId(
+    req.header(AuthConstant.TOKEN_HEADER) as string
+  );
+  // 获取 channelId
+  const channelId = Number(req.params.channelId);
+  // 执行解散逻辑
+  await ChannelService.dissolveChannel(uid, roleId, channelId);
+  // 响应结果
+  res.json(Result.success(MessageConstant.SUCCESSFUL_DISSOLVE));
+});
 
 export default channelRoute;
