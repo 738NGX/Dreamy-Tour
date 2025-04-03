@@ -20,6 +20,10 @@ class UserConstant {
   static readonly STATUS_ENABLE = 0;
   // 禁用状态
   static readonly STATUS_DISABLE = 1;
+  // 默认登录经验
+  static readonly DEFAULT_LOGIN_EXP = 0;
+  // 连续登录经验
+  static readonly CONTINUOUS_LOGIN_EXP = 10;
 }
 
 export default UserConstant;

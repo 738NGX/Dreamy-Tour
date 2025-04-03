@@ -321,6 +321,43 @@ class UserService {
    * @param uid 用户 ID
    */
   private static async updateLastLoginTime(db: Database, uid: number): Promise<void> {
+    // 检查上一次登录的时间,如果时间在昨天,则用户经验+8,在更早,则经验+5,在今天,经验不变
+    const row = await db.get<{ lastLoginAt: number }>(
+      `SELECT lastLoginAt FROM users WHERE uid = ?`,
+      [uid]
+    );
+    if (!row) throw new NotFoundError("该用户不存在");
+    const lastLoginAt = row.lastLoginAt;
+    const now = Date.now();
+    const lastLoginStr = new Date(lastLoginAt).toLocaleDateString("zh-CN", { timeZone: 'Asia/Shanghai' });
+    const nowStr = new Date(now).toLocaleDateString("zh-CN", { timeZone: 'Asia/Shanghai' });
+    const isSameDay = lastLoginStr === nowStr;
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toLocaleDateString("zh-CN", { timeZone: 'Asia/Shanghai' });
+    const isContinuousLogin = lastLoginStr === yesterdayStr;
+
+    if (!isSameDay) {
+      if (isContinuousLogin) {
+        await db.run(
+          `UPDATE users SET exp = exp + ? WHERE uid = ?`,
+          [
+            UserConstant.CONTINUOUS_LOGIN_EXP,
+            uid
+          ]
+        )
+      }
+      else {
+        await db.run(
+          `UPDATE users SET exp = exp + ? WHERE uid = ?`,
+          [
+            UserConstant.DEFAULT_LOGIN_EXP,
+            uid
+          ]
+        )
+      }
+    }
+
     await db.run(
       `UPDATE users SET lastLoginAt = ? WHERE uid = ?`,
       [
