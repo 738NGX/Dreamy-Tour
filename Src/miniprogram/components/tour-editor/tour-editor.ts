@@ -132,13 +132,13 @@ Component({
     created() {
 
     },
-    ready() {
+    async ready() {
       //采用传入的tour初始化行程信息
       this.setData({
         currentTour: new Tour(this.properties.tour),
       });
-      if (this.properties.tour) {
-        this.init(this.properties.tour);
+      if (this.data.currentTour) {
+        await this.init(this.data.currentTour);
       }
       else {
         this.setData({ currentDateRange: null });

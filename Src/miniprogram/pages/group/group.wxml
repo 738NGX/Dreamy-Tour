@@ -1,5 +1,5 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
-<header class="custom-navbar" title="群组" tabList="{{[]}}" />
+<header helperId="4" class="custom-navbar" title="群组" tabList="{{[]}}" />
 <scroll-view class="scrollarea" style="height:90vh" scroll-y type="list">
   <t-cell title="{{currentGroup.name||''}}" description="{{currentGroup.description||''}}">
     <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{currentGroup.name[0]}}</t-avatar>

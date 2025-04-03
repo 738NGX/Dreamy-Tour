@@ -1,4 +1,4 @@
-<header tabList="{{showUserReport ? tabList : tabListForViewer}}" bind:childPageChange="onChildPageChange" title="旅行报告"/>
+<header helperId="7" tabList="{{showUserReport ? tabList : tabListForViewer}}" bind:childPageChange="onChildPageChange" title="旅行报告"/>
 <block wx:if="{{childPage == 0}}">
   <report-for-group currentTour="{{ currentTour }}" currentTourCopyIndex="{{currentTourCopyIndex}}"></report-for-group>
 </block>

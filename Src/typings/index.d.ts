@@ -15,9 +15,11 @@ declare global {
   interface IAppOption {
     globalData: {
       currentUserId: number;
+      localDebug: boolean;
       testMode: boolean;
       currentData: any;
       baseUrl: string;
+      version: string;
     },
     /**
      * 获取当前用户的实例（目前仅供前端测试）

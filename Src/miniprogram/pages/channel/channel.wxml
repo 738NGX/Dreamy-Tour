@@ -1,4 +1,4 @@
-<header tabList="{{tabList}}" bind:childPageChange="onChildPageChange" />
+<header helperId="1" tabList="{{tabList}}" bind:childPageChange="onChildPageChange" />
 <block wx:if="{{childPage == 0}}">
   <channel-list id="list"/>
 </block>

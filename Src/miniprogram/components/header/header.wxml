@@ -1,8 +1,23 @@
+<!-- t-popup visible="{{helpVisible}}" usingCustomNavbar bind:visible-change="handleHelp" placement="top">
+  <view style="padding:36rpx;display:flex;flex-direction:column;">
+    <text style="font-size:32rpx;font-weight:bold;margin-bottom:36rpx;">帮助·{{helpTitle}}</text>
+    <text style="font-size:32rpx;">{{helpText}}</text>
+  </view>
+</t-popup -->
 <block wx:if="{{title.length > 0}}">
-  <t-navbar title="{{title}}" left-arrow/>
+  <t-navbar title="{{title}}">
+    <view slot="capsule" class="custom-capsule">
+      <t-icon size="40rpx" bind:tap="onBack" aria-role="button" aria-label="返回" name="chevron-left" class="custom-capsule__icon back" />
+      <t-icon size="40rpx" bind:tap="handleHelp" aria-role="button" aria-label="帮助" name="help-circle" class="custom-capsule__icon home" />
+    </view>
+  </t-navbar>
 </block>
 <block wx:else>
-  <t-navbar title="梦·旅" />
+  <t-navbar title="梦·旅">
+    <view slot="capsule" class="custom-capsule">
+      <t-icon size="40rpx" bind:tap="handleHelp" aria-role="button" aria-label="帮助" name="help-circle" class="custom-capsule__icon home" />
+    </view>
+  </t-navbar>
 </block>
 <block wx:if="{{tabList.length > 0}}">
   <t-tabs defaultValue="{{0}}" bind:change="onTabChange">
@@ -11,3 +26,8 @@
     </block>
   </t-tabs>
 </block>
+<t-dialog visible="{{helpVisible}}" title="帮助·{{helpTitle}}" confirm-btn="{{ confirmBtn }}" bind:confirm="handleHelp">
+  <scroll-view slot="content" type="list" scroll-y class="long-content">
+    <view class="content-container">{{helpText}}</view>
+  </scroll-view>
+</t-dialog>

@@ -64,7 +64,7 @@
           <t-grid-item data-index="{{item.id}}" bind:click="changeTestUser" icon="{{item.avatarUrl ? '' : 'user-1'}}" text="{{item.name}}" wx:for="{{testUserList}}" wx:key="id" image="{{item.avatarUrl}}"/>
         </t-grid>
       </c-collapse>
-      <c-collapse wx:if="{{!isTestMode}}" header="切换账号权限">
+      <c-collapse wx:if="{{!isTestMode&&isLocalDebug}}" header="切换账号权限">
         <t-grid column="{{4}}" hover>
           <t-grid-item data-index="{{item}}" bind:click="changeUserRole" text="{{item}}" wx:for="{{userRoleList}}" wx:key="id" icon="user-1" />
         </t-grid>
@@ -75,7 +75,7 @@
       </c-collapse>
       <c-collapse header="关于我们">
         <image src="https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/LOGO2.png" mode="widthFix" style="width:100%;"/>
-        <t-cell left-icon="history" class="narrow-cell" bordered="{{false}}" title="梦·旅 Dreamy Tour" note="1.0.0">
+        <t-cell left-icon="history" bind:click="showVersion" class="narrow-cell" bordered="{{false}}" title="梦·旅 Dreamy Tour" arrow hover>
           <text slot="description" style="color:#aaa; font-size:22rpx;">Make a Fantastic Departure.</text>
         </t-cell>
         <t-cell data-index="0" bind:click="copyInfo" left-icon="logo-github" class="narrow-cell" bordered="{{false}}" title="Github仓库地址" hover arrow >

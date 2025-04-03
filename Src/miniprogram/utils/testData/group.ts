@@ -12,7 +12,7 @@ export const groupList = [
   },
   {
     id: 2,
-    name: '莲之空4th石川公演',
+    name: '莲之空4th神奈川公演',
     description: '～Bloom, The Dream Believers～',
     linkedChannel: 3,
   },

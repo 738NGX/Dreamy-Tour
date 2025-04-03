@@ -6,8 +6,8 @@ export const channelList = [
   },
   {
     id: 2,
-    name: 'Aqours远征群',
-    description: '爱生活! 艳阳天!',
+    name: '开发者频道',
+    description: '不觉得这很酷吗？我觉得这太酷了。',
   },
   {
     id: 3,

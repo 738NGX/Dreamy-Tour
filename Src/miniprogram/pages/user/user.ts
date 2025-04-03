@@ -1,3 +1,4 @@
+import HttpUtil from "../../utils/httpUtil";
 import { UserBasic } from "../../utils/user/user";
 import { getByteLength, getImageBase64, getUserGroupName, userExpTarget, userRoleName } from "../../utils/util";
 
@@ -16,6 +17,7 @@ Component({
     userGroup: '',
     expPercentage: 0,
     expLabel: '',
+    backendVersion: '不可用',
   },
   methods: {
     onLoad() {
@@ -27,8 +29,22 @@ Component({
       });
     },
     async onShow() {
+      try{
+        const res = await HttpUtil.get({
+          url: '/version',
+        });
+        this.setData({
+          backendVersion: res.data.msg
+        });
+      } catch (e) {
+        console.error('获取版本信息失败', e);
+        this.setData({
+          backendVersion: '不可用'
+        });
+      }
       this.setData({
         isTestMode: app.globalData.testMode,
+        isLocalDebug: app.globalData.localDebug,
         currentUser: await app.getCurrentUser(),
         testUserList: app.getUserListCopy()
       });
@@ -39,6 +55,14 @@ Component({
           value: '/' + page.route
         })
       }
+    },
+    showVersion(){
+      wx.showModal({
+        title: '版本信息',
+        content: `客户端版本：${app.globalData.version}\r\n服务端版本：${this.data.backendVersion}`,
+        showCancel: false,
+        confirmText: '了解！',
+      })
     },
     copyUid() {
       wx.setClipboardData({

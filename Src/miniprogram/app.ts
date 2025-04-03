@@ -17,9 +17,11 @@ import { formatPostTime, getExpFromRole, getImageBase64, getNewId, getPriority, 
 App<IAppOption>({
   globalData: {
     currentUserId: 1,
+    localDebug: true,
     testMode: true,
     currentData: testData,
     baseUrl: apiUrl,
+    version: "1.0.0",
   },
   onLaunch() {
     // 开屏进入登录页面

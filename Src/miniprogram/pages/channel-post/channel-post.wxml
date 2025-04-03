@@ -1,5 +1,5 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
-<header class="custom-navbar" title="帖子详情" tabList="{{[]}}" />
+<header helperId="3" class="custom-navbar" title="帖子详情" tabList="{{[]}}" />
 <!-- 页面内容 -->
 <view>
   <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">

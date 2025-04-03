@@ -24,6 +24,10 @@ import RoleDto from "@/dto/user/roleDto";
 
 const userRoute = express.Router();
 
+userRoute.get('/version', async (req: Request, res: Response) => {
+  res.json(Result.success("25.4.3-1"));
+})
+
 /**
  * @description 微信登录，如果之前没注册过会自动注册
  * @method POST

@@ -1,5 +1,5 @@
 <!-- pages/tour-view/tour-view.wxml -->
-<header class="custom-navbar" title="查看行程" tabList="{{[]}}" />
+<header helperId="9" class="custom-navbar" title="查看行程" tabList="{{[]}}" />
 <t-popup style="width:80% !important;" visible="{{settingsVisible}}" usingCustomNavbar bind:visible-change="handleSettings" placement="left">
   <scroll-view class="scrollarea" style="height:90vh" scroll-y type="list">
     <c-collapse header="行程版本选择">
