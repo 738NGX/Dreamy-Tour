@@ -18,13 +18,13 @@
     <view class="user-container">
       <view>
         <t-input borderless disabled label="经验值">
-          <t-button slot="suffix" theme="primary" variant="outline" size="small" bind:tap="signIn">点击签到</t-button>
+          <!--t-button slot="suffix" theme="primary" variant="outline" size="small" bind:tap="signIn">点击签到</t-button-->
         </t-input>
       </view>
       <t-progress style="margin: 0 30rpx 30rpx 30rpx;" theme="plump" color="{{ {  from: '#0052D9', to: '#48c6ef' } }}" label="{{expLabel}}" percentage="{{expPercentage}}" />
       <t-grid column="{{3}}">
-        <t-grid-item t-class-image="image" text="每日签到" icon="assignment-checked">
-          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">每日签到经验+5\n连续签到经验+8</text>
+        <t-grid-item t-class-image="image" text="每日登陆" icon="assignment-checked">
+          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">每日登陆经验+5\n连续登陆经验+8</text>
         </t-grid-item>
         <t-grid-item t-class-image="image" text="参与频道讨论" icon="chat-checked">
           <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">发布帖子经验+30\n发布评论经验+10</text>
