@@ -460,27 +460,27 @@ App<IAppOption>({
       return tourSaves;
     }
   },
-  async generateUserRankings(footprints: FootPrint[]): Promise<UserRanking[]> {
-    if (!this.globalData.testMode) {
-      return [];
-    } else {
-      const userTourCount: Map<number, number> = new Map();
+  async generateUserRankings(channelId: number, footprints: FootPrint[]): Promise<UserRanking[]> {
+    //if (!this.globalData.testMode) {
+    //  return [];
+    //} else {
+    const userTourCount: Map<number, number> = new Map();
 
-      footprints.forEach(tour => {
-        tour.users.forEach((userId) => {
-          userTourCount.set(userId, (userTourCount.get(userId) || 0) + 1);
-        });
+    footprints.forEach(tour => {
+      tour.users.forEach((userId) => {
+        userTourCount.set(userId, (userTourCount.get(userId) || 0) + 1);
       });
-      const rankList = (this.globalData.currentData.userList as User[]).map(user => {
-        const count = userTourCount.get(user.id) || 0;
-        return { rank: 0, name: user.name, avatarUrl: user.avatarUrl, count } as UserRanking;
-      }).filter((user) => user.count > 0);
-      rankList.sort((a, b) => b.count - a.count);
-      rankList.forEach((user, index) => {
-        user.rank = index + 1;
-      });
-      return rankList;
-    }
+    });
+    const rankList = (await this.getMembersInChannel(channelId)).members.map(user => {
+      const count = userTourCount.get(user.id) || 0;
+      return { rank: 0, name: user.name, avatarUrl: user.avatarUrl, count } as UserRanking;
+    }).filter((user) => user.count > 0);
+    rankList.sort((a, b) => b.count - a.count);
+    rankList.forEach((user, index) => {
+      user.rank = index + 1;
+    });
+    return rankList;
+    //}
   },
 
   // for channel-detail-post.ts

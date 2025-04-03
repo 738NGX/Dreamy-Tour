@@ -284,18 +284,31 @@ class TourService {
       [channelId]
     );
     if (!rows) {
-      throw new ParamsError("该行程不存在");
+      throw new ParamsError("频道内不存在行程");
     }
-    return rows.map(row => {
-      const { nodeCopyNames, budgets, locations, transportations, ...rowRest } = row;
-      return new TourVo({
-        ...rowRest,
-        nodeCopyNames: JSON.parse(nodeCopyNames as string),
-        budgets: JSON.parse(budgets as string),
-        locations: JSON.parse(locations as string),
-        transportations: JSON.parse(transportations as string)
-      });
-    });
+    return await Promise.all(
+      rows.map(async row => {
+        // 查询关联用户
+        const users = await db.all<Partial<{ uid: number }>[]>(`
+          SELECT uid FROM tour_users WHERE tourId = ?
+        `, [row.tourId]);
+    
+        if (!users || users.length === 0) {
+          throw new ParamsError("该行程没有关联用户");
+        }
+    
+        const { nodeCopyNames, budgets, locations, transportations, ...rowRest } = row;
+    
+        return new TourVo({
+          ...rowRest,
+          nodeCopyNames: nodeCopyNames ? JSON.parse(nodeCopyNames as string) : [],
+          budgets: budgets ? JSON.parse(budgets as string) : [],
+          locations: locations ? JSON.parse(locations as string) : [],
+          transportations: transportations ? JSON.parse(transportations as string) : [],
+          users: users.map(user => user.uid!),
+        });
+      })
+    );
   }
 
   /**

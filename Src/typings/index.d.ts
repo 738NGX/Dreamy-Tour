@@ -117,7 +117,7 @@ declare global {
      * @param footprints 行程足迹列表
      * @returns 一个频道中的用户行程次数排名
      */
-    generateUserRankings(footprints: FootPrint[]): Promise<UserRanking[]>;
+    generateUserRankings(channelId: number, footprints: FootPrint[]): Promise<UserRanking[]>;
 
     // for channel-detail-post.ts
     /**
