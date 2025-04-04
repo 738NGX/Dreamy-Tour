@@ -180,7 +180,11 @@ class UserService {
       [freshAvatarUrl, uid]
     )
     // 异步删除 COS 上原来的头像，不影响主线程（没有await），较少IO时长（当旧头像地址不为空，且是合法的图片路径）
-    if (typeof oldAvatarUrl !== 'undefined' && CosUtil.isValidCosUrl(oldAvatarUrl)) {
+    // 如果是默认头像，则不删除
+    if (typeof oldAvatarUrl !== 'undefined' && 
+      CosUtil.isValidCosUrl(oldAvatarUrl) &&
+      !oldAvatarUrl.includes("default")
+    ) {
       CosUtil.deleteFile(oldAvatarUrl)
     }
     // 返回新头像 url
