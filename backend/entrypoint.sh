@@ -8,6 +8,10 @@ BACKUP_DIR="/app/database/backups"
 # 数据库备份函数：轮转保留3份备份文件
 backup_database() {
   echo "[$(date)] 执行数据库备份..."
+  if [ ! -f "$DB_FILE" ]; then
+    echo "[$(date)] 数据库文件 $DB_FILE 不存在，跳过备份。"
+    return
+  fi
   mkdir -p "$BACKUP_DIR"
   # 删除最旧的备份
   rm -f "$BACKUP_DIR/backup1.db"

@@ -22,7 +22,7 @@ ENV HOST 127.0.0.1
 ENV PORT 8080
 EXPOSE 8080
 
-# 获得 https://github.com/738NGX/Dreamy-Tour/tree/main/backend 的最新后端源码
+# 克隆最新后端源码
 RUN git clone --depth=1 https://github.com/738NGX/Dreamy-Tour.git /tmp/repo && \
   cp -r /tmp/repo/backend/* /app/ && \
   rm -rf /tmp/repo
