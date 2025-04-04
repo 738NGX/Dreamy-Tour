@@ -7,7 +7,7 @@
  */
 class AppConstant {
   static readonly APP_ID = "wx6c0d5ae365e9b82d";
-  static readonly APP_SECRET = "4dc9a166948e23b1a347abbfe8ecbda0";
+  static readonly APP_SECRET = "939f56aaec8f7adb0bd8030221a82abc";
 }
 
 export default AppConstant;
