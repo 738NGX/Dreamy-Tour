@@ -1,26 +1,47 @@
 # 使用node镜像版本
 FROM node:20-bullseye-slim
 
+# 安装必要依赖
+RUN apt-get update && \
+    apt-get install -y git sqlite3 libsqlite3-dev libsqlite3-0 procps && \
+    rm -rf /var/lib/apt/lists/*
+
 # 工作目录
 WORKDIR /app
 
-COPY package*.json ./
+# 持久化数据库目录
+VOLUME /app/database
 
-# 安装ts-node和typescript
-RUN npm install -g typescript
-RUN npm install -g ts-node
+# 设置时区为上海
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+    echo 'Asia/Shanghai' > /etc/timezone && \
+    echo "export TZ=Asia/Shanghai" >> /etc/profile
 
-# 安装依赖
-RUN npm i
-
-COPY . .
-
-# 环境变量
+# 设置环境变量和暴露端口
 ENV HOST 127.0.0.1
 ENV PORT 8080
-
-# 暴露端口
 EXPOSE 8080
 
-# 启动命令
-CMD ["npm", "start"]
+# 获得 https://github.com/738NGX/Dreamy-Tour/tree/main/backend 的最新后端源码
+RUN git clone --depth=1 https://github.com/738NGX/Dreamy-Tour.git /tmp/repo && \
+  cp -r /tmp/repo/backend/* /app/ && \
+  rm -rf /tmp/repo
+
+# 安装 Node.js 依赖
+RUN npm install -g typescript && \
+    npm install -g ts-node && \
+    npm i
+
+# 数据库初始化
+RUN mkdir -p /app/database && \
+    if [ ! -f /app/database/database.db ]; then \
+      sqlite3 /app/database/database.db < /app/database.sql; \
+    fi
+
+# 赋予脚本执行权限
+RUN chmod +x /app/entrypoint.sh && \
+    chmod +x /app/reset_db.sh && \
+    chmod +x /app/restore_db.sh
+
+# 设置启动命令为 entrypoint 脚本
+ENTRYPOINT ["/app/entrypoint.sh"]

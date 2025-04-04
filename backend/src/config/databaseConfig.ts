@@ -9,7 +9,7 @@ import sqlite3 from "sqlite3";
 import path from 'path';
 import { open } from "sqlite"
 
-const dbPath = path.resolve(process.cwd(), 'database.db');
+const dbPath = path.resolve(process.cwd(), 'database/database.db');
 
 const dbPromise = open({
   filename: dbPath,
