@@ -19,10 +19,14 @@ class CosConstant {
   static readonly BASE_URL = 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com';
   // 存储用户头像的文件夹名
   static readonly AVATAR_FOLDER = 'avatar';
+  // 存储群组二维码的文件夹名
+  static readonly QRCODE_FOLDER = 'qrCode';
   // 存储帖子图片的文件夹名
   static readonly POST_PICTURES_FOLDER = 'post_pictures';
   // 存储评论图片的文件夹名
   static readonly COMMENT_PICTURES_FOLDER = 'comment_pictures';
+  // 存储行程图片的文件夹名
+  static readonly TOUR_PICTURES_FOLDER = 'tour_pictures';
 }
 
 export default CosConstant

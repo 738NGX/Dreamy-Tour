@@ -4,7 +4,10 @@ import GroupDto from "@/dto/group/groupDto";
 import GroupGrantAdminDto from "@/dto/group/groupGrantAdminDto";
 import GroupModifyDto from "@/dto/group/groupModifyDto";
 import GroupTransferDto from "@/dto/group/groupTransferDto";
+import ImageDto from "@/dto/image/imageDto";
+import ForbiddenError from "@/exception/forbiddenError";
 import GroupService from "@/service/groupService";
+import GroupUtil from "@/util/groupUtil";
 import JwtUtil from "@/util/jwtUtil";
 import Result from "@/vo/result";
 import express, { Request, Response } from "express"
@@ -155,6 +158,22 @@ groupRoute.put('/group/:groupId', async (req: Request, res: Response) => {
   // 返回响应
   res.json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
 });
+
+groupRoute.put('/group/qrCode/:groupId', async (req: Request, res: Response) => {
+  // 获取用户 ID 和角色 ID
+  const { uid, roleId } = JwtUtil.getUidAndRoleId(
+    req.header(AuthConstant.TOKEN_HEADER) as string
+  );
+  const groupId = Number(req.params.groupId);
+  const file = await ImageDto.from(req.body);
+  if (!await GroupUtil.hasModifyPermission(uid, roleId, groupId)) {
+    throw new ForbiddenError('您没有权限上传二维码');
+  }
+  // 更换二维码
+  await GroupService.updateQrCode(file.base64, groupId);
+  res.status(StatusCodes.OK)
+    .json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
+})
 
 /**
  * @description 转让某个群组

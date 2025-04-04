@@ -1737,7 +1737,17 @@ App<IAppOption>({
   },
   async changeGroupQrCode(groupId: number, qrCodeUrl: string): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try{
+        await HttpUtil.put({ url: `/group/qrCode/${groupId}`, jsonData: { base64: qrCodeUrl } });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const currentGroup = this.getGroup(groupId) as Group;
       currentGroup.qrCode = qrCodeUrl;
@@ -1946,7 +1956,17 @@ App<IAppOption>({
   },
   async changeUserAvatar(avatar: string): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try{
+        await HttpUtil.put({ url: '/user/avatar', jsonData: { base64: avatar } });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const currentUser = this.currentUser();
       currentUser.avatarUrl = avatar;
@@ -2043,7 +2063,25 @@ App<IAppOption>({
   },
   async changeTourLocationPhotos(tourId: number, copyIndex: number, location: Location): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.put({
+          url: '/tour/photos',
+          jsonData: {
+            tourId: tourId,
+            copyIndex: copyIndex,
+            locationIndex: location.index,
+            photos: location.photos.map(photo => photo.value)
+          }
+        })
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const currentTour = this.getTour(tourId) as Tour;
       if (location.index !== -1) {

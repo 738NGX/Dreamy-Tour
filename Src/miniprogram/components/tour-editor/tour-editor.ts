@@ -30,7 +30,7 @@ import { Location, Transportation } from '../../utils/tour/tourNode';
 import { Tour } from '../../utils/tour/tour';
 import { transportList, expenseList, budgetList, TransportExpense, currencyList, AmountType } from '../../utils/tour/expense';
 import { timezoneList } from '../../utils/tour/timezone';
-import { MILLISECONDS, formatDate, formatNumber, formatTime, timeToMilliseconds } from '../../utils/util';
+import { MILLISECONDS, formatDate, formatNumber, formatTime, getImageBase64, timeToMilliseconds } from '../../utils/util';
 import { isSameDate } from '../../miniprogram_npm/tdesign-miniprogram/common/shared/date';
 import { Photo } from '../../utils/tour/photo';
 
@@ -41,7 +41,7 @@ const app = getApp<IAppOption>();
 Component({
   properties: {
     //接收行程对象，日期信息和版本信息，初始化行程并处理版本切换和筛选逻辑
-    tour: {                 
+    tour: {
       type: Object,
       value: {},
       observer(newVal: any) {
@@ -50,7 +50,7 @@ Component({
           this.filterNodeByDate(this.properties.dateFilter);
         }
       }
-    }, 
+    },
     dateFilter: {
       type: Object,
       value: {},
@@ -72,7 +72,7 @@ Component({
     //静态数据
     transiconList: [
       'bus', 'metro', 'train', 'flight', 'walk', 'cycle', 'car', 'taxi', 'ship', 'other'
-    ],  
+    ],
     transportList: transportList,
     expenseList: expenseList,
     currencyList: currencyList,
@@ -121,7 +121,7 @@ Component({
     datetimeEditMode: DatetimeEditMode.None,      // 日期时间编辑模式，区分起止时间
     markers: [] as any[],                 // 地图标记数组，存储标记点信息
     mapLocation: [] as number[],          // 地图中心点位置坐标
-    
+
     //日期筛选
     displayingLocationId: [] as number[], // 当前显示的地点ID数组，类型为 number[]，用于存储需要显示的多个位置节点ID
     displayingTransportationId: [] as number[],  // 当前显示的交通工具ID数组，类型为 number[]，用于存储需要显示的多个交通节点ID
@@ -191,7 +191,7 @@ Component({
     },
     /**
      * 对接tour-edit页面的触发器，更新当前行程信息
-      */ 
+      */
     onCurrentTourChange(value: Tour) {
       this.triggerEvent('currentTourChange', { value: value });
     },
@@ -560,10 +560,10 @@ Component({
 
       const id = e.currentTarget.dataset.index;
       if (id === undefined) {
-        this.setData({ 
+        this.setData({
           editingLocationId: -1,
           editingLocation: null,
-          photoVisible: !this.data.photoVisible 
+          photoVisible: !this.data.photoVisible
         });
         return;
       }
@@ -610,6 +610,26 @@ Component({
         photoUploadVisible: false,
       });
     },
+    onPhotoUpload() {
+      const that = this;
+      wx.chooseImage({
+        count: 1,
+        sizeType: ['original', 'compressed'],
+        sourceType: ['album'],
+        async success(res) {
+          const src = res.tempFilePaths[0]
+          const { editingLocation } = that.data;
+          if (editingLocation) {
+            editingLocation.photos.push(new Photo({ value: await getImageBase64(src), ariaLabel: '' }));
+          }
+          that.setData({
+            editingLocation: editingLocation,
+            uploadedPhotos: [],
+            photoUploadVisible: false,
+          });
+        }
+      });
+    },
     removePhoto(e: WechatMiniprogram.CustomEvent) {
       if (!this.data.currentTour || !this.data.editingLocation) return;
       if (e.currentTarget.dataset.index === undefined) return;
@@ -624,9 +644,9 @@ Component({
       currentTour.locations[currentTourCopyIndex][editingLocationId] = editingLocation
       await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
-      this.setData({ 
-        currentTour: currentTour, 
-        photoVisible: false, 
+      this.setData({
+        currentTour: currentTour,
+        photoVisible: false,
         editingLocationId: -1,
         editingLocation: null
       });
@@ -772,7 +792,7 @@ Component({
           return expense;
         })
       });
-     // console.log("editinglocexpenses",this.data.editingLocation.expenses)
+      // console.log("editinglocexpenses",this.data.editingLocation.expenses)
     },
     /**
      * 消费金额显示类型（总价/人均）
@@ -912,7 +932,7 @@ Component({
       this.setData({ currentTour: currentTour });
       await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
-    //  console.log("editingtrans", editingTransportation)
+      //  console.log("editingtrans", editingTransportation)
     },
     /**
      * 删除消费
@@ -973,7 +993,7 @@ Component({
         editingTransExpense: new TransportExpense(editingTransportation.transportExpenses[expense_id]),
         transExpenseVisible: !this.data.transExpenseVisible
       });
-    //  console.log("editingtrans", editingTransportation)
+      //  console.log("editingtrans", editingTransportation)
     },
     /**
      * 消费标题更改
@@ -1087,7 +1107,7 @@ Component({
     },
     /**
      * 切换消费
-     */ 
+     */
     async changeTransExpense() {
       if (!this.data.editingTransExpense) return;
       if (!this.data.currentTour || this.data.editingTransportationId < 0) return;

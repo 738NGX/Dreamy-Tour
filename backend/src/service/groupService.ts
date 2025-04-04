@@ -16,6 +16,8 @@ import RoleUtil from "@/util/roleUtil";
 import GroupTransferDto from "@/dto/group/groupTransferDto";
 import GroupGrantAdminDto from "@/dto/group/groupGrantAdminDto";
 import GroupModifyDto from "@/dto/group/groupModifyDto";
+import CosUtil from "@/util/cosUtil";
+import CosConstant from "@/constant/cosConstant";
 
 class GroupService {
   /**
@@ -522,6 +524,30 @@ class GroupService {
       } as UserDetailVo;
     });
     return memberList;
+  }
+
+  static async updateQrCode(base64: string, groupId: number): Promise<string> {
+    // 上传新二维码到 COS
+    const freshQrCodeUrl = await CosUtil.uploadBase64Picture(CosConstant.QRCODE_FOLDER, base64);
+    // 获取旧的二维码地址
+    const db = await dbPromise;
+    const row = await db.get<Pick<Group, 'qrCode'>>(
+      'SELECT qrCode FROM groups WHERE groupId = ?',
+      [groupId]
+    );
+    if (!row) throw new NotFoundError(`群组 ${groupId} 不存在`);
+    const oldQrCodeUrl = row.qrCode;
+    // 更新数据库中的二维码 url
+    await db.run(
+      'UPDATE groups SET qrCode = ? WHERE groupId = ?',
+      [freshQrCodeUrl, groupId]
+    )
+    // 异步删除 COS 上原来的头像，不影响主线程（没有await），较少IO时长（当旧头像地址不为空，且是合法的图片路径）
+    if (typeof oldQrCodeUrl !== 'undefined' && CosUtil.isValidCosUrl(oldQrCodeUrl)) {
+      CosUtil.deleteFile(oldQrCodeUrl)
+    }
+    // 返回新头像 url
+    return freshQrCodeUrl;
   }
 }
 

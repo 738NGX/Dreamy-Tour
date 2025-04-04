@@ -20,6 +20,7 @@ import upload from "@/config/multerConfig";
 import FileUtil from "@/util/fileUtil";
 import AvatarVo from "@/vo/user/avatarVo";
 import RoleDto from "@/dto/user/roleDto";
+import ImageDto from "@/dto/image/imageDto";
 
 
 const userRoute = express.Router();
@@ -75,33 +76,18 @@ userRoute.put('/user/nickname', async (req: Request, res: Response) => {
  * @method POST
  * @path /user/avatar
  */
-userRoute.post('/user/avatar', upload.single('file'), async (req: Request, res: Response): Promise<any> => {
-  // 不能是空文件
-  if (!req.file) {
-    // 用 return 关键词终止后续代码的运行
-    return res.status(StatusCodes.BAD_REQUEST)
-      .json(Result.error(MessageConstant.NO_FILE_UPLOADED));
-  }
-  // 必须是图片文件
-  if (!FileUtil.isPicture(req.file?.originalname || '')) {
-    // 用 return 关键词终止后续代码的运行
-    return res.status(StatusCodes.BAD_REQUEST)
-      .json(Result.error(MessageConstant.ACCEPT_IMAGE_ONLY));
-  }
+userRoute.put('/user/avatar', async (req: Request, res: Response) => {
   // 获取 uid
   const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);  // 经过拦截器处理之后，剩下来的请求中一定包含 token，因此断言为 string
-  const file = req.file!.buffer;
-  
-  const fileExtension = FileUtil.getFileExtension(req.file!.originalname);
+  const file = await ImageDto.from(req.body);
+
   // 更换头像
-  const freshAvatarUrl = await UserService.updateAvatar(file, uid, fileExtension);
+  const freshAvatarUrl = await UserService.updateAvatar(file.base64, uid);
   const avatarVo = new AvatarVo({
     avatarUrl: freshAvatarUrl
   });
   res.status(StatusCodes.OK)
-    .json(
-      Result.success(MessageConstant.SUCCESSFUL_MODIFIED, avatarVo)
-    );
+    .json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
 })
 
 /**

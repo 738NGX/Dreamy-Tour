@@ -1,6 +1,6 @@
 // API 地址配置
 const usingDomain = true;   // 是否使用域名
-const usingLocal = false;   // 是否使用本地 IP
+const usingLocal = true;   // 是否使用本地 IP
 export const apiUrl = usingLocal ? "http://127.0.0.1:8080" : (
   usingDomain
     ? "https://dreamy-tour.738ngx.site/api"
@@ -13,6 +13,7 @@ const fly = new Fly() as IFly;
 
 const debug = usingLocal || true; // 是否开启调试模式
 console.log("debug:", debug);
+console.log("apiUrl:", apiUrl);
 
 /**
  * 所有请求的参数类型

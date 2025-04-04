@@ -13,6 +13,9 @@ import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
 import { UserUtil } from "@/util/userUtil";
 import RoleUtil from "@/util/roleUtil";
+import LocationPhotosDto from "@/dto/image/locationPhotosDto";
+import CosUtil from "@/util/cosUtil";
+import CosConstant from "@/constant/cosConstant";
 
 class TourService {
   /**
@@ -292,13 +295,13 @@ class TourService {
         const users = await db.all<Partial<{ uid: number }>[]>(`
           SELECT uid FROM tour_users WHERE tourId = ?
         `, [row.tourId]);
-    
+
         if (!users || users.length === 0) {
           throw new ParamsError("该行程没有关联用户");
         }
-    
+
         const { nodeCopyNames, budgets, locations, transportations, ...rowRest } = row;
-    
+
         return new TourVo({
           ...rowRest,
           nodeCopyNames: nodeCopyNames ? JSON.parse(nodeCopyNames as string) : [],
@@ -371,6 +374,60 @@ class TourService {
         JSON.stringify(rest.locations),
         JSON.stringify(rest.transportations),
         Date.now(),
+        tourId
+      ]
+    );
+  }
+
+  static async updateTourLocationPhotos(locationPhotosDto: LocationPhotosDto) {
+    const { tourId, copyIndex, locationIndex, photos } = locationPhotosDto;
+    // 先反序列化原先行程的locations
+    const db = await dbPromise;
+    const row = await db.get<Partial<{ locations: string }>>(
+      `SELECT locations FROM tours WHERE tourId = ?`,
+      [tourId]
+    );
+    if (!row) {
+      throw new ParamsError("该行程不存在");
+    }
+    const locations = JSON.parse(row.locations as string);
+    // 删除原先locations照片在cos上的存储
+    if (locations.photos && locations.photos.length > 0) {
+      const deletePromises = locations.photos.map(async (photo: any) => {
+        if (CosUtil.isValidCosUrl(photo.value)) {
+          return await CosUtil.deleteFile(photo.value);
+        }
+      })
+      // 异步删除所有文件
+      await Promise.all(deletePromises);
+    }
+    // 更新指定位置的照片
+    if (!photos) {
+      locations[copyIndex][locationIndex].photos = [];
+      // 序列化locations,写回数据库
+      await db.run(
+        `UPDATE tours SET locations = ? WHERE tourId = ?`,
+        [
+          JSON.stringify(locations),
+          tourId
+        ]
+      );
+    }
+    const uploadPromises = photos.map(async (photo, index) => {
+      return await CosUtil.uploadBase64Picture(
+        CosConstant.TOUR_PICTURES_FOLDER,
+        photo
+      );
+    })
+    // 异步上传所有文件
+    const fileUrlList = await Promise.all(uploadPromises);
+    // 更新照片列表
+    locations[copyIndex][locationIndex].photos = fileUrlList.map(file => { return { ariaLabel: '', value: file } });
+    // 序列化locations,写回数据库
+    await db.run(
+      `UPDATE tours SET locations = ? WHERE tourId = ?`,
+      [
+        JSON.stringify(locations),
         tourId
       ]
     );

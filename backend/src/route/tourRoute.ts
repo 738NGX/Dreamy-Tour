@@ -1,4 +1,5 @@
 import MessageConstant from "@/constant/messageConstant";
+import LocationPhotosDto from "@/dto/image/locationPhotosDto";
 import TourBasicDto from "@/dto/tour/tourBasicDto";
 import TourDto from "@/dto/tour/tourDto";
 import TourService from "@/service/tourService";
@@ -54,6 +55,12 @@ tourRoute.put('/tour/full', async (req: Request, res: Response) => {
   // const tourDto = await TourDto.from(req.body);
   const tourDto = new TourDto(req.body);
   await TourService.updateTour(tourDto);
+  res.json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
+})
+
+tourRoute.put('/tour/photos', async (req: Request, res: Response) => {
+  const locationPhotosDto = await LocationPhotosDto.from(req.body);
+  await TourService.updateTourLocationPhotos(locationPhotosDto);
   res.json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
 })
 

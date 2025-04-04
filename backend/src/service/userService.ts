@@ -161,13 +161,11 @@ class UserService {
 
   /**
    * 更换用户头像，返回新头像的 url
-   * TODO: 开启事务
-   * @param file 文件
+   * @param base64 头像的 base64 编码
    */
-  static async updateAvatar(file: Buffer | Readable, uid: number, fileExtension?: string): Promise<string> {
+  static async updateAvatar(base64: string, uid: number): Promise<string> {
     // 上传新头像
-    console.log(`文件后缀是${fileExtension}`)
-    const freshAvatarUrl = await CosUtil.uploadFile(CosConstant.AVATAR_FOLDER, file, fileExtension);
+    const freshAvatarUrl = await CosUtil.uploadBase64Picture(CosConstant.AVATAR_FOLDER, base64);
     // 获取旧的头像地址
     const db = await dbPromise;
     const row = await db.get<Pick<User, 'avatarUrl'>>(

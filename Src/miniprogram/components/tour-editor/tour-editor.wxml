@@ -22,7 +22,7 @@
         <view slot="right" class="btn2 delete-btn" bind:tap="removePhoto" data-index="{{i}}">删除</view>
       </t-swipe-cell>
     </block>
-    <t-button theme="primary" style="--td-button-border-radius:0;width:100%;" bind:tap="onPhotoUploadVisibleChange">添加</t-button>
+    <t-button theme="primary" style="--td-button-border-radius:0;width:100%;" bind:tap="onPhotoUpload">添加</t-button>
   </scroll-view>
 </t-popup-headered>
 <t-popup-headered visible="{{photoUploadVisible}}" title="上传图片" bind:visible-change="onPhotoUploadVisibleChange" bindConfirm="onPhotoUploadConfirm" bindCancel="onPhotoUploadVisibleChange" placement="bottom" style="height: 60vh;">
