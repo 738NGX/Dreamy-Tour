@@ -1,5 +1,3 @@
-import { apiUrl } from "../../utils/httpUtil";
-
 // pages/login/login.ts
 Page({
   data: {
@@ -31,7 +29,7 @@ Page({
       success(res) {
         if (res.code) {
           wx.request({
-            url: `${apiUrl}/wx-login`,
+            url: `https://dreamy-tour.738ngx.site/api/wx-login`,
             method: "POST",
             data: {
               "code": res.code
