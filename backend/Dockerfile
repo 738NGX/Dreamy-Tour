@@ -1,5 +1,5 @@
 # 使用node镜像版本
-FROM node:20-bullseye-slim
+FROM node:20-alpine
 
 # 安装必要依赖
 RUN apt-get update && \
