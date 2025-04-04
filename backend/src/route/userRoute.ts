@@ -16,17 +16,15 @@ import AuthConstant from "@/constant/authConstant";
 import UserInfoDto from "@/dto/user/userInfoDto";
 import MessageConstant from "@/constant/messageConstant";
 import NicknameDto from "@/dto/user/nicknameDto";
-import upload from "@/config/multerConfig";
-import FileUtil from "@/util/fileUtil";
 import AvatarVo from "@/vo/user/avatarVo";
 import RoleDto from "@/dto/user/roleDto";
 import ImageDto from "@/dto/image/imageDto";
-
+const { version } = require('../../package.json');
 
 const userRoute = express.Router();
 
 userRoute.get('/version', async (req: Request, res: Response) => {
-  res.json(Result.success("25.4.3-1"));
+  res.json(Result.success(version));
 })
 
 /**
