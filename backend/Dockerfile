@@ -32,12 +32,6 @@ RUN npm install -g typescript && \
     npm install -g ts-node && \
     npm i
 
-# 数据库初始化
-RUN mkdir -p /app/database && \
-    if [ ! -f /app/database/database.db ]; then \
-      sqlite3 /app/database/database.db < /app/database.sql; \
-    fi
-
 # 赋予脚本执行权限
 RUN chmod +x /app/entrypoint.sh && \
     chmod +x /app/reset_db.sh && \
