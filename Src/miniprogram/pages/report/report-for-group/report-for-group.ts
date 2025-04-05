@@ -2,7 +2,7 @@
  * 行程统计信息
  */
 var echarts = require('../../../components/ec-canvas/echarts');
-import { Reporter } from '../../../utils/reporter';
+import { Reporter } from '../../../utils/reporter/reporter';
 import { Tour } from '../../../utils/tour/tour';
 import { currencyList } from '../../../utils/tour/expense'
 import { displayNumber } from '../../../utils/util';
@@ -207,21 +207,21 @@ Component({
 
       const reporter = new Reporter(currentTour, copyIndex);
 
-      const totalTransportCurrency = reporter.expenseCalculator.calculateTotalTransportCurrency()
+      const totalTransportCurrency = reporter.expenseProcessor.expenseCalculator.calculateTotalTransportCurrency()
       this.setData({
         reporter: reporter,
-        chartDataInType: reporter.expenseCalculator.getChartDataInType(),
-        chartDataInBudget: reporter.expenseCalculator.getChartDataInBudget(currentTour.budgets.map(budget => budget.title)),
-        chartDataInTransportType: reporter.expenseCalculator.getChartDataInTransportType(),
+        chartDataInType: reporter.expenseProcessor.expenseCalculator.getChartDataInType(),
+        chartDataInBudget: reporter.expenseProcessor.expenseCalculator.getChartDataInBudget(currentTour.budgets.map(budget => budget.title)),
+        chartDataInTransportType: reporter.expenseProcessor.expenseCalculator.getChartDataInTransportType(),
 
-        chartDataInHotel: reporter.typeList[0].chartData,
-        chartDataInMeal: reporter.typeList[1].chartData,
-        chartDataInTicket: reporter.typeList[3].chartData,
-        chartDataInShopping: reporter.typeList[4].chartData,
+        chartDataInHotel: reporter.expenseProcessor.typeList[0].chartData,
+        chartDataInMeal: reporter.expenseProcessor.typeList[1].chartData,
+        chartDataInTicket: reporter.expenseProcessor.typeList[3].chartData,
+        chartDataInShopping: reporter.expenseProcessor.typeList[4].chartData,
 
-        totalMainCurrency: reporter.expenseCalculator.total.mainCurrency.toFixed(2),
-        totalSubCurrency: reporter.expenseCalculator.total.subCurrency.toFixed(2),
-        totalCurrency: reporter.expenseCalculator.total.allCurrency.toFixed(2),
+        totalMainCurrency: reporter.expenseProcessor.expenseCalculator.total.mainCurrency.toFixed(2),
+        totalSubCurrency: reporter.expenseProcessor.expenseCalculator.total.subCurrency.toFixed(2),
+        totalCurrency: reporter.expenseProcessor.expenseCalculator.total.allCurrency.toFixed(2),
         totalTransportCurrency: totalTransportCurrency.toFixed(2),
       })
       //  console.log("chartdatainhotel",this.data.chartDataInHotel)
@@ -532,7 +532,7 @@ Component({
           yAxis: [
             {
               type: 'value',
-              name: "合计" + currencyList[this.data.reporter.mainCurrency].symbol,
+              name: "合计" + currencyList[this.data.reporter.expenseProcessor.mainCurrency].symbol,
               position: 'left',
               alignTicks: true,
               axisLine: {
@@ -547,7 +547,7 @@ Component({
             },
             {
               type: 'value',
-              name: currencyList[this.data.reporter.mainCurrency].symbol,
+              name: currencyList[this.data.reporter.expenseProcessor.mainCurrency].symbol,
               position: 'right',
               alignTicks: true,
               axisLine: {
@@ -562,7 +562,7 @@ Component({
             },
             {
               type: 'value',
-              name: currencyList[this.data.reporter.subCurrency].symbol,
+              name: currencyList[this.data.reporter.expenseProcessor.subCurrency].symbol,
               position: 'right',
               offset: 30,
               alignTicks: true,
