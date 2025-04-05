@@ -21,5 +21,5 @@
 </t-popup>
 <t-cell bind:click="handleSettings" title="{{currentTour?currentTour.title:'行程'}}" hover note="查看更多" arrow />
 <scroll-view class="scrollarea" style="height:80vh" scroll-y type="list" wx:if="{{currentChildPage === 0 || !currentChildPage}}">
-  <tour-viewer tour="{{currentTour}}" copyIndex="{{currentCopyIndex}}" dateFilter="{{currentDateFilter}}" />
+  <tour-viewer-new readonly tour="{{currentTour}}" copyIndex="{{currentCopyIndex}}" dateFilter="{{currentDateFilter}}" />
 </scroll-view>

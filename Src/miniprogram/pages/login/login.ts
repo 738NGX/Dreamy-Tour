@@ -1,5 +1,5 @@
-import { apiUrl } from "../../utils/httpUtil";
-//const apiUrl = "https://dreamy-tour.738ngx.site/api";
+//import { apiUrl } from "../../utils/httpUtil";
+const apiUrl = "https://dreamy-tour.738ngx.site/api";
 
 // pages/login/login.ts
 Page({

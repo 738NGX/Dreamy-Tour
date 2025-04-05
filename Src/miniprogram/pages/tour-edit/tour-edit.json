@@ -1,7 +1,7 @@
 {
   "usingComponents": {
     "header": "/components/header/header",
-    "tour-editor": "/components/tour-editor/tour-editor",
+    "tour-viewer-new": "/components/tour-viewer-new/tour-viewer-new",
     "t-popup": "tdesign-miniprogram/popup/popup",
     "t-cell": "tdesign-miniprogram/cell/cell",
     "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",

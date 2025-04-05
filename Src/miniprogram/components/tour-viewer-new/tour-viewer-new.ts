@@ -66,7 +66,11 @@ Component({
       observer(newVal: number) {
         this.onCopyChange(newVal);
       }
-    }
+    },
+    readonly: {
+      type: Boolean,
+      value: false
+    },
   },
   data: {
     //静态数据
@@ -510,6 +514,7 @@ Component({
      * @param e 
      */
     onTapMap(e: WechatMiniprogram.CustomEvent) {
+      if (this.properties.readonly) return;
       const latitude = e.detail.latitude.toFixed(6);
       const longitude = e.detail.longitude.toFixed(6);
       this.setData({
@@ -529,6 +534,11 @@ Component({
      * @returns 
      */
     async changeLocation() {
+      if(this.properties.readonly) {
+        this.setData({ mapVisible: false });
+        return;
+      }
+
       if (!this.data.currentTour) return;
 
       const currentTour = this.data.currentTour;
@@ -639,6 +649,10 @@ Component({
       this.setData({ editingLocation: editingLocation });
     },
     async onPhotoConfirm() {
+      if (this.properties.readonly) {
+        this.setData({ photoVisible: false });
+        return;
+      }
       const { currentTour, currentTourCopyIndex, editingLocationId, editingLocation } = this.data;
       if (!currentTour || !editingLocation) return;
       currentTour.locations[currentTourCopyIndex][editingLocationId] = editingLocation
@@ -700,6 +714,10 @@ Component({
      * @returns 
      */
     async changeExpense() {
+      if (this.properties.readonly) {
+        this.setData({ expenseVisible: false });
+        return;
+      }
       if (!this.data.currentTour || !this.data.editingLocation) return;
 
       const currentTour = this.data.currentTour;
@@ -894,6 +912,10 @@ Component({
       this.setData({ editingNote: e.detail.value });
     },
     async changeNote() {
+      if (this.properties.readonly) {
+        this.setData({ noteVisible: false });
+        return;
+      }
       if (!this.data.currentTour || this.data.editingLocationId < 0) return;
 
       const currentTour = this.data.currentTour;
@@ -1109,6 +1131,10 @@ Component({
      * 切换消费
      */
     async changeTransExpense() {
+      if (this.properties.readonly) {
+        this.setData({ transExpenseVisible: false });
+        return;
+      }
       if (!this.data.editingTransExpense) return;
       if (!this.data.currentTour || this.data.editingTransportationId < 0) return;
 
