@@ -1,3 +1,4 @@
+import { Reporter } from "../../utils/reporter/reporter";
 import { ReporterForUser } from "../../utils/reporter/reporterForUser";
 import { currencyList } from "../../utils/tour/expense";
 import { Tour } from "../../utils/tour/tour";
@@ -10,45 +11,10 @@ var echarts = require('../../components/ec-canvas/echarts');
 
 
 Component({
-  behaviors: [],
-  lifetimes: {
-    created() {
-
-    },
-    async attached() {
-      await this.updateData()
-    },
-    moved() {
-
-    },
-    detached() {
-
-    },
-  },
-  properties: {
-    currentTour: {
-      // 类型
-      type: Object,
-      // 默认值
-      value: {}
-    },
-    currentTourCopyIndex: {
-      type: Number,
-      value: 0,
-    }
-  },
-  observers: {
-    'currentTour, currentTourCopyIndex': async function (currentTour, currentTourCopyIndex) {
-      if (currentTour && currentTourCopyIndex !== undefined) {
-        // 参数就绪后执行初始化
-        await this.init();
-      }
-    }
-  },
   data: {
-    //  currentTour : null as Tour | null,
-
-    //  currentTourCopyIndex : 0,
+    isGroup: false,
+    currentTour: {} as Tour,
+    currentTourCopyIndex: 0,
     currentUserId: 0 as number,
     currentUserList: [] as any[],
     selectingUserVisible: false,
@@ -58,18 +24,21 @@ Component({
     ec: {
       lazyLoad: true
     },
-    reporter: null as ReporterForUser | null,
+    reporter: {} as ReporterForUser | Reporter,
 
     activeCollapses: [[], [], [], [], [], []],
+    expandedPanels: [],
+    memberOptions: [] as any[],
 
-    chartDataInType: null as [] | null,
-    chartDataInBudget: null as [] | null,
-    chartDataInTransportType: null as [] | null,
+    chartDataInType: [] as any[],
+    chartDataInBudget: [] as any[],
+    chartDataInTransportType: [] as any[],
 
     chartDataInHotel: {},
     chartDataInMeal: {},
     chartDataInTicket: {},
     chartDataInShopping: {},
+    budgetChartData: {},
 
     totalTransportCurrency: '',
     totalMainCurrency: '',
@@ -81,29 +50,62 @@ Component({
 
   methods: {
     async onLoad(options: any) {
+      const tourId = options.tourId;
+      const currentTourCopyIndex = options.currentTourCopyIndex;
 
+      this.setData({
+        currentTour: await app.loadFullTour(parseInt(tourId)) as Tour,
+        currentTourCopyIndex: currentTourCopyIndex,
+      })
+
+      await this.init();
+      wx.onThemeChange(async (res) => {
+        await this.init();
+        console.log('当前主题：', res.theme)
+      });
     },
     async init() {
       await this.updateData();
-      this.initReport(this.properties.currentTour, this.properties.currentTourCopyIndex, this.data.selectedUserId);
+      this.initReport(this.data.currentTour, this.data.currentTourCopyIndex, this.data.selectedUserId);
       this.initCharts();
     },
     async updateData() {
-      const tourMemberList = await app.getMembersInTour(this.properties.currentTour.id);
+      const tourMemberList = await app.getMembersInTour(this.data.currentTour.id);
       const currentUserId = (await app.getCurrentUser() as UserBasic).id;
       const currentUserList = tourMemberList.filter((user) => { return user.id !== currentUserId })
+      const memberOptions = [
+        { label: '群组', value: -1 },
+        { label: tourMemberList.find((user) => user.id === currentUserId)?.name + '(我)', value: currentUserId },
+        ...currentUserList.map((user) => {
+          return { label: user.name, value: user.id }
+        })
+      ]
 
       // 基于计算出的 currentUserList 设置其他字段
+      if (this.data.selectedUserId == -1) {
+        this.setData({
+          currentUserId: currentUserId,
+          currentUserName: tourMemberList.find((user) => user.id === currentUserId)?.name,
+          isCurrentUserInGroup: this.data.currentTour.users.includes(currentUserId),
+          currentUserList: currentUserList,
+          selectedUserId: -1,
+          selectedUserName: '群组',
+          isGroup: true,
+          memberOptions: memberOptions,
+        })
+        return;
+      }
       const selectedUserId = this.data.selectedUserId > 0
         ? this.data.selectedUserId
-        : (this.properties.currentTour.users.includes(currentUserId)
+        : (this.data.currentTour.users.includes(currentUserId)
           ? currentUserId
           : tourMemberList[0]?.id);
       this.setData({
+        isGroup: false,
+        memberOptions: memberOptions,
         currentUserId: currentUserId,
         currentUserName: tourMemberList.find((user) => user.id === currentUserId)?.name,
-        isCurrentUserInGroup: this.properties.currentTour.users.includes(currentUserId),
-
+        isCurrentUserInGroup: this.data.currentTour.users.includes(currentUserId),
         currentUserList: currentUserList,
         selectedUserId: selectedUserId,
         selectedUserName: tourMemberList.find((user) => user.id === this.data.selectedUserId)?.name,
@@ -208,12 +210,26 @@ Component({
         chart.setOption({ backgroundColor: 'transparent' });
         return chart
       })
+
+      const budgetChart = this.selectComponent('#budgetChart')
+      budgetChart.init((canvas: any, width: any, height: any) => {
+        const chart = echarts.init(canvas, isDarkMode ? 'dark' : null, {
+          width: width,
+          height: height,
+          devicePixelRatio: dpr
+        });
+        this.setBudgetChartOption(chart);
+        chart.setOption({ backgroundColor: 'transparent' });
+        return chart
+      })
     },
     initReport(value: any, copyIndex: number, selectedUserId: number) {
-      //  console.log("beforeinitReport",this.properties.currentTour,this.properties.currentTourCopyIndex)
+      //  console.log("beforeinitReport",this.data.currentTour,this.data.currentTourCopyIndex)
       const currentTour = new Tour(value);
 
-      const reporter = new ReporterForUser(currentTour, copyIndex, selectedUserId);
+      const reporter = this.data.isGroup
+        ? new Reporter(currentTour, copyIndex)
+        : new ReporterForUser(currentTour, copyIndex, selectedUserId);
 
       const totalTransportCurrency = reporter.expenseProcessor.expenseCalculator.calculateTotalTransportCurrency()
       this.setData({
@@ -232,7 +248,6 @@ Component({
         totalCurrency: reporter.expenseProcessor.expenseCalculator.total.allCurrency.toFixed(2),
         totalTransportCurrency: totalTransportCurrency.toFixed(2),
       })
-      //  console.log("chartdatainhotel",this.data.chartDataInHotel)
     },
     onTourUpdate(data: Tour) {
       this.setData({ currentTour: data })
@@ -248,6 +263,11 @@ Component({
         }
       });
     },
+    handleBudgetCollapsesChange(e: WechatMiniprogram.CustomEvent) {
+      this.setData({
+        expandedPanels: e.detail.value
+      });
+    },
     handleSelectingUser() {
       this.setData({
         selectingUserVisible: !this.data.selectingUserVisible
@@ -255,8 +275,7 @@ Component({
     },
     onSelectedUserChange(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
-      this.setData({ selectedUserId: value });
-      // console.log('新选中 ID:', value, '当前 selectedUserId:', this.data.selectedUserId);
+      this.setData({ selectedUserId: value[0] });
       this.init();
     },
 
@@ -381,12 +400,12 @@ Component({
             trigger: 'item',
             formatter: '{b} : {c} ({d}%)'
           },
-          //legend: {
-          //  left: 'auto',
-          //  top: 'buttom',
-          //  orient: 'hozizonal',
-          //  type: 'scroll'
-          //},
+          legend: {
+            left: 'auto',
+            top: 'buttom',
+            orient: 'hozizonal',
+            type: 'scroll'
+          },
           toolbox: {
             show: true,
             feature: {
@@ -417,6 +436,86 @@ Component({
                 show: false
               },
               data: this.data.chartDataInTransportType
+            }
+          ]
+        };
+        chart.setOption(option);
+      }
+    },
+    /**
+     * 预算表盈亏图设置
+     * @param chart 
+     * @param data 
+     */
+    setBudgetChartOption(chart: any) {
+      if (this.data.reporter) {
+        var option = {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
+          },
+          legend: {
+            data: ['盈亏', '消费', '预算']
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          xAxis: [
+            {
+              type: 'value'
+            }
+          ],
+          yAxis: [
+            {
+              type: 'category',
+              axisTick: {
+                show: true
+              },
+              data: (this.data.reporter as Reporter).titleOfBudgets
+            }
+          ],
+          series: [
+            {
+              name: '盈亏',
+              type: 'bar',
+              label: {
+                show: true,
+                position: 'inside'
+              },
+              emphasis: {
+                focus: 'series'
+              },
+              data: (this.data.reporter as Reporter).diff
+            },
+            {
+              name: '预算',
+              type: 'bar',
+              stack: 'Total',
+              label: {
+                show: true
+              },
+              emphasis: {
+                focus: 'series'
+              },
+              data: (this.data.reporter as Reporter).budgets
+            },
+            {
+              name: '消费',
+              type: 'bar',
+              stack: 'Total',
+              label: {
+                show: true,
+                position: 'left'
+              },
+              emphasis: {
+                focus: 'series'
+              },
+              data: (this.data.reporter as Reporter).costs
             }
           ]
         };
@@ -458,7 +557,10 @@ Component({
               axisTick: {
                 alignWithLabel: true
               },
-              data: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+              data: data.categories,
+              axisLabel: {
+                show: false
+              }
             }
           ],
           yAxis: [
@@ -509,7 +611,7 @@ Component({
               }
             }
           ],
-          series: data
+          series: data.series
         };
         chart.setOption(option);
       }

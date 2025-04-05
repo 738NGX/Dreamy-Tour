@@ -63,23 +63,23 @@ export class ExpenseItemList {
   //返回前十条消费数据，利用JSON进行深拷贝
   private updateEChartData() {
     const data = this.data.slice(0, 10);
-    let res = [
+    let res = {
+      categories: data.map(item => item.title),
+      series: [
       {
         name: "合计消费",
         type: 'bar',
         data: data.map(item => item.allCurrency),
         emphasis: {
-          focus: 'series'
+        focus: 'series'
         },
       },
       {
         name: this.mainCurrency + "消费",
         type: 'bar',
         yAxisIndex: 1,
-        // barWidth: 5,
-        // stack: '合计消费',
         emphasis: {
-          focus: 'series'
+        focus: 'series'
         },
         data: data.map(item => item.mainCurrency)
       },
@@ -88,14 +88,13 @@ export class ExpenseItemList {
         type: 'bar',
         yAxisIndex: 2,
         offset: 10,
-        // barWidth: 5,
-        // stack: '合计消费',
         emphasis: {
-          focus: 'series'
+        focus: 'series'
         },
         data: data.map(item => item.subCurrency)
       }
-    ]
+      ]
+    };
     this.chartData = JSON.parse(JSON.stringify(res));
   }
 }

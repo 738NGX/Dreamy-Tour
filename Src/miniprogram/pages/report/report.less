@@ -1,9 +1,14 @@
 @import url('../../components/fonts/transportation.less');
 
-.container{
+page {
+  overflow: hidden;
+}
+
+.container {
   padding-left: 0;
   padding-right: 0;
   padding-top: 0;
+  background-color: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));
 }
 
 .narrow-radio {
@@ -16,13 +21,13 @@
 
 ec-canvas {
   width: 100%;
-  height: 520rpx;
+  height: 650rpx;
 }
 
-.t-button{
-  display:flex;
+.t-button {
+  display: flex;
   justify-content: flex-end;
-  margin:0;
+  margin: 0;
 }
 
 .narrow-cell {
