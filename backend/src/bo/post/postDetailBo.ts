@@ -7,8 +7,8 @@ interface PostDetailBo {
   pictureUrls: string
   // 帖子标题
   title: string
-  // 是否置顶
-  isSticky: number
+  // 帖子正文
+  content: string
   // 点赞数
   likeSum: number
   // 评论数
@@ -29,6 +29,8 @@ interface PostDetailBo {
   avatarUrl: string
   // 角色 ID
   roleId: number
+  // 在频道的角色类型
+  channelRole: string
   // 用户创建时间
   userCreatedAt: number
   // 用户更新时间

@@ -3,11 +3,12 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-08 15:44:06 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-29 15:50:35
+ * @Last Modified time: 2025-04-05 22:02:36
  */
 
 import AuthConstant from "@/constant/authConstant";
 import MessageConstant from "@/constant/messageConstant";
+import PageDto from "@/dto/common/pageDto";
 import PostPublishDto from "@/dto/post/postPublishDto";
 import PostService from "@/service/postService";
 import JwtUtil from "@/util/jwtUtil";
@@ -44,6 +45,20 @@ postRoute.post('/post', async (req: Request, res: Response) => {
  * @path /post/list
  */
 postRoute.get('/post/list', async (req: Request, res: Response) => {
+  // 使用的路由版本
+  const version = "v1";
+  // 重定向到对应的版本
+  res.redirect(
+    `/${version}/post/list`
+  );
+})
+
+/**
+ * @description 获取公共频道的帖子列表（没有分页）
+ * @method GET
+ * @path /post/list
+ */
+postRoute.get('/v1/post/list', async (req: Request, res: Response) => {
   // 获取 uid
   const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
   const postListVos = await PostService.getPublicPostList(uid);
@@ -54,11 +69,45 @@ postRoute.get('/post/list', async (req: Request, res: Response) => {
 })
 
 /**
+ * @description 获取公共频道的帖子列表（有分页）
+ * @method GET
+ * @path /post/list
+ */
+postRoute.get('/v2/post/list', async (req: Request, res: Response) => {
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取分页参数
+  const pageDto = await PageDto.from(req.query);
+  const postListVoPage = await PostService.getPublicPostListWithPagination(uid, pageDto);
+  // 返回响应
+  res.json(
+    Result.success(postListVoPage)
+  );
+})
+
+
+/**
  * @description 获取某一频道下的帖子列表
  * @method GET
  * @path /channel/:channelId/post/list
  */
 postRoute.get('/channel/:channelId/post/list', async (req: Request, res: Response) => {
+  // 使用的路由版本
+   const version = "v1";
+  // 获取频道 ID
+  const channelId: number = Number(req.params.channelId);
+  // 重定向到对应的版本
+  res.redirect(
+    `/${version}/channel/${channelId}/post/list`
+  );
+})
+
+/**
+ * @description 获取某一频道下的帖子列表（每有分页）
+ * @method GET
+ * @path /v1/channel/:channelId/post/list
+ */
+postRoute.get('/v1/channel/:channelId/post/list', async (req: Request, res: Response) => {
   // 获取 uid
   const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
   // 获取 channelId
@@ -71,12 +120,41 @@ postRoute.get('/channel/:channelId/post/list', async (req: Request, res: Respons
 })
 
 /**
+ * @description 获取某一频道下的帖子列表（有分页）
+ * @method GET
+ * @path /v2/channel/:channelId/post/list
+ */
+postRoute.get('/v2/channel/:channelId/post/list', async (req: Request, res: Response) => {
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取分页参数
+  const pageDto = await PageDto.from(req.query)
+  // 获取 channelId
+  const channelId: number = Number(req.params.channelId);
+  const postListVoPage = await PostService.getPostListByChannelIdWithPagination(
+    uid, channelId, pageDto
+  );
+  // 返回响应
+  res.json(
+    Result.success(postListVoPage)
+  );
+})
+
+
+/**
  * @description 获取某一帖子的详情
  * @method GET
  * @path /post/:postId/detail
  */
 postRoute.get('/post/:postId/detail', async (req: Request, res: Response) => {
-  
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取帖子 ID
+  const postId: number = Number(req.params.postId);
+  // 获取帖子详情
+  const postDetailVo = await PostService.getDetailByPostId(postId, uid);
+  // 返回响应
+  res.json(Result.success(postDetailVo));
 })
 
 /**
@@ -87,6 +165,7 @@ postRoute.get('/post/:postId/detail', async (req: Request, res: Response) => {
 postRoute.post('/post/:postId/like', async (req: Request, res: Response) => {
   // 获取 uid
   const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  console.log(`uid: ${uid}`)
   // 获取帖子 ID
   const postId = Number(req.params.postId);
   // 点赞

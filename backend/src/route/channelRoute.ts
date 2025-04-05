@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-25 19:02:30 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-21 22:22:10
+ * @Last Modified time: 2025-04-05 22:51:56
  */
 import AuthConstant from "@/constant/authConstant";
 import MessageConstant from "@/constant/messageConstant";
@@ -17,15 +17,27 @@ import Result from "@/vo/result";
 import express, { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import TourService from "@/service/tourService";
+import { url } from "inspector";
+import PageDto from "@/dto/common/pageDto";
 
 const channelRoute = express.Router();
 
 /**
- * @description 获取用户加入的频道列表（暂时不分页；不包括世界频道）
+ * @description 获取用户加入的频道列表（兼容老版本）
  * @method GET
  * @path /channel/joined/list
  */
 channelRoute.get('/channel/joined/list', async (req: Request, res: Response) => {
+  const version = "v1";
+  res.redirect(`/${version}/channel/joined/list`);
+});
+
+/**
+ * @description 获取用户加入的频道列表（不包括世界频道；没有分页）
+ * @method GET
+ * @path /v1/channel/joined/list
+ */
+channelRoute.get('/v1/channel/joined/list', async (req: Request, res: Response) => {
   // 获取用户 ID
   const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);  // 经过拦截器处理之后，剩下来的请求中一定包含 token，因此断言为 string
   const channelListVos = await ChannelService.getJoinedChannelList(uid);
@@ -34,14 +46,60 @@ channelRoute.get('/channel/joined/list', async (req: Request, res: Response) => 
 });
 
 /**
- * @description 获取用户没有加入的频道列表
+ * @description 获取用户加入的频道列表（不包括世界频道；实现分页）
+ * @method GET
+ * @path /v2/channel/joined/list
+ */
+channelRoute.get('/v2/channel/joined/list', async (req: Request, res: Response) => {
+  // 获取用户 ID
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);  // 经过拦截器处理之后，剩下来的请求中一定包含 token，因此断言为 string
+  // 获取分页参数
+  const pageDto = await PageDto.from(req.query);
+  const channelListVos = await ChannelService.getJoinedChannelListWithPagination(
+    uid, pageDto
+  );
+  // 返回结果
+  res.json(Result.success(channelListVos));
+});
+
+// ========================================
+
+/**
+ * @description 获取用户没有加入的频道列表（兼容老版本）
  * @method GET
  * @path /channel/unjoined/list
  */
 channelRoute.get('/channel/unjoined/list', async (req: Request, res: Response) => {
+  const version = "v1";
+  res.redirect(`/${version}/channel/unjoined/list`)
+})
+
+/**
+ * @description 获取用户没有加入的频道列表（不分页）
+ * @method GET
+ * @path /v1/channel/unjoined/list
+ */
+channelRoute.get('/v1/channel/unjoined/list', async (req: Request, res: Response) => {
   // 获取用户 ID
   const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
   const channelListVos = await ChannelService.getUnjoinedChannelList(uid);
+  // 返回结果
+  res.json(Result.success(channelListVos));
+})
+
+/**
+ * @description 获取用户没有加入的频道列表（分页）
+ * @method GET
+ * @path /v2/channel/unjoined/list
+ */
+channelRoute.get('/v2/channel/unjoined/list', async (req: Request, res: Response) => {
+  // 获取用户 ID
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取分页参数
+  const pageDto = await PageDto.from(req.query);
+  const channelListVos = await ChannelService.getUnjoinedChannelListWithPagination(
+    uid, pageDto
+  );
   // 返回结果
   res.json(Result.success(channelListVos));
 })

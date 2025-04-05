@@ -54,6 +54,7 @@ class PostUtil {
 
   /**
    * 判断是否有权限删除帖子
+   * 只有该帖子的发帖者、系统管理员、频道主、频道管理员可以删除帖子
    * @param uid 用户 ID
    * @param roleId 角色 ID
    * @param postId 帖子 ID
@@ -66,18 +67,21 @@ class PostUtil {
     if (roleId === RoleConstant.ADMIN) {
       return true;
     }
-    // 频道管理员和频道主也可以
-    // 查询帖子所在的频道
     const db = await dbPromise;
-    const row = await db.get<{ channelId: number }>(
+    // 查询帖子所在的频道
+    const row = await db.get<{ channelId: number; uid: number }>(
       `
-      SELECT channelId FROM posts
+      SELECT channelId, uid FROM posts
       WHERE postId = ?
       `,
       [postId]
     )
     if (!row) {
       throw new ParamsError("该帖子不存在")
+    }
+    // 判断该用户是不是发帖者
+    if (uid === row.uid) {
+      return true;
     }
     // 判断该用户是否是该频道的频道主或者频道管理员
     const exists = await db.get<{ _: number }>(

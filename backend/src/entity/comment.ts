@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-08 00:00:00 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-08 15:14:56
+ * @Last Modified time: 2025-04-05 19:35:58
  */
 
 class Comment {
@@ -15,6 +15,9 @@ class Comment {
 
   // 评论所属的帖子 ID
   postId: number;
+
+  // 评论图片
+  pictureUrls: number;
 
   // 父评论 ID，如果是顶级评论则为 null 或 0
   parentId: number;

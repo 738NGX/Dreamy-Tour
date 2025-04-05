@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-03 13:59:07 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-29 15:41:36
+ * @Last Modified time: 2025-04-05 21:55:49
  */
 
 import PostDetailBo from "@/bo/post/postDetailBo";
@@ -12,12 +12,16 @@ import dbPromise from "@/config/databaseConfig";
 import ChannelConstant from "@/constant/channelConstant";
 import CosConstant from "@/constant/cosConstant";
 import PostConstant from "@/constant/postConstant";
+import PageDto from "@/dto/common/pageDto";
 import PostPublishDto from "@/dto/post/postPublishDto";
 import ForbiddenError from "@/exception/forbiddenError";
+import NotFoundError from "@/exception/notFoundError";
 import ParamsError from "@/exception/paramsError";
 import CosUtil from "@/util/cosUtil";
 import PostUtil from "@/util/postUtil";
 import RoleUtil from "@/util/roleUtil";
+import Page from "@/vo/common/page";
+import PostDetailVo from "@/vo/post/postDetailVo";
 import PostListVo from "@/vo/post/postListVo";
 
 class PostService {
@@ -54,17 +58,17 @@ class PostService {
       `
       INSERT INTO posts (
         uid, channelId, title, pictureUrls, content, 
-        clickSum, likeSum, commentSum, forwardSum,
+        clickSum, likeSum, commentSum, forwardSum, favoriteSum,
         status, hotScore, isSticky, createdAt, updatedAt
       ) VALUES (
         ?, ?, ?, ?, ?,
-        ?, ?, ?, ?,
+        ?, ?, ?, ?, ?,
         ?, ?, ?, ?, ?
       )
       `,
       [
         postPublishDto.uid, postPublishDto.channelId, postPublishDto.title, urls, postPublishDto.content,
-        0, 0, 0, 0,
+        0, 0, 0, 0, 0,
         PostConstant.VISIBLE, 0, PostConstant.UNSTICKY, Date.now(), Date.now()
       ]
     )
@@ -166,6 +170,19 @@ class PostService {
       uid, ChannelConstant.WORLD_CHANNEL_ID
     );
   }
+  
+  /**
+   * 获取公共频道的帖子列表（有分页）
+   * @param uid 用户 ID
+   */
+  static async getPublicPostListWithPagination(
+    uid: number,
+    pageDto: PageDto
+  ): Promise<Page<PostListVo>> {
+    return await this.getPostListByChannelIdWithPagination(
+      uid, ChannelConstant.WORLD_CHANNEL_ID, pageDto
+    );
+  }
 
   /**
    * 获取某一特定频道下的帖子列表
@@ -227,6 +244,86 @@ class PostService {
         isLiked: Boolean(row.isLiked)
       }
     }));
+  }
+
+  static async getPostListByChannelIdWithPagination(
+    uid: number, channelId: number, pageDto: PageDto
+  ): Promise<Page<PostListVo>> {
+    // 获取分页参数
+    const pageNum = pageDto.pageNum;
+    const pageSize = pageDto.pageSize;
+    // 先查总数据量
+    const db = await dbPromise;
+    const { total } = await db.get<{total: number}>(
+      `
+      SELECT COUNT(*) AS total FROM posts
+      WHERE channelId = ?  
+      `,
+      [channelId]
+    ) as {total: number}
+    // 查数据
+    const rows = await db.all<PostListBo[]>(
+      `
+      SELECT 
+        posts.postId AS postId,
+        posts.channelId As channelId,
+        posts.pictureUrls AS pictureUrls,
+        posts.title AS title,
+        posts.isSticky AS isSticky,
+        posts.likeSum AS likeSum,
+        posts.createdAt AS postCreatedAt,
+        posts.updatedAt AS postUpdatedAt,
+        users.uid AS uid,
+        users.nickname AS nickname,
+        users.avatarUrl AS avatarUrl,
+        users.roleId AS roleId,
+        users.createdAt AS userCreatedAt,
+        users.updatedAt AS userUpdatedAt,
+        CASE WHEN post_likes.uid IS NOT NULL THEN 1 ELSE 0 END AS isLiked
+      FROM posts
+      INNER JOIN users ON posts.uid = users.uid
+      LEFT JOIN post_likes 
+        ON posts.postId = post_likes.postId 
+        AND post_likes.uid = ?
+      WHERE posts.channelId = ?
+      ORDER BY posts.isSticky DESC, posts.createdAt DESC
+      LIMIT ? OFFSET ?
+      `,
+      [
+        uid,
+        channelId,
+        pageSize,
+        (pageNum - 1) * pageSize
+      ]
+    );
+    // 封装 VO
+    const postListVos = rows.map(row => new PostListVo({
+      postId: row.postId,
+      channelId: row.channelId,
+      pictureUrl: row.pictureUrls.split(",")[0],
+      title: row.title,
+      isSticky: Boolean(row.isSticky),
+      likeSum: row.likeSum,
+      createdAt: row.postCreatedAt,
+      updatedAt: row.postUpdatedAt,
+      user: {
+        uid: row.uid,
+        nickname: row.nickname,
+        avatarUrl: row.avatarUrl,
+        role: RoleUtil.roleNumberToString(row.roleId),
+        createdAt: row.userCreatedAt,
+        updatedAt: row.userUpdatedAt
+      },
+      action: {
+        isLiked: Boolean(row.isLiked)
+      }
+    }));
+    // 返回分页数据
+    return new Page({
+      total: total,
+      currentPage: pageNum,
+      records: postListVos
+    });
   }
 
   /**
@@ -408,17 +505,87 @@ class PostService {
    * @param uid 
    * @param roleId 
    */
-  static async getDetailByPostId(postId: number) {
+  static async getDetailByPostId(postId: number, uid: number) {
     const db = await dbPromise;
-    const rows = await db.all<PostDetailBo[]>(
+    const row = await db.get<PostDetailBo>(
       `
-      
+      SELECT 
+        p.postId,
+        p.channelId,
+        p.pictureUrls,
+        p.title,
+        p.content,
+        p.likeSum,
+        p.commentSum,
+        p.forwardSum,
+        p.favoriteSum,
+        p.createdAt AS postCreatedAt,
+        p.updatedAt AS postUpdatedAt,
+        u.uid,
+        u.nickname,
+        u.avatarUrl,
+        u.roleId,
+        u.createdAt AS userCreatedAt,
+        u.updatedAt AS userUpdatedAt,
+        EXISTS(
+          SELECT 1 FROM post_likes WHERE postId = p.postId AND uid = ?2
+        ) AS isLiked,
+        EXISTS(
+          SELECT 1 FROM post_favorites WHERE postId = p.postId AND uid = ?2
+        ) AS isFavorite,
+        CASE
+          WHEN EXISTS (
+            SELECT 1 
+            FROM channels 
+            WHERE channelId = p.channelId 
+            AND masterId = ?2
+          ) THEN 'MASTER'
+          WHEN EXISTS (
+            SELECT 1 
+            FROM channel_admins 
+            WHERE channelId = p.channelId 
+            AND uid = ?2
+          ) THEN 'ADMIN'
+          ELSE 'REGULAR'
+        END AS channelRole
+      FROM 
+        posts AS p
+      INNER JOIN 
+        users AS u ON p.uid = u.uid
+      WHERE 
+        p.postId = ?1
       `,
-      [
-
-      ]
-    )
-    
+      [postId, uid]
+    );
+    if (!row) {
+      throw new NotFoundError("该帖子不存在！");
+    }
+    return new PostDetailVo({
+      postId: row.postId,
+      title: row.title,
+      channelId: row.channelId,
+      pictureUrls: row.pictureUrls !== "" ? row.pictureUrls.split(",") : [],
+      content: row.content,
+      likeSum: row.likeSum,
+      commentSum: row.commentSum,
+      forwardSum: row.forwardSum,
+      favoriteSum: row.favoriteSum,
+      createdAt: row.postCreatedAt,
+      updatedAt: row.postUpdatedAt,
+      user: {
+        uid: row.uid,
+        nickname: row.nickname,
+        avatarUrl: row.avatarUrl,
+        role: RoleUtil.roleNumberToString(row.roleId),
+        channelRole: row.channelRole,
+        createdAt: row.userCreatedAt,
+        updatedAt: row.userUpdatedAt
+      },
+      action: {
+        isLiked: Boolean(row.isLiked),
+        isFavorite: Boolean(row.isFavorite)
+      }
+    })
   }
 }
 

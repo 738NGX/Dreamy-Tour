@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-08 20:09:17 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-30 01:48:26
+ * @Last Modified time: 2025-04-05 22:54:36
  */
 import dbPromise from "@/config/databaseConfig";
 import ChannelConstant from "@/constant/channelConstant";
@@ -25,6 +25,8 @@ import ChannelListVo from "@/vo/channel/channelListVo";
 import PostDetailVo from "@/vo/post/postDetailVo";
 import AuthorityVo from "@/vo/user/authorityVo";
 import UserDetailVo from "@/vo/user/userDetailVo";
+import PageDto from "@/dto/common/pageDto";
+import Page from "@/vo/common/page";
 
 
 class ChannelService {
@@ -246,6 +248,7 @@ class ChannelService {
           channel_users.channelId = channels.channelId AND
           channel_users.uid = ?
       )
+      ORDER BY createdAt
       `,
       [uid]
     );
@@ -257,6 +260,69 @@ class ChannelService {
     })) as ChannelListVo[];
     // 返回结果
     return channelListVos;
+  }
+
+  /**
+   * 分页获取用户参加过的频道列表
+   * @param uid 用户 ID
+   * @param pageDto 分页参数
+   */
+  static async getJoinedChannelListWithPagination(
+    uid: number,
+    pageDto: PageDto
+  ): Promise<Page<ChannelListVo>> {
+    // 获取分页参数
+    const pageNum = pageDto.pageNum;
+    const pageSize = pageDto.pageSize;
+    const db = await dbPromise;
+    // 先查总数
+    const { total } = await db.get<{total: number}>(
+      `
+      SELECT COUNT(1) AS total FROM channels
+      WHERE EXISTS (
+        SELECT 1 FROM channel_users 
+        WHERE
+          channels.channelId <> 1 AND
+          channel_users.channelId = channels.channelId AND
+          channel_users.uid = ?
+      )
+      `,
+      [uid]
+    ) as {total: number};
+    // 使用 EXISTS 代替 JOIN，性能更好
+    const rows = await db.all<Partial<Channel>[]>(
+      `
+      SELECT channels.channelId, name, description, level, 
+        joinWay, humanCount, channels.createdAt, channels.updatedAt
+      FROM channels
+      WHERE EXISTS (
+        SELECT 1 FROM channel_users 
+        WHERE
+          channels.channelId <> 1 AND
+          channel_users.channelId = channels.channelId AND
+          channel_users.uid = ?
+      )
+      ORDER BY channels.createdAt
+      LIMIT ? OFFSET ?
+      `,
+      [
+        uid,
+        pageSize,
+        (pageNum - 1) * pageSize
+      ]
+    );
+    // 定义一个 VO 列表作为返回值
+    const channelListVos = rows.map(row => ({
+      ...row,
+      level: ChannelUtil.levelNumberToLetter(row.level as number),
+      joinWay: ChannelUtil.joinWayNumberToStr(row.joinWay as number)
+    })) as ChannelListVo[];
+    // 返回结果
+    return new Page({
+      total: total,
+      currentPage: pageNum,
+      records: channelListVos
+    })
   }
 
   /**
@@ -276,6 +342,7 @@ class ChannelService {
           channel_users.channelId = channels.channelId AND
           channel_users.uid = ?
       )
+      ORDER BY channels.createdAt
       `,
       [uid]
     );
@@ -287,6 +354,65 @@ class ChannelService {
     })) as ChannelListVo[];
     // 返回结果
     return channelListVos;
+  }
+
+  /**
+   * 分页获取用户没有参加过的频道列表
+   * @param uid 用户 ID
+   * @param pageDto 分页参数
+   */
+  static async getUnjoinedChannelListWithPagination(
+    uid: number, pageDto: PageDto
+  ): Promise<Page<ChannelListVo>> {
+    // 获取分页参数
+    const pageNum = pageDto.pageNum;
+    const pageSize = pageDto.pageSize;
+    const db = await dbPromise;
+    // 先查总数
+    const { total } = await db.get<{total: number}>(
+      `
+      SELECT COUNT(1) AS total FROM channels
+      WHERE NOT EXISTS (
+        SELECT 1 FROM channel_users
+        WHERE
+          channel_users.channelId = channels.channelId AND
+          channel_users.uid = ?
+      )
+      `,
+      [uid]
+    ) as { total: number }
+    const rows = await db.all<Partial<Channel>[]>(
+      `
+      SELECT channels.channelId, name, description, level, 
+        joinWay, humanCount, channels.createdAt, channels.updatedAt
+      FROM channels
+      WHERE NOT EXISTS (
+        SELECT 1 FROM channel_users
+        WHERE
+          channel_users.channelId = channels.channelId AND
+          channel_users.uid = ?
+      )
+      ORDER BY channels.createdAt
+      LIMIT ? OFFSET ?
+      `,
+      [
+        uid,
+        pageSize,
+        (pageNum - 1) * pageSize
+      ]
+    );
+    // 定义一个 VO 列表作为返回值
+    const channelListVos = rows.map(row => ({
+      ...row,
+      level: ChannelUtil.levelNumberToLetter(row.level as number),
+      joinWay: ChannelUtil.joinWayNumberToStr(row.joinWay as number)
+    })) as ChannelListVo[];
+    // 返回结果
+    return new Page({
+      total: total,
+      currentPage: pageNum,
+      records: channelListVos
+    });
   }
 
   /**

@@ -14,8 +14,6 @@ class UserConstant {
   static readonly CONFIDENTIAL = 2;
   // 默认的用户角色
   static readonly DEFAULT_ROLE = 0;
-  // 默认的用户头像
-  static readonly DEFAULT_AVATAR_URL = 'http://default.avatar.com';
   // 启用状态
   static readonly STATUS_ENABLE = 0;
   // 禁用状态

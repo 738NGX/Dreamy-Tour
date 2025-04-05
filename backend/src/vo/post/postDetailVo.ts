@@ -33,6 +33,8 @@ class PostDetailVo extends VO<PostDetailVo> {
     avatarUrl: string
     // 角色
     role: string
+    // 频道内的角色类型
+    channelRole: string
     // 用户创建时间
     createdAt: number
     // 用户更新时间
