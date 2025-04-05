@@ -6,7 +6,7 @@
  * @Last Modified time: 2025-04-05 23:24:39
  */
 
-import projectConfig from "../../dreamy-tour-config.json"
+import projectConfig from "../../database/dreamy-tour-config.json"
 
 class CosConstant {
   // 密钥 id
