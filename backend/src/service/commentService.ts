@@ -5,7 +5,7 @@ import CommentPublishDto from "@/dto/comment/commentPublishDto";
  * @Author: Franctoryer 
  * @Date: 2025-04-05 19:07:49 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-05 20:09:30
+ * @Last Modified time: 2025-04-05 23:01:41
  */
 class CommentService {
   /**
@@ -36,7 +36,7 @@ class CommentService {
    * @param uid 用户 ID
    */
   static async like(commentId: number, uid: number) {
-
+    
   }
 
   /**
