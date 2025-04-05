@@ -18,6 +18,8 @@ import GroupGrantAdminDto from "@/dto/group/groupGrantAdminDto";
 import GroupModifyDto from "@/dto/group/groupModifyDto";
 import CosUtil from "@/util/cosUtil";
 import CosConstant from "@/constant/cosConstant";
+import UserService from "./userService";
+import ParamsError from "@/exception/paramsError";
 
 class GroupService {
   /**
@@ -101,8 +103,17 @@ class GroupService {
     if (!await GroupUtil.hasModifyPermission(uid, roleId, groupId)) {
       throw new ForbiddenError('您没有权限增加成员');
     }
-    await this.join(memberId, groupId, false);
-    await TourService.join(memberId, linkedTourId);
+    try {
+      await UserService.getUserDetailByUid(memberId);
+      await this.join(memberId, groupId, false);
+      await TourService.join(memberId, linkedTourId);
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new ParamsError('该用户不存在');
+      } else {
+        throw e;
+      }
+    }
   }
 
   /**

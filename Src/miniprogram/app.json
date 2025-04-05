@@ -6,7 +6,6 @@
     "pages/public-group/public-group",
     "pages/notice/notice",
     "pages/user/user",
-    "pages/upload-avatar/upload-avatar",
     "pages/channel-detail/channel-detail",
     "pages/channel-post/channel-post",
     "pages/group/group",

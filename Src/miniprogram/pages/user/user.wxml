@@ -64,7 +64,7 @@
           <t-grid-item data-index="{{item.id}}" bind:click="changeTestUser" icon="{{item.avatarUrl ? '' : 'user-1'}}" text="{{item.name}}" wx:for="{{testUserList}}" wx:key="id" image="{{item.avatarUrl}}"/>
         </t-grid>
       </c-collapse>
-      <c-collapse wx:if="{{!isTestMode&&isLocalDebug}}" header="切换账号权限">
+      <c-collapse wx:if="{{false}}" header="切换账号权限">
         <t-grid column="{{4}}" hover>
           <t-grid-item data-index="{{item}}" bind:click="changeUserRole" text="{{item}}" wx:for="{{userRoleList}}" wx:key="id" icon="user-1" />
         </t-grid>

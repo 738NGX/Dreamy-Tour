@@ -36,5 +36,5 @@
 </t-popup>
 <t-cell bind:click="handleSettings" title="{{currentTour?currentTour.title:'行程'}}" hover note="查看更多" arrow />
 <scroll-view class="scrollarea" style="height:80vh" scroll-y type="list">
-  <tour-editor bind:currentTourChange="handleCurrentTourChange" tour="{{currentTour}}" copyIndex="{{currentCopyIndex}}" dateFilter="{{currentDateFilter}}" />
+  <tour-viewer-new bind:currentTourChange="handleCurrentTourChange" tour="{{currentTour}}" copyIndex="{{currentCopyIndex}}" dateFilter="{{currentDateFilter}}" />
 </scroll-view>

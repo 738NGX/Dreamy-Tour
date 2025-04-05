@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-08 20:09:17 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-05 22:54:36
+ * @Last Modified time: 2025-04-05 22:58:28
  */
 import dbPromise from "@/config/databaseConfig";
 import ChannelConstant from "@/constant/channelConstant";
@@ -25,6 +25,7 @@ import ChannelListVo from "@/vo/channel/channelListVo";
 import PostDetailVo from "@/vo/post/postDetailVo";
 import AuthorityVo from "@/vo/user/authorityVo";
 import UserDetailVo from "@/vo/user/userDetailVo";
+import UserService from "./userService";
 import PageDto from "@/dto/common/pageDto";
 import Page from "@/vo/common/page";
 
@@ -141,7 +142,16 @@ class ChannelService {
     if (!await ChannelUtil.hasModifyPermission(uid, roleId, channelId)) {
       throw new ForbiddenError('您没有权限增加成员');
     }
-    await this.join(memberId, channelId, false);
+    try {
+      await UserService.getUserDetailByUid(memberId);
+      await this.join(memberId, channelId, false);
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new ParamsError('该用户不存在');
+      } else {
+        throw e;
+      }
+    }
   }
 
   /**
@@ -187,7 +197,7 @@ class ChannelService {
     if (!await ChannelUtil.hasExitPermission(uid, channelId)) {
       throw new ForbiddenError('您是该频道的频道主，请转让后再退出');
     }
-    if(await ChannelUtil.hasGroupInChannel(uid, channelId)) {
+    if (await ChannelUtil.hasGroupInChannel(uid, channelId)) {
       throw new ForbiddenError('频道中还拥有群组，请转让、解散群组或结束行程');
     }
     const db = await dbPromise;
