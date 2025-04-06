@@ -1,7 +1,7 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
 <!-- header class="custom-navbar" tabList="{{[]}}" / -->
 <scroll-view class="scrollarea" style="height:100vh" scroll-y type="list">
-  <view class="name-card">
+  <view class="name-card" style="background-image:linear-gradient(rgba(80, 123, 207, 0.3), rgba(0, 0, 0, 0.2)), url({{currentUser.backgroundImageUrl ? currentUser.backgroundImageUrl : '../../assets/default.jpg'}})">
     <view style="height:150rpx" />
     <t-avatar bordered image="{{currentUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ currentUser.name[0] }}</t-avatar>
     <view class="name-card-username">{{currentUser.name}}</view>
@@ -13,6 +13,7 @@
       <view class="name-card-uid" bind:tap="copyUid">UID: {{currentUser.id}}</view>
     </view>
     <view class="name-card-uid" style="margin-top:20rpx;">{{currentUser.signature}}</view>
+    <t-button ghost size="extra-small" class="update-background" bind:tap="uploadVisibleChange">更换背景</t-button>
   </view>
   <scroll-view scroll-y type="list" class="user-main">
     <view class="user-container">
@@ -96,4 +97,8 @@
       </c-collapse>
     </view>
   </scroll-view>
+  <t-popup-headered style="height:20vh;overflow:hidden;" visible="{{uploadVisible}}" title="上传图片" bind:visible-change="uploadVisibleChange" bindConfirm="uploadBackgroundImage" placement="bottom">
+    <t-upload draggable max="1" media-type="{{['image']}}" files="{{backgroundImages}}" bind:success="handleImageUploadSuccess" bind:click="handleImageUploadClick" bind:drop="handleImageUploadDrop" />
+  </t-popup-headered>
 </scroll-view>
+

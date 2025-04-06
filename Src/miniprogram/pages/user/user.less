@@ -22,6 +22,9 @@ page {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background-size: cover;   
+  background-position: center; 
+  background-repeat: no-repeat;
 }
 
 .name-card-username {
@@ -45,6 +48,15 @@ page {
   border: #fff solid 4rpx;
 }
 
+.update-background{
+  position:fixed !important ;
+  margin-left: 580rpx;
+  margin-top: 500rpx;
+  height:35rpx !important;
+  width:120rpx;
+  font-size:12px !important;
+}
+
 .user-container {
   width: 100%;
   min-height: 100%;
@@ -58,7 +70,7 @@ page {
   height: 60vh;
   padding-top: 30rpx;
   background-color: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));
-  border-radius: 30rpx;
+  // border-radius: 30rpx;
 }
 
 .narrow-cell {

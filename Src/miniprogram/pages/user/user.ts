@@ -18,6 +18,8 @@ Component({
     expPercentage: 0,
     expLabel: '',
     backendVersion: '不可用',
+    uploadVisible: false,
+    backgroundImages: [],
   },
   methods: {
     onLoad() {
@@ -140,6 +142,7 @@ Component({
       currentUser.email = e.detail.value;
       this.setData({ currentUser })
     },
+   
     async handleUserNameChangeConfirm() {
       const { currentUser } = this.data;
 
@@ -186,6 +189,35 @@ Component({
       console.log('src:', src)
       await app.changeUserAvatar(await getImageBase64(src));
       await this.onShow();
+    },
+    async uploadBackgroundImage() {
+      if (!this.data.backgroundImages[0]) {
+        wx.showToast({
+          title: '不可上传空白内容',
+          icon: 'none'
+        });
+        return;
+      }
+      const src = this.data.backgroundImages[0]
+      console.log('src:', src)
+      await app.changeUserBackgroundImage(await getImageBase64(src));
+      await this.onShow();
+    },
+    handleImageUploadSuccess(e: WechatMiniprogram.CustomEvent) {
+      const { files } = e.detail;
+      this.setData({ backgroundImages: files });
+    },
+    handleImageUploadClick(e: WechatMiniprogram.CustomEvent) {
+      console.log(e.detail.file);
+    },
+    handleImageUploadDrop(e: WechatMiniprogram.CustomEvent) {
+      const { files } = e.detail;
+      this.setData({ backgroundImages: files });
+    },
+    uploadVisibleChange(){
+      this.setData({
+        uploadVisible: !this.data.uploadVisible
+      })
     },
     copyInfo(e: WechatMiniprogram.CustomEvent) {
       const index = parseInt(e.currentTarget.dataset.index);

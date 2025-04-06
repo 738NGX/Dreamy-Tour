@@ -1885,6 +1885,7 @@ App<IAppOption>({
           isAdmin: res.data.data.role == 'ADMIN',
           gender: res.data.data.gender,
           avatarUrl: res.data.data.avatarUrl,
+          backgroundImageUrl: res.data.data.backgroundImageUrl,
           email: res.data.data.email,
           phone: res.data.data.phone,
           signature: res.data.data.signature,
@@ -1970,6 +1971,26 @@ App<IAppOption>({
     } else {
       const currentUser = this.currentUser();
       currentUser.avatarUrl = avatar;
+      this.updateUser(currentUser);
+      return true;
+    }
+  },
+  async changeUserBackgroundImage(backgroundImageUrl: string): Promise<boolean> {
+    if (!this.globalData.testMode) {
+      try{
+        await HttpUtil.put({ url: '/user/backgroundImage', jsonData: { base64: backgroundImageUrl } });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
+    } else {
+      const currentUser = this.currentUser();
+      currentUser.backgroundImageUrl = backgroundImageUrl;
       this.updateUser(currentUser);
       return true;
     }

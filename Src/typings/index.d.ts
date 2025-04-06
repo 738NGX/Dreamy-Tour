@@ -307,7 +307,7 @@ declare global {
     changeUserName(name: string): Promise<boolean>;
     changeUserBasic(user: UserBasic): Promise<boolean>;
     changeUserAvatar(url: string): Promise<boolean>;
-
+    changeUserBackgroundImage(url: string): Promise<boolean>;
     //for tour-editor.ts
     loadFullTour(tourId: number): Promise<Tour>;
     getMembersInTour(tourId: number): Promise<Member[]>;
