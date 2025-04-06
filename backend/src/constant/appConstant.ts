@@ -5,7 +5,7 @@
  * @Last Modified by: Franctoryer
  * @Last Modified time: 2025-04-05 23:25:10
  */
-import projectConfig from "../../dreamy-tour-config.json"
+import projectConfig from "../../database/dreamy-tour-config.json"
 
 class AppConstant {
   static readonly APP_ID = projectConfig.appId;
