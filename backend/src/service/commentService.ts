@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-04-05 19:07:49 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-06 23:45:45
+ * @Last Modified time: 2025-04-06 23:55:45
  */
 import CommentBo from "@/bo/comment/commentBo";
 import dbPromise from "@/config/databaseConfig";
@@ -208,6 +208,13 @@ class CommentService {
     await db.run(
       `
       DELETE FROM comments WHERE commentId = ?
+      `,
+      [commentId]
+    )
+    // 异步删除其子评论
+    db.run(
+      `
+      DELETE FROM comments WHERE parentId = ?
       `,
       [commentId]
     )
