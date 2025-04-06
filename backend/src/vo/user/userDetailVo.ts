@@ -23,6 +23,9 @@ class UserDetailVo extends VO<UserDetailVo> {
   // 头像地址
   avatarUrl: string
 
+  //主页背景图片地址
+  backgroundImageUrl: string
+
   // 邮箱
   email: string
 

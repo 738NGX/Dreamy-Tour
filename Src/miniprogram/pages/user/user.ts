@@ -198,9 +198,10 @@ Component({
         });
         return;
       }
-      const src = this.data.backgroundImages[0]
-      console.log('src:', src)
-      await app.changeUserBackgroundImage(await getImageBase64(src));
+      const src = JSON.parse(JSON.stringify(this.data.backgroundImages[0]))
+      if (src && src.url)
+      console.log('src.url:', src.url)
+      await app.changeUserBackgroundImage(await getImageBase64(src.url));
       await this.onShow();
     },
     handleImageUploadSuccess(e: WechatMiniprogram.CustomEvent) {

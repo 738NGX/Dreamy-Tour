@@ -105,7 +105,7 @@ userRoute.put('/user/backgroundImage', async (req: Request, res: Response) => {
     backgroundImageUrl: freshBackgroundImageUrl
   });
   res.status(StatusCodes.OK)
-    .json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
+    .json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED, backgroundImageVo));
 })
 
 /**

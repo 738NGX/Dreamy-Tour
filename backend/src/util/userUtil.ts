@@ -40,7 +40,7 @@ export class UserUtil {
    * @returns 默认背景图片地址
    */
   static generateDefaultBackgroundImageUrl(): string {
-    const defaultBackgroundImageUrl = `${CosConstant.BASE_URL}/${CosConstant.BACKGROUND_IMAGES_FOLDER}/default.png`
+    const defaultBackgroundImageUrl = `${CosConstant.BASE_URL}/${CosConstant.BACKGROUND_IMAGES_FOLDER}/default.jpg`
     return defaultBackgroundImageUrl;
   }
 }

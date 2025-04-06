@@ -47,6 +47,7 @@ class UserService {
       nickname: row.nickname,
       gender: UserUtil.getGenderStr(row.gender),
       avatarUrl: row.avatarUrl,
+      backgroundImageUrl: row.backgroundImageUrl,
       email: row.email,
       phone: row.phone,
       signature: row.signature,
@@ -120,7 +121,7 @@ class UserService {
 
   /**
    * 更新用户的基本信息
-   * @param userInfoDto 用户基本信息（除了昵称、头像）
+   * @param userInfoDto 用户基本信息（除了昵称、头像、背景图片）
    */
   static async updateUserInfo(userInfoDto: UserInfoDto, uid: number): Promise<void> {
     const db = await dbPromise;
@@ -330,6 +331,7 @@ class UserService {
         openid,
         UserConstant.CONFIDENTIAL,
         UserUtil.generateDefaultAvatarUrl(),
+        UserUtil.generateDefaultBackgroundImageUrl(),
         UserConstant.DEFAULT_ROLE,
         UserConstant.STATUS_ENABLE,
         Date.now(),
