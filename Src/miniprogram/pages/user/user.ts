@@ -207,6 +207,9 @@ Component({
       const { files } = e.detail;
       this.setData({ backgroundImages: files });
     },
+    handleImageUploadRemove() {
+      this.setData({ backgroundImages: [] });
+    },
     handleImageUploadClick(e: WechatMiniprogram.CustomEvent) {
       console.log(e.detail.file);
     },
@@ -218,6 +221,10 @@ Component({
       this.setData({
         uploadVisible: !this.data.uploadVisible
       })
+    },
+    cancelUpload(){
+      this.handleImageUploadRemove();
+      this.uploadVisibleChange();
     },
     copyInfo(e: WechatMiniprogram.CustomEvent) {
       const index = parseInt(e.currentTarget.dataset.index);

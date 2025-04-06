@@ -97,8 +97,8 @@
       </c-collapse>
     </view>
   </scroll-view>
-  <t-popup-headered style="height:20vh;overflow:hidden;" visible="{{uploadVisible}}" title="上传图片" bind:visible-change="uploadVisibleChange" bindConfirm="uploadBackgroundImage" placement="bottom">
-    <t-upload draggable max="1" media-type="{{['image']}}" files="{{backgroundImages}}" bind:success="handleImageUploadSuccess" bind:click="handleImageUploadClick" bind:drop="handleImageUploadDrop" />
+  <t-popup-headered style="height:20vh;overflow:hidden;" visible="{{uploadVisible}}" title="上传图片" bind:visible-change="uploadVisibleChange" bindConfirm="uploadBackgroundImage" bindCancel="cancelUpload" placement="bottom">
+    <t-upload draggable max="1" media-type="{{['image']}}" files="{{backgroundImages}}" bind:success="handleImageUploadSuccess" bind:remove="handleImageUploadRemove" bind:click="handleImageUploadClick" bind:drop="handleImageUploadDrop" />
   </t-popup-headered>
 </scroll-view>
 
