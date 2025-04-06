@@ -192,6 +192,38 @@ class UserService {
   }
 
   /**
+   * 更换用户背景图片，返回新图片的 url
+   * @param base64 图片的 base64 编码
+   */
+  static async updateBackgroundImage(base64: string, uid: number): Promise<string> {
+    // 上传新图片
+    const freshBackgroundImageUrl = await CosUtil.uploadBase64Picture(CosConstant.BACKGROUND_IMAGES_FOLDER, base64);
+    // 获取旧的图片地址
+    const db = await dbPromise;
+    const row = await db.get<Pick<User, 'backgroundImageUrl'>>(
+      'SELECT backgroundImageUrl FROM users WHERE uid = ?',
+      [uid]
+    );
+    if (!row) throw new NotFoundError(`用户 ${uid} 不存在`);
+    const oldBackgroundImageUrl = row.backgroundImageUrl;
+    // 更新数据库中的图片 url
+    await db.run(
+      'UPDATE users SET backgroundImageUrl = ? WHERE uid = ?',
+      [freshBackgroundImageUrl, uid]
+    )
+    // 异步删除 COS 上原来的图片，不影响主线程（没有await），较少IO时长（当旧图片地址不为空，且是合法的图片路径）
+    // 如果是默认图片，则不删除
+    if (typeof oldBackgroundImageUrl !== 'undefined' && 
+      CosUtil.isValidCosUrl(oldBackgroundImageUrl) &&
+      !oldBackgroundImageUrl.includes("default")
+    ) {
+      CosUtil.deleteFile(oldBackgroundImageUrl)
+    }
+    // 返回新图片 url
+    return freshBackgroundImageUrl;
+  }
+
+  /**
    * 账号注销
    * @param uid 用户 id
    */

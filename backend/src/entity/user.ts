@@ -22,6 +22,9 @@ class User {
   // 头像地址
   avatarUrl: string
 
+  //主页背景照片
+  backgroundImageUrl: string
+
   // 邮箱
   email: string
 

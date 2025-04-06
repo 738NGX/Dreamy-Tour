@@ -17,6 +17,7 @@ import UserInfoDto from "@/dto/user/userInfoDto";
 import MessageConstant from "@/constant/messageConstant";
 import NicknameDto from "@/dto/user/nicknameDto";
 import AvatarVo from "@/vo/user/avatarVo";
+import BackgroundImageVo from "@/vo/user/backgroundImageVo";
 import RoleDto from "@/dto/user/roleDto";
 import ImageDto from "@/dto/image/imageDto";
 const { version } = require('../../package.json');
@@ -83,6 +84,25 @@ userRoute.put('/user/avatar', async (req: Request, res: Response) => {
   const freshAvatarUrl = await UserService.updateAvatar(file.base64, uid);
   const avatarVo = new AvatarVo({
     avatarUrl: freshAvatarUrl
+  });
+  res.status(StatusCodes.OK)
+    .json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
+})
+
+/**
+ * @description 更改用户背景图片
+ * @method POST
+ * @path /user/backgroundImage
+ */
+userRoute.put('/user/backgroundImage', async (req: Request, res: Response) => {
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);  // 经过拦截器处理之后，剩下来的请求中一定包含 token，因此断言为 string
+  const file = await ImageDto.from(req.body);
+
+  // 更换背景图片
+  const freshBackgroundImageUrl = await UserService.updateBackgroundImage(file.base64, uid);
+  const backgroundImageVo = new BackgroundImageVo({
+    backgroundImageUrl: freshBackgroundImageUrl
   });
   res.status(StatusCodes.OK)
     .json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
