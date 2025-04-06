@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-03 13:59:07 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-05 21:55:49
+ * @Last Modified time: 2025-04-06 18:21:41
  */
 
 import PostDetailBo from "@/bo/post/postDetailBo";
@@ -14,13 +14,16 @@ import CosConstant from "@/constant/cosConstant";
 import PostConstant from "@/constant/postConstant";
 import PageDto from "@/dto/common/pageDto";
 import PostPublishDto from "@/dto/post/postPublishDto";
+import User from "@/entity/user";
 import ForbiddenError from "@/exception/forbiddenError";
 import NotFoundError from "@/exception/notFoundError";
 import ParamsError from "@/exception/paramsError";
 import CosUtil from "@/util/cosUtil";
 import PostUtil from "@/util/postUtil";
 import RoleUtil from "@/util/roleUtil";
+import { UserUtil } from "@/util/userUtil";
 import Page from "@/vo/common/page";
+import MemberVo from "@/vo/post/memberVo";
 import PostDetailVo from "@/vo/post/postDetailVo";
 import PostListVo from "@/vo/post/postListVo";
 
@@ -189,7 +192,7 @@ class PostService {
    * @param uid 用户 ID
    * @param channelId 频道 ID
    */
-  static async getPostListByChannelId(uid: number, channelId: number): Promise<PostListVo[]> {
+  static async  getPostListByChannelId(uid: number, channelId: number): Promise<PostListVo[]> {
     const db = await dbPromise;
     const rows = await db.all<PostListBo[]>(
       `
@@ -586,6 +589,42 @@ class PostService {
         isFavorite: Boolean(row.isFavorite)
       }
     })
+  }
+
+  /**
+   * 获取某一帖子的成员信息（帖主、评论者信息）
+   * @param postId 帖子 ID
+   */
+  static async getMembersByPostId(postId: number) {
+    const db = await dbPromise;
+    const rows = await db.all<Partial<User[]>>(
+      `
+      SELECT DISTINCT
+        uid, nickname, gender, avatarUrl,
+        email, phone, signature, birthday, exp,
+        roleId, createdAt, updatedAt
+      FROM users
+      WHERE uid IN (
+        SELECT uid FROM posts WHERE postId = ?1
+        UNION SELECT uid FROM comments WHERE postId = ?1
+      )
+      `,
+      [postId]
+    );
+    return rows.map(row => new MemberVo({
+      uid: row?.uid,
+      nickname: row?.nickname,
+      gender: UserUtil.getGenderStr(row?.gender),
+      avatarUrl: row?.avatarUrl,
+      email: row?.email,
+      phone: row?.phone,
+      signature: row?.signature,
+      birthday: row?.birthday,
+      exp: row?.exp,
+      role: RoleUtil.roleNumberToString(row?.roleId as number),
+      createdAt: row?.createdAt,
+      updatedAt: row?.updatedAt
+    }))
   }
 }
 

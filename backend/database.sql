@@ -110,6 +110,7 @@ CREATE TABLE comments (
     parentId INTEGER,
     rootId INTEGER,
     content TEXT,
+    pictureUrls TEXT,
     createdAt INTEGER,
     updatedAt INTEGER,
     FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
