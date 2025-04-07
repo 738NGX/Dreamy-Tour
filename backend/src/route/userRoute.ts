@@ -155,10 +155,10 @@ userRoute.post('/user/privilege', async (req: Request, res: Response) => {
 })
 
 /**
- * @description 获取其他用户的详情信息（根据用户id）
+ * @description 获取用户的详情信息（根据用户id）
  * @method GET
  * @param uid
- * @path /user/detail
+ * @path /user/:uid/detail
  */
 userRoute.get('/user/:uid/detail', async (req: Request, res: Response) => {
   // 接受来自业务层的处理完成的视图对象
@@ -175,7 +175,7 @@ userRoute.get('/user/:uid/detail', async (req: Request, res: Response) => {
  * @description 获取用户加入的频道列表（不包括世界频道；没有分页）（根据用户id）
  * @method GET
  * @param uid
- * @path /user/joined-channel-list
+ * @path /user/:uid/joined-channel-list
  */
 userRoute.get('/user/:uid/joined-channel-list', async (req: Request, res: Response) => {
   // 获取用户 ID
@@ -193,7 +193,7 @@ userRoute.get('/user/:uid/joined-channel-list', async (req: Request, res: Respon
  * @description 获取用户发布的帖子列表（无分页）（根据用户id）
  * @method GET
  * @param uid
- * @path /post/mylist
+ * @path /user/:uid/post-list
  */
 userRoute.get('/user/:uid/post-list', async (req: Request, res: Response) => {
   // 获取选择的用户的uid
