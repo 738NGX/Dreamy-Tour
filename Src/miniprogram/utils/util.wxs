@@ -27,7 +27,7 @@ var getUserGroupTagTheme = function (userGroup) {
 }
 
 var isInArray = function (arr, value) {
-  if(!arr || !arr.length) {
+  if (!arr || !arr.length) {
     return false
   }
   for (var i = 0; i < arr.length; i++) {
@@ -38,8 +38,27 @@ var isInArray = function (arr, value) {
   return false
 }
 
+var randomCharPicture = function (group, type) {
+  var random = Math.random() * 3
+  var seed = Math.floor(random)
+  var base = 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/ui/'
+  var links = [
+    base + "201",
+    base + "205",
+    base + "209",
+    base + "203",
+    base + "204",
+    base + "207",
+    base + "202",
+    base + "206",
+    base + "208",
+  ]
+  return links[3 * group + seed] + (type) + ".png"
+}
+
 module.exports = {
   numberToFixed: numberToFixed,
   getUserGroupTagTheme: getUserGroupTagTheme,
-  isInArray: isInArray
+  isInArray: isInArray,
+  randomCharPicture: randomCharPicture,
 }

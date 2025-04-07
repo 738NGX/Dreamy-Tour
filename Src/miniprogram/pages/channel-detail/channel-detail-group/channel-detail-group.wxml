@@ -1,18 +1,27 @@
+<wxs module="util" src="../../../utils/util.wxs"></wxs>
 <view class="example-search">
-  <t-search placeholder="搜索群组" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" shape="round" style="height:60rpx"/>
+  <t-search placeholder="搜索群组" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" shape="round" style="height:60rpx" />
 </view>
 <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
-  <t-cell title="已加入" style="--td-cell-vertical-padding:10rpx;" />
-  <block wx:for="{{joinedGroups}}" wx:key="index">
-    <t-cell title="{{item.name}}" description="{{item.description}}" note="进入" data-index="{{item.id}}" bind:click="onGroupClick" hover>
-      <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
-    </t-cell>
+  <block wx:if="{{joinedGroups.length>0||unJoinedGroups.length>0}}">
+    <t-cell title="已加入" style="--td-cell-vertical-padding:10rpx;" />
+    <block wx:for="{{joinedGroups}}" wx:key="index">
+      <t-cell title="{{item.name}}" description="{{item.description}}" note="进入" data-index="{{item.id}}" bind:click="onGroupClick" hover>
+        <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
+      </t-cell>
+    </block>
+    <t-cell title="未加入" style="--td-cell-vertical-padding:10rpx;" />
+    <block wx:for="{{unJoinedGroups}}" wx:key="index">
+      <t-cell title="{{item.name}}" description="{{item.description}}" note="{{joinWayText[item.joinWay]}}" data-index="{{item.id}}" bind:click="joinGroup" hover style="white-space: nowrap;">
+        <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
+      </t-cell>
+    </block>
   </block>
-  <t-cell title="未加入" style="--td-cell-vertical-padding:10rpx;" />
-  <block wx:for="{{unJoinedGroups}}" wx:key="index">
-    <t-cell title="{{item.name}}" description="{{item.description}}" note="{{joinWayText[item.joinWay]}}" data-index="{{item.id}}" bind:click="joinGroup" hover style="white-space: nowrap;">
-      <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
-    </t-cell>
+  <block wx:else>
+    <view style="height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <image src="{{util.randomCharPicture(2,1)}}" mode="widthFix" style="width:400rpx;"/>
+    <text style="margin-top:32rpx; width:80%;text-align:center;">频道内还没有任何群组\n点击右下角的按钮建立第一个群组吧!</text>
+  </view>
   </block>
   <view style="height:400rpx" />
 </t-pull-down-refresh>
