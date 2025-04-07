@@ -1,7 +1,7 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
 <!-- header class="custom-navbar" tabList="{{[]}}" / -->
 <scroll-view class="scrollarea" style="height:100vh" scroll-y type="list">
-  <view class="name-card" style="background-image:linear-gradient(rgba(80, 123, 207, 0.3), rgba(0, 0, 0, 0.2)), url({{currentUser.backgroundImageUrl ? currentUser.backgroundImageUrl : '../../assets/default.jpg'}})">
+  <view class="name-card" style="background-image:linear-gradient(rgba(80, 123, 207, 0.3), rgba(0, 0, 0, 0.2)), url({{currentUser.backgroundImageUrl ? currentUser.backgroundImageUrl : '../../assets/default.png'}})">
     <view style="height:150rpx" />
     <t-avatar bordered image="{{currentUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ currentUser.name[0] }}</t-avatar>
     <view class="name-card-username">{{currentUser.name}}</view>

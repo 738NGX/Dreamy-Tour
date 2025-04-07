@@ -3,7 +3,7 @@
 <header class="custom-navbar" title="{{selectedUser.name}}的主页" tabList="{{[]}}" />
 <scroll-view class="scrollarea" style="height:100vh" scroll-y type="list">
   <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
-    <view class="name-card" style="background-image:linear-gradient(rgba(80, 123, 207, 0.3), rgba(0, 0, 0, 0.2)), url({{selectedUser.backgroundImageUrl ? selectedUser.backgroundImageUrl : '../../assets/default.jpg'}})">
+    <view class="name-card" style="background-image:linear-gradient(rgba(80, 123, 207, 0.3), rgba(0, 0, 0, 0.2)), url({{selectedUser.backgroundImageUrl ? selectedUser.backgroundImageUrl : '../../assets/default.png'}})">
       <view style="height:100rpx" />
       <view class="avatar-name-id-card">
         <t-avatar bordered image="{{selectedUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ selectedUser.name[0] }}</t-avatar>
