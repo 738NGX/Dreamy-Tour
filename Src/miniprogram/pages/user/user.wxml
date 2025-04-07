@@ -1,7 +1,7 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
 <!-- header class="custom-navbar" tabList="{{[]}}" / -->
 <scroll-view class="scrollarea" style="height:100vh" scroll-y type="list">
-  <view class="name-card">
+  <view class="name-card" style="background-image:linear-gradient(rgba(80, 123, 207, 0.3), rgba(0, 0, 0, 0.2)), url({{currentUser.backgroundImageUrl ? currentUser.backgroundImageUrl : '../../assets/default.png'}})">
     <view style="height:150rpx" />
     <t-avatar bordered image="{{currentUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ currentUser.name[0] }}</t-avatar>
     <view class="name-card-username">{{currentUser.name}}</view>
@@ -13,6 +13,7 @@
       <view class="name-card-uid" bind:tap="copyUid">UID: {{currentUser.id}}</view>
     </view>
     <view class="name-card-uid" style="margin-top:20rpx;">{{currentUser.signature}}</view>
+    <t-button ghost size="extra-small" class="update-background" bind:tap="uploadVisibleChange">更换背景</t-button>
   </view>
   <scroll-view scroll-y type="list" class="user-main">
     <view class="user-container">
@@ -59,6 +60,88 @@
         <t-button theme="primary" style="width:95%; margin:10rpx" bind:tap="handleUserBasicChange">确认修改</t-button>
         <t-button style="width:95%; margin:10rpx" bind:tap="handleUserBasicReset">取消修改</t-button>
       </c-collapse>
+      <c-collapse header="发布的帖子">
+          <view class="example-search">
+            <t-search placeholder="搜索帖子" value="{{searchingValue}}" bind:blur="onPostsSearch" bind:clear="onPostsSearchClear" shape="round" style="height:60rpx"/>
+          </view>
+            <view wx:if="{{leftPosts.length>0||rightPosts.length>0}}" class="post-list">
+              <view class="post-grid">
+                <view class="column left">
+                  <block wx:for="{{leftPosts}}" wx:key="id">
+                    <view class="post-card" bindtap="handlePostDetail" data-index="{{item.id}}">
+                      <!-- 文章图片 -->
+                      <image class="post-image" wx:if="{{item.photos.length > 0}}" src="{{item.photos[0].value}}" mode="widthFix" />
+                      <!-- 文章信息 -->
+                      <view class="post-info">
+                        <view class="post-title">
+                          <t-tag class="t-tag" wx:if="{{ item.isSticky }}" style="margin-right:10rpx;" variant="light" theme="primary" icon="align-top">置顶</t-tag>
+                          <text>{{ item.title }}</text>
+                        </view>
+                      </view>
+                      <!-- 用户信息 + 时间 -->
+                      <view class="post-meta">
+                        <view style="display: flex;flex-direction: row;align-items: center;">
+                          <t-avatar class="avatar-example" image="{{item.avatarUrl}}" t-class-content="external-class-content" size="30px">{{ item.username[0] }}</t-avatar>
+                          <view class="post-basicinfo">
+                            <text class="username">{{ item.username }}</text>
+                            <text class="post-time">{{ item.timeStr }}</text>
+                          </view>
+                        </view>
+                      </view>
+                    </view>
+                  </block>
+                </view>
+                <view class="column right">
+                  <block wx:for="{{rightPosts}}" wx:key="id">
+                    <view class="post-card" bindtap="handlePostDetail" data-index="{{item.id}}">
+                      <!-- 文章图片 -->
+                      <image class="post-image" wx:if="{{item.photos.length > 0}}" src="{{item.photos[0].value}}" mode="widthFix" />
+                      <!-- 文章信息 -->
+                      <view class="post-info">
+                        <view class="post-title">
+                          <t-tag class="t-tag" wx:if="{{ item.isSticky }}" style="margin-right:10rpx;" variant="light" theme="primary" icon="align-top">置顶</t-tag>
+                          <text>{{ item.title }}</text>
+                        </view>
+                      </view>
+                      <!-- 用户信息 + 时间  -->
+                      <view class="post-meta">
+                        <view style="display: flex;flex-direction: row;align-items: center;">
+                          <t-avatar class="avatar-example" image="{{item.avatarUrl}}" t-class-content="external-class-content" size="30px">{{ item.username[0] }}</t-avatar>
+                          <view class="post-basicinfo">
+                            <text class="username">{{ item.username }}</text>
+                            <text class="post-time">{{ item.timeStr }}</text>
+                          </view>
+                        </view>
+                      </view>
+                    </view>
+                  </block>
+                </view>
+              </view>
+            </view>
+            <view wx:else style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <image src="https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/ui/2011.png" mode="widthFix" width="200"/>
+              <text>用户暂时没有发布帖子哦</text>
+            </view>
+            <view style="height:400rpx" />
+        </c-collapse>
+
+        <c-collapse header="加入的频道">
+          <view class="example-search">
+            <t-search placeholder="搜索频道" value="{{searchingValue}}" bind:blur="onChannelsSearch" bind:clear="onChannelsSearchClear" shape="round" style="height:60rpx"/>
+          </view>
+            <view wx:if="{{channelList[0]}}"> 
+              <block wx:for="{{channelList}}" wx:key="index" wx:for-index="i">
+                <t-cell title="{{item.name}}" description="{{item.description}}" arrow data-index="{{item.id}}" bind:click="onChannelClick" hover>
+                  <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
+                </t-cell>
+              </block>
+            </view>
+            <view wx:else style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <image src="https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/ui/2011.png" mode="widthFix" width="200"/>
+              <text>用户暂时没有加入频道哦</text>
+            </view>
+            <view style="height:400rpx" />
+        </c-collapse>
       <c-collapse wx:if="{{isTestMode}}" header="切换演示账号">
         <t-grid column="{{5}}" hover>
           <t-grid-item data-index="{{item.id}}" bind:click="changeTestUser" icon="{{item.avatarUrl ? '' : 'user-1'}}" text="{{item.name}}" wx:for="{{testUserList}}" wx:key="id" image="{{item.avatarUrl}}"/>
@@ -96,4 +179,8 @@
       </c-collapse>
     </view>
   </scroll-view>
+  <t-popup-headered style="height:20vh;overflow:hidden;" visible="{{uploadVisible}}" title="上传图片" bind:visible-change="uploadVisibleChange" bindConfirm="uploadBackgroundImage" bindCancel="cancelUpload" placement="bottom">
+    <t-upload draggable max="1" media-type="{{['image']}}" files="{{backgroundImages}}" bind:success="handleImageUploadSuccess" bind:remove="handleImageUploadRemove" bind:click="handleImageUploadClick" bind:drop="handleImageUploadDrop" />
+  </t-popup-headered>
 </scroll-view>
+

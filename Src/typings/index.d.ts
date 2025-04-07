@@ -287,6 +287,16 @@ declare global {
      */
     handlePostDelete(postId: number): Promise<boolean>;
 
+    // for userinfo.ts
+    /**
+     * @returns 选择的用户加入的频道列表, 不包括世界频道
+     */
+    getSelectedUserJoinedChannels(uid:number): Promise<Channel[]>;
+    /**
+     * 获取用户发布的全部帖子
+     * @param uid 
+     */
+    getFullPostsByUid(uid: number): Promise<PostCard[]>;
     // for group.ts
     loadGroup(groupId: number): Promise<{ currentGroup: GroupBasic, linkedTour: TourBasic }>;
     getMembersInGroup(groupId: number): Promise<{ members: Member[], waitingUsers: Member[] }>;
@@ -309,7 +319,7 @@ declare global {
     changeUserName(name: string): Promise<boolean>;
     changeUserBasic(user: UserBasic): Promise<boolean>;
     changeUserAvatar(url: string): Promise<boolean>;
-
+    changeUserBackgroundImage(url: string): Promise<boolean>;
     //for tour-editor.ts
     loadFullTour(tourId: number): Promise<Tour>;
     getMembersInTour(tourId: number): Promise<Member[]>;

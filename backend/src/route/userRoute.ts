@@ -2,12 +2,14 @@
  * 用户相关路由
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:44:15 
- * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-23 19:34:53
+ * @Last Modified by: Choihyobin
+ * @Last Modified time: 2025-04-07 18:26
  */
 
 import express, { Request, Response } from "express"
 import UserService from "@/service/userService";
+import ChannelService from "@/service/channelService";
+import PostService from "@/service/postService";
 import Result from "@/vo/result";
 import WxLoginDto from "@/dto/user/wxLoginDto";
 import { StatusCodes } from "http-status-codes";
@@ -17,6 +19,7 @@ import UserInfoDto from "@/dto/user/userInfoDto";
 import MessageConstant from "@/constant/messageConstant";
 import NicknameDto from "@/dto/user/nicknameDto";
 import AvatarVo from "@/vo/user/avatarVo";
+import BackgroundImageVo from "@/vo/user/backgroundImageVo";
 import RoleDto from "@/dto/user/roleDto";
 import ImageDto from "@/dto/image/imageDto";
 const { version } = require('../../package.json');
@@ -89,6 +92,25 @@ userRoute.put('/user/avatar', async (req: Request, res: Response) => {
 })
 
 /**
+ * @description 更改用户背景图片
+ * @method POST
+ * @path /user/backgroundImage
+ */
+userRoute.put('/user/backgroundImage', async (req: Request, res: Response) => {
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);  // 经过拦截器处理之后，剩下来的请求中一定包含 token，因此断言为 string
+  const file = await ImageDto.from(req.body);
+
+  // 更换背景图片
+  const freshBackgroundImageUrl = await UserService.updateBackgroundImage(file.base64, uid);
+  const backgroundImageVo = new BackgroundImageVo({
+    backgroundImageUrl: freshBackgroundImageUrl
+  });
+  res.status(StatusCodes.OK)
+    .json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED, backgroundImageVo));
+})
+
+/**
  * @description 更改用户其他信息（除昵称、头像）
  * @method PUT
  * @path /user/info
@@ -129,6 +151,64 @@ userRoute.post('/user/privilege', async (req: Request, res: Response) => {
   await UserService.getPrivilege(uid, roleDto);
   res.json(
     Result.success(MessageConstant.SUCCESSFUL_MODIFIED)
+  );
+})
+
+/**
+ * @description 获取用户的详情信息（根据用户id）
+ * @method GET
+ * @param uid
+ * @path /user/:uid/detail
+ */
+userRoute.get('/user/:uid/detail', async (req: Request, res: Response) => {
+  // 接受来自业务层的处理完成的视图对象
+  const uidStr = req.params.uid;
+  const uid = parseInt(uidStr);
+  if(isNaN(uid)){
+    res.json(Result.error("Invalid UserId"))
+  }
+  const userDetailVo = await UserService.getUserDetailByUid(uid);
+  res.json(Result.success(userDetailVo));
+})
+
+/**
+ * @description 获取用户加入的频道列表（不包括世界频道；没有分页）（根据用户id）
+ * @method GET
+ * @param uid
+ * @path /user/:uid/joined-channel-list
+ */
+userRoute.get('/user/:uid/joined-channel-list', async (req: Request, res: Response) => {
+  // 获取用户 ID
+  const uidStr = req.params.uid;
+  const uid = parseInt(uidStr);
+  if(isNaN(uid)){
+    res.json(Result.error("Invalid UserId"))
+  }
+  const channelListVos = await ChannelService.getJoinedChannelList(uid);
+  // 返回结果
+  res.json(Result.success(channelListVos));
+});
+
+/**
+ * @description 获取用户发布的帖子列表（无分页）（根据用户id）
+ * @method GET
+ * @param uid
+ * @path /user/:uid/post-list
+ */
+userRoute.get('/user/:uid/post-list', async (req: Request, res: Response) => {
+  // 获取选择的用户的uid
+  const uidStr = req.params.uid;
+  const uid = parseInt(uidStr);
+  if(isNaN(uid)){
+    res.json(Result.error("Invalid UserId"))
+  }
+  // 获取用户 id
+  const currentUid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);  // 经过拦截器处理之后，剩下来的请求中一定包含 token，因此断言为 string
+
+  const postListVos = await PostService.getPostListByUserId(currentUid,uid);
+  // 返回响应
+  res.json(
+    Result.success(postListVos)
   );
 })
 

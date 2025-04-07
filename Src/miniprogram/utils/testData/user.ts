@@ -11,6 +11,7 @@ export const userList = [
     gender: '男',
     isAdmin: false,
     avatarUrl: 'https://q.qlogo.cn/g?b=qq&nk=2857323020&s=100',
+    backgroundImageUrl: 'https://q.qlogo.cn/g?b=qq&nk=2857323020&s=100',
     exp: 12345,
     phone: '17317371970',
     email: 'jny738ngx@gmail.com',

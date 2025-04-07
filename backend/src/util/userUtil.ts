@@ -34,4 +34,13 @@ export class UserUtil {
     const defaultAvatarUrl = `${CosConstant.BASE_URL}/${CosConstant.AVATAR_FOLDER}/default${rand}.png`
     return defaultAvatarUrl;
   }
+
+  /**
+   * 生成默认背景图片地址
+   * @returns 默认背景图片地址
+   */
+  static generateDefaultBackgroundImageUrl(): string {
+    const defaultBackgroundImageUrl = `${CosConstant.BASE_URL}/${CosConstant.BACKGROUND_IMAGES_FOLDER}/default.jpg`
+    return defaultBackgroundImageUrl;
+  }
 }
