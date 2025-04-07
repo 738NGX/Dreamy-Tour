@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 23:49:15 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-02-25 16:59:40
+ * @Last Modified time: 2025-04-07 12:15:19
  */
 import LogEntry from "@/base/logEntry";
 import { NextFunction, Request, Response } from "express";
@@ -20,7 +20,7 @@ const logger = (req: Request, res: Response, next: NextFunction) => {
   // 当 http 响应终止前，记录响应状态码
   onFinished(res, () => {
     entry.setStatus(res.statusCode);
-    console.log(entry);
+    console.log(JSON.stringify(entry));
   })
 
   next();
