@@ -124,7 +124,7 @@ class HttpUtil {
           {
             method: requestParams.method,
             headers: requestParams.header,
-            timeout: 60000
+            timeout: 180000
           }
         );
         if (debug) { console.log('backend result:', d) };
