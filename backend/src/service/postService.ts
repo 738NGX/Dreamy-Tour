@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-03 13:59:07 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-06 18:21:41
+ * @Last Modified time: 2025-04-07 20:11:16
  */
 
 import PostDetailBo from "@/bo/post/postDetailBo";
@@ -41,10 +41,7 @@ class PostService {
       throw new ForbiddenError("请先加入该频道后再发布帖子！")
     }
     // 异步将帖子图片上传至腾讯云 COS
-    const pictures = postPublishDto.pictures;
-    if (!pictures) {
-      throw new ParamsError("没有上传图片");
-    }
+    const pictures = postPublishDto.pictures ?? [];
     const uploadPromises = pictures.map(async (picture, index) => {
       return await CosUtil.uploadBase64Picture(
         CosConstant.POST_PICTURES_FOLDER,
@@ -54,7 +51,11 @@ class PostService {
     // 异步上传所有文件
     const fileUrlList = await Promise.all(uploadPromises);
     // 用逗号拼接各个 url
-    const urls = fileUrlList.join(',')
+    let urls = fileUrlList.join(',')
+    // 如果 urls 为空，生成默认图片
+    if (!urls) {
+      urls = PostUtil.generateDefaultPictureUrl();
+    }
     // 将帖子信息、图片地址保存至数据库
     const db = await dbPromise;
     await db.run(
