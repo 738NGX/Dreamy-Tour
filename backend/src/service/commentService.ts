@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-04-05 19:07:49 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-07 08:28:51
+ * @Last Modified time: 2025-04-07 12:03:08
  */
 import CommentBo from "@/bo/comment/commentBo";
 import dbPromise from "@/config/databaseConfig";
@@ -61,7 +61,7 @@ class CommentService {
     commentPublishDto: CommentPublishDto
   ) {
     // 获取图片 base64 编码
-    const pictures = commentPublishDto.pictures;
+    const pictures = commentPublishDto.pictures ?? [];
     const uploadPromises = pictures.map(async picture => {
       return await CosUtil.uploadBase64Picture(
         CosConstant.POST_PICTURES_FOLDER, 
@@ -119,7 +119,7 @@ class CommentService {
       throw new NotFoundError("该评论不存在！");
     }
     // 获取图片 base64 编码
-    const pictures = commentPublishDto.pictures;
+    const pictures = commentPublishDto.pictures ?? [];
     const uploadPromises = pictures.map(async picture => {
       return await CosUtil.uploadBase64Picture(
         CosConstant.POST_PICTURES_FOLDER, 
@@ -136,7 +136,7 @@ class CommentService {
       INSERT INTO comments
       (uid, postId, parentId, rootId, content, pictureUrls, likeSum, createdAt, updatedAt)
       VALUES
-      (?, ?, ?, ?, ?, ?, ?, ?. ?)
+      (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         uid,
