@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-03-08 15:44:06 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-05 22:02:36
+ * @Last Modified time: 2025-04-06 10:47:02
  */
 
 import AuthConstant from "@/constant/authConstant";
@@ -317,6 +317,18 @@ postRoute.delete('/post/:postId/top', async (req: Request, res: Response) => {
    res.json(
     Result.success(MessageConstant.SUCCESSFUL_CANCEL)
   );
+})
+
+/**
+ * @description 获取某一帖子下的所有成员信息
+ * @method GET
+ * @path /post/:postId/members
+ */
+postRoute.get('/post/:postId/members', async (req: Request, res: Response) => {
+  // 获取帖子 ID
+  const postId = Number(req.params.postId)
+  const memberVos = await PostService.getMembersByPostId(postId);
+  res.json(Result.success(memberVos));
 })
 
 

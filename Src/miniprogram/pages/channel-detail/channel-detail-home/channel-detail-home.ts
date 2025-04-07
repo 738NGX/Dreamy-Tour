@@ -149,6 +149,7 @@ Component({
       this.setData({ fullMarkers: markers, markers: markers });
     },
     async generateUserRankings() {
+      if(!this.properties.currentChannel) return;
       const rankList = await app.generateUserRankings(this.properties.currentChannel.id,this.data.footprints);
       this.setData({ userRankings: rankList });
     },

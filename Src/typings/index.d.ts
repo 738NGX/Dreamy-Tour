@@ -244,12 +244,14 @@ declare global {
      * @param postId 
      */
     getFullCommentsInPost(postId: number): Promise<Comment[]>
+    getMembersInPost(postId: number): Promise<Member[]>;
     /**
      * 对帖子进行点赞或取消点赞
      * @param postId 帖子id
      * @returns 操作后的帖子实例
      */
-    handlePostLike(postId: number): Promise<Post | undefined>;
+    handlePostLike(postId: number, isLiked: boolean): Promise<Post | undefined>;
+    handlePostStick(post:Post): Promise<Post | undefined>;
     /**
      * 对评论进行点赞或取消点赞
      * @param commentId 评论id

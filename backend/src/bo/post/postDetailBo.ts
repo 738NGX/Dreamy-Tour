@@ -17,6 +17,8 @@ interface PostDetailBo {
   forwardSum: number
   // 收藏数
   favoriteSum: number
+  // 是否置顶
+  isSticky: number
   // 帖子创建时间
   postCreatedAt: number
   // 帖子更新时间

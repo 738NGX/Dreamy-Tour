@@ -228,7 +228,7 @@ App<IAppOption>({
   async getCurrentUserUnjoinedChannels(): Promise<Channel[]> {
     if (!this.globalData.testMode) {
       try {
-        const res = await HttpUtil.get({ url: "/channel/unjoined/list" });
+        const res = await HttpUtil.get({ url: "/v1/channel/unjoined/list" });
         const channelList = res.data.data.map((res: any) => {
           return new Channel({
             id: res.channelId,
@@ -348,7 +348,7 @@ App<IAppOption>({
   async getCurrentUserJoinedChannels(): Promise<Channel[]> {
     if (!this.globalData.testMode) {
       try {
-        const res = await HttpUtil.get({ url: "/channel/joined/list" });
+        const res = await HttpUtil.get({ url: "/v1/channel/joined/list" });
         const channelList = res.data.data.map((res: any) => {
           return new Channel({
             id: res.channelId,
@@ -487,7 +487,7 @@ App<IAppOption>({
   async getFullPostsInChannel(channelId: number): Promise<PostCard[]> {
     if (!this.globalData.testMode) {
       try {
-        const url = channelId == 1 ? '/post/list' : `/channel/${channelId}/post/list`;
+        const url = channelId == 1 ? '/v1/post/list' : `/v1/channel/${channelId}/post/list`;
         const results = await HttpUtil.get({ url });
         const fullPosts = results.data.data.map((res: any) => {
           return {
@@ -763,7 +763,7 @@ App<IAppOption>({
           return new Member({
             id: res.uid,
             name: res.nickname,
-            exp: getExpFromRole(res.role),
+            exp: res.exp,
             isAdmin: res.role == 'ADMIN',
             gender: res.gender,
             avatarUrl: res.avatarUrl,
@@ -1197,20 +1197,20 @@ App<IAppOption>({
           content: '确定要解散该频道吗？',
           success(res) {
             if (res.confirm) {
-              const userList = that.globalData.currentData.userList as User[];
-              const groupList = that.globalData.currentData.groupList as Group[];
-              const tourList = that.globalData.currentData.tourList as Tour[];
-              const postList = that.globalData.currentData.postList as Post[];
-              const commentList = that.globalData.currentData.commentList as Comment[];
+              const userList = that.getUserListCopy();
+              const groupList = that.getGroupListCopy();
+              const tourList = that.getTourListCopy();
+              const postList = that.getPostListCopy();
+              const commentList = that.getCommentListCopy();
               userList.forEach(user => {
                 user.joinedChannel = user.joinedChannel.filter(
-                  channelId => channelId !== channelId
+                  _channelId => _channelId != channelId
                 );
                 user.adminingChannel = user.adminingChannel.filter(
-                  channelId => channelId !== channelId
+                  _channelId => _channelId != channelId
                 );
                 user.havingChannel = user.havingChannel.filter(
-                  channelId => channelId !== channelId
+                  _channelId => _channelId != channelId
                 );
                 user.joinedGroup = user.joinedGroup.filter(
                   groupId => that.getGroup(groupId)?.linkedChannel !== channelId
@@ -1261,9 +1261,20 @@ App<IAppOption>({
   async getFullPost(postId: number): Promise<Post | undefined> {
     if (!this.globalData.testMode) {
       try {
-        const res = await HttpUtil.get({ url: `/post/${postId}/detail` });
-        const post = res.data.data as Post;
-        console.log(post);
+        const res = (await HttpUtil.get({ url: `/post/${postId}/detail` })).data.data;
+        const post = new Post({
+          id: res.postId,
+          title: res.title,
+          content: res.content,
+          user: res.user.uid,
+          linkedChannel: res.channelId,
+          isSticky: res.isSticky,
+          likes: res.action.isLiked
+            ? [this.globalData.currentUserId, ...Array(Math.max(res.likeSum - 1, 0)).fill(0)]
+            : Array(res.likeSum).fill(0),
+          time: res.createdAt,
+          photos: res.pictureUrls.map((photo: any) => new Photo({ value: photo })),
+        });
         return post;
       } catch (err: any) {
         console.error(err);
@@ -1280,16 +1291,83 @@ App<IAppOption>({
   },
   async getFullCommentsInPost(postId: number): Promise<Comment[]> {
     if (!this.globalData.testMode) {
-      return [];
+      try {
+        const res = await HttpUtil.get({ url: `/post/${postId}/comments` });
+        const comments = res.data.data.map((res: any) => {
+          return new Comment({
+            id: res.commentId,
+            content: res.content,
+            linkedPost: postId,
+            user: res.uid,
+            time: res.createdAt,
+            likes: res.isLiked
+              ? [this.globalData.currentUserId, ...Array(Math.max(res.likeSum - 1, 0)).fill(0)]
+              : Array(res.likeSum).fill(0),
+            photos: res.pictureUrls.map((photo: any) => new Photo({ value: photo })),
+            parentComment: (res.rootId == 0 && res.parentId == 0) ? -1 : res.parentId,
+          });
+        });
+        return comments;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return [];
+      }
     } else {
       return this.getCommentListCopy().filter(
         comment => comment.linkedPost === postId
       )
     }
   },
-  async handlePostLike(postId: number): Promise<Post | undefined> {
+  async getMembersInPost(postId: number): Promise<Member[]> {
     if (!this.globalData.testMode) {
-      return undefined;
+      try {
+        const res = await HttpUtil.get({ url: `/post/${postId}/members` });
+        const members = res.data.data.map((res: any) => {
+          return new Member({
+            id: res.uid,
+            name: res.nickname,
+            exp: res.exp,
+            isAdmin: res.role == 'ADMIN',
+            gender: res.gender,
+            avatarUrl: res.avatarUrl,
+            email: res.email,
+            phone: res.phone,
+            signature: res.signature,
+            birthday: res.birthday,
+            userGroup: translateUserRole(res.role),
+          });
+        })
+        return members;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return [];
+      }
+    } else {
+      return (await this.getMembersInChannel(this.getPost(postId)?.linkedChannel!)).members;
+    }
+  },
+  async handlePostLike(postId: number, isLiked: boolean): Promise<Post | undefined> {
+    if (!this.globalData.testMode) {
+      try {
+        if (!isLiked) await HttpUtil.post({ url: `/post/${postId}/like` });
+        else await HttpUtil.delete({ url: `/post/${postId}/like` });
+        return await this.getFullPost(postId);
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return undefined;
+      }
     } else {
       const currentPost = this.getPost(postId);
       const currentUserId = this.globalData.currentUserId;
@@ -1303,53 +1381,131 @@ App<IAppOption>({
       return currentPost;
     }
   },
-  async handleCommentLike(commentId: number, structedComments: StructedComment[]): Promise<StructedComment[]> {
+  async handlePostStick(post: Post): Promise<Post | undefined> {
     if (!this.globalData.testMode) {
-      return structedComments;
-    } else {
-      const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
-      const currentUserId = this.globalData.currentUserId;
-      const comment = _structedComments.find((comment: any) => comment.id == commentId);
-      if (!comment) { return _structedComments; }
-      if (comment.likes.includes(currentUserId)) {
-        comment.likes = comment.likes.filter((id: any) => id !== currentUserId);
-      } else {
-        comment.likes.push(currentUserId);
+      try {
+        if(!post.isSticky) await HttpUtil.post({url: `/post/${post.id}/top`,});
+        else await HttpUtil.delete({url: `/post/${post.id}/top`,});
+        post.isSticky = !post.isSticky;
+        return post;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return post;
       }
+    } else {
+      post.isSticky = !post.isSticky;
+      this.updatePost(post);
+      return post;
+    }
+  },
+  async handleCommentLike(commentId: number, structedComments: StructedComment[]): Promise<StructedComment[]> {
+    const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
+    const currentUserId = this.globalData.currentUserId;
+    const comment = _structedComments.find((comment: any) => comment.id == commentId);
+    if (!comment) { return _structedComments; }
+    if (comment.likes.includes(currentUserId)) {
+      comment.likes = comment.likes.filter((id: any) => id !== currentUserId);
+    } else {
+      comment.likes.push(currentUserId);
+    }
+    if (!this.globalData.testMode) {
+      try {
+        if (comment.likes.includes(currentUserId)) {
+          await HttpUtil.post({ url: `/comment/${commentId}/like` });
+        } else {
+          await HttpUtil.delete({ url: `/comment/${commentId}/like` });
+        }
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return structedComments;
+      }
+    } else {
       const newComment = this.getComment(commentId) as Comment;
       newComment.likes = comment.likes;
       this.updateComment(newComment);
-      return _structedComments;
     }
+    return _structedComments;
   },
   async handleReplyLike(commentId: number, replyId: number, structedComments: StructedComment[]): Promise<{ structedComments: StructedComment[], replies: StructedComment[] }> {
-    if (!this.globalData.testMode) {
-      return { structedComments, replies: [] };
+    const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
+    const currentUserId = this.globalData.currentUserId;
+    const comment = _structedComments.find((comment: any) => comment.id == commentId);
+    if (!comment) { return { structedComments: _structedComments, replies: [] }; }
+    const reply = comment.replies.find((reply: any) => reply.id == replyId);
+    if (!reply) { return { structedComments: _structedComments, replies: [] }; }
+    if (reply.likes.includes(currentUserId)) {
+      reply.likes = reply.likes.filter((id: any) => id !== currentUserId);
     } else {
-      const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
-      const currentUserId = this.globalData.currentUserId;
-
-      const comment = _structedComments.find((comment: any) => comment.id == commentId);
-      if (!comment) { return { structedComments: _structedComments, replies: [] }; }
-      const reply = comment.replies.find((reply: any) => reply.id == replyId);
-      if (!reply) { return { structedComments: _structedComments, replies: [] }; }
-
-      if (reply.likes.includes(currentUserId)) {
-        reply.likes = reply.likes.filter((id: any) => id !== currentUserId);
-      } else {
-        reply.likes.push(currentUserId);
+      reply.likes.push(currentUserId);
+    }
+    if (!this.globalData.testMode) {
+      try {
+        if (comment.likes.includes(currentUserId)) {
+          await HttpUtil.post({ url: `/comment/${replyId}/like` });
+        } else {
+          await HttpUtil.delete({ url: `/comment/${replyId}/like` });
+        }
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return { structedComments, replies: [] };
       }
-
+    } else {
       const newComment = this.getComment(replyId) as Comment;
       newComment.likes = reply.likes;
       this.updateComment(newComment);
-
-      return { structedComments: _structedComments, replies: comment.replies };
     }
+    return { structedComments: _structedComments, replies: comment.replies };
   },
   async handleCommentSend(comment: Comment): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        if (comment.parentComment > 0) {
+          console.log("开始发送1");
+          const pictures = comment.photos.map((file) => (file.value));
+          console.log(pictures);
+          await HttpUtil.post({
+            url: `/comment/${comment.parentComment}/reply`,
+            jsonData: {
+              content: comment.content,
+              pictures: pictures,
+            }
+          });
+          console.log("已发送1");
+        } else {
+          console.log("开始发送2");
+          console.log(comment.photos);
+          const pictures = comment.photos.map((file) => (file.value));
+          console.log(pictures);
+          await HttpUtil.post({
+            url: `/post/${comment.linkedPost}/comment`,
+            jsonData: {
+              content: comment.content,
+              pictures: pictures,
+            }
+          });
+          console.log("已发送2");
+        }
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       comment.id = getNewId(this.globalData.currentData.commentList);
       this.addComment(comment);
@@ -1358,7 +1514,17 @@ App<IAppOption>({
   },
   async handleCommentDelete(commentId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.delete({ url: `/comment/${commentId}` });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const that = this;
       // 递归移除指定评论及其所有回复
@@ -1374,7 +1540,17 @@ App<IAppOption>({
   },
   async handleReplyDelete(replyId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.delete({ url: `/comment/${replyId}` });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const commentList = this.getCommentListCopy();
       // 递归获取所有子回复的 id
@@ -1391,7 +1567,17 @@ App<IAppOption>({
   },
   async handlePostDelete(postId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.delete({ url: `/post/${postId}` });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       this.getCommentListCopy().forEach((comment: any) => {
         if (comment.linkedPost === postId) {
@@ -1439,7 +1625,7 @@ App<IAppOption>({
           return new Member({
             id: res.uid,
             name: res.nickname,
-            exp: getExpFromRole(res.role),
+            exp: res.exp,
             isAdmin: res.role == 'ADMIN',
             gender: res.gender,
             avatarUrl: res.avatarUrl,
@@ -1737,7 +1923,7 @@ App<IAppOption>({
   },
   async changeGroupQrCode(groupId: number, qrCodeUrl: string): Promise<boolean> {
     if (!this.globalData.testMode) {
-      try{
+      try {
         await HttpUtil.put({ url: `/group/qrCode/${groupId}`, jsonData: { base64: qrCodeUrl } });
         return true;
       } catch (err: any) {
@@ -1957,7 +2143,7 @@ App<IAppOption>({
   },
   async changeUserAvatar(avatar: string): Promise<boolean> {
     if (!this.globalData.testMode) {
-      try{
+      try {
         await HttpUtil.put({ url: '/user/avatar', jsonData: { base64: avatar } });
         return true;
       } catch (err: any) {

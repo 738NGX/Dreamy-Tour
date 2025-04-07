@@ -1,14 +1,16 @@
 import dbPromise from "@/config/databaseConfig";
 import ChannelConstant from "@/constant/channelConstant";
+import CosConstant from "@/constant/cosConstant";
 import RoleConstant from "@/constant/RoleConstant";
 import ParamsError from "@/exception/paramsError";
+import { randomInt } from "node:crypto";
 
 /*
  * 帖子相关的工具类
  * @Author: Franctoryer 
  * @Date: 2025-03-29 14:15:57 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-29 15:37:01
+ * @Last Modified time: 2025-04-07 20:05:09
  */
 class PostUtil {
   /**
@@ -123,6 +125,15 @@ class PostUtil {
       ]
     )
     return typeof exists !== 'undefined';
+  }
+
+  /**
+   * 对于没有图片的帖子，生成一个随机的默认图片
+   */
+  static generateDefaultPictureUrl(): string {
+    // 生成随机数
+    const rand = randomInt(1, 30);
+    return `${CosConstant.BASE_URL}/${CosConstant.POST_PICTURES_FOLDER}/${rand}.jpg`;
   }
 }
 

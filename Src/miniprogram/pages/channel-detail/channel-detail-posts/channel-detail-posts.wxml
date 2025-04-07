@@ -1,3 +1,4 @@
+<wxs module="util" src="../../../utils/util.wxs"></wxs>
 <view class="example-search">
   <t-search placeholder="搜索帖子" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" shape="round" style="height:60rpx"/>
 </view>
@@ -66,9 +67,9 @@
       </view>
     </view>
   </view>
-  <view wx:else style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
-    <image src="https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/ui/2011.png" mode="widthFix" width="200"/>
-    <text>频道内还没有任何帖子</text>
+  <view wx:else style="height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <image src="{{util.randomCharPicture(1,1)}}" mode="widthFix" style="width:400rpx;"/>
+    <text style="margin-top:32rpx; width:80%;text-align:center;">频道内还没有任何讨论帖\n点击右下角的按钮发出第一条讨论吧!</text>
   </view>
   <view style="height:400rpx" />
 </t-pull-down-refresh>

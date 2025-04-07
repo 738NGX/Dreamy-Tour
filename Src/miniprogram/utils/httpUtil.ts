@@ -124,16 +124,20 @@ class HttpUtil {
           {
             method: requestParams.method,
             headers: requestParams.header,
-            timeout: 60000
+            timeout: 180000
           }
         );
         if (debug) { console.log('backend result:', d) };
+        // 检查响应头是否有 X-Refresh-Token，如果有，刷新本地 token
+        const headers = d.headers as { [key: string]: string | undefined };
+        if (headers["X-Refresh-Token"]) {
+          wx.setStorageSync("token", headers["X-Refresh-Token"])
+        }
         wx.hideLoading();
         resolve(d);
       } catch (e: any) {
         wx.hideLoading();
         if (debug) { console.error('backend error:', e) };
-
         if (e.status === 1) {
           wx.showToast({ title: "请求超时", icon: "error", time: 2000 });
         } else if (e.status === 400) {

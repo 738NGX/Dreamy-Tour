@@ -279,6 +279,10 @@ export async function getImageBase64(tempFilePath: string): Promise<string> {
         data
       }) => {
         return resolve('data:image/png;base64,' + data);
+      },
+      fail: (err) => {
+        console.error('getImageBase64 error:', err);
+        throw new Error('getImageBase64 error: ' + err);
       }
     });
   });

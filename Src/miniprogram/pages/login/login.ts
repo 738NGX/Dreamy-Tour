@@ -1,6 +1,8 @@
 //import { apiUrl } from "../../utils/httpUtil";
 const apiUrl = "https://dreamy-tour.738ngx.site/api";
 
+const app = getApp<IAppOption>();
+
 // pages/login/login.ts
 Page({
   data: {
@@ -8,13 +10,14 @@ Page({
   },
   onShow() {
     wx.removeStorageSync("token");
+    app.globalData.currentUserId = 1;
   },
-  wxLogin() {
-    getApp<IAppOption>().globalData.testMode = false;
+  async wxLogin() {
+    app.globalData.testMode = false;
     this.handleLogin();
   },
   enterTestMode() {
-    getApp<IAppOption>().globalData.testMode = true;
+    app.globalData.testMode = true;
     this.handleLogin();
   },
   handleLogin() {

@@ -2,7 +2,6 @@ import { Reporter } from "../../utils/reporter/reporter";
 import { ReporterForUser } from "../../utils/reporter/reporterForUser";
 import { currencyList } from "../../utils/tour/expense";
 import { Tour } from "../../utils/tour/tour";
-import { UserBasic } from "../../utils/user/user";
 import { displayNumber } from "../../utils/util";
 
 const app = getApp<IAppOption>();
@@ -71,7 +70,7 @@ Component({
     },
     async updateData() {
       const tourMemberList = await app.getMembersInTour(this.data.currentTour.id);
-      const currentUserId = (await app.getCurrentUser() as UserBasic).id;
+      const currentUserId = app.globalData.currentUserId;
       const currentUserList = tourMemberList.filter((user) => { return user.id !== currentUserId })
       const memberOptions = [
         { label: '群组', value: -1 },

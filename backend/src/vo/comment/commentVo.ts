@@ -1,12 +1,6 @@
-/*
- * 评论实体类
- * @Author: Franctoryer 
- * @Date: 2025-03-08 00:00:00 
- * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-06 16:23:19
- */
+import VO from "@/base/vo";
 
-class Comment {
+class CommentVo extends VO<CommentVo> {
   // 评论 ID
   commentId: number;
 
@@ -17,7 +11,7 @@ class Comment {
   postId: number;
 
   // 评论图片
-  pictureUrls: string;
+  pictureUrls: string[];
 
   // 父评论 ID，如果是顶级评论则为 null 或 0
   parentId: number;
@@ -28,6 +22,12 @@ class Comment {
   // 评论内容
   content: string;
 
+  // 点赞数
+  likeSum: number;
+
+  // 是否点赞该评论
+  isLiked: boolean
+
   // 创建时间
   createdAt: number;
 
@@ -35,4 +35,4 @@ class Comment {
   updatedAt: number;
 }
 
-export default Comment;
+export default CommentVo;

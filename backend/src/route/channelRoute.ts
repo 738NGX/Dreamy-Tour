@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-25 19:02:30 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-05 22:51:56
+ * @Last Modified time: 2025-04-06 09:52:25
  */
 import AuthConstant from "@/constant/authConstant";
 import MessageConstant from "@/constant/messageConstant";
@@ -21,16 +21,6 @@ import { url } from "inspector";
 import PageDto from "@/dto/common/pageDto";
 
 const channelRoute = express.Router();
-
-/**
- * @description 获取用户加入的频道列表（兼容老版本）
- * @method GET
- * @path /channel/joined/list
- */
-channelRoute.get('/channel/joined/list', async (req: Request, res: Response) => {
-  const version = "v1";
-  res.redirect(`/${version}/channel/joined/list`);
-});
 
 /**
  * @description 获取用户加入的频道列表（不包括世界频道；没有分页）
@@ -63,16 +53,6 @@ channelRoute.get('/v2/channel/joined/list', async (req: Request, res: Response) 
 });
 
 // ========================================
-
-/**
- * @description 获取用户没有加入的频道列表（兼容老版本）
- * @method GET
- * @path /channel/unjoined/list
- */
-channelRoute.get('/channel/unjoined/list', async (req: Request, res: Response) => {
-  const version = "v1";
-  res.redirect(`/${version}/channel/unjoined/list`)
-})
 
 /**
  * @description 获取用户没有加入的频道列表（不分页）

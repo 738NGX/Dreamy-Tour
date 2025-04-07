@@ -111,6 +111,8 @@ CREATE TABLE comments (
     parentId INTEGER,
     rootId INTEGER,
     content TEXT,
+    pictureUrls TEXT,
+    likeSum INTEGER,
     createdAt INTEGER,
     updatedAt INTEGER,
     FOREIGN KEY (uid) REFERENCES users(uid) ON DELETE CASCADE,
@@ -289,6 +291,28 @@ BEGIN
     SET favoriteSum = favoriteSum - 1
     WHERE postId = OLD.postId;
 END;
+
+-- @@@@@@@@@@@@@ 评论表（comments）@@@@@@@@@@@@@
+-- 点赞评论触发器
+CREATE TRIGGER IF NOT EXISTS increment_comment_like_sum
+AFTER INSERT ON likes
+WHEN NEW.objType = 1
+BEGIN
+    UPDATE comments
+    SET likeSum = likeSum + 1
+    WHERE commentId = NEW.objId;
+END;
+
+-- 取消点赞评论触发器
+CREATE TRIGGER IF NOT EXISTS decrement_comment_like_sum
+AFTER DELETE ON likes
+WHEN OLD.objType = 1
+BEGIN
+    UPDATE comments
+    SET likeSum = likeSum - 1
+    WHERE commentId = OLD.objId;
+END;
+
 
 -- 创建用户roleId对于exp的触发器,当exp改变且roleId不为7时,根据exp的值重新确定roleId
 CREATE TRIGGER IF NOT EXISTS update_roleId_on_exp_change

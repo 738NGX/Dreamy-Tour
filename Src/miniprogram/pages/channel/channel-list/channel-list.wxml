@@ -1,11 +1,18 @@
+<wxs module="util" src="../../../utils/util.wxs"></wxs>
 <view class="example-search">
-  <t-search placeholder="搜索频道" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" shape="round" style="height:60rpx"/>
+  <t-search placeholder="搜索频道" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" shape="round" style="height:60rpx" />
 </view>
 <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
-  <block wx:for="{{channelList}}" wx:key="index" wx:for-index="i">
+  <block wx:if="{{channelList.length>0}}" wx:for="{{channelList}}" wx:key="index" wx:for-index="i">
     <t-cell title="{{item.name}}" description="{{item.description}}" arrow data-index="{{item.id}}" bind:click="onChannelClick" hover>
       <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
     </t-cell>
+  </block>
+  <block wx:if="{{channelList.length==0}}">
+    <view style="height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <image src="{{util.randomCharPicture(0,1)}}" mode="widthFix" style="width:400rpx;" />
+      <text style="margin-top:32rpx; width:80%;text-align:center;">感谢使用梦旅!现在你还没有加入任何频道.\n可以切换到添加频道页面添加你的第一个频道.\n每个页面上均可点击左上角帮助按钮以获得更多使用提示.</text>
+    </view>
   </block>
   <view style="height:400rpx" />
 </t-pull-down-refresh>

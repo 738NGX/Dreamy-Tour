@@ -1,12 +1,4 @@
-/*
- * 评论实体类
- * @Author: Franctoryer 
- * @Date: 2025-03-08 00:00:00 
- * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-06 16:23:19
- */
-
-class Comment {
+class CommentBo {
   // 评论 ID
   commentId: number;
 
@@ -28,6 +20,12 @@ class Comment {
   // 评论内容
   content: string;
 
+  // 点赞数
+  likeSum: number;
+
+  // 是否点赞该评论
+  isLiked: number
+
   // 创建时间
   createdAt: number;
 
@@ -35,4 +33,4 @@ class Comment {
   updatedAt: number;
 }
 
-export default Comment;
+export default CommentBo;

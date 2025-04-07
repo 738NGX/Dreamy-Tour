@@ -23,6 +23,8 @@ class PostDetailVo extends VO<PostDetailVo> {
   createdAt: number
   // 帖子更新时间
   updatedAt: number
+  // 是否置顶
+  isSticky: boolean
   // 用户相关信息
   user: {
     // 用户 ID
