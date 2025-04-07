@@ -763,7 +763,7 @@ App<IAppOption>({
           return new Member({
             id: res.uid,
             name: res.nickname,
-            exp: getExpFromRole(res.role),
+            exp: res.exp,
             isAdmin: res.role == 'ADMIN',
             gender: res.gender,
             avatarUrl: res.avatarUrl,
@@ -1261,14 +1261,16 @@ App<IAppOption>({
   async getFullPost(postId: number): Promise<Post | undefined> {
     if (!this.globalData.testMode) {
       try {
-        const res = await HttpUtil.get({ url: `/post/${postId}/detail` });
-        const { user, channelId, pictureUrls, ...postRest } = res.data.data;
+        const res = (await HttpUtil.get({ url: `/post/${postId}/detail` })).data.data;
         const post = new Post({
-          id: postId,
-          user: user.uid,
-          linkedChannel: channelId,
-          photos: pictureUrls.map((photo: any) => new Photo({ value: photo })),
-          ...postRest
+          id: res.postId,
+          title: res.title,
+          content: res.content,
+          user: res.user.uid,
+          linkedChannel: res.channelId,
+          likes: res.action.isLiked ? Array(res.likeSum).fill(this.globalData.currentUserId) : Array(res.likeSum).fill(0),
+          time: res.createdAt,
+          photos: res.pictureUrls.map((photo: any) => new Photo({ value: photo })),
         });
         return post;
       } catch (err: any) {
@@ -1286,11 +1288,65 @@ App<IAppOption>({
   },
   async getFullCommentsInPost(postId: number): Promise<Comment[]> {
     if (!this.globalData.testMode) {
-      return [];
+      try {
+        const res = await HttpUtil.get({ url: `/post/${postId}/comments` });
+        const comments = res.data.data.map((res: any) => {
+          return new Comment({
+            id: res.commentId,
+            content: res.content,
+            linkedPost: postId,
+            user: res.uid,
+            time: res.createdAt,
+            likes: Array(res.likeSum).fill(0),
+            photos: res.pictureUrls.map((photo: any) => new Photo({ value: photo })),
+            parentComment: (res.rootId == 0 && res.parentId == 0) ? -1 : res.parentId,
+          });
+        });
+        return comments;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return [];
+      }
     } else {
       return this.getCommentListCopy().filter(
         comment => comment.linkedPost === postId
       )
+    }
+  },
+  async getMembersInPost(postId: number): Promise<Member[]> {
+    if (!this.globalData.testMode) {
+      try {
+        const res = await HttpUtil.get({ url: `/post/${postId}/members` });
+        const members = res.data.data.map((res: any) => {
+          return new Member({
+            id: res.uid,
+            name: res.nickname,
+            exp: res.exp,
+            isAdmin: res.role == 'ADMIN',
+            gender: res.gender,
+            avatarUrl: res.avatarUrl,
+            email: res.email,
+            phone: res.phone,
+            signature: res.signature,
+            birthday: res.birthday,
+            userGroup: translateUserRole(res.role),
+          });
+        })
+        return members;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return [];
+      }
+    } else {
+      return (await this.getMembersInChannel(this.getPost(postId)?.linkedChannel!)).members;
     }
   },
   async handlePostLike(postId: number): Promise<Post | undefined> {
@@ -1355,7 +1411,42 @@ App<IAppOption>({
   },
   async handleCommentSend(comment: Comment): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        if (comment.parentComment > 0) {
+          console.log("开始发送1");
+          const pictures = comment.photos.map((file) => (file.value));
+          console.log(pictures);
+          await HttpUtil.post({
+            url: `/comment/${comment.parentComment}/reply`,
+            jsonData: {
+              content: comment.content,
+              pictures: pictures,
+            }
+          });
+          console.log("已发送1");
+        } else {
+          console.log("开始发送2");
+          console.log(comment.photos);
+          const pictures = comment.photos.map((file) => (file.value));
+          console.log(pictures);
+          await HttpUtil.post({
+            url: `/post/${comment.linkedPost}/comment`,
+            jsonData: {
+              content: comment.content,
+              pictures: pictures,
+            }
+          });
+          console.log("已发送2");
+        }
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       comment.id = getNewId(this.globalData.currentData.commentList);
       this.addComment(comment);
@@ -1445,7 +1536,7 @@ App<IAppOption>({
           return new Member({
             id: res.uid,
             name: res.nickname,
-            exp: getExpFromRole(res.role),
+            exp: res.exp,
             isAdmin: res.role == 'ADMIN',
             gender: res.gender,
             avatarUrl: res.avatarUrl,

@@ -104,7 +104,7 @@ Component({
     },
     async init() {
       const { currentPost } = this.data;
-      const { members } = await app.getMembersInChannel(currentPost.linkedChannel);
+      const members = await app.getMembersInPost(currentPost.id);
       const commentList = await app.getFullCommentsInPost(currentPost.id);
 
       const author = members.find(member => member.id === currentPost.user);

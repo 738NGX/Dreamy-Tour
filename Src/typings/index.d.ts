@@ -244,6 +244,7 @@ declare global {
      * @param postId 
      */
     getFullCommentsInPost(postId: number): Promise<Comment[]>
+    getMembersInPost(postId: number): Promise<Member[]>;
     /**
      * 对帖子进行点赞或取消点赞
      * @param postId 帖子id

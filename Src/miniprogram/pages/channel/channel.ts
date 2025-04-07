@@ -1,6 +1,11 @@
+import { UserBasic } from "../../utils/user/user";
+
 /**
  * 频道主页面
  */
+
+const app = getApp<IAppOption>();
+
 Component({
   data: {
     // 页面显示内容
@@ -13,8 +18,12 @@ Component({
     childPage: 0,
   },
   methods: {
-    onLoad() {
-
+    async onLoad() {
+      if (!app.globalData.testMode && app.globalData.currentUserId <= 30) {
+        const currentUserId = (await app.getCurrentUser() as UserBasic).id;
+        app.globalData.currentUserId = currentUserId;
+        console.log("currentUserId", currentUserId);
+      }
     },
     onShow() {
       if (typeof this.getTabBar === 'function' && this.getTabBar()) {
