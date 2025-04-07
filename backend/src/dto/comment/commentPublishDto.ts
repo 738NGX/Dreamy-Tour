@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-04-05 19:37:57 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-05 19:42:54
+ * @Last Modified time: 2025-04-07 11:59:28
  */
 import DTO from "@/base/dto";
 import { Expose, Type } from "class-transformer";
@@ -21,7 +21,7 @@ class CommentPublishDto extends DTO<CommentPublishDto> {
   // 帖子图片
   @Expose()
   @ArrayMaxSize(8, {
-    message: "评论最多上传 $constraint 张图片"
+    message: "评论最多上传 $constraint1 张图片"
   })
   pictures: string[]
 }
