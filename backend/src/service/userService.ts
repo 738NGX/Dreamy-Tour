@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-23 19:32:51
+ * @Last Modified time: 2025-04-07 09:28:11
  */
 import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
@@ -30,6 +30,7 @@ import { StatusCodes } from "http-status-codes";
 import RoleDto from "@/dto/user/roleDto";
 import RoleUtil from "@/util/roleUtil";
 import RoleConstant from "@/constant/RoleConstant";
+import AuthConstant from "@/constant/authConstant";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
@@ -234,6 +235,7 @@ class UserService {
           throw new ParamsError("角色类型错误");
       }
     }
+    // 更新角色类型
     await db.run(
       `
       UPDATE users SET roleId = ?
@@ -244,6 +246,7 @@ class UserService {
         uid
       ]
     )
+    // 更新经验值
     await db.run(
       `
       UPDATE users SET exp = ?
@@ -254,6 +257,8 @@ class UserService {
         uid
       ]
     )
+    // 放入更新队列
+    AuthConstant.UPDATE_UID_LIST.add(uid);
   }
 
   /**
