@@ -75,7 +75,7 @@
     <t-avatar image="{{currentUser.avatarUrl}}" class="avatar" size="40px" style="margin-left:15rpx;" />
     <t-button bind:tap="handleCommentInput" theme="light" t-class="bottom-bar-input" style="width:500rpx" shape="round" icon="edit-2" content="说点什么..." size="medium"></t-button>
     <view class="likes">
-      <t-icon bind:click="handleLike" wx:if="{{!util.isInArray(currentPost.likes,currentUserId)}}" name="heart" size="30" style="margin-right:10rpx;" />
+      <t-icon bind:click="handleLike" wx:if="{{!util.isInArray(currentPost.likes,currentUser.id)}}" name="heart" size="30" style="margin-right:10rpx;" />
       <t-icon bind:click="handleLike" wx:else color="#DF0000" name="heart-filled" size="30" style="margin-right:10rpx;" />
       {{ currentPost.likes.length >=10000 ? util.numberToFixed(currentPost.likes.length / 10000, 1) + 'w' : currentPost.likes.length }}
     </view>
@@ -109,7 +109,7 @@
         </view>
         <view class="comment-like">
           <t-icon bind:click="handleReplyLike" data-index="{{[repliesParent,item.id]}}" wx:if="{{!util.isInArray(item.likes,currentUserId)}}" name="heart" size="24" />
-          <t-icon bind:click="handleReplyLike" data-index="{{[repliesParent,item.id]}}" wx:else color="#0052d9" name="heart-filled" size="24" />
+          <t-icon bind:click="handleReplyLike" data-index="{{[repliesParent,item.id]}}" wx:else color="#DF0000" name="heart-filled" size="24" />
           {{ item.likes.length >=10000 ? util.numberToFixed(item.likes.length / 10000, 1) + 'w' : item.likes.length }}
         </view>
       </view>

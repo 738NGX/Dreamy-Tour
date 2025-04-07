@@ -60,7 +60,7 @@ Component({
   data: {
     refreshEnable: false,
 
-    currentUserId: app.globalData.currentUserId,
+    currentUserId: -1,
     currentUser: {} as UserBasic,
     isChannelAdmin: false,
     currentPost: {} as Post,
@@ -95,6 +95,8 @@ Component({
       const currentPost = await app.getFullPost(parseInt(postId)) as Post;
       const { isChannelAdmin } = await app.getUserAuthorityInChannel(currentPost.linkedChannel)
       this.setData({ currentPost, isChannelAdmin, currentUser: await app.getCurrentUser() });
+      const currentUserId = this.data.currentUser.id;
+      this.setData({ currentUserId });
       await this.init();
     },
     async onRefresh() {
@@ -187,7 +189,7 @@ Component({
       }
     },
     async handleLike() {
-      const currentPost = await app.handlePostLike(this.data.currentPost.id);
+      const currentPost = await app.handlePostLike(this.data.currentPost.id, this.data.currentPost.likes.includes(this.data.currentUserId));
       if (!currentPost) {
         wx.showToast({
           title: '操作失败',
@@ -313,7 +315,7 @@ Component({
         async success(res) {
           if (res.confirm) {
             const comment = e.currentTarget.dataset.index?.id;
-            if (await app.handleCommentDelete(comment)) { that.onRefresh(); }
+            if (await app.handleCommentDelete(comment)) { await that.onRefresh(); }
             else {
               wx.showToast({
                 title: '删除失败',
@@ -336,7 +338,7 @@ Component({
             const replyId = e.currentTarget.dataset.index?.id;
             const parentComment = e.currentTarget.dataset.index?.parentComment;
             if (await app.handleReplyDelete(replyId)) {
-              that.onRefresh();
+              await that.onRefresh();
               const replies = that.data.structedComments.find((comment) => comment.id == parentComment)?.replies;
               that.setData({ replies });
             } else {
@@ -370,11 +372,11 @@ Component({
         }
       });
     },
-    onPostStickyChange() {
-      const currentPost = new Post(this.data.currentPost);
-      currentPost.isSticky = !currentPost.isSticky;
-      app.updatePost(currentPost);
-      this.setData({ currentPost });
+    async onPostStickyChange() {
+      const currentPost = await app.handlePostStick(new Post(this.data.currentPost));
+      if (currentPost) {
+        this.setData({ currentPost });
+      }
     }
   }
 });

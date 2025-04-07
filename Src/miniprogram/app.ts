@@ -1268,7 +1268,10 @@ App<IAppOption>({
           content: res.content,
           user: res.user.uid,
           linkedChannel: res.channelId,
-          likes: res.action.isLiked ? Array(res.likeSum).fill(this.globalData.currentUserId) : Array(res.likeSum).fill(0),
+          isSticky: res.isSticky,
+          likes: res.action.isLiked
+            ? [this.globalData.currentUserId, ...Array(Math.max(res.likeSum - 1, 0)).fill(0)]
+            : Array(res.likeSum).fill(0),
           time: res.createdAt,
           photos: res.pictureUrls.map((photo: any) => new Photo({ value: photo })),
         });
@@ -1297,7 +1300,9 @@ App<IAppOption>({
             linkedPost: postId,
             user: res.uid,
             time: res.createdAt,
-            likes: Array(res.likeSum).fill(0),
+            likes: res.isLiked
+              ? [this.globalData.currentUserId, ...Array(Math.max(res.likeSum - 1, 0)).fill(0)]
+              : Array(res.likeSum).fill(0),
             photos: res.pictureUrls.map((photo: any) => new Photo({ value: photo })),
             parentComment: (res.rootId == 0 && res.parentId == 0) ? -1 : res.parentId,
           });
@@ -1349,9 +1354,20 @@ App<IAppOption>({
       return (await this.getMembersInChannel(this.getPost(postId)?.linkedChannel!)).members;
     }
   },
-  async handlePostLike(postId: number): Promise<Post | undefined> {
+  async handlePostLike(postId: number, isLiked: boolean): Promise<Post | undefined> {
     if (!this.globalData.testMode) {
-      return undefined;
+      try {
+        if (!isLiked) await HttpUtil.post({ url: `/post/${postId}/like` });
+        else await HttpUtil.delete({ url: `/post/${postId}/like` });
+        return await this.getFullPost(postId);
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return undefined;
+      }
     } else {
       const currentPost = this.getPost(postId);
       const currentUserId = this.globalData.currentUserId;
@@ -1365,49 +1381,92 @@ App<IAppOption>({
       return currentPost;
     }
   },
-  async handleCommentLike(commentId: number, structedComments: StructedComment[]): Promise<StructedComment[]> {
+  async handlePostStick(post: Post): Promise<Post | undefined> {
     if (!this.globalData.testMode) {
-      return structedComments;
-    } else {
-      const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
-      const currentUserId = this.globalData.currentUserId;
-      const comment = _structedComments.find((comment: any) => comment.id == commentId);
-      if (!comment) { return _structedComments; }
-      if (comment.likes.includes(currentUserId)) {
-        comment.likes = comment.likes.filter((id: any) => id !== currentUserId);
-      } else {
-        comment.likes.push(currentUserId);
+      try {
+        if(!post.isSticky) await HttpUtil.post({url: `/post/${post.id}/top`,});
+        else await HttpUtil.delete({url: `/post/${post.id}/top`,});
+        post.isSticky = !post.isSticky;
+        return post;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return post;
       }
-      const newComment = this.getComment(commentId) as Comment;
-      newComment.likes = comment.likes;
-      this.updateComment(newComment);
-      return _structedComments;
+    } else {
+      post.isSticky = !post.isSticky;
+      this.updatePost(post);
+      return post;
     }
   },
-  async handleReplyLike(commentId: number, replyId: number, structedComments: StructedComment[]): Promise<{ structedComments: StructedComment[], replies: StructedComment[] }> {
-    if (!this.globalData.testMode) {
-      return { structedComments, replies: [] };
+  async handleCommentLike(commentId: number, structedComments: StructedComment[]): Promise<StructedComment[]> {
+    const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
+    const currentUserId = this.globalData.currentUserId;
+    const comment = _structedComments.find((comment: any) => comment.id == commentId);
+    if (!comment) { return _structedComments; }
+    if (comment.likes.includes(currentUserId)) {
+      comment.likes = comment.likes.filter((id: any) => id !== currentUserId);
     } else {
-      const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
-      const currentUserId = this.globalData.currentUserId;
-
-      const comment = _structedComments.find((comment: any) => comment.id == commentId);
-      if (!comment) { return { structedComments: _structedComments, replies: [] }; }
-      const reply = comment.replies.find((reply: any) => reply.id == replyId);
-      if (!reply) { return { structedComments: _structedComments, replies: [] }; }
-
-      if (reply.likes.includes(currentUserId)) {
-        reply.likes = reply.likes.filter((id: any) => id !== currentUserId);
-      } else {
-        reply.likes.push(currentUserId);
-      }
-
-      const newComment = this.getComment(replyId) as Comment;
-      newComment.likes = reply.likes;
-      this.updateComment(newComment);
-
-      return { structedComments: _structedComments, replies: comment.replies };
+      comment.likes.push(currentUserId);
     }
+    const newComment = this.getComment(commentId) as Comment;
+    newComment.likes = comment.likes;
+    if (!this.globalData.testMode) {
+      try {
+        if (newComment.likes.includes(currentUserId)) {
+          await HttpUtil.post({ url: `/comment/${commentId}/like` });
+        } else {
+          await HttpUtil.delete({ url: `/comment/${commentId}/like` });
+        }
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return structedComments;
+      }
+    } else {
+      this.updateComment(newComment);
+    }
+    return _structedComments;
+  },
+  async handleReplyLike(commentId: number, replyId: number, structedComments: StructedComment[]): Promise<{ structedComments: StructedComment[], replies: StructedComment[] }> {
+    const _structedComments = JSON.parse(JSON.stringify(structedComments)) as StructedComment[];
+    const currentUserId = this.globalData.currentUserId;
+    const comment = _structedComments.find((comment: any) => comment.id == commentId);
+    if (!comment) { return { structedComments: _structedComments, replies: [] }; }
+    const reply = comment.replies.find((reply: any) => reply.id == replyId);
+    if (!reply) { return { structedComments: _structedComments, replies: [] }; }
+    if (reply.likes.includes(currentUserId)) {
+      reply.likes = reply.likes.filter((id: any) => id !== currentUserId);
+    } else {
+      reply.likes.push(currentUserId);
+    }
+    const newComment = this.getComment(replyId) as Comment;
+    newComment.likes = reply.likes;
+    if (!this.globalData.testMode) {
+      try {
+        if (newComment.likes.includes(currentUserId)) {
+          await HttpUtil.post({ url: `/comment/${replyId}/like` });
+        } else {
+          await HttpUtil.delete({ url: `/comment/${replyId}/like` });
+        }
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return { structedComments, replies: [] };
+      }
+    } else {
+      this.updateComment(newComment);
+    }
+    return { structedComments: _structedComments, replies: comment.replies };
   },
   async handleCommentSend(comment: Comment): Promise<boolean> {
     if (!this.globalData.testMode) {
@@ -1455,7 +1514,17 @@ App<IAppOption>({
   },
   async handleCommentDelete(commentId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.delete({ url: `/comment/${commentId}` });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const that = this;
       // 递归移除指定评论及其所有回复
@@ -1471,7 +1540,17 @@ App<IAppOption>({
   },
   async handleReplyDelete(replyId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.delete({ url: `/comment/${replyId}` });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const commentList = this.getCommentListCopy();
       // 递归获取所有子回复的 id
@@ -1488,7 +1567,17 @@ App<IAppOption>({
   },
   async handlePostDelete(postId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.delete({ url: `/post/${postId}` });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       this.getCommentListCopy().forEach((comment: any) => {
         if (comment.linkedPost === postId) {

@@ -47,7 +47,7 @@ class PostService {
     }
     const uploadPromises = pictures.map(async (picture, index) => {
       return await CosUtil.uploadBase64Picture(
-        CosConstant.POST_PICTURES_FOLDER, 
+        CosConstant.POST_PICTURES_FOLDER,
         picture
       );
     })
@@ -173,7 +173,7 @@ class PostService {
       uid, ChannelConstant.WORLD_CHANNEL_ID
     );
   }
-  
+
   /**
    * 获取公共频道的帖子列表（有分页）
    * @param uid 用户 ID
@@ -192,7 +192,7 @@ class PostService {
    * @param uid 用户 ID
    * @param channelId 频道 ID
    */
-  static async  getPostListByChannelId(uid: number, channelId: number): Promise<PostListVo[]> {
+  static async getPostListByChannelId(uid: number, channelId: number): Promise<PostListVo[]> {
     const db = await dbPromise;
     const rows = await db.all<PostListBo[]>(
       `
@@ -257,13 +257,13 @@ class PostService {
     const pageSize = pageDto.pageSize;
     // 先查总数据量
     const db = await dbPromise;
-    const { total } = await db.get<{total: number}>(
+    const { total } = await db.get<{ total: number }>(
       `
       SELECT COUNT(*) AS total FROM posts
       WHERE channelId = ?  
       `,
       [channelId]
-    ) as {total: number}
+    ) as { total: number }
     // 查数据
     const rows = await db.all<PostListBo[]>(
       `
@@ -522,6 +522,7 @@ class PostService {
         p.commentSum,
         p.forwardSum,
         p.favoriteSum,
+        p.isSticky,
         p.createdAt AS postCreatedAt,
         p.updatedAt AS postUpdatedAt,
         u.uid,
@@ -573,6 +574,7 @@ class PostService {
       commentSum: row.commentSum,
       forwardSum: row.forwardSum,
       favoriteSum: row.favoriteSum,
+      isSticky: Boolean(row.isSticky),
       createdAt: row.postCreatedAt,
       updatedAt: row.postUpdatedAt,
       user: {
@@ -597,7 +599,29 @@ class PostService {
    */
   static async getMembersByPostId(postId: number) {
     const db = await dbPromise;
-    const rows = await db.all<Partial<User[]>>(
+    // 获取频道主
+    const channelInfo = await db.get<Partial<{ masterId: number }>>(
+      `
+      SELECT masterId FROM channels WHERE channelId = (
+        SELECT channelId FROM posts WHERE postId = ?
+      )
+      `,
+      [postId]
+    );
+    if (!channelInfo) {
+      throw new NotFoundError("频道不存在");
+    }
+    // 获取频道管理员列表
+    const adminRows = await db.all<Partial<{ uid: number }>[]>(
+      `
+      SELECT uid FROM channel_admins WHERE channelId = (
+        SELECT channelId FROM posts WHERE postId = ?
+      )
+      `,
+      [postId]
+    );
+    const adminSet = new Set(adminRows.map(row => row.uid));
+    const rows = await db.all<Partial<User>[]>(
       `
       SELECT DISTINCT
         uid, nickname, gender, avatarUrl,
@@ -611,20 +635,30 @@ class PostService {
       `,
       [postId]
     );
-    return rows.map(row => new MemberVo({
-      uid: row?.uid,
-      nickname: row?.nickname,
-      gender: UserUtil.getGenderStr(row?.gender),
-      avatarUrl: row?.avatarUrl,
-      email: row?.email,
-      phone: row?.phone,
-      signature: row?.signature,
-      birthday: row?.birthday,
-      exp: row?.exp,
-      role: RoleUtil.roleNumberToString(row?.roleId as number),
-      createdAt: row?.createdAt,
-      updatedAt: row?.updatedAt
-    }))
+    return rows.map(row => {
+      let role: string;
+      if (row.uid === channelInfo.masterId) {
+        role = 'CHANNEL_OWNER';
+      } else if (adminSet.has(row.uid!)) {
+        role = 'CHANNEL_ADMIN';
+      } else {
+        role = RoleUtil.roleNumberToString(row.roleId as number);
+      }
+      return new MemberVo({
+        uid: row.uid,
+        nickname: row.nickname,
+        gender: UserUtil.getGenderStr(row.gender),
+        avatarUrl: row.avatarUrl,
+        email: row.email,
+        phone: row.phone,
+        signature: row.signature,
+        birthday: row.birthday,
+        exp: row.exp,
+        role: role,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt
+      })
+    })
   }
 }
 
