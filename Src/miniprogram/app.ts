@@ -1197,20 +1197,20 @@ App<IAppOption>({
           content: '确定要解散该频道吗？',
           success(res) {
             if (res.confirm) {
-              const userList = that.globalData.currentData.userList as User[];
-              const groupList = that.globalData.currentData.groupList as Group[];
-              const tourList = that.globalData.currentData.tourList as Tour[];
-              const postList = that.globalData.currentData.postList as Post[];
-              const commentList = that.globalData.currentData.commentList as Comment[];
+              const userList = that.getUserListCopy();
+              const groupList = that.getGroupListCopy();
+              const tourList = that.getTourListCopy();
+              const postList = that.getPostListCopy();
+              const commentList = that.getCommentListCopy();
               userList.forEach(user => {
                 user.joinedChannel = user.joinedChannel.filter(
-                  channelId => channelId !== channelId
+                  _channelId => _channelId != channelId
                 );
                 user.adminingChannel = user.adminingChannel.filter(
-                  channelId => channelId !== channelId
+                  _channelId => _channelId != channelId
                 );
                 user.havingChannel = user.havingChannel.filter(
-                  channelId => channelId !== channelId
+                  _channelId => _channelId != channelId
                 );
                 user.joinedGroup = user.joinedGroup.filter(
                   groupId => that.getGroup(groupId)?.linkedChannel !== channelId
@@ -1412,11 +1412,9 @@ App<IAppOption>({
     } else {
       comment.likes.push(currentUserId);
     }
-    const newComment = this.getComment(commentId) as Comment;
-    newComment.likes = comment.likes;
     if (!this.globalData.testMode) {
       try {
-        if (newComment.likes.includes(currentUserId)) {
+        if (comment.likes.includes(currentUserId)) {
           await HttpUtil.post({ url: `/comment/${commentId}/like` });
         } else {
           await HttpUtil.delete({ url: `/comment/${commentId}/like` });
@@ -1430,6 +1428,8 @@ App<IAppOption>({
         return structedComments;
       }
     } else {
+      const newComment = this.getComment(commentId) as Comment;
+      newComment.likes = comment.likes;
       this.updateComment(newComment);
     }
     return _structedComments;
@@ -1446,11 +1446,9 @@ App<IAppOption>({
     } else {
       reply.likes.push(currentUserId);
     }
-    const newComment = this.getComment(replyId) as Comment;
-    newComment.likes = reply.likes;
     if (!this.globalData.testMode) {
       try {
-        if (newComment.likes.includes(currentUserId)) {
+        if (comment.likes.includes(currentUserId)) {
           await HttpUtil.post({ url: `/comment/${replyId}/like` });
         } else {
           await HttpUtil.delete({ url: `/comment/${replyId}/like` });
@@ -1464,6 +1462,8 @@ App<IAppOption>({
         return { structedComments, replies: [] };
       }
     } else {
+      const newComment = this.getComment(replyId) as Comment;
+      newComment.likes = reply.likes;
       this.updateComment(newComment);
     }
     return { structedComments: _structedComments, replies: comment.replies };

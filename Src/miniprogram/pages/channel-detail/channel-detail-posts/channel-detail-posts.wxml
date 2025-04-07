@@ -2,7 +2,7 @@
   <t-search placeholder="搜索帖子" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" shape="round" style="height:60rpx"/>
 </view>
 <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
-  <view class="post-list">
+  <view wx:if="{{leftPosts.length>0||rightPosts.length>0}}" class="post-list">
     <view class="post-grid">
       <view class="column left">
         <block wx:for="{{leftPosts}}" wx:key="id">
@@ -56,7 +56,8 @@
                 </view>
               </view>
               <view class="likes">
-                <t-icon name="heart" size="16" style="margin-right:10rpx;" />
+                <t-icon name="heart-filled" color="#DF0000" size="18" style="margin-right:10rpx;" wx-if="{{item.isLiked}}"/>
+                <t-icon name="heart" size="18" style="margin-right:10rpx;" wx-if="{{!item.isLiked}}"/>
                 {{ item.likes.length }}
               </view>
             </view>
@@ -64,6 +65,10 @@
         </block>
       </view>
     </view>
+  </view>
+  <view wx:else style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <image src="https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/ui/2011.png" mode="widthFix" width="200"/>
+    <text>频道内还没有任何帖子</text>
   </view>
   <view style="height:400rpx" />
 </t-pull-down-refresh>
