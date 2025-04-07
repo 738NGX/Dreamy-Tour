@@ -8,6 +8,7 @@ export class UserBasic {
   isAdmin: boolean;
   gender: string;
   avatarUrl: string;
+  backgroundImageUrl: string;
   email: string;
   phone: string;
   signature: string;
@@ -19,6 +20,7 @@ export class UserBasic {
     this.isAdmin = data.isAdmin ?? false;
     this.gender = data.gender ?? '保密';
     this.avatarUrl = data.avatarUrl ?? '';
+    this.backgroundImageUrl = data.backgroundImageUrl ?? '';
     this.email = data.email ?? '';
     this.phone = data.phone ?? '';
     this.signature = data.signature ?? '请多关照!';

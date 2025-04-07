@@ -1,0 +1,29 @@
+<wxs module="util" src="../../utils/util.wxs"></wxs>
+<!-- header class="custom-navbar" tabList="{{[]}}" / -->
+<header class="custom-navbar" title="{{selectedUser.name}}的主页" tabList="{{[]}}" />
+<scroll-view class="scrollarea" style="height:100vh" scroll-y type="list">
+  <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
+    <view class="name-card" style="background-image:linear-gradient(rgba(80, 123, 207, 0.3), rgba(0, 0, 0, 0.2)), url({{selectedUser.backgroundImageUrl ? selectedUser.backgroundImageUrl : '../../assets/default.png'}})">
+      <view style="height:100rpx" />
+      <view class="avatar-name-id-card">
+        <t-avatar bordered image="{{selectedUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ selectedUser.name[0] }}</t-avatar>
+        <view class="name-id-card"> 
+          <view class="name-card-username">{{selectedUser.name}}</view>
+          <view class="name-card-uid" bind:tap="copyUid">UID: {{selectedUser.id}}</view>
+        </view>
+      </view>
+    
+
+      <view class="row" style="margin-left:60rpx;margin-top:20rpx;">
+        <t-tag size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(selectedUser.userGroup)}}">{{selectedUser.userGroup}}</t-tag>
+        <view wx:if="{{selectedUser.gender!='保密'}}" class="gender-icon" style="background-color:#{{selectedUser.gender=='男'?'00a1d6':'ff548c'}};">
+          <t-icon name="{{selectedUser.gender=='男'?'gender-male':'gender-female'}}" size="24rpx" />
+        </view>
+      </view>
+      <view class="name-card-signature" style="margin-top:20rpx;margin-left:60rpx">{{selectedUser.signature}}
+      </view>     
+    
+    </view>
+  </t-pull-down-refresh>
+</scroll-view>
+

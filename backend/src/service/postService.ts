@@ -2,8 +2,8 @@
  * 帖子相关业务逻辑
  * @Author: Franctoryer 
  * @Date: 2025-03-03 13:59:07 
- * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-07 20:11:16
+ * @Last Modified by: Choihyobin
+ * @Last Modified time: 2025-04-07 22:06
  */
 
 import PostDetailBo from "@/bo/post/postDetailBo";
@@ -660,6 +660,67 @@ class PostService {
         updatedAt: row.updatedAt
       })
     })
+  }
+  /**
+  * 获取某用户发布的帖子列表
+  * @param currentUid //当前用户id
+  * @param uid 选择的用户id
+  */
+  static async getPostListByUserId(currentUid: number, uid: number): Promise<PostListVo[]> {
+    const db = await dbPromise;
+    const rows = await db.all<PostListBo[]>(
+      `
+      SELECT 
+        posts.postId AS postId,
+        posts.channelId As channelId,
+        posts.pictureUrls AS pictureUrls,
+        posts.title AS title,
+        posts.isSticky AS isSticky,
+        posts.likeSum AS likeSum,
+        posts.createdAt AS postCreatedAt,
+        posts.updatedAt AS postUpdatedAt,
+        users.uid AS uid,
+        users.nickname AS nickname,
+        users.avatarUrl AS avatarUrl,
+        users.roleId AS roleId,
+        users.createdAt AS userCreatedAt,
+        users.updatedAt AS userUpdatedAt,
+        CASE WHEN post_likes.uid IS NOT NULL THEN 1 ELSE 0 END AS isLiked
+      FROM posts
+      INNER JOIN users ON posts.uid = users.uid
+      LEFT JOIN post_likes 
+        ON posts.postId = post_likes.postId 
+        AND post_likes.uid = ?
+      WHERE posts.uid = ?
+      ORDER BY posts.isSticky DESC, posts.createdAt DESC
+      `,
+      [
+        currentUid,
+        uid
+      ]
+    );
+
+    return rows.map(row => new PostListVo({
+      postId: row.postId,
+      channelId: row.channelId,
+      pictureUrl: row.pictureUrls.split(",")[0],
+      title: row.title,
+      isSticky: Boolean(row.isSticky),
+      likeSum: row.likeSum,
+      createdAt: row.postCreatedAt,
+      updatedAt: row.postUpdatedAt,
+      user: {
+        uid: row.uid,
+        nickname: row.nickname,
+        avatarUrl: row.avatarUrl,
+        role: RoleUtil.roleNumberToString(row.roleId),
+        createdAt: row.userCreatedAt,
+        updatedAt: row.userUpdatedAt
+      },
+      action: {
+        isLiked: Boolean(row.isLiked)
+      }
+    }));
   }
 }
 
