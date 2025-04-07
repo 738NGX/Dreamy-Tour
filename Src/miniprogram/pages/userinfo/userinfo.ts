@@ -1,5 +1,4 @@
-import HttpUtil from "../../utils/httpUtil";
-import { User } from "../../utils/user/user";
+import { Member } from "../../utils/user/user";
 import { getUserGroupName, userExpTarget, userRoleName } from "../../utils/util";
 import { PostCard } from "../../utils/channel/post";
 import { Channel } from "../../utils/channel/channel";
@@ -13,8 +12,7 @@ Component({
     isTestMode: false,
     isDarkMode: wx.getSystemInfoSync().theme == 'dark',
     userRoleList: userRoleName,
-    selectedUser: {} as User,
-    userGroup: '',
+    selectedUser: {} as Member,
     expPercentage: 0,
     expLabel: '',
     backendVersion: '不可用',
@@ -25,11 +23,11 @@ Component({
     searchedPosts: [] as PostCard[],
     searchingValueForPosts: '',
     refreshEnable: false,
-        
+
     fullChannelList: [] as Channel[],
     channelList: [] as Channel[],
     searchingValueForChannels: '',
-},
+  },
 
   lifetimes: {
     async ready() {
@@ -38,68 +36,21 @@ Component({
       await this.loadChannelList();
       this.setData({
         channelList: this.data.fullChannelList.filter(
-        channel => channel.name.includes(this.data.searchingValueForChannels))
+          channel => channel.name.includes(this.data.searchingValueForChannels))
       });
     },
   },
 
   methods: {
-    onLoad(options:any) {
+    async onLoad(options: any) {
       const { uid } = options;
-      if(uid && uid > 0){
-        this.setData({
-          selectedUser:app.getUser(uid) 
-        })
-      } else {
-        this.setData({
-          selectedUser:app.getUser(1)
-        })
-      }
+      this.setData({
+        selectedUser: await app.getUserDetail(uid),
+      })
       console.log(this.data.selectedUser)
-      
-      wx.onThemeChange((res) => {
-        this.setData({
-          isDarkMode: res.theme == 'dark'
-        });
-        console.log('当前主题：', res.theme)
-      });
-
-      
     },
     async onShow() {
-      try{
-        const res = await HttpUtil.get({
-          url: '/version',
-        });
-        this.setData({
-          backendVersion: res.data.msg
-        });
-      } catch (e) {
-        console.error('获取版本信息失败', e);
-        this.setData({
-          backendVersion: '不可用'
-        });
-      }
-      this.setData({
-        isTestMode: app.globalData.testMode,
-        isLocalDebug: app.globalData.localDebug,
-        testUserList: app.getUserListCopy()
-      });
-      this.caluculateExp();
-      if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-        const page: any = getCurrentPages().pop();
-        this.getTabBar().setData({
-          value: '/' + page.route
-        })
-      }
-    },
-    showVersion(){
-      wx.showModal({
-        title: '版本信息',
-        content: `客户端版本：${app.globalData.version}\r\n服务端版本：${this.data.backendVersion}`,
-        showCancel: false,
-        confirmText: '了解！',
-      })
+
     },
     copyUid() {
       wx.setClipboardData({

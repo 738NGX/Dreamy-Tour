@@ -1,5 +1,5 @@
 import HttpUtil from "../../utils/httpUtil";
-import { User } from "../../utils/user/user";
+import { User, UserBasic } from "../../utils/user/user";
 import { getByteLength, getImageBase64, getUserGroupName, userExpTarget, userRoleName } from "../../utils/util";
 import { PostCard } from "../../utils/channel/post";
 import { Channel } from "../../utils/channel/channel";
@@ -14,7 +14,7 @@ Component({
     isDarkMode: wx.getSystemInfoSync().theme == 'dark',
     testUserList: [] as User[],
     userRoleList: userRoleName,
-    currentUser: {} as User,
+    currentUser: {} as UserBasic,
     userGroup: '',
     expPercentage: 0,
     expLabel: '',
@@ -75,7 +75,7 @@ Component({
         this.setData({
           isTestMode: app.globalData.testMode,
           isLocalDebug: app.globalData.localDebug,
-          currentUser: app.getUser(currentUserId) ,
+          currentUser: currentUserBasic,
           testUserList: app.getUserListCopy()
         });
       }

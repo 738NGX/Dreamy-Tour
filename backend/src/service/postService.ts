@@ -661,12 +661,12 @@ class PostService {
       })
     })
   }
-   /**
-   * 获取某用户发布的帖子列表
-   * @param currentUid //当前用户id
-   * @param uid 选择的用户id
-   */
-   static async getPostListByUserId(currentUid:number,uid: number): Promise<PostListVo[]> {
+  /**
+  * 获取某用户发布的帖子列表
+  * @param currentUid //当前用户id
+  * @param uid 选择的用户id
+  */
+  static async getPostListByUserId(currentUid: number, uid: number): Promise<PostListVo[]> {
     const db = await dbPromise;
     const rows = await db.all<PostListBo[]>(
       `
@@ -694,7 +694,7 @@ class PostService {
       WHERE posts.uid = ?
       ORDER BY posts.isSticky DESC, posts.createdAt DESC
       `,
-      [ 
+      [
         currentUid,
         uid
       ]

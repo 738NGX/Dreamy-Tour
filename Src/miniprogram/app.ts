@@ -1384,8 +1384,8 @@ App<IAppOption>({
   async handlePostStick(post: Post): Promise<Post | undefined> {
     if (!this.globalData.testMode) {
       try {
-        if(!post.isSticky) await HttpUtil.post({url: `/post/${post.id}/top`,});
-        else await HttpUtil.delete({url: `/post/${post.id}/top`,});
+        if (!post.isSticky) await HttpUtil.post({ url: `/post/${post.id}/top`, });
+        else await HttpUtil.delete({ url: `/post/${post.id}/top`, });
         post.isSticky = !post.isSticky;
         return post;
       } catch (err: any) {
@@ -2163,7 +2163,7 @@ App<IAppOption>({
   },
   async changeUserBackgroundImage(backgroundImageUrl: string): Promise<boolean> {
     if (!this.globalData.testMode) {
-      try{
+      try {
         await HttpUtil.put({ url: '/user/backgroundImage', jsonData: { base64: backgroundImageUrl } });
         return true;
       } catch (err: any) {
@@ -2301,8 +2301,8 @@ App<IAppOption>({
     }
   },
 
-   // for userinfo.ts
-   async getSelectedUserJoinedChannels(uid : number): Promise<Channel[]> {
+  // for userinfo.ts
+  async getSelectedUserJoinedChannels(uid: number): Promise<Channel[]> {
     if (!this.globalData.testMode) {
       try {
         const res = await HttpUtil.get({ url: `/user/${uid}/joined-channel-list` });
@@ -2326,10 +2326,10 @@ App<IAppOption>({
     } else {
       try {
         const user = this.getUser(uid)
-        if(user){
+        if (user) {
           return this.getChannelListCopy().filter(
-          channel => user.joinedChannel
-            .includes(channel.id) && channel.id != 1
+            channel => user.joinedChannel
+              .includes(channel.id) && channel.id != 1
           );
         }
         return [];
@@ -2340,13 +2340,13 @@ App<IAppOption>({
           icon: "none"
         });
         return [];
-    }
+      }
     }
   },
-  async getFullPostsByUid(uid: number): Promise<PostCard[]>{
+  async getFullPostsByUid(uid: number): Promise<PostCard[]> {
     if (!this.globalData.testMode) {
       try {
-        const results = await HttpUtil.get({ url:`/user/${uid}/post-list` });
+        const results = await HttpUtil.get({ url: `/user/${uid}/post-list` });
         const fullPosts = results.data.data.map((res: any) => {
           return {
             id: res.postId,
@@ -2391,5 +2391,37 @@ App<IAppOption>({
           (b.isSticky ? 1 : 0) - (a.isSticky ? 1 : 0) || b.time - a.time
         );
     }
-  }
+  },
+  async getUserDetail(userId: number): Promise<Member> {
+    if (!this.globalData.testMode) {
+      try {
+        const res = await HttpUtil.get({ url: `/user/${userId}/detail` });
+        const user = new Member({
+          id: res.data.data.uid,
+          name: res.data.data.nickname,
+          exp: res.data.data.exp,
+          isAdmin: res.data.data.role == 'ADMIN',
+          gender: res.data.data.gender,
+          avatarUrl: res.data.data.avatarUrl,
+          backgroundImageUrl: res.data.data.backgroundImageUrl,
+          email: res.data.data.email,
+          phone: res.data.data.phone,
+          signature: res.data.data.signature,
+          birthday: res.data.data.birthday,
+          userGroup: translateUserRole(res.data.data.role),
+        });
+        return user;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return {} as Member;
+      }
+    } else { 
+      const user = this.getUser(userId) as User;
+      return new Member({ userGroup: getUserGroupName(user), ...user}); 
+    }
+  },
 })
