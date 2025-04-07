@@ -375,6 +375,16 @@ Component({
       currentPost.isSticky = !currentPost.isSticky;
       app.updatePost(currentPost);
       this.setData({ currentPost });
+    },
+    showUserInfo(e: WechatMiniprogram.CustomEvent){
+      const userId = e.currentTarget.dataset.index;
+      console.log(userId)
+      if (!userId) {
+        return;
+      } else {
+       wx.navigateTo({url: `/pages/userinfo/userinfo?uid=${userId}`})
+       console.log("luyoutiaozhuan")
+      }
     }
   }
 });

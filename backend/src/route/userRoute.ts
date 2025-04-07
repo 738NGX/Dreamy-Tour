@@ -2,12 +2,14 @@
  * 用户相关路由
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:44:15 
- * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-23 19:34:53
+ * @Last Modified by: Choihyobin
+ * @Last Modified time: 2025-04-07 18:26
  */
 
 import express, { Request, Response } from "express"
 import UserService from "@/service/userService";
+import ChannelService from "@/service/channelService";
+import PostService from "@/service/postService";
 import Result from "@/vo/result";
 import WxLoginDto from "@/dto/user/wxLoginDto";
 import { StatusCodes } from "http-status-codes";
@@ -153,11 +155,12 @@ userRoute.post('/user/privilege', async (req: Request, res: Response) => {
 })
 
 /**
- * @description 获取其他用户的详情信息
+ * @description 获取其他用户的详情信息（根据用户id）
  * @method GET
+ * @param uid
  * @path /user/detail
  */
-userRoute.get(`/user/:uid/detail`, async (req: Request, res: Response) => {
+userRoute.get('/user/:uid/detail', async (req: Request, res: Response) => {
   // 接受来自业务层的处理完成的视图对象
   const uidStr = req.params.uid;
   const uid = parseInt(uidStr);
@@ -166,6 +169,47 @@ userRoute.get(`/user/:uid/detail`, async (req: Request, res: Response) => {
   }
   const userDetailVo = await UserService.getUserDetailByUid(uid);
   res.json(Result.success(userDetailVo));
+})
+
+/**
+ * @description 获取用户加入的频道列表（不包括世界频道；没有分页）（根据用户id）
+ * @method GET
+ * @param uid
+ * @path /user/joined-channel-list
+ */
+userRoute.get('/user/:uid/joined-channel-list', async (req: Request, res: Response) => {
+  // 获取用户 ID
+  const uidStr = req.params.uid;
+  const uid = parseInt(uidStr);
+  if(isNaN(uid)){
+    res.json(Result.error("Invalid UserId"))
+  }
+  const channelListVos = await ChannelService.getJoinedChannelList(uid);
+  // 返回结果
+  res.json(Result.success(channelListVos));
+});
+
+/**
+ * @description 获取用户发布的帖子列表（无分页）（根据用户id）
+ * @method GET
+ * @param uid
+ * @path /post/mylist
+ */
+userRoute.get('/user/:uid/post-list', async (req: Request, res: Response) => {
+  // 获取选择的用户的uid
+  const uidStr = req.params.uid;
+  const uid = parseInt(uidStr);
+  if(isNaN(uid)){
+    res.json(Result.error("Invalid UserId"))
+  }
+  // 获取用户 id
+  const currentUid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);  // 经过拦截器处理之后，剩下来的请求中一定包含 token，因此断言为 string
+
+  const postListVos = await PostService.getPostListByUserId(currentUid,uid);
+  // 返回响应
+  res.json(
+    Result.success(postListVos)
+  );
 })
 
 export default userRoute;

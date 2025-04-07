@@ -287,10 +287,14 @@ declare global {
 
     // for userinfo.ts
     /**
-     * @returns 当前用户加入的频道列表, 不包括世界频道
+     * @returns 选择的用户加入的频道列表, 不包括世界频道
      */
-    getSelectedUserJoinedChannels(): Promise<Channel[]>;
-
+    getSelectedUserJoinedChannels(uid:number): Promise<Channel[]>;
+    /**
+     * 获取用户发布的全部帖子
+     * @param uid 
+     */
+    getFullPostsByUid(uid: number): Promise<PostCard[]>;
     // for group.ts
     loadGroup(groupId: number): Promise<{ currentGroup: GroupBasic, linkedTour: TourBasic }>;
     getMembersInGroup(groupId: number): Promise<{ members: Member[], waitingUsers: Member[] }>;

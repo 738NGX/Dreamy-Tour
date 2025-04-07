@@ -14,6 +14,10 @@
     "t-grid-item": "tdesign-miniprogram/grid-item/grid-item",
     "t-avatar": "tdesign-miniprogram/avatar/avatar",
     "t-popup-headered": "/components/t-popup-headered/t-popup-headered",
-    "t-upload": "tdesign-miniprogram/upload/upload"
+    "t-upload": "tdesign-miniprogram/upload/upload",
+    "t-search": "tdesign-miniprogram/search/search",
+    "t-pull-down-refresh": "tdesign-miniprogram/pull-down-refresh/pull-down-refresh",
+    "t-fab": "tdesign-miniprogram/fab/fab",
+    "t-textarea": "tdesign-miniprogram/textarea/textarea"
   }
 }

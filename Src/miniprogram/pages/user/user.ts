@@ -1,7 +1,8 @@
 import HttpUtil from "../../utils/httpUtil";
-import { UserBasic } from "../../utils/user/user";
+import { User } from "../../utils/user/user";
 import { getByteLength, getImageBase64, getUserGroupName, userExpTarget, userRoleName } from "../../utils/util";
-
+import { PostCard } from "../../utils/channel/post";
+import { Channel } from "../../utils/channel/channel";
 const app = getApp<IAppOption>();
 
 Component({
@@ -11,16 +12,40 @@ Component({
   data: {
     isTestMode: false,
     isDarkMode: wx.getSystemInfoSync().theme == 'dark',
-    testUserList: [] as UserBasic[],
+    testUserList: [] as User[],
     userRoleList: userRoleName,
-    currentUser: {} as UserBasic,
+    currentUser: {} as User,
     userGroup: '',
     expPercentage: 0,
     expLabel: '',
     backendVersion: '不可用',
     uploadVisible: false,
     backgroundImages: [],
+
+    fullPosts: [] as PostCard[],
+    leftPosts: [] as PostCard[],
+    rightPosts: [] as PostCard[],
+    searchedPosts: [] as PostCard[],
+    searchingValueForPosts: '',
+    refreshEnable: false,
+        
+    fullChannelList: [] as Channel[],
+    channelList: [] as Channel[],
+    searchingValueForChannels: '',
   },
+
+  lifetimes: {
+    async ready() {
+      await this.getFullPosts();
+      this.searchPosts();
+      await this.loadChannelList();
+      this.setData({
+        channelList: this.data.fullChannelList.filter(
+        channel => channel.name.includes(this.data.searchingValueForChannels))
+      });
+    },
+  },
+
   methods: {
     onLoad() {
       wx.onThemeChange((res) => {
@@ -44,12 +69,16 @@ Component({
           backendVersion: '不可用'
         });
       }
-      this.setData({
-        isTestMode: app.globalData.testMode,
-        isLocalDebug: app.globalData.localDebug,
-        currentUser: await app.getCurrentUser(),
-        testUserList: app.getUserListCopy()
-      });
+      const currentUserBasic = await app.getCurrentUser()
+      const currentUserId = currentUserBasic?.id
+      if(currentUserId){
+        this.setData({
+          isTestMode: app.globalData.testMode,
+          isLocalDebug: app.globalData.localDebug,
+          currentUser: app.getUser(currentUserId) ,
+          testUserList: app.getUserListCopy()
+        });
+      }
       this.caluculateExp();
       if (typeof this.getTabBar === 'function' && this.getTabBar()) {
         const page: any = getCurrentPages().pop();
@@ -156,9 +185,13 @@ Component({
       }
       this.setData({ currentUser })
       if (!await app.changeUserName(currentUser.name)) {
-        this.setData({
-          currentUser: await app.getCurrentUser()
-        });
+        const currentUserBasic = await app.getCurrentUser()
+        const currentUserId = currentUserBasic?.id
+        if(currentUserId){
+          this.setData({
+            currentUser: app.getUser(currentUserId)
+          });
+        }
       }
       if (this.data.isTestMode) {
         this.setData({
@@ -170,15 +203,23 @@ Component({
       const { currentUser } = this.data;
       this.setData({ currentUser })
       if (!await app.changeUserBasic(currentUser)) {
-        this.setData({
-          currentUser: await app.getCurrentUser()
-        });
+        const currentUserBasic = await app.getCurrentUser()
+        const currentUserId = currentUserBasic?.id
+        if(currentUserId){
+          this.setData({
+            currentUser: app.getUser(currentUserId)
+          });
+        }
       }
     },
     async handleUserBasicReset() {
-      this.setData({
-        currentUser: await app.getCurrentUser(),
-      });
+      const currentUserBasic = await app.getCurrentUser()
+      const currentUserId = currentUserBasic?.id
+      if(currentUserId){
+        this.setData({
+          currentUser: app.getUser(currentUserId)
+        });
+      }
     },
     async uploadAvater(e: WechatMiniprogram.CustomEvent) {
       const src = e.detail.avatarUrl;
@@ -258,6 +299,70 @@ Component({
           }
         }
       })
-    }
+    },
+
+    async onRefresh() {
+      this.setData({ refreshEnable: true });
+      await this.getFullPosts();
+      this.searchPosts(this.data.searchingValueForPosts);
+      this.setData({ refreshEnable: false });
+    },
+    async getFullPosts() {
+      const fullPosts = await app.getFullPostsByUid(this.data.currentUser.id); //
+      this.setData({ fullPosts });
+    },
+    searchPosts(searchValue: string = '') {
+      const { fullPosts } = this.data;
+      const leftPosts = [] as PostCard[];
+      const rightPosts = [] as PostCard[];
+      fullPosts.forEach((post, index) => {
+        if (post.title.includes(searchValue) || post.content.includes(searchValue)) {
+          if (index % 2 === 0) {
+            leftPosts.push(post);
+          } else {
+            rightPosts.push(post);
+          }
+        }
+      });
+      this.setData({ leftPosts, rightPosts });
+    },
+    onPostsSearch(e: WechatMiniprogram.CustomEvent) {
+      const { value } = e.detail;
+      this.setData({ searchingValueForPosts: value });
+      this.searchPosts(value);
+    },
+    onPostsSearchClear() {
+      this.setData({ searchingValueForPosts: '' });
+      this.searchPosts();
+    },
+    onChannelClick(e: WechatMiniprogram.CustomEvent) {
+      const channelId = e.currentTarget.dataset.index;
+      wx.navigateTo({
+        url: `/pages/channel-detail/channel-detail?channelId=${channelId}`,
+      });
+    },
+    async loadChannelList() {
+      const channelList = await app.getSelectedUserJoinedChannels(this.data.currentUser.id);
+      this.setData({ channelList, fullChannelList: channelList });
+    },
+    onChannelsSearch(e: WechatMiniprogram.CustomEvent) {
+      const { value } = e.detail;
+      this.setData({
+        searchingValue: value,
+        channelList: this.data.fullChannelList.filter(channel => channel.name.includes(value)),
+      });
+    },
+    onChannelsSearchClear() {
+      this.setData({
+        searchingValue: '',
+        channelList: this.data.fullChannelList,
+      });
+    },
+    handlePostDetail(e: WechatMiniprogram.CustomEvent) {
+      const id = e.currentTarget.dataset.index;
+      wx.navigateTo({
+        url: `/pages/channel-post/channel-post?postId=${id}`,
+      });
+    },
   }
 })

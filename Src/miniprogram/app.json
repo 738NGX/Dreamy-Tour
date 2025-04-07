@@ -38,10 +38,6 @@
       {
         "pagePath": "pages/user/user",
         "text": "用户"
-      },
-      {
-        "pagePath": "pages/userinfo/userinfo",
-        "text": "测试"
       }
     ]
   },
