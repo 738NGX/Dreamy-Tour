@@ -228,7 +228,7 @@ App<IAppOption>({
   async getCurrentUserUnjoinedChannels(): Promise<Channel[]> {
     if (!this.globalData.testMode) {
       try {
-        const res = await HttpUtil.get({ url: "/channel/unjoined/list" });
+        const res = await HttpUtil.get({ url: "/v1/channel/unjoined/list" });
         const channelList = res.data.data.map((res: any) => {
           return new Channel({
             id: res.channelId,
@@ -348,7 +348,7 @@ App<IAppOption>({
   async getCurrentUserJoinedChannels(): Promise<Channel[]> {
     if (!this.globalData.testMode) {
       try {
-        const res = await HttpUtil.get({ url: "/channel/joined/list" });
+        const res = await HttpUtil.get({ url: "/v1/channel/joined/list" });
         const channelList = res.data.data.map((res: any) => {
           return new Channel({
             id: res.channelId,
@@ -487,7 +487,7 @@ App<IAppOption>({
   async getFullPostsInChannel(channelId: number): Promise<PostCard[]> {
     if (!this.globalData.testMode) {
       try {
-        const url = channelId == 1 ? '/post/list' : `/channel/${channelId}/post/list`;
+        const url = channelId == 1 ? '/v1/post/list' : `/v1/channel/${channelId}/post/list`;
         const results = await HttpUtil.get({ url });
         const fullPosts = results.data.data.map((res: any) => {
           return {
@@ -1262,8 +1262,14 @@ App<IAppOption>({
     if (!this.globalData.testMode) {
       try {
         const res = await HttpUtil.get({ url: `/post/${postId}/detail` });
-        const post = res.data.data as Post;
-        console.log(post);
+        const { user, channelId, pictureUrls, ...postRest } = res.data.data;
+        const post = new Post({
+          id: postId,
+          user: user.uid,
+          linkedChannel: channelId,
+          photos: pictureUrls.map((photo: any) => new Photo({ value: photo })),
+          ...postRest
+        });
         return post;
       } catch (err: any) {
         console.error(err);
@@ -1737,7 +1743,7 @@ App<IAppOption>({
   },
   async changeGroupQrCode(groupId: number, qrCodeUrl: string): Promise<boolean> {
     if (!this.globalData.testMode) {
-      try{
+      try {
         await HttpUtil.put({ url: `/group/qrCode/${groupId}`, jsonData: { base64: qrCodeUrl } });
         return true;
       } catch (err: any) {
@@ -1956,7 +1962,7 @@ App<IAppOption>({
   },
   async changeUserAvatar(avatar: string): Promise<boolean> {
     if (!this.globalData.testMode) {
-      try{
+      try {
         await HttpUtil.put({ url: '/user/avatar', jsonData: { base64: avatar } });
         return true;
       } catch (err: any) {
