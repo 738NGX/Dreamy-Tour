@@ -5,6 +5,12 @@ set -e
 DB_FILE="/app/database/database.db"
 BACKUP_DIR="/app/database/backups"
 
+# 检查配置文件是否存在,如果不存在则退出
+if [ ! -f "/app/database/dreamy-tour-config.json" ]; then
+  echo "[$(date)] 错误：配置文件 /app/database/dreamy-tour-config.json 不存在！"
+  exit 1
+fi
+
 # 检查数据库文件是否存在，如果不存在则使用/app/database.sql创建
 if [ ! -f "$DB_FILE" ]; then
   echo "[$(date)] 数据库文件 $DB_FILE 不存在，尝试使用 SQL 脚本创建..."
