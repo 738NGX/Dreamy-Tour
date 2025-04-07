@@ -2114,4 +2114,34 @@ App<IAppOption>({
       }
     }
   },
+
+   // for channel-list.ts
+   async getSelectedUserJoinedChannels(userId): Promise<Channel[]> {
+    if (!this.globalData.testMode) {
+      try {
+        const res = await HttpUtil.get({ url: "/channel/joined/list" });
+        const channelList = res.data.data.map((res: any) => {
+          return new Channel({
+            id: res.channelId,
+            name: res.name,
+            description: res.description,
+            joinWay: res.joinWay == "FREE" ? JoinWay.Free : res.joinWay == "APPROVAL" ? JoinWay.Approval : JoinWay.Invite,
+          })
+        }) as Channel[];
+        return channelList;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return [];
+      }
+    } else {
+      return this.getChannelListCopy().filter(
+        channel => this.getUser(userId).joinedChannel
+          .includes(channel.id) && channel.id != 1
+      );
+    }
+  },
 })

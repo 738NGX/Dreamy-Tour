@@ -285,6 +285,12 @@ declare global {
      */
     handlePostDelete(postId: number): Promise<boolean>;
 
+    // for userinfo.ts
+    /**
+     * @returns 当前用户加入的频道列表, 不包括世界频道
+     */
+    getSelectedUserJoinedChannels(): Promise<Channel[]>;
+
     // for group.ts
     loadGroup(groupId: number): Promise<{ currentGroup: GroupBasic, linkedTour: TourBasic }>;
     getMembersInGroup(groupId: number): Promise<{ members: Member[], waitingUsers: Member[] }>;

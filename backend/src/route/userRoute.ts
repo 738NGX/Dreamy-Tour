@@ -152,4 +152,20 @@ userRoute.post('/user/privilege', async (req: Request, res: Response) => {
   );
 })
 
+/**
+ * @description 获取其他用户的详情信息
+ * @method GET
+ * @path /user/detail
+ */
+userRoute.get(`/user/:uid/detail`, async (req: Request, res: Response) => {
+  // 接受来自业务层的处理完成的视图对象
+  const uidStr = req.params.uid;
+  const uid = parseInt(uidStr);
+  if(isNaN(uid)){
+    res.json(Result.error("Invalid UserId"))
+  }
+  const userDetailVo = await UserService.getUserDetailByUid(uid);
+  res.json(Result.success(userDetailVo));
+})
+
 export default userRoute;
