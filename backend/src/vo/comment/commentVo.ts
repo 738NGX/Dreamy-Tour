@@ -22,6 +22,9 @@ class CommentVo extends VO<CommentVo> {
   // 评论内容
   content: string;
 
+  // 点赞数
+  likeSum: number;
+
   // 是否点赞该评论
   isLiked: boolean
 

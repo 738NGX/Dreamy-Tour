@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-04-05 19:07:49 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-06 23:55:45
+ * @Last Modified time: 2025-04-07 08:28:51
  */
 import CommentBo from "@/bo/comment/commentBo";
 import dbPromise from "@/config/databaseConfig";
@@ -30,7 +30,7 @@ class CommentService {
       `
       SELECT 
         comments.commentId, comments.uid, postId, parentId, rootId,
-        content, pictureUrls, comments.createdAt, comments.updatedAt,
+        content, pictureUrls, likeSum, comments.createdAt, comments.updatedAt,
         CASE WHEN comment_likes.uid IS NOT NULL THEN 1 ELSE 0 END AS isLiked
       FROM comments
       LEFT JOIN comment_likes
@@ -77,9 +77,9 @@ class CommentService {
     await db.run(
       `
       INSERT INTO comments
-      (uid, postId, parentId, rootId, content, pictureUrls, createdAt, updatedAt)
+      (uid, postId, parentId, rootId, content, pictureUrls, likeSum, createdAt, updatedAt)
       VALUES
-      (?, ?, ?, ?, ?, ?, ?, ?)
+      (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         uid,
@@ -88,6 +88,7 @@ class CommentService {
         0,
         commentPublishDto.content,
         urls,
+        0,  // 初始点赞数为 0
         Date.now(),
         Date.now()
       ]
@@ -133,9 +134,9 @@ class CommentService {
     await db.run(
       `
       INSERT INTO comments
-      (uid, postId, parentId, rootId, content, pictureUrls, createdAt, updatedAt)
+      (uid, postId, parentId, rootId, content, pictureUrls, likeSum, createdAt, updatedAt)
       VALUES
-      (?, ?, ?, ?, ?, ?, ?, ?)
+      (?, ?, ?, ?, ?, ?, ?, ?. ?)
       `,
       [
         uid,
@@ -144,6 +145,7 @@ class CommentService {
         parentComment.rootId === 0 ? commentId : parentComment.rootId,
         commentPublishDto.content,
         urls,
+        0,  // 初始点赞数为 0
         Date.now(),
         Date.now()
       ]
