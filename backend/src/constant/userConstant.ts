@@ -1,5 +1,5 @@
 /*
- * 用相关的常量类
+ * 用户相关的常量类
  * @Author: Franctoryer 
  * @Date: 2025-02-28 20:12:10 
  * @Last Modified by: Franctoryer

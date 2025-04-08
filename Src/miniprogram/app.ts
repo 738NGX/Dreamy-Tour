@@ -1387,8 +1387,8 @@ App<IAppOption>({
   async handlePostStick(post: Post): Promise<Post | undefined> {
     if (!this.globalData.testMode) {
       try {
-        if(!post.isSticky) await HttpUtil.post({url: `/post/${post.id}/top`,});
-        else await HttpUtil.delete({url: `/post/${post.id}/top`,});
+        if (!post.isSticky) await HttpUtil.post({ url: `/post/${post.id}/top`, });
+        else await HttpUtil.delete({ url: `/post/${post.id}/top`, });
         post.isSticky = !post.isSticky;
         return post;
       } catch (err: any) {
@@ -2074,6 +2074,7 @@ App<IAppOption>({
           isAdmin: res.data.data.role == 'ADMIN',
           gender: res.data.data.gender,
           avatarUrl: res.data.data.avatarUrl,
+          backgroundImageUrl: res.data.data.backgroundImageUrl,
           email: res.data.data.email,
           phone: res.data.data.phone,
           signature: res.data.data.signature,
@@ -2159,6 +2160,26 @@ App<IAppOption>({
     } else {
       const currentUser = this.currentUser();
       currentUser.avatarUrl = avatar;
+      this.updateUser(currentUser);
+      return true;
+    }
+  },
+  async changeUserBackgroundImage(backgroundImageUrl: string): Promise<boolean> {
+    if (!this.globalData.testMode) {
+      try {
+        await HttpUtil.put({ url: '/user/backgroundImage', jsonData: { base64: backgroundImageUrl } });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
+    } else {
+      const currentUser = this.currentUser();
+      currentUser.backgroundImageUrl = backgroundImageUrl;
       this.updateUser(currentUser);
       return true;
     }
@@ -2280,6 +2301,130 @@ App<IAppOption>({
       } else {
         return false;
       }
+    }
+  },
+
+  // for userinfo.ts
+  async getSelectedUserJoinedChannels(uid: number): Promise<Channel[]> {
+    if (!this.globalData.testMode) {
+      try {
+        const res = await HttpUtil.get({ url: `/user/${uid}/joined-channel-list` });
+        const channelList = res.data.data.map((res: any) => {
+          return new Channel({
+            id: res.channelId,
+            name: res.name,
+            description: res.description,
+            joinWay: res.joinWay == "FREE" ? JoinWay.Free : res.joinWay == "APPROVAL" ? JoinWay.Approval : JoinWay.Invite,
+          })
+        }) as Channel[];
+        return channelList;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return [];
+      }
+    } else {
+      try {
+        const user = this.getUser(uid)
+        if (user) {
+          return this.getChannelListCopy().filter(
+            channel => user.joinedChannel
+              .includes(channel.id) && channel.id != 1
+          );
+        }
+        return [];
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return [];
+      }
+    }
+  },
+  async getFullPostsByUid(uid: number): Promise<PostCard[]> {
+    if (!this.globalData.testMode) {
+      try {
+        const results = await HttpUtil.get({ url: `/user/${uid}/post-list` });
+        const fullPosts = results.data.data.map((res: any) => {
+          return {
+            id: res.postId,
+            title: res.title,
+            content: '',
+            linkedChannel: res.channelId,
+            user: res.user.uid,
+            time: res.createdAt,
+            likes: Array(res.likeSum).fill(0),
+            photos: [new Photo({ value: res.pictureUrl })],
+            isSticky: res.isSticky,
+            username: res.user.nickname,
+            avatarUrl: res.user.avatarUrl,
+            timeStr: formatPostTime(res.createdAt) ?? '',
+            isLiked: res.action.isLiked,
+          } as PostCard;
+        });
+        return fullPosts;
+      } catch (err: any) {
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return [];
+      }
+    } else {
+      const currentUserId = this.globalData.currentUserId
+      return this.getPostListCopy()
+        .map((post) => {
+          return {
+            ...post,
+            username: this.getUser(post.user)?.name ?? '未知用户',
+            avatarUrl: this.getUser(post.user)?.avatarUrl ?? '',
+            timeStr: formatPostTime(post.time) ?? '',
+            isLiked: post.likes.includes(currentUserId) ? true : false,
+          }
+        })
+        .filter((post) =>
+          post.user == uid
+        )
+        .sort((a, b) =>
+          (b.isSticky ? 1 : 0) - (a.isSticky ? 1 : 0) || b.time - a.time
+        );
+    }
+  },
+  async getUserDetail(userId: number): Promise<Member> {
+    if (!this.globalData.testMode) {
+      try {
+        const res = await HttpUtil.get({ url: `/user/${userId}/detail` });
+        const user = new Member({
+          id: res.data.data.uid,
+          name: res.data.data.nickname,
+          exp: res.data.data.exp,
+          isAdmin: res.data.data.role == 'ADMIN',
+          gender: res.data.data.gender,
+          avatarUrl: res.data.data.avatarUrl,
+          backgroundImageUrl: res.data.data.backgroundImageUrl,
+          email: res.data.data.email,
+          phone: res.data.data.phone,
+          signature: res.data.data.signature,
+          birthday: res.data.data.birthday,
+          userGroup: translateUserRole(res.data.data.role),
+        });
+        return user;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return {} as Member;
+      }
+    } else { 
+      const user = this.getUser(userId) as User;
+      return new Member({ userGroup: getUserGroupName(user), ...user}); 
     }
   },
 })

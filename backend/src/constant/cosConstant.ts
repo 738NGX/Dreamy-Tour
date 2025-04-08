@@ -21,6 +21,8 @@ class CosConstant {
   static readonly BASE_URL = projectConfig.cosBaseUrl;
   // 存储用户头像的文件夹名
   static readonly AVATAR_FOLDER = 'avatar';
+  //存储用户主页背景图片的文件夹名
+  static readonly BACKGROUND_IMAGES_FOLDER = 'background_images';
   // 存储群组二维码的文件夹名
   static readonly QRCODE_FOLDER = 'qrCode';
   // 存储帖子图片的文件夹名

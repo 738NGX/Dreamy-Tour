@@ -5,20 +5,21 @@ PRAGMA foreign_keys = ON;
 -- 用户表 users
 CREATE TABLE users (
     uid INTEGER PRIMARY KEY AUTOINCREMENT,
-    nickname TEXT,        -- 昵称（1 ~ 10个字符）
-    wxOpenid TEXT,        -- 该小程序的 openid
-    gender INTEGER,       -- 性别：女（0）、男（1）、保密（3）
-    avatarUrl TEXT,       -- 用户头像地址
-    email TEXT,           -- 邮箱地址
-    phone TEXT,           -- 手机号
-    signature TEXT,       -- 个性签名（1 ~ 100个字符）
-    birthday TEXT,        -- 生日（yyyy-mm-dd）
-    roleId INTEGER,       -- 角色 ID（0 ~ 7），数字越高，权限越高，详见文档
-    lastLoginAt INTEGER,  -- 上次的登录时间戳
-    status INTEGER,       -- 状态（0 启用、1 禁用）
-    exp INTEGER,          -- 经验值
-    createdAt INTEGER,    -- 创建时间戳
-    updatedAt INTEGER     -- 更新时间戳
+    nickname TEXT,              -- 昵称（1 ~ 10个字符）
+    wxOpenid TEXT,              -- 该小程序的 openid
+    gender INTEGER,             -- 性别：女（0）、男（1）、保密（3）
+    avatarUrl TEXT,             -- 用户头像地址
+    backgroundImageUrl TEXT,    -- 用户背景图片地址
+    email TEXT,                 -- 邮箱地址
+    phone TEXT,                 -- 手机号
+    signature TEXT,             -- 个性签名（1 ~ 100个字符）
+    birthday TEXT,              -- 生日（yyyy-mm-dd）
+    roleId INTEGER,             -- 角色 ID（0 ~ 7），数字越高，权限越高，详见文档
+    lastLoginAt INTEGER,        -- 上次的登录时间戳
+    status INTEGER,             -- 状态（0 启用、1 禁用）
+    exp INTEGER,                -- 经验值
+    createdAt INTEGER,          -- 创建时间戳
+    updatedAt INTEGER           -- 更新时间戳
 );
 
 -- 频道表
@@ -390,8 +391,8 @@ INSERT INTO users (nickname, wxOpenid, gender, avatarUrl, email, phone, signatur
     ('米娅·泰勒', 'o2_CcDdEeFfGgHhIiJjKk_834', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default29.png', 'mia.taylor@niji.com', '09012345707', 'Music is my life!', '2004-07-07', 55, 1, 1741518710234, 0, 1741483017852, 1741483017852),
     ('钟岚珠', 'o2_TtUuVvWwXxYyZzAaBb_833', 0, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default28.png', 'zhong.lanzhu@niji.com', '09012345706', '世界一の学園偶像！', '2004-06-15', 55, 1, 1741518710234, 0, 1741483017852, 1741483017852),
     ('Franctoryer', 'o2_CL7Rs3-9QvoE8zBY8XQrw_804', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default7.png', '643612824@qq.com', '13636452530', '手持两把锟斤拷，口中疾呼烫烫烫', '2003-09-26', 55, 1, 1741518410157, 0, 1741483017852, 1741483017852),
-    ('738NGX', 'o2_CL7Wa9ja0M95V3Eg7Y0hfKTdc', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default27.png', 'jny738ngx@gmail.com', '17317371970', '未来ずら～', '2004-02-10', 12345, 6, 1741518410157, 0, 1741483017852, 1741483017852);
-
+    ('738NGX', 'o2_CL7Wa9ja0M95V3Eg7Y0hfKTdc', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default27.png', 'jny738ngx@gmail.com', '17317371970', '未来ずら～', '2004-02-10', 12345, 6, 1741518410157, 0, 1741483017852, 1741483017852),
+    ('Choihyobin', 'o2_CL7ap68G2SV8RlYWuUB3Mv-dQ', 1, 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/avatar/default27.png', '454974197@qq.com', '18964101486', 'Another day of sun！', '2004-03-06', 12345, 6, 1741518410157, 0, 1741483017852, 1741483017852);
 -- 频道表 channels
 INSERT INTO channels (channelId, name, description, masterId, status, humanCount, level, joinWay, createdAt, updatedAt) VALUES
   (1, '世界频道', '大家一起实现梦想的公共频道', 1, 0, 1, -1, 0, 1741509435699, 1741509435699),
