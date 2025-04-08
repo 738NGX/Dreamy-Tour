@@ -15,8 +15,8 @@ Component({
             },
             {
                 value: '/pages/public-group/public-group',
-                icon: 'usergroup',
-                label: '群组'
+                icon: 'map',
+                label: '行程'
             },
             {
                 value: '/pages/public-post/public-post',

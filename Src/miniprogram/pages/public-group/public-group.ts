@@ -14,7 +14,7 @@ Component({
   methods: {
     async onShow() {
       this.setData({
-        currentChannel: await getApp<IAppOption>().loadPublicChannel()
+        currentChannel: new ChannelBasic({ id: -1 })
       });
       if (typeof this.getTabBar === 'function' && this.getTabBar()) {
         const page: any = getCurrentPages().pop();

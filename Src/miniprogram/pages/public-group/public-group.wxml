@@ -1,2 +1,2 @@
 <header helperId="5" class="custom-navbar" tabList="{{[]}}" />
-<channel-detail-group id="groups" currentChannel="{{currentChannel}}" fabStyle="right: 16px; bottom: 200rpx;" />
+<channel-detail-group tourView id="groups" currentChannel="{{currentChannel}}" fabStyle="right: 16px; bottom: 200rpx;" />

@@ -21,7 +21,7 @@ App<IAppOption>({
     testMode: true,
     currentData: testData,
     baseUrl: apiUrl,
-    version: "1.0.0",
+    version: "1.0.2",
   },
   onLaunch() {
     // 开屏进入登录页面
@@ -597,6 +597,9 @@ App<IAppOption>({
             joinWay: res.joinWay == "FREE" ? JoinWay.Free : res.joinWay == "APPROVAL" ? JoinWay.Approval : JoinWay.Invite,
           })
         }) as GroupBasic[];
+        if (channelId === -1) {
+          return { joinedGroups: joinedGroups, unJoinedGroups: [] };
+        }
         const unjoinedRes = await HttpUtil.get({ url: `/group/${channelId}/unjoined/list` });
         const unJoinedGroups = unjoinedRes.data.data.map((res: any) => {
           return new GroupBasic({
@@ -621,7 +624,7 @@ App<IAppOption>({
       const groups = this.getGroupListCopy();
       const currentUser = this.currentUser();
       const joinedGroups = groups.filter(group =>
-        group.linkedChannel == channelId &&
+        (channelId == -1 || group.linkedChannel == channelId) &&
         currentUser?.joinedGroup.includes(group.id)
       ).map(group => new GroupBasic(group));
       const unJoinedGroups = groups.filter(group =>
