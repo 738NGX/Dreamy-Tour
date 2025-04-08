@@ -326,10 +326,10 @@ class UserService {
     // 插入新用户，并返回新的用户 id
     const { lastID } = await db.run(
       `INSERT INTO users (
-        nickname, wxOpenid, gender, avatarUrl, roleId,
+        nickname, wxOpenid, gender, avatarUrl, backgroundImageUrl, roleId,
         status, lastLoginAt, createdAt, updatedAt
       ) VALUES (
-       ?, ?, ?, ?, ?, ?, ?, ?, ?
+       ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
        )`,
       [
         defaultNickname,
