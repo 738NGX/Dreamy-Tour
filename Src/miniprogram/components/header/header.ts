@@ -50,13 +50,13 @@ const helps = [
   {
     id: 5,
     childs: [
-      { child: 0, title: '世界群组', value: `这里是世界频道，汇聚全球旅行者。\n\n${description['频道']}\n\n${description['群组']}\n\n你可以在这里探索并加入世界各地的群组，群组的${description['加入方式']}` }
+      { child: 0, title: '行程', value: `你可以在这个页面上查看你加入的所有群组行程。\n\n${description['频道']}\n\n${description['群组']}\n\n` }
     ]
   },
   {
     id: 6,
     childs: [
-      { child: 0, title: '世界讨论', value: `欢迎来到世界频道，连接全球旅行者。\n\n${description['频道']}\n\n${description['帖子列表']}` }
+      { child: 0, title: '讨论', value: `欢迎来到世界频道，连接全球旅行者。\n\n${description['频道']}\n\n${description['帖子列表']}` }
     ]
   },
   {
