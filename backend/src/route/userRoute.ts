@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:44:15 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-09 13:16:26
+ * @Last Modified time: 2025-04-09 20:09:32
  */
 
 import express, { Request, Response } from "express"
@@ -25,6 +25,8 @@ import ImageDto from "@/dto/image/imageDto";
 import emailServer from "@/config/emailConfig";
 import EmailCodeDto from "@/dto/user/emailCodeDto";
 import CacheUtil from "@/util/cacheUtil";
+import EmailRegisterDto from "@/dto/user/emailRegisterDto";
+import EmailLoginDto from "@/dto/user/emailLoginDto";
 
 const { version } = require('../../package.json');
 
@@ -54,7 +56,13 @@ userRoute.post('/wx-login', async (req: Request, res: Response) => {
  * @path /email/register
  */
 userRoute.post('/email/register', async (req: Request, res: Response) => {
-
+  // 获取传参
+  const emailRegisterDto = await EmailRegisterDto.from(req.body);
+  // 邮箱注册逻辑
+  await UserService.emailRegister(emailRegisterDto);
+  // 返回响应
+  res.status(StatusCodes.CREATED)
+    .json(Result.success(MessageConstant.SUCCESSFUL_REGISTER));
 })
 
 /**
@@ -63,7 +71,13 @@ userRoute.post('/email/register', async (req: Request, res: Response) => {
  * @path /email/login
  */
 userRoute.post('/email/login', async (req: Request, res: Response) => {
- 
+  // 获取登录传参
+  const emailLoginDto = await EmailLoginDto.from(req.body);
+  // 邮箱登录逻辑
+  const emailLoginVo =  await UserService.emailLogin(emailLoginDto);
+  // 返回响应
+  res.status(StatusCodes.CREATED)
+    .json(Result.success(emailLoginVo));
 })
 
 /**

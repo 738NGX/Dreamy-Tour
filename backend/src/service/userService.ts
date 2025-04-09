@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-09 13:14:00
+ * @Last Modified time: 2025-04-09 20:11:57
  */
 import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
@@ -38,6 +38,8 @@ import EmailCodeVo from "@/vo/user/emailCodeVo";
 import EmailUtil from "@/util/emailUtil";
 import EmailRegisterDto from "@/dto/user/emailRegisterDto";
 import ForbiddenError from "@/exception/forbiddenError";
+import crypto from "crypto"
+import UnauthorizedError from "@/exception/unauthorizedError";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
@@ -127,8 +129,30 @@ class UserService {
     }
   }
 
-  static async emailLogin(emailLoginDto: EmailLoginDto): Promise<void> {
-    
+  static async emailLogin(emailLoginDto: EmailLoginDto): Promise<EmailLoginVo> {
+    // 计算密码哈希
+    const passwordHash = this.getPasswordHash(emailLoginDto.password);
+    // 查数据库是否存在该用户
+    const db = await dbPromise;
+    const row = await db.get<{ uid: number; roleId: number }>(
+      `
+      SELECT uid, roleId FROM users
+      WHERE email = ? AND password = ?
+      `,
+      [
+        emailLoginDto.email,
+        passwordHash
+      ]
+    )
+    if (!row) {
+      throw new UnauthorizedError("邮箱或密码错误！");
+    }
+    // 获取 uid 和 roleId，返回 token
+    const { uid, roleId } = row;
+    this.updateLastLoginTime(db, uid);  // 异步更新用户登录时间
+    return new EmailLoginVo({
+      token: JwtUtil.generateByUid(uid, roleId)
+    });
   }
 
   static async emailRegister(emailRegisterDto: EmailRegisterDto): Promise<void> {
@@ -141,7 +165,7 @@ class UserService {
       `,
       [emailRegisterDto.email]
     );
-    if (!emailExists) {
+    if (emailExists) {
       throw new ForbiddenError("该邮箱已经注册过了！")
     }
     // 检验验证码是否有效
@@ -154,7 +178,13 @@ class UserService {
       throw new ForbiddenError("验证码错误");
     }
     // 注册新用户
-    
+    // 计算密码哈希，加盐防止彩虹表爆破
+    const passwordHash = this.getPasswordHash(emailRegisterDto.password);
+    await this.createUserByEmail(
+      db,
+      emailRegisterDto.email,
+      passwordHash
+    )
   }
 
   static async emailResetPassword() {
@@ -422,7 +452,38 @@ class UserService {
     email: string,
     passwordHash: string
   ): Promise<void> {
+    const defaultNickname = `用户_${Math.random().toString(36).substr(2, 5)}`;
 
+    // 插入新用户，并返回新的用户 id
+    const { lastID } = await db.run(
+      `INSERT INTO users (
+        nickname, email, password, gender, 
+        avatarUrl, backgroundImageUrl, roleId,
+        status, lastLoginAt, createdAt, updatedAt
+      ) VALUES (
+       ?, ?, ?, ?, 
+       ?, ?, ?, 
+       ?, ?, ?, ?
+       )`,
+      [
+        defaultNickname,
+        email,
+        passwordHash,
+        UserConstant.CONFIDENTIAL,
+        UserUtil.generateDefaultAvatarUrl(),
+        UserUtil.generateDefaultBackgroundImageUrl(),
+        UserConstant.DEFAULT_ROLE,
+        UserConstant.STATUS_ENABLE,
+        Date.now(),
+        Date.now(),
+        Date.now()
+      ]
+    );
+
+    if (!lastID) throw new Error('用户创建失败');
+
+    // 新用户自动加入世界频道
+    ChannelService.join(lastID, ChannelConstant.WORLD_CHANNEL_ID);
   }
   /**
    * 更新用户的登录时间
@@ -484,6 +545,16 @@ class UserService {
   private static async init(db: Database, uid: number): Promise<void> {
     this.updateLastLoginTime(db, uid);  // 更新登录时间
     ChannelService.join(uid, ChannelConstant.WORLD_CHANNEL_ID)  // 加入世界频道
+  }
+
+  /**
+   * 获取密码的哈希值，使用 sha1 哈希再加盐的方式
+   * @param password 密码
+   */
+  private static getPasswordHash(password: string): string {
+    return crypto.createHash("sha1")
+    .update(password + AuthConstant.SALT)
+    .digest("hex");
   }
 }
 

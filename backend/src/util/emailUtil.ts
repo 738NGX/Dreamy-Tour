@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-04-08 23:47:38 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-09 00:23:49
+ * @Last Modified time: 2025-04-09 19:54:13
  */
 import globalCache from "@/config/cacheConfig";
 import emailServer from "@/config/emailConfig";
@@ -136,7 +136,10 @@ class EmailUtil {
   ): boolean {
     const cacheKey = `${businessType}:${email}`;
     const storedCode = globalCache.get(cacheKey);
-    
+    // 没有对应的 key，返回 false
+    if (!storedCode) {
+      return false;
+    }
     // 验证成功后立即删除验证码（防止重复使用）
     if (storedCode === code) {
       globalCache.del(cacheKey);

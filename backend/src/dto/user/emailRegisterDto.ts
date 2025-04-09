@@ -1,6 +1,6 @@
 import DTO from "@/base/dto";
 import { Expose, Type } from "class-transformer";
-import { IsEmail, Length, MinLength } from "class-validator";
+import { IsEmail, IsNotEmpty, Length, MinLength } from "class-validator";
 
 class EmailRegisterDto extends DTO<EmailRegisterDto> {
   // 邮箱
@@ -21,6 +21,9 @@ class EmailRegisterDto extends DTO<EmailRegisterDto> {
   
   // 验证码
   @Expose()
+  @IsNotEmpty({
+    message: "验证码不能为空！"
+  })
   @Type(() => String)
   verifyCode: string
 }
