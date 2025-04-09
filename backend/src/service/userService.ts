@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-07 09:28:11
+ * @Last Modified time: 2025-04-09 13:14:00
  */
 import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
@@ -31,6 +31,13 @@ import RoleDto from "@/dto/user/roleDto";
 import RoleUtil from "@/util/roleUtil";
 import RoleConstant from "@/constant/RoleConstant";
 import AuthConstant from "@/constant/authConstant";
+import EmailLoginDto from "@/dto/user/emailLoginDto";
+import EmailLoginVo from "@/vo/user/emailLoginVo";
+import EmailCodeDto from "@/dto/user/emailCodeDto";
+import EmailCodeVo from "@/vo/user/emailCodeVo";
+import EmailUtil from "@/util/emailUtil";
+import EmailRegisterDto from "@/dto/user/emailRegisterDto";
+import ForbiddenError from "@/exception/forbiddenError";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
@@ -117,6 +124,54 @@ class UserService {
     } else {
       throw new Error("用户 ID 生成异常");
     }
+  }
+
+  static async emailLogin(emailLoginDto: EmailLoginDto): Promise<void> {
+    
+  }
+
+  static async emailRegister(emailRegisterDto: EmailRegisterDto): Promise<void> {
+    // 先检查该邮箱是否已经注册
+    const db = await dbPromise;
+    const emailExists = await db.get<{_: number}>(
+      `
+      SELECT 1 FROM users
+      WHERE email = ?
+      `,
+      [emailRegisterDto.email]
+    );
+    if (!emailExists) {
+      throw new ForbiddenError("该邮箱已经注册过了！")
+    }
+    // 检验验证码是否有效
+    const isValid = EmailUtil.verifyCode(
+      emailRegisterDto.email,
+      emailRegisterDto.verifyCode,
+      "register"
+    );
+    if (!isValid) {
+      throw new ForbiddenError("验证码错误");
+    }
+    // 注册新用户
+    
+  }
+
+  static async emailResetPassword() {
+
+  }
+
+  /**
+   * 向某个邮箱发送验证码，并把验证码和验证码 ID 返回给用户
+   * @param emailCodevoidvoid
+   */
+  static async sendVerifyCode(emailCodeDto: EmailCodeDto): Promise<void> {
+    // 发送验证码，6 位数字，3 分钟过期
+    await EmailUtil.sendVerifyCode(
+      emailCodeDto.email,
+      {
+        businessType: emailCodeDto.businessType
+      }
+    )
   }
 
   /**
@@ -322,6 +377,19 @@ class UserService {
     };
   }
 
+  /**
+   * 通过邮箱创建新用户
+   * @param db 数据库对象
+   * @param email 邮箱
+   * @param passwordHash 密码哈希
+   */
+  private static async createUserByEmail(
+    db: Database, 
+    email: string,
+    passwordHash: string
+  ): Promise<void> {
+
+  }
   /**
    * 更新用户的登录时间
    * @param db 数据库对象

@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 21:44:15 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-23 19:34:53
+ * @Last Modified time: 2025-04-09 12:58:36
  */
 
 import express, { Request, Response } from "express"
@@ -19,6 +19,10 @@ import NicknameDto from "@/dto/user/nicknameDto";
 import AvatarVo from "@/vo/user/avatarVo";
 import RoleDto from "@/dto/user/roleDto";
 import ImageDto from "@/dto/image/imageDto";
+import emailServer from "@/config/emailConfig";
+import EmailCodeDto from "@/dto/user/emailCodeDto";
+import CacheUtil from "@/util/cacheUtil";
+
 const { version } = require('../../package.json');
 
 const userRoute = express.Router();
@@ -39,6 +43,58 @@ userRoute.post('/wx-login', async (req: Request, res: Response) => {
   // 响应 201
   res.status(StatusCodes.CREATED)
     .json(Result.success(wxLoginVo));
+})
+
+/**
+ * @description 邮箱注册（含验证码）
+ * @method POST
+ * @path /email/register
+ */
+userRoute.post('/email/register', async (req: Request, res: Response) => {
+
+})
+
+/**
+ * @description 邮箱登录（不需要验证码）
+ * @method POST
+ * @path /email/login
+ */
+userRoute.post('/email/login', async (req: Request, res: Response) => {
+ 
+})
+
+/**
+ * @description 密码重置（需要验证码）
+ * @method POST
+ * @path /email/reset-password
+ */
+userRoute.post('/email/reset-password', async (req: Request, res: Response) => {
+ 
+})
+
+/**
+ * @description 用邮箱换验证码
+ * @method POST
+ * @path /email/verify-code
+ */
+userRoute.post('/email/captcha', async (req: Request, res: Response) => {
+  // 获取传参
+  const emailCodeDto = await EmailCodeDto.from(req.body);
+  // 发送验证码
+  await UserService.sendVerifyCode(emailCodeDto);
+  // 返回响应
+  res.status(StatusCodes.CREATED)
+    .json(Result.success(MessageConstant.SUCCESSFUL_SEND));
+})
+
+/**
+ * @description 获取缓存数据（仅开发调试使用）
+ * @method GET
+ * @path /cache
+ */
+userRoute.get('/cache', async (req: Request, res: Response) => {
+  const cache = CacheUtil.getAllCacheEntries();
+  res.json(Result.success(cache));
 })
 
 /**
