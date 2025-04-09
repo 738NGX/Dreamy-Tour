@@ -1,7 +1,8 @@
 import HttpUtil from "../../utils/httpUtil";
-import { UserBasic } from "../../utils/user/user";
+import { User, UserBasic } from "../../utils/user/user";
 import { getByteLength, getImageBase64, getUserGroupName, userExpTarget, userRoleName } from "../../utils/util";
-
+import { PostCard } from "../../utils/channel/post";
+import { Channel } from "../../utils/channel/channel";
 const app = getApp<IAppOption>();
 
 Component({
@@ -11,14 +12,40 @@ Component({
   data: {
     isTestMode: false,
     isDarkMode: wx.getSystemInfoSync().theme == 'dark',
-    testUserList: [] as UserBasic[],
+    testUserList: [] as User[],
     userRoleList: userRoleName,
     currentUser: {} as UserBasic,
     userGroup: '',
     expPercentage: 0,
     expLabel: '',
     backendVersion: '不可用',
+    uploadVisible: false,
+    backgroundImages: [],
+
+    fullPosts: [] as PostCard[],
+    leftPosts: [] as PostCard[],
+    rightPosts: [] as PostCard[],
+    searchedPosts: [] as PostCard[],
+    searchingValueForPosts: '',
+    refreshEnable: false,
+        
+    fullChannelList: [] as Channel[],
+    channelList: [] as Channel[],
+    searchingValueForChannels: '',
   },
+
+  lifetimes: {
+    async ready() {
+      await this.getFullPosts();
+      this.searchPosts();
+      await this.loadChannelList();
+      this.setData({
+        channelList: this.data.fullChannelList.filter(
+        channel => channel.name.includes(this.data.searchingValueForChannels))
+      });
+    },
+  },
+
   methods: {
     onLoad() {
       wx.onThemeChange((res) => {
@@ -42,12 +69,16 @@ Component({
           backendVersion: '不可用'
         });
       }
-      this.setData({
-        isTestMode: app.globalData.testMode,
-        isLocalDebug: app.globalData.localDebug,
-        currentUser: await app.getCurrentUser(),
-        testUserList: app.getUserListCopy()
-      });
+      const currentUserBasic = await app.getCurrentUser()
+      const currentUserId = currentUserBasic?.id
+      if(currentUserId){
+        this.setData({
+          isTestMode: app.globalData.testMode,
+          isLocalDebug: app.globalData.localDebug,
+          currentUser: currentUserBasic,
+          testUserList: app.getUserListCopy()
+        });
+      }
       this.caluculateExp();
       if (typeof this.getTabBar === 'function' && this.getTabBar()) {
         const page: any = getCurrentPages().pop();
@@ -140,6 +171,7 @@ Component({
       currentUser.email = e.detail.value;
       this.setData({ currentUser })
     },
+   
     async handleUserNameChangeConfirm() {
       const { currentUser } = this.data;
 
@@ -153,9 +185,13 @@ Component({
       }
       this.setData({ currentUser })
       if (!await app.changeUserName(currentUser.name)) {
-        this.setData({
-          currentUser: await app.getCurrentUser()
-        });
+        const currentUserBasic = await app.getCurrentUser()
+        const currentUserId = currentUserBasic?.id
+        if(currentUserId){
+          this.setData({
+            currentUser: app.getUser(currentUserId)
+          });
+        }
       }
       if (this.data.isTestMode) {
         this.setData({
@@ -167,15 +203,23 @@ Component({
       const { currentUser } = this.data;
       this.setData({ currentUser })
       if (!await app.changeUserBasic(currentUser)) {
-        this.setData({
-          currentUser: await app.getCurrentUser()
-        });
+        const currentUserBasic = await app.getCurrentUser()
+        const currentUserId = currentUserBasic?.id
+        if(currentUserId){
+          this.setData({
+            currentUser: app.getUser(currentUserId)
+          });
+        }
       }
     },
     async handleUserBasicReset() {
-      this.setData({
-        currentUser: await app.getCurrentUser(),
-      });
+      const currentUserBasic = await app.getCurrentUser()
+      const currentUserId = currentUserBasic?.id
+      if(currentUserId){
+        this.setData({
+          currentUser: app.getUser(currentUserId)
+        });
+      }
     },
     async uploadAvater(e: WechatMiniprogram.CustomEvent) {
       const src = e.detail.avatarUrl;
@@ -186,6 +230,43 @@ Component({
       console.log('src:', src)
       await app.changeUserAvatar(await getImageBase64(src));
       await this.onShow();
+    },
+    async uploadBackgroundImage() {
+      if (!this.data.backgroundImages[0]) {
+        wx.showToast({
+          title: '不可上传空白内容',
+          icon: 'none'
+        });
+        return;
+      }
+      const src = JSON.parse(JSON.stringify(this.data.backgroundImages[0]))
+      if (src && src.url)
+      console.log('src.url:', src.url)
+      await app.changeUserBackgroundImage(await getImageBase64(src.url));
+      await this.onShow();
+    },
+    handleImageUploadSuccess(e: WechatMiniprogram.CustomEvent) {
+      const { files } = e.detail;
+      this.setData({ backgroundImages: files });
+    },
+    handleImageUploadRemove() {
+      this.setData({ backgroundImages: [] });
+    },
+    handleImageUploadClick(e: WechatMiniprogram.CustomEvent) {
+      console.log(e.detail.file);
+    },
+    handleImageUploadDrop(e: WechatMiniprogram.CustomEvent) {
+      const { files } = e.detail;
+      this.setData({ backgroundImages: files });
+    },
+    uploadVisibleChange(){
+      this.setData({
+        uploadVisible: !this.data.uploadVisible
+      })
+    },
+    cancelUpload(){
+      this.handleImageUploadRemove();
+      this.uploadVisibleChange();
     },
     copyInfo(e: WechatMiniprogram.CustomEvent) {
       const index = parseInt(e.currentTarget.dataset.index);
@@ -218,6 +299,70 @@ Component({
           }
         }
       })
-    }
+    },
+
+    async onRefresh() {
+      this.setData({ refreshEnable: true });
+      await this.getFullPosts();
+      this.searchPosts(this.data.searchingValueForPosts);
+      this.setData({ refreshEnable: false });
+    },
+    async getFullPosts() {
+      const fullPosts = await app.getFullPostsByUid(this.data.currentUser.id); //
+      this.setData({ fullPosts });
+    },
+    searchPosts(searchValue: string = '') {
+      const { fullPosts } = this.data;
+      const leftPosts = [] as PostCard[];
+      const rightPosts = [] as PostCard[];
+      fullPosts.forEach((post, index) => {
+        if (post.title.includes(searchValue) || post.content.includes(searchValue)) {
+          if (index % 2 === 0) {
+            leftPosts.push(post);
+          } else {
+            rightPosts.push(post);
+          }
+        }
+      });
+      this.setData({ leftPosts, rightPosts });
+    },
+    onPostsSearch(e: WechatMiniprogram.CustomEvent) {
+      const { value } = e.detail;
+      this.setData({ searchingValueForPosts: value });
+      this.searchPosts(value);
+    },
+    onPostsSearchClear() {
+      this.setData({ searchingValueForPosts: '' });
+      this.searchPosts();
+    },
+    onChannelClick(e: WechatMiniprogram.CustomEvent) {
+      const channelId = e.currentTarget.dataset.index;
+      wx.navigateTo({
+        url: `/pages/channel-detail/channel-detail?channelId=${channelId}`,
+      });
+    },
+    async loadChannelList() {
+      const channelList = await app.getSelectedUserJoinedChannels(this.data.currentUser.id);
+      this.setData({ channelList, fullChannelList: channelList });
+    },
+    onChannelsSearch(e: WechatMiniprogram.CustomEvent) {
+      const { value } = e.detail;
+      this.setData({
+        searchingValue: value,
+        channelList: this.data.fullChannelList.filter(channel => channel.name.includes(value)),
+      });
+    },
+    onChannelsSearchClear() {
+      this.setData({
+        searchingValue: '',
+        channelList: this.data.fullChannelList,
+      });
+    },
+    handlePostDetail(e: WechatMiniprogram.CustomEvent) {
+      const id = e.currentTarget.dataset.index;
+      wx.navigateTo({
+        url: `/pages/channel-post/channel-post?postId=${id}`,
+      });
+    },
   }
 })

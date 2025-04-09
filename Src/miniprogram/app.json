@@ -11,7 +11,8 @@
     "pages/group/group",
     "pages/tour-view/tour-view",
     "pages/tour-edit/tour-edit",
-    "pages/report/report"
+    "pages/report/report",
+    "pages/userinfo/userinfo"
   ],
   "tabBar": {
     "custom": true,

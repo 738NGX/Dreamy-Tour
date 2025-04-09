@@ -15,8 +15,8 @@ Component({
             },
             {
                 value: '/pages/public-group/public-group',
-                icon: 'usergroup',
-                label: '群组'
+                icon: 'map',
+                label: '行程'
             },
             {
                 value: '/pages/public-post/public-post',
@@ -32,7 +32,12 @@ Component({
                 value: '/pages/user/user',
                 icon: 'user-1',
                 label: '我的'
-            },
+            }
+            // {
+            //     value: '/pages/userinfo/userinfo',
+            //     icon: 'user-1',
+            //     label: '测试'
+            // }
         ]
     },
     //  组件的方法列表

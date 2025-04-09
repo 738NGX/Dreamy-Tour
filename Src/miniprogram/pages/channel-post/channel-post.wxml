@@ -129,12 +129,12 @@
     <view class="title">操作</view>
   </view>
   <view class="options">
-    <view class="option" wx:if="{{isChannelAdmin||item.user==currentUserId}}">
+    <view class="option" wx:if="{{isChannelAdmin}}">
       <t-icon class="t-icon" size="35px" name="align-top" bind:click="onPostStickyChange" wx:if="{{!currentPost.isSticky}}" />
       <t-icon class="t-icon" size="35px" name="align-vertical" bind:click="onPostStickyChange" wx:if="{{currentPost.isSticky}}" />
       <text style="font-size:30rpx">{{ currentPost.isSticky ? '取消置顶' : '置顶帖子' }}</text>
     </view>
-    <view class="option" wx:if="{{isChannelAdmin||item.user==currentUserId}}">
+    <view class="option" wx:if="{{isChannelAdmin||author.id==currentUserId}}">
       <t-icon name="delete" size="35px" bind:click="onPostDelete" />
       <text style="font-size:30rpx">删除帖子</text>
     </view>

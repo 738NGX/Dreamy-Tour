@@ -15,6 +15,10 @@ type TourTemplate = {
 
 Component({
   properties: {
+    tourView: {
+      type: Boolean,
+      value: false,
+    },
     currentChannel: {
       type: Object,
       value: {},
@@ -70,6 +74,7 @@ Component({
     },
     async getTourTemplates() {
       const currentChannel = this.properties.currentChannel as Channel;
+      if (currentChannel.id < 0) return;
       const tourSaves = await app.generateTourSaves(currentChannel.id);
       const tourTemplates = [{ value: -1, label: '不选择' }].concat(
         tourSaves.map(tour => {

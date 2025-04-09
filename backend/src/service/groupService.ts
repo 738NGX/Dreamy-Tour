@@ -224,8 +224,20 @@ class GroupService {
    */
   static async getJoinedGroupList(channelId: number, uid: number): Promise<GroupListVo[]> {
     const db = await dbPromise;
-    // 使用 EXISTS 代替 JOIN，性能更好
-    const rows = await db.all<Partial<Group>[]>(
+    const rows = channelId === -1 ? await db.all<Partial<Group>[]>(
+      `
+        SELECT groups.groupId, name, description, level, 
+          joinWay, humanCount, groups.createdAt, groups.updatedAt
+        FROM groups
+        WHERE EXISTS (
+          SELECT 1 FROM group_users 
+          WHERE
+            group_users.groupId = groups.groupId AND
+            group_users.uid = ?
+        )
+        `,
+      [uid]
+    ) : await db.all<Partial<Group>[]>(
       `
       SELECT groups.groupId, name, description, level, 
         joinWay, humanCount, groups.createdAt, groups.updatedAt

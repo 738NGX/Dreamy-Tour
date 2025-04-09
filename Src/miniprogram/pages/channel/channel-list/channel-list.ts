@@ -30,7 +30,7 @@ Component({
       this.loadChannelList();
       this.setData({
         channelList: this.data.fullChannelList.filter(
-          channel => channel.name.includes(this.data.searchingValue))
+        channel => channel.name.includes(this.data.searchingValue))
       });
     },
     onChannelClick(e: WechatMiniprogram.CustomEvent) {

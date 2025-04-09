@@ -55,6 +55,7 @@ class UserService {
       nickname: row.nickname,
       gender: UserUtil.getGenderStr(row.gender),
       avatarUrl: row.avatarUrl,
+      backgroundImageUrl: row.backgroundImageUrl,
       email: row.email,
       phone: row.phone,
       signature: row.signature,
@@ -176,7 +177,7 @@ class UserService {
 
   /**
    * 更新用户的基本信息
-   * @param userInfoDto 用户基本信息（除了昵称、头像）
+   * @param userInfoDto 用户基本信息（除了昵称、头像、背景图片）
    */
   static async updateUserInfo(userInfoDto: UserInfoDto, uid: number): Promise<void> {
     const db = await dbPromise;
@@ -245,6 +246,38 @@ class UserService {
     }
     // 返回新头像 url
     return freshAvatarUrl;
+  }
+
+  /**
+   * 更换用户背景图片，返回新图片的 url
+   * @param base64 图片的 base64 编码
+   */
+  static async updateBackgroundImage(base64: string, uid: number): Promise<string> {
+    // 上传新图片
+    const freshBackgroundImageUrl = await CosUtil.uploadBase64Picture(CosConstant.BACKGROUND_IMAGES_FOLDER, base64);
+    // 获取旧的图片地址
+    const db = await dbPromise;
+    const row = await db.get<Pick<User, 'backgroundImageUrl'>>(
+      'SELECT backgroundImageUrl FROM users WHERE uid = ?',
+      [uid]
+    );
+    if (!row) throw new NotFoundError(`用户 ${uid} 不存在`);
+    const oldBackgroundImageUrl = row.backgroundImageUrl;
+    // 更新数据库中的图片 url
+    await db.run(
+      'UPDATE users SET backgroundImageUrl = ? WHERE uid = ?',
+      [freshBackgroundImageUrl, uid]
+    )
+    // 异步删除 COS 上原来的图片，不影响主线程（没有await），较少IO时长（当旧图片地址不为空，且是合法的图片路径）
+    // 如果是默认图片，则不删除
+    if (typeof oldBackgroundImageUrl !== 'undefined' && 
+      CosUtil.isValidCosUrl(oldBackgroundImageUrl) &&
+      !oldBackgroundImageUrl.includes("default")
+    ) {
+      CosUtil.deleteFile(oldBackgroundImageUrl)
+    }
+    // 返回新图片 url
+    return freshBackgroundImageUrl;
   }
 
   /**
@@ -348,16 +381,17 @@ class UserService {
     // 插入新用户，并返回新的用户 id
     const { lastID } = await db.run(
       `INSERT INTO users (
-        nickname, wxOpenid, gender, avatarUrl, roleId,
+        nickname, wxOpenid, gender, avatarUrl, backgroundImageUrl, roleId,
         status, lastLoginAt, createdAt, updatedAt
       ) VALUES (
-       ?, ?, ?, ?, ?, ?, ?, ?, ?
+       ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
        )`,
       [
         defaultNickname,
         openid,
         UserConstant.CONFIDENTIAL,
         UserUtil.generateDefaultAvatarUrl(),
+        UserUtil.generateDefaultBackgroundImageUrl(),
         UserConstant.DEFAULT_ROLE,
         UserConstant.STATUS_ENABLE,
         Date.now(),
