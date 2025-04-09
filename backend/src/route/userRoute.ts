@@ -27,6 +27,7 @@ import EmailCodeDto from "@/dto/user/emailCodeDto";
 import CacheUtil from "@/util/cacheUtil";
 import EmailRegisterDto from "@/dto/user/emailRegisterDto";
 import EmailLoginDto from "@/dto/user/emailLoginDto";
+import ResetPasswordDto from "@/dto/user/resetPasswordDto";
 
 const { version } = require('../../package.json');
 
@@ -82,17 +83,23 @@ userRoute.post('/email/login', async (req: Request, res: Response) => {
 
 /**
  * @description 密码重置（需要验证码）
- * @method POST
- * @path /email/reset-password
+ * @method PUT
+ * @path /email/password
  */
-userRoute.post('/email/reset-password', async (req: Request, res: Response) => {
- 
+userRoute.put('/email/password', async (req: Request, res: Response) => {
+  // 获取重置密码的传参
+  const resetPasswordDto = await ResetPasswordDto.from(req.body);
+  // 重置密码逻辑
+  await UserService.emailResetPassword(resetPasswordDto);
+  // 返回响应
+  res.status(StatusCodes.CREATED)
+    .json(Result.success(MessageConstant.SUCCESSFUL_MODIFIED));
 })
 
 /**
  * @description 用邮箱换验证码
  * @method POST
- * @path /email/verify-code
+ * @path /email/captcha
  */
 userRoute.post('/email/captcha', async (req: Request, res: Response) => {
   // 获取传参

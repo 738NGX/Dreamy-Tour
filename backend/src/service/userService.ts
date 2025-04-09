@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-09 20:11:57
+ * @Last Modified time: 2025-04-09 20:25:08
  */
 import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
@@ -40,6 +40,7 @@ import EmailRegisterDto from "@/dto/user/emailRegisterDto";
 import ForbiddenError from "@/exception/forbiddenError";
 import crypto from "crypto"
 import UnauthorizedError from "@/exception/unauthorizedError";
+import ResetPasswordDto from "@/dto/user/resetPasswordDto";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
@@ -129,6 +130,11 @@ class UserService {
     }
   }
 
+  /**
+   * 邮箱登录
+   * @param emailLoginDto 
+   * @returns 
+   */
   static async emailLogin(emailLoginDto: EmailLoginDto): Promise<EmailLoginVo> {
     // 计算密码哈希
     const passwordHash = this.getPasswordHash(emailLoginDto.password);
@@ -155,6 +161,10 @@ class UserService {
     });
   }
 
+  /**
+   * 邮箱注册
+   * @param emailRegisterDto 
+   */
   static async emailRegister(emailRegisterDto: EmailRegisterDto): Promise<void> {
     // 先检查该邮箱是否已经注册
     const db = await dbPromise;
@@ -187,8 +197,49 @@ class UserService {
     )
   }
 
-  static async emailResetPassword() {
-
+  /**
+   * 重置用户密码
+   * @param resetPasswordDto 
+   */
+  static async emailResetPassword(
+    resetPasswordDto: ResetPasswordDto
+  ): Promise<void> {
+    // 先检查该邮箱是否存在
+    const db = await dbPromise;
+    const emailExists = await db.get<{_: number}>(
+      `
+      SELECT 1 FROM users
+      WHERE email = ?
+      `,
+      [resetPasswordDto.email]
+    );
+    if (!emailExists) {
+      throw new ForbiddenError("该邮箱不存在！")
+    }
+    // 检查验证码是否有效
+    const isValid = EmailUtil.verifyCode(
+      resetPasswordDto.email,
+      resetPasswordDto.verifyCode,
+      "reset"
+    );
+    if (!isValid) {
+      throw new ForbiddenError("验证码错误");
+    }
+    // 更新用户密码
+    // 计算新密码的哈希
+    const passwordHash = this.getPasswordHash(
+      resetPasswordDto.password
+    );
+    await db.run(
+      `
+      UPDATE users SET password = ?
+      WHERE email = ?
+      `,
+      [
+        passwordHash,
+        resetPasswordDto.email
+      ]
+    )
   }
 
   /**
