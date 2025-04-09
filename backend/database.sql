@@ -11,6 +11,7 @@ CREATE TABLE users (
     avatarUrl TEXT,       -- 用户头像地址
     email TEXT,           -- 邮箱地址
     password TEXT,        -- 密码哈希
+    backgroundImageUrl TEXT, -- 个人背景
     phone TEXT,           -- 手机号
     signature TEXT,       -- 个性签名（1 ~ 100个字符）
     birthday TEXT,        -- 生日（yyyy-mm-dd）

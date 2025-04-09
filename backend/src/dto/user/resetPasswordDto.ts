@@ -1,8 +1,15 @@
+/*
+ * 重置密码需要的传参
+ * @Author: Franctoryer 
+ * @Date: 2025-04-09 20:17:27 
+ * @Last Modified by: Franctoryer
+ * @Last Modified time: 2025-04-09 20:18:16
+ */
 import DTO from "@/base/dto";
 import { Expose, Type } from "class-transformer";
 import { IsEmail, IsNotEmpty, Length, MinLength } from "class-validator";
 
-class EmailRegisterDto extends DTO<EmailRegisterDto> {
+class ResetPasswordDto extends DTO<ResetPasswordDto> {
   // 邮箱
   @Expose()
   @IsEmail({}, {
@@ -28,4 +35,4 @@ class EmailRegisterDto extends DTO<EmailRegisterDto> {
   verifyCode: string
 }
 
-export default EmailRegisterDto;
+export default ResetPasswordDto;
