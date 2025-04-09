@@ -21,10 +21,13 @@
     "ignoreUploadUnusedFiles": true,
     "compileHotReLoad": false,
     "skylineRenderEnable": true,
-    "es6": true
+    "es6": true,
+    "condition": true
   },
   "simulatorType": "wechat",
-  "simulatorPluginLibVersion": {},
+  "simulatorPluginLibVersion": {
+    "wxext14566970e7e9f62": "3.6.5-29"
+  },
   "condition": {},
   "srcMiniprogramRoot": "miniprogram/",
   "editorSetting": {
@@ -36,5 +39,6 @@
     "ignore": [],
     "include": []
   },
-  "appid": "wx6c0d5ae365e9b82d"
+  "appid": "wx6c0d5ae365e9b82d",
+  "projectArchitecture": "multiPlatform"
 }

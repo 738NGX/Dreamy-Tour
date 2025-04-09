@@ -33,6 +33,7 @@ Page({
     })
     wx.login({
       success(res) {
+        console.log("res",res);
         if (res.code) {
           wx.request({
             url: `${apiUrl}/wx-login`,

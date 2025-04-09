@@ -1,0 +1,72 @@
+{
+  "miniVersion": "v2",
+  "name": "梦旅",
+  "version": "1.0.2",
+  "versionCode": 10002,
+  "i18nFilePath": "i18n",
+  "mini-android": {
+    "resourcePath": "miniapp/android/nativeResources",
+    "sdkVersion": "1.6.7",
+    "toolkitVersion": "0.11.0",
+    "useExtendedSdk": {
+      "media": false,
+      "bluetooth": false,
+      "network": false,
+      "scanner": false,
+      "xweb": false,
+      "xwebEmbed": true
+    },
+    "icons": {
+      "hdpi": "d:/Develop/wechat_app/Dreamy-Tour/LOGO.png",
+      "xhdpi": "d:/Develop/wechat_app/Dreamy-Tour/LOGO.png",
+      "xxhdpi": "d:/Develop/wechat_app/Dreamy-Tour/LOGO.png",
+      "xxxhdpi": "d:/Develop/wechat_app/Dreamy-Tour/LOGO.png"
+    },
+    "splashscreen": {
+      "hdpi": "",
+      "xhdpi": "",
+      "xxhdpi": ""
+    },
+    "enableVConsole": "close",
+    "privacy": {
+      "enable": true
+    },
+    "abi": {
+      "arm64-v8a": true
+    },
+    "map": {
+      "qmapAPIKey": "Q3TBZ-ZPECZ-6VGX5-T3YFE-R2N3V-G5BU7"
+    }
+  },
+  "mini-ios": {
+    "sdkVersion": "1.6.10",
+    "toolkitVersion": "0.0.9",
+    "useExtendedSdk": {
+      "WeAppOpenFuns": true,
+      "WeAppNetwork": false,
+      "WeAppBluetooth": false,
+      "WeAppMedia": false,
+      "WeAppLBS": false,
+      "WeAppOthers": false
+    },
+    "enableVConsole": "open",
+    "icons": {
+      "mainIcon120": "",
+      "mainIcon180": "",
+      "spotlightIcon80": "",
+      "spotlightIcon120": "",
+      "settingsIcon58": "",
+      "settingsIcon87": "",
+      "notificationIcon40": "",
+      "notificationIcon60": "",
+      "appStore1024": ""
+    },
+    "splashScreen": {
+      "customImage": ""
+    },
+    "privacy": {
+      "enable": false
+    },
+    "enableOpenUrlNavigate": true
+  }
+}
