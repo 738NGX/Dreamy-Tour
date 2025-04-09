@@ -6,7 +6,7 @@ import { Currency } from "../miniprogram/utils/tour/expense";
 import { FootPrint } from "../miniprogram/utils/tour/footprint";
 import { File } from "../miniprogram/utils/tour/photo";
 import { Tour, TourBasic } from "../miniprogram/utils/tour/tour";
-import { Location } from "../miniprogram/utils/tour/tourNode";
+import { Location, Transportation } from "../miniprogram/utils/tour/tourNode";
 import { Member, User, UserBasic } from "../miniprogram/utils/user/user";
 
 /// <reference path="./types/index.d.ts" />
@@ -251,7 +251,7 @@ declare global {
      * @returns 操作后的帖子实例
      */
     handlePostLike(postId: number, isLiked: boolean): Promise<Post | undefined>;
-    handlePostStick(post:Post): Promise<Post | undefined>;
+    handlePostStick(post: Post): Promise<Post | undefined>;
     /**
      * 对评论进行点赞或取消点赞
      * @param commentId 评论id
@@ -291,7 +291,7 @@ declare global {
     /**
      * @returns 选择的用户加入的频道列表, 不包括世界频道
      */
-    getSelectedUserJoinedChannels(uid:number): Promise<Channel[]>;
+    getSelectedUserJoinedChannels(uid: number): Promise<Channel[]>;
     /**
      * 获取用户发布的全部帖子
      * @param uid 
@@ -308,7 +308,7 @@ declare global {
     removeMemberInGroup(groupId: number, linkedTourId: number, userId: number): Promise<boolean>;
     transferGroupOwner(groupId: number, newOwnerId: number): Promise<boolean>;
     changeGroupBasic(group: GroupBasic): Promise<boolean>;
-    changeGroupQrCode(groupId:number, qrCodeUrl:string): Promise<boolean>;
+    changeGroupQrCode(groupId: number, qrCodeUrl: string): Promise<boolean>;
     changeTourBasic(tour: TourBasic): Promise<boolean>;
     quitGroup(groupId: number, linkedTourId: number): Promise<boolean>;
     disbandGroup(groupId: number, linkedTourId: number): Promise<boolean>;
@@ -325,7 +325,8 @@ declare global {
     getMembersInTour(tourId: number): Promise<Member[]>;
     changeFullTour(tour: Tour): Promise<boolean>;
     changeTourLocationPhotos(tourId: number, copyIndex: number, location: Location): Promise<boolean>;
-  
+    getTransitDirections(origin: Location, destination: Location, startDate: number, strategy: number): Promise<Transportation[]>;
+
     getUserDetail(userId: number): Promise<Member | undefined>;
   }
 }

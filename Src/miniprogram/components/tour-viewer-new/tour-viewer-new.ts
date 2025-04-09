@@ -534,7 +534,7 @@ Component({
      * @returns 
      */
     async changeLocation() {
-      if(this.properties.readonly) {
+      if (this.properties.readonly) {
         this.setData({ mapVisible: false });
         return;
       }
@@ -955,6 +955,44 @@ Component({
       await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
       //  console.log("editingtrans", editingTransportation)
+    },
+    async getTransitDirection(e: WechatMiniprogram.CustomEvent) {
+      if (e.currentTarget.dataset.index != undefined) {
+        this.setData({ editingTransportationId: e.currentTarget.dataset.index });
+      }
+      if (!this.data.currentTour || this.data.editingTransportationId < 0) return;
+
+      const currentTour = this.data.currentTour;
+      const currentTourCopyIndex = this.data.currentTourCopyIndex;
+      if (!currentTour) return;
+
+      const id = this.data.editingTransportationId;
+      const origin = currentTour.locations[currentTourCopyIndex][id];
+      const destination = currentTour.locations[currentTourCopyIndex][id + 1];
+      const startDate = currentTour.startDate;
+
+      wx.showModal({
+        title: '公交导航',
+        content: '是否使用公交导航？获得的路径将覆盖当前节点交通信息',
+        success: async (res) => {
+          if (res.confirm) {
+            const transportations = await app.getTransitDirections(origin, destination, startDate, 0);
+            if (transportList.length === 0) {
+              wx.showToast({
+                title: '获取公交信息失败',
+                icon: 'none'
+              });
+              return;
+            }
+            const newTransportation = new Transportation({ ...transportations[0], index: id });
+            currentTour.transportations[currentTourCopyIndex][id] = newTransportation;
+            destination.startOffset = newTransportation.endOffset;
+            this.setData({ currentTour: currentTour });
+            await app.changeFullTour(currentTour);
+            this.onCurrentTourChange(currentTour);
+          }
+        }
+      })
     },
     /**
      * 删除消费

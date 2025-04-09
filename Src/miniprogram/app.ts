@@ -5,13 +5,13 @@ import { UserRanking } from "./utils/channel/userRanking";
 import HttpUtil, { apiUrl } from "./utils/httpUtil";
 import { testData } from "./utils/testData";
 import { Budget } from "./utils/tour/budget";
-import { Currency, currencyList } from "./utils/tour/expense";
+import { Currency, currencyList, ExpenseType, TransportExpense } from "./utils/tour/expense";
 import { FootPrint } from "./utils/tour/footprint";
 import { File, Photo } from "./utils/tour/photo";
 import { Tour, TourBasic, TourStatus } from "./utils/tour/tour";
 import { Location, Transportation } from "./utils/tour/tourNode";
 import { Member, User, UserBasic } from "./utils/user/user";
-import { formatPostTime, getExpFromRole, getImageBase64, getNewId, getPriority, getUser, getUserGroupName, getUserGroupNameInChannel, getUserGroupNameInGroup, translateUserRole } from "./utils/util";
+import { formatDate, formatPostTime, formatTime, getExpFromRole, getImageBase64, getNewId, getPriority, getUser, getUserGroupName, getUserGroupNameInChannel, getUserGroupNameInGroup, translateUserRole } from "./utils/util";
 
 // app.ts
 App<IAppOption>({
@@ -1967,7 +1967,22 @@ App<IAppOption>({
   },
   async quitGroup(groupId: number, linkedTourId: number): Promise<boolean> {
     if (!this.globalData.testMode) {
-      return false;
+      try {
+        await HttpUtil.delete({ url: `/group/${groupId}/join` });
+        wx.showToast({
+          title: '退出成功',
+          icon: 'success',
+          time: 2000,
+        });
+        return true;
+      } catch (err: any) {
+        console.error(err);
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return false;
+      }
     } else {
       const currentUser = this.currentUser();
       const linkedTour = this.getTour(linkedTourId) as Tour;
@@ -2395,6 +2410,44 @@ App<IAppOption>({
         );
     }
   },
+  async getTransitDirections(origin: Location, destination: Location, startDate: number, strategy: number): Promise<Transportation[]> {
+    const originLoc = `${Number(origin.longitude).toFixed(6)},${Number(origin.latitude).toFixed(6)}`;
+    const destinationLoc = `${Number(destination.longitude).toFixed(6)},${Number(destination.latitude).toFixed(6)}`;
+    const date = formatDate(startDate + origin.endOffset).replace(/\//g, '-').split('(')[0];
+    const time = formatTime(startDate + origin.endOffset).split(' ')[1].replace(':', '-');
+
+    try {
+      const res = await HttpUtil.get({
+        url: `/map/direction/transit?origin=${originLoc}&destination=${destinationLoc}&date=${date}&time=${time}&strategy=${strategy}`,
+      })
+      const plans = res.data.data.plans;
+      return plans.map((plan: any) => {
+        return new Transportation({
+          index: -1,
+          startOffset: origin.endOffset,
+          endOffset: origin.endOffset + plan.duration * 1000,
+          timeOffset: origin.timeOffset,
+          transportExpenses: plan.route.map((node: any, index: number) => new TransportExpense({
+            index: index,
+            title: node.title,
+            amount: node.amount,
+            currency: Currency.CNY,
+            type: ExpenseType.Transportation,
+            note: node.note,
+            transportType: node.type,
+          }))
+        })
+      })
+    } catch (err: any) {
+      console.error(err);
+      wx.showToast({
+        title: err.response.data.msg,
+        icon: "none"
+      });
+      return [];
+    }
+  },
+
   async getUserDetail(userId: number): Promise<Member> {
     if (!this.globalData.testMode) {
       try {
@@ -2422,9 +2475,9 @@ App<IAppOption>({
         });
         return {} as Member;
       }
-    } else { 
+    } else {
       const user = this.getUser(userId) as User;
-      return new Member({ userGroup: getUserGroupName(user), ...user}); 
+      return new Member({ userGroup: getUserGroupName(user), ...user });
     }
   },
 })

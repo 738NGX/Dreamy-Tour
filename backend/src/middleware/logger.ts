@@ -42,7 +42,7 @@ const logger = (req: Request, res: Response, next: NextFunction) => {
   // 当 http 响应终止前，记录响应状态码
   onFinished(res, () => {
     entry.setStatus(res.statusCode);
-    console.log(`${entry.timestamp} [${methodWithColor(entry.method)} | ${statusWithColor(entry.status)}] ${entry.url}`);
+    console.log(`${entry.timestamp} | Express [${methodWithColor(entry.method)} | ${statusWithColor(entry.status)}] ${entry.url}`);
   });
 
   next();

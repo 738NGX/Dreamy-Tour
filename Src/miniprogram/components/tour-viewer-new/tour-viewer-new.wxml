@@ -63,7 +63,7 @@
                   <t-checkbox class="checkbox" value="{{j}}" label="{{j}}" icon="none" style="background-color: \#{{item.color}};" borderless />
                 </view>
               </t-checkbox-group>
-              <t-textarea disabled="{{readonly}}" bind:change="onExpenseNoteInput" maxlength="500" disableDefaultPadding="{{true}}" value="{{item.note}}" indicator />
+              <t-textarea disabled="{{readonly}}" bind:change="onExpenseNoteInput" maxlength="1500" disableDefaultPadding="{{true}}" value="{{item.note}}" indicator />
             </t-collapse-panel>
             <view wx:if="{{!readonly}}" slot="right" class="btn2 delete-btn" bind:tap="removeExpense" data-index="{{i}}">删除</view>
           </t-swipe-cell>
@@ -75,7 +75,7 @@
 </t-popup-headered>
 <!-- 查看备注弹窗 -->
 <t-popup-headered visible="{{noteVisible}}" title="{{readonly?'查看备注':'编辑备注'}}" bind:visible-change="onNoteVisibleChange" bindConfirm="changeNote" bindCancel="onNoteVisibleChange" placement="bottom" style="height: 30vh;">
-  <t-textarea disabled="{{readonly}}" bind:change="onNoteInput" style="height: 100%;" maxlength="500" disableDefaultPadding="{{true}}" value="{{editingNote}}" indicator />
+  <t-textarea disabled="{{readonly}}" bind:change="onNoteInput" style="height: 100%;" maxlength="1500" disableDefaultPadding="{{true}}" value="{{editingNote}}" indicator />
 </t-popup-headered>
 <!-- 查看交通消费弹窗 -->
 <t-popup-headered visible="{{transExpenseVisible}}" title="{{readonly?'查看交通':'编辑交通'}}" bind:visible-change="onTransExpenseVisibleChange" bindConfirm="changeTransExpense" bindCancel="onTransExpenseVisibleChange" placement="bottom" style="height: 60vh;">
@@ -109,7 +109,7 @@
         <t-checkbox class="checkbox" value="{{j}}" label="{{j}}" icon="none" style="background-color: \#{{item.color}};" borderless />
       </view>
     </t-checkbox-group>
-    <t-textarea disabled="{{readonly}}" maxlength="500" disableDefaultPadding="{{true}}" value="{{editingTransExpense.note}}" bind:change="onTransExpenseNoteInput" indicator />
+    <t-textarea disabled="{{readonly}}" maxlength="1500" disableDefaultPadding="{{true}}" value="{{editingTransExpense.note}}" bind:change="onTransExpenseNoteInput" indicator />
   </scroll-view>
 </t-popup-headered>
 <!-- 节点显示 -->
@@ -173,6 +173,9 @@
       </block>
       <view wx:if="{{!readonly}}" class="row">
         <t-button size="large" theme="primary" variant="outline" style="width: 100%;height: 50rpx;" bind:tap="addTransportExpense" data-index="{{i}}">增加交通</t-button>
+      </view>
+      <view wx:if="{{!readonly}}" class="row">
+        <t-button size="large" theme="primary" variant="outline" style="width: 100%;height: 50rpx;" bind:tap="getTransitDirection" data-index="{{i}}">公交导航</t-button>
       </view>
     </view>
     <view wx:if="{{util.isInArray(displayingLocationId,i+1)}}" class="connecter" />

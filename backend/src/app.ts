@@ -14,6 +14,7 @@ import postRoute from './route/postRoute';
 import tourRoute from './route/tourRoute';
 import groupRoute from './route/groupRoute';
 import commentRoute from './route/commentRoute';
+import mapRoute from './route/mapRoute';
 
 
 const app: Application = express()
@@ -34,6 +35,7 @@ app.use(postRoute);     // 帖子相关路由
 app.use(tourRoute);     // 行程相关路由
 app.use(groupRoute);    // 群组相关路由
 app.use(commentRoute);  // 评论相关路由
+app.use(mapRoute);      // 地图相关路由
 // 托底路由，捕获以上路由均无法匹配的 url，返回 404
 app.use((req: Request, res: Response) => {
   res.status(StatusCodes.NOT_FOUND).json(
