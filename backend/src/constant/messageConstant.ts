@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-23 22:13:32 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-03-29 14:59:43
+ * @Last Modified time: 2025-04-07 23:23:10
  */
 class MessageConstant {
   static readonly SUCCESSFUL_RETURN = '返回成功';
@@ -19,6 +19,7 @@ class MessageConstant {
   static readonly SUCCESSFUL_TRANSFER = "转让成功";
   static readonly SUCCESSFUL_TOP = "置顶成功";
   static readonly SUCCESSFUL_DISSOLVE = "解散成功";
+  static readonly SUCCESSFUL_SEND = "发送成功";
   static readonly SUCCESSFUL_END = "结束成功";
   static readonly SUCCESSFUL_PUBLISH = "发布成功";
   static readonly SUCCESSFUL_LIKE = "点赞成功";
@@ -35,6 +36,7 @@ class MessageConstant {
   static readonly ACCEPT_IMAGE_ONLY = "只接受图片类型的文件（如 .jpg, .jpeg, .png, .gif, .bmp, .tiff, .webp）。请上传有效的图片文件。"
   static readonly INTERNAL_ERROR = "系统内部异常";
   static readonly NONEXISTENT_CHANNEL = "该频道类型不存在";
+  static readonly UNALLOWED_METHOD = "该请求方式不允许";
 }
 
 export default MessageConstant;

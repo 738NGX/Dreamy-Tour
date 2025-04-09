@@ -5,21 +5,21 @@ PRAGMA foreign_keys = ON;
 -- 用户表 users
 CREATE TABLE users (
     uid INTEGER PRIMARY KEY AUTOINCREMENT,
-    nickname TEXT,              -- 昵称（1 ~ 10个字符）
-    wxOpenid TEXT,              -- 该小程序的 openid
-    gender INTEGER,             -- 性别：女（0）、男（1）、保密（3）
-    avatarUrl TEXT,             -- 用户头像地址
-    backgroundImageUrl TEXT,    -- 用户背景图片地址
-    email TEXT,                 -- 邮箱地址
-    phone TEXT,                 -- 手机号
-    signature TEXT,             -- 个性签名（1 ~ 100个字符）
-    birthday TEXT,              -- 生日（yyyy-mm-dd）
-    roleId INTEGER,             -- 角色 ID（0 ~ 7），数字越高，权限越高，详见文档
-    lastLoginAt INTEGER,        -- 上次的登录时间戳
-    status INTEGER,             -- 状态（0 启用、1 禁用）
-    exp INTEGER,                -- 经验值
-    createdAt INTEGER,          -- 创建时间戳
-    updatedAt INTEGER           -- 更新时间戳
+    nickname TEXT,        -- 昵称（1 ~ 10个字符）
+    wxOpenid TEXT,        -- 该小程序的 openid
+    gender INTEGER,       -- 性别：女（0）、男（1）、保密（3）
+    avatarUrl TEXT,       -- 用户头像地址
+    email TEXT,           -- 邮箱地址
+    password TEXT,        -- 密码哈希
+    phone TEXT,           -- 手机号
+    signature TEXT,       -- 个性签名（1 ~ 100个字符）
+    birthday TEXT,        -- 生日（yyyy-mm-dd）
+    roleId INTEGER,       -- 角色 ID（0 ~ 7），数字越高，权限越高，详见文档
+    lastLoginAt INTEGER,  -- 上次的登录时间戳
+    status INTEGER,       -- 状态（0 启用、1 禁用）
+    exp INTEGER,          -- 经验值
+    createdAt INTEGER,    -- 创建时间戳
+    updatedAt INTEGER     -- 更新时间戳
 );
 
 -- 频道表

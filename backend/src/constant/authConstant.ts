@@ -15,7 +15,8 @@ class AuthConstant {
   static readonly WHITE_LIST = [  // 白名单 url 列表（这些 url 不需要经过 token 校验），用正则表达式进行匹配
     "^/wx-login$",
     "^/api-docs/",  // /api-docs/ 开头的所有 url
-    "^/favicon.ico$"
+    "^/favicon.ico$",
+    "^/email/"      // /email 开头的所有 url
   ]
 }
 
