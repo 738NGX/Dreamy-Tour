@@ -6,9 +6,13 @@
  * @Last Modified time: 2025-02-23 21:43:04 
  */
 import app from "./app";
+import gaodeMcpClient from "./mcp/gaodeMcpClient";
+
+gaodeMcpClient.connect();
 
 // 端口号
 const PORT: number = Number(process.env.PORT) || 8080;
+
 // 监听端口
 app.listen(PORT, () => {
   console.log(`

@@ -34,6 +34,7 @@ Component({
     searchingValueForChannels: '',
   },
 
+  /*
   lifetimes: {
     async ready() {
       await this.getFullPosts();
@@ -45,7 +46,7 @@ Component({
       });
     },
   },
-
+  */
   methods: {
     onLoad() {
       wx.onThemeChange((res) => {

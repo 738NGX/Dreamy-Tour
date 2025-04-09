@@ -10,6 +10,12 @@ import projectConfig from "../../database/dreamy-tour-config.json"
 class AppConstant {
   static readonly APP_ID = projectConfig.appId;
   static readonly APP_SECRET = projectConfig.appSecret;
+  // deepseek 
+  static readonly DEEPSEEK_BASE_URL = "https://api.deepseek.com";
+  static readonly DEEPSEEK_API_KEY = projectConfig.deepseekApiKey;
+  static readonly DEEPSEEK_MODEL = "deepseek-chat";
+  // 高德 MCP
+  static readonly GAODE_API_KEY = projectConfig.gaodeApiKey;
 }
 
 export default AppConstant;

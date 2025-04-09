@@ -1,9 +1,9 @@
-import McpConstant from "@/constant/mcpConstant";
+import AppConstant from "@/constant/appConstant";
 import OpenAI from "openai";
 
 const deepseek = new OpenAI({
-  baseURL: McpConstant.DEEPSEEK_BASE_URL,
-  apiKey: McpConstant.DEEPSEEK_API_KEY,
+  baseURL: AppConstant.DEEPSEEK_BASE_URL,
+  apiKey: AppConstant.DEEPSEEK_API_KEY,
 });
 
 export default deepseek;
