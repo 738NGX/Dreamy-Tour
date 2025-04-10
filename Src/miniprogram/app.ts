@@ -21,7 +21,7 @@ App<IAppOption>({
     testMode: true,
     currentData: testData,
     baseUrl: apiUrl,
-    version: "1.0.2",
+    version: "1.0.3",
   },
   onLaunch() {
     // 开屏进入登录页面
@@ -2410,7 +2410,7 @@ App<IAppOption>({
         );
     }
   },
-  async getTransitDirections(origin: Location, destination: Location, startDate: number, strategy: number): Promise<Transportation[]> {
+  async getTransitDirections(origin: Location, destination: Location, startDate: number, strategy: number): Promise<{ duration: number[], walking_distance: number[], amount: number[], route: Transportation[] }> {
     const originLoc = `${Number(origin.longitude).toFixed(6)},${Number(origin.latitude).toFixed(6)}`;
     const destinationLoc = `${Number(destination.longitude).toFixed(6)},${Number(destination.latitude).toFixed(6)}`;
     const date = formatDate(startDate + origin.endOffset).replace(/\//g, '-').split('(')[0];
@@ -2421,7 +2421,7 @@ App<IAppOption>({
         url: `/map/direction/transit?origin=${originLoc}&destination=${destinationLoc}&date=${date}&time=${time}&strategy=${strategy}`,
       })
       const plans = res.data.data.plans;
-      return plans.map((plan: any) => {
+      const routes = plans.map((plan: any) => {
         return new Transportation({
           index: -1,
           startOffset: origin.endOffset,
@@ -2437,14 +2437,15 @@ App<IAppOption>({
             transportType: node.type,
           }))
         })
-      })
+      }) as Transportation[];
+      return { route: routes, amount: plans.map((plan: any) => plan.route[0].amount), duration: plans.map((plan: any) => plan.duration), walking_distance: plans.map((plan: any) => plan.walking_distance) };
     } catch (err: any) {
       console.error(err);
       wx.showToast({
         title: err.response.data.msg,
         icon: "none"
       });
-      return [];
+      return { route: [], duration: [], amount: [], walking_distance: [] };
     }
   },
 

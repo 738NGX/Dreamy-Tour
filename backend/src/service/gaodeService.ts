@@ -43,7 +43,7 @@ class GaodeService {
         throw new ApiError(data.info);
       }
       if (data.geocodes.length === 0) {
-        console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地址解析失败','red')}]`);
+        console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地址解析失败','red')}] ${url}`);
         throw new ApiError("地址解析失败");
       }
       const geoEncodeVoList: GeocodeVo[] = data.geocodes.map((item) => {
@@ -51,7 +51,7 @@ class GaodeService {
       });
       return geoEncodeVoList;
     } catch (error) {
-      console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用','red')}] ${error}`);
+      console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用','red')}] ${url}: ${error}`);
       throw new ApiError("地图服务接口不可用");
     }
   }
@@ -66,12 +66,12 @@ class GaodeService {
         throw new ApiError(data.info);
       }
       if (!data.regeocode) {
-        console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地址解析失败','red')}]`);
+        console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地址解析失败','red')}] ${url}`);
         throw new ApiError("地址解析失败");
       }
       return data.regeocode;
     } catch (error) {
-      console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用','red')}] ${error}`);
+      console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用','red')}] ${url}: ${error}`);
       throw new ApiError("地图服务接口不可用");
     }
   }
@@ -166,7 +166,7 @@ ${railway.spaces.map((space) => `${space.code}:${space.cost}元`).join('\n')}
       }
       return new TransitDirectionVo({ plans });
     } catch (error) {
-      console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用','red')}] ${error}`);
+      console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用','red')}] ${url}: ${error}`);
       throw new ApiError("地图服务接口不可用");
     }
   }

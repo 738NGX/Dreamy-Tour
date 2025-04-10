@@ -325,7 +325,7 @@ declare global {
     getMembersInTour(tourId: number): Promise<Member[]>;
     changeFullTour(tour: Tour): Promise<boolean>;
     changeTourLocationPhotos(tourId: number, copyIndex: number, location: Location): Promise<boolean>;
-    getTransitDirections(origin: Location, destination: Location, startDate: number, strategy: number): Promise<Transportation[]>;
+    getTransitDirections(origin: Location, destination: Location, startDate: number, strategy: number): Promise<{ duration: number[], walking_distance: number[], amount: number[], route: Transportation[] }>;
 
     getUserDetail(userId: number): Promise<Member | undefined>;
   }

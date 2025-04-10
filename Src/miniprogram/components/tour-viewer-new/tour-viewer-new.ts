@@ -970,26 +970,43 @@ Component({
       const origin = currentTour.locations[currentTourCopyIndex][id];
       const destination = currentTour.locations[currentTourCopyIndex][id + 1];
       const startDate = currentTour.startDate;
+      const that = this;
 
       wx.showModal({
         title: '公交导航',
         content: '是否使用公交导航？获得的路径将覆盖当前节点交通信息',
         success: async (res) => {
           if (res.confirm) {
-            const transportations = await app.getTransitDirections(origin, destination, startDate, 0);
-            if (transportList.length === 0) {
-              wx.showToast({
-                title: '获取公交信息失败',
-                icon: 'none'
-              });
-              return;
-            }
-            const newTransportation = new Transportation({ ...transportations[0], index: id });
-            currentTour.transportations[currentTourCopyIndex][id] = newTransportation;
-            destination.startOffset = newTransportation.endOffset;
-            this.setData({ currentTour: currentTour });
-            await app.changeFullTour(currentTour);
-            this.onCurrentTourChange(currentTour);
+            wx.showActionSheet({
+              alertText: '请选择你的乘坐策略:',
+              itemList: ['推荐模式','最低票价','最少换乘','最少步行','最短时间','地铁优先'],
+              async success(res) {
+                const strategyList = [0,1,2,3,8,7];
+                const { walking_distance, duration, amount, route: transportations } = await app.getTransitDirections(origin, destination, startDate, strategyList[res.tapIndex]);
+                const routeItemList = transportations.map((_, index) => {
+                  return `${Math.floor(duration[index] / 3600)}小时${Math.round(duration[index] % 3600 / 60)}分钟,步行距离${walking_distance[index]}米,费用${amount[index]}元`;
+                })
+                if (transportList.length === 0) {
+                  wx.showToast({
+                    title: '获取公交信息失败',
+                    icon: 'none'
+                  });
+                  return;
+                }
+                wx.showActionSheet({
+                  alertText: '查询到以下路线,请选择:',
+                  itemList: routeItemList,
+                  async success(res) {
+                    const newTransportation = new Transportation({ ...transportations[res.tapIndex], index: id });
+                    currentTour.transportations[currentTourCopyIndex][id] = newTransportation;
+                    destination.startOffset = newTransportation.endOffset;
+                    that.setData({ currentTour: currentTour });
+                    await app.changeFullTour(currentTour);
+                    that.onCurrentTourChange(currentTour);
+                  }
+                });
+              }
+            });
           }
         }
       })
