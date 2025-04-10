@@ -218,6 +218,22 @@ Component({
       await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
     },
+    async getTitleByLocation(e: WechatMiniprogram.CustomEvent) {
+      const currentTour = this.data.currentTour;
+      if (!currentTour) return;
+
+      const id = e.currentTarget.dataset.index;
+      if (id === undefined) return;
+
+      const editingLocation = currentTour.locations[this.data.currentTourCopyIndex][id];
+      const newTitle = await app.getAddressByLocation(`${Number(editingLocation.longitude).toFixed(6)},${Number(editingLocation.latitude).toFixed(6)}`);
+      if (newTitle) {
+        editingLocation.title = newTitle;
+        this.setData({ currentTour: currentTour });
+        await app.changeFullTour(currentTour);
+        this.onCurrentTourChange(currentTour);
+      }
+    },
     /**
      * 位置节点起始日期修改
      */
@@ -528,6 +544,41 @@ Component({
           height: 30
         }]
       });
+    },
+    async getLocationByTitle() {
+      if (!this.data.currentTour) return;
+
+      const currentTour = this.data.currentTour;
+      if (!currentTour) return;
+
+      const id = this.data.editingLocationId;
+      if (id === -1) return;
+
+      const editingLocation = currentTour.locations[this.data.currentTourCopyIndex][id];
+      const locations = await app.getLocationByAddress(editingLocation.title, '');
+      const itemList = locations.map((item) => {
+        return `${item.address}:位于${item.province}·${item.city}·${item.district}`;
+      })
+      const that = this;
+      wx.showActionSheet({
+        alertText: '搜索到以下位置,请选择',
+        itemList: itemList,
+        success(res) {
+          const latitude = locations[res.tapIndex].latitude.toFixed(6);
+          const longitude = locations[res.tapIndex].longitude.toFixed(6);
+          that.setData({
+            mapLocation: [Number(latitude), Number(longitude)],
+            markers: [{
+              id: 0,
+              iconPath: `${CDN_PATH}/Marker1_Activated@3x.png`,
+              latitude: latitude,
+              longitude: longitude,
+              width: 30,
+              height: 30
+            }]
+          });
+        },
+      })
     },
     /**
      * 更新节点位置信息
@@ -979,9 +1030,9 @@ Component({
           if (res.confirm) {
             wx.showActionSheet({
               alertText: '请选择你的乘坐策略:',
-              itemList: ['推荐模式','最低票价','最少换乘','最少步行','最短时间','地铁优先'],
+              itemList: ['推荐模式', '最低票价', '最少换乘', '最少步行', '最短时间', '地铁优先'],
               async success(res) {
-                const strategyList = [0,1,2,3,8,7];
+                const strategyList = [0, 1, 2, 3, 8, 7];
                 const { walking_distance, duration, amount, route: transportations } = await app.getTransitDirections(origin, destination, startDate, strategyList[res.tapIndex]);
                 const routeItemList = transportations.map((_, index) => {
                   return `${Math.floor(duration[index] / 3600)}小时${Math.round(duration[index] % 3600 / 60)}分钟,步行距离${walking_distance[index]}米,费用${amount[index]}元`;

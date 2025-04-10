@@ -8,6 +8,13 @@ import GeocodeVo from "@/vo/map/geocodeVo";
 import TransitDirectionDto from "@/dto/map/transitDirectionDto";
 import TransitDirectionVo, { Route, TransitNode, TransitPlan } from "@/vo/map/transitDirectionVo";
 import CommonUtil from "@/util/commonUtil";
+import https from "https";
+import GeoEncodeVo from "@/vo/map/geoEncodeVo";
+import GeoDecodeVo from "@/vo/map/geoDecodeVo";
+
+const agent = new https.Agent({
+  servername: 'restapi.amap.com'
+});
 
 type GeoEncodeResponse = {
   status: string;
@@ -32,32 +39,47 @@ type TransitDirectionResponse = {
   route: Route;
 };
 
+function handleError(error: any) {
+  if (error.response) {
+    console.error(`\n${new Date().toISOString()} | Gaode [${CommonUtil.textColor('error.response.data', 'red')}] :`);
+    console.log(error.response.data);
+    console.error(`\n${new Date().toISOString()} | Gaode [${CommonUtil.textColor('error.response.status', 'red')}] :`);
+    console.log(error.response.status);
+    console.error(`\n${new Date().toISOString()} | Gaode [${CommonUtil.textColor('error.response.headers', 'red')}] :`);
+    console.log(error.response.headers);
+  } else if (error.request) {
+    console.error(`\n${new Date().toISOString()} | Gaode [${CommonUtil.textColor('error.request', 'red')}] :`);
+    console.log(error.request);
+  } else {
+    console.error(`\n${new Date().toISOString()} | Gaode [${CommonUtil.textColor('Error', 'red')}] :`);
+    console.log('Error', error.message);
+  }
+  console.error(`\n${new Date().toISOString()} | Gaode [${CommonUtil.textColor('error.config', 'red')}] :`);
+  console.log(error.config);
+}
+
 class GaodeService {
   static async geoEncode(geoEncodeDto: GeoEncodeDto): Promise<GeocodeVo[]> {
-    const { address } = geoEncodeDto;
-    const url = `https://restapi.amap.com/v3/geocode/geo?address=${address}&output=JSON&key=${AppConstant.GAODE_API_KEY}`;
+    const { address, city } = geoEncodeDto;
+    const url = city
+      ? `https://restapi.amap.com/v3/geocode/geo?address=${address}&output=JSON&key=${AppConstant.GAODE_API_KEY}&city=${city}`
+      : `https://restapi.amap.com/v3/geocode/geo?address=${address}&output=JSON&key=${AppConstant.GAODE_API_KEY}`;
     try {
-      const res = await axios.get(url).catch(function (error) {
-        if (error.response) {
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else if (error.request) {
-          console.log(error.request);
-        } else {
-          console.log('Error', error.message);
-        }
-        console.log(error.config);
+      const res = await axios.get(url, { httpsAgent: agent }).catch(function (error) {
+        handleError(error);
         throw new ApiError("地址解析失败");
       });
       const data = res.data as GeoEncodeResponse;
       //const res = await fetch(url);
       //const data = await res.json() as GeoEncodeResponse;
       if (data.status !== "1") {
+        if (data.infocode === "30001") {
+          return [] as GeocodeVo[];
+        }
         throw new ApiError(data.info);
       }
       if (data.geocodes.length === 0) {
-        console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地址解析失败','red')}] ${url}`);
+        console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地址解析失败', 'red')}] ${url}`);
         throw new ApiError("地址解析失败");
       }
       const geoEncodeVoList: GeocodeVo[] = data.geocodes.map((item) => {
@@ -67,11 +89,11 @@ class GaodeService {
     } catch (error) {
       if (error instanceof Error) {
         console.error(
-          `${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用','red')}] ${url}: ${error.message}\n${error.stack}`
+          `${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用', 'red')}] ${url}: ${error.message}\n${error.stack}`
         );
       } else {
         console.error(
-          `${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用','red')}] ${url}:`,
+          `${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用', 'red')}] ${url}:`,
           error
         );
       }
@@ -83,17 +105,8 @@ class GaodeService {
     const { location } = geoDecodeDto;
     const url = `https://restapi.amap.com/v3/geocode/regeo?location=${location}&output=JSON&key=${AppConstant.GAODE_API_KEY}`;
     try {
-      const res = await axios.get(url).catch(function (error) {
-        if (error.response) {
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else if (error.request) {
-          console.log(error.request);
-        } else {
-          console.log('Error', error.message);
-        }
-        console.log(error.config);
+      const res = await axios.get(url, { httpsAgent: agent }).catch(function (error) {
+        handleError(error);
         throw new ApiError("地址解析失败");
       });
       const data = res.data as GeoDecodeResponse;
@@ -103,18 +116,18 @@ class GaodeService {
         throw new ApiError(data.info);
       }
       if (!data.regeocode) {
-        console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地址解析失败','red')}] ${url}`);
+        console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地址解析失败', 'red')}] ${url}`);
         throw new ApiError("地址解析失败");
       }
       return data.regeocode;
     } catch (error) {
       if (error instanceof Error) {
         console.error(
-          `${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用','red')}] ${url}: ${error.message}\n${error.stack}`
+          `${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用', 'red')}] ${url}: ${error.message}\n${error.stack}`
         );
       } else {
         console.error(
-          `${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用','red')}] ${url}:`,
+          `${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用', 'red')}] ${url}:`,
           error
         );
       }
@@ -128,17 +141,8 @@ class GaodeService {
     const city2 = (await this.geoDecode(await GeoDecodeDto.from({ location: destination }))).addressComponent.citycode ?? "999";
     const url = `https://restapi.amap.com/v5/direction/transit/integrated?origin=${origin}&destination=${destination}&key=${AppConstant.GAODE_API_KEY}&city1=${city1}&city2=${city2}&strategy=${strategy}&date=${date}&time=${time}&output=JSON&show_fields=cost&extensions=all`;
     try {
-      const res = await axios.get(url).catch(function (error) {
-        if (error.response) {
-          console.log(error.response.data);
-          console.log(error.response.status);
-          console.log(error.response.headers);
-        } else if (error.request) {
-          console.log(error.request);
-        } else {
-          console.log('Error', error.message);
-        }
-        console.log(error.config);
+      const res = await axios.get(url, { httpsAgent: agent }).catch(function (error) {
+        handleError(error);
         throw new ApiError("地址解析失败");
       });
       const data = res.data as TransitDirectionResponse;
@@ -226,14 +230,32 @@ ${railway.spaces.map((space) => `${space.code}:${space.cost}元`).join('\n')}
       }
       return new TransitDirectionVo({ plans });
     } catch (error) {
-      console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用','red')}] ${url}: ${error}`);
+      console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用', 'red')}] ${url}: ${error}`);
       throw new ApiError("地图服务接口不可用");
     }
   }
 
-  static async test() {
-    const res = await this.geoEncode(await GeoEncodeDto.from({ address: '顾村公园' }));
-    console.log(JSON.stringify(res));
+  static async getLocationByAddress(address: string, city: string = ""): Promise<GeoEncodeVo[]> {
+    const geoEncodeDto = await GeoEncodeDto.from({ address, city });
+    const geoEncodeVoList = await this.geoEncode(geoEncodeDto);
+    return geoEncodeVoList.slice(0, 6).map((item) => {
+      return new GeoEncodeVo({
+        address: item.formatted_address,
+        province: item.province,
+        city: item.city,
+        district: item.district,
+        longitude: parseFloat(item.location.split(",")[0]),
+        latitude: parseFloat(item.location.split(",")[1]),
+      });
+    });
+  }
+
+  static async getAddressByLocation(location: string): Promise<GeoDecodeVo> {
+    const geoDecodeDto = await GeoDecodeDto.from({ location });
+    const geoDecodeVo = await this.geoDecode(geoDecodeDto);
+    return new GeoDecodeVo({
+      address: geoDecodeVo.formatted_address,
+    });
   }
 }
 

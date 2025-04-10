@@ -2410,6 +2410,42 @@ App<IAppOption>({
         );
     }
   },
+  async getAddressByLocation(location: string): Promise<string> {
+    try {
+      const res = await HttpUtil.get({url: `/map/geoDecode?location=${location}`})
+      return res.data.data.address;
+    } catch (err: any) {
+      console.error(err);
+      wx.showToast({
+        title: err.response.data.msg,
+        icon: "none"
+      });
+      return '';
+    }
+  },
+  async getLocationByAddress(address: string, city: string): Promise<{ longitude: number, latitude: number, address: string, province: string, city: string, district: string }[]> {
+    try {
+      const res = await HttpUtil.get({url: `/map/geoEncode?address=${address}&city=${city}`})
+      const locations = res.data.data.map((res: any) => {
+        return {
+          longitude: res.longitude,
+          latitude: res.latitude,
+          address: res.address,
+          province: res.province,
+          city: res.city,
+          district: res.district
+        }
+      });
+      return locations;
+    } catch (err: any) {
+      console.error(err);
+      wx.showToast({
+        title: err.response.data.msg,
+        icon: "none"
+      });
+      return [];
+    }
+  },
   async getTransitDirections(origin: Location, destination: Location, startDate: number, strategy: number): Promise<{ duration: number[], walking_distance: number[], amount: number[], route: Transportation[] }> {
     const originLoc = `${Number(origin.longitude).toFixed(6)},${Number(origin.latitude).toFixed(6)}`;
     const destinationLoc = `${Number(destination.longitude).toFixed(6)},${Number(destination.latitude).toFixed(6)}`;
