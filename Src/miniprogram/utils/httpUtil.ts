@@ -1,6 +1,6 @@
 // API 地址配置
 const usingDomain = true;   // 是否使用域名
-const usingLocal = true;   // 是否使用本地 IP
+const usingLocal = false;   // 是否使用本地 IP
 export const apiUrl = usingLocal ? "http://127.0.0.1:8080" : (
   usingDomain
     ? "https://dreamy-tour.738ngx.site/api"
@@ -84,12 +84,12 @@ class HttpUtil {
    * 发送网络请求（支持 Token 校验和自动跳转登录）
    * @param req 请求配置
    */
-  static async request(req: Request): Promise<Response> {
+  static async request(req: Request, timeout: number): Promise<Response> {
     wx.showLoading({
       title: "请稍候..."
     });
     // ================== Token 校验逻辑 ==================
-    if (!req.url.endsWith("/wx-login")) {
+    if (!req.url.endsWith("/wx-login") && !req.url.includes("/email/")) {
       const token = wx.getStorageSync("token");
 
       // 场景 1: 无 Token 直接跳转登录
@@ -124,7 +124,7 @@ class HttpUtil {
           {
             method: requestParams.method,
             headers: requestParams.header,
-            timeout: 180000
+            timeout: timeout
           }
         );
         if (debug) { console.log('backend result:', d) };
@@ -139,7 +139,7 @@ class HttpUtil {
         wx.hideLoading();
         if (debug) { console.error('backend error:', e) };
         if (e.status === 1) {
-          wx.showToast({ title: "请求超时", icon: "error", time: 2000 });
+          wx.showToast({ title: "请求超时,请重试", icon: "error", time: 2000 });
         } else if (e.status === 400) {
           e = { ...e, errMsg: "请求参数错误" };
         } else if (e.status === 401) {
@@ -181,77 +181,77 @@ class HttpUtil {
    * GET 请求
    * @param req 请求配置
    */
-  static async get(req: MethodRequest): Promise<Response> {
+  static async get(req: MethodRequest, timeout: number = 180000): Promise<Response> {
     return await this.request({
       ...req,
       method: "GET"
-    })
+    }, timeout)
   }
 
   /**
    * POST 请求（提交数据）
    * @param req 请求配置（数据放在 json_data）
    */
-  static async post(req: MethodRequest): Promise<Response> {
+  static async post(req: MethodRequest, timeout: number = 180000): Promise<Response> {
     return await this.request({
       ...req,
       method: "POST"
-    })
+    }, timeout)
   }
 
   /**
    * PUT 请求（全量更新资源）
    * @param req 请求配置
    */
-  static async put(req: MethodRequest): Promise<Response> {
+  static async put(req: MethodRequest, timeout: number = 180000): Promise<Response> {
     return await this.request({
       ...req,
       method: "PUT"
-    })
+    }, timeout)
   }
 
   /**
    * DELETE 请求（删除资源）
    * @param req 请求配置
    */
-  static async delete(req: MethodRequest): Promise<Response> {
+  static async delete(req: MethodRequest, timeout: number = 180000): Promise<Response> {
     return await this.request({
       ...req,
       method: "DELETE"
-    })
+    }, timeout)
   }
 
   /**
    * PATCH 请求（部分更新资源）
    * @param req 请求配置
    */
-  static async patch(req: MethodRequest): Promise<Response> {
+  static async patch(req: MethodRequest, timeout: number = 180000): Promise<Response> {
     return await this.request({
       ...req,
       method: "PATCH"
-    })
+    }, timeout)
   }
 
   /**
    * OPTIONS 请求（获取通信选项）
    * @param req 请求配置
    */
-  static async options(req: MethodRequest): Promise<Response> {
+  static async options(req: MethodRequest, timeout: number = 180000): Promise<Response> {
     return await this.request({
       ...req,
       method: "OPTIONS"
-    })
+    }, timeout)
   }
 
   /**
    * HEAD 请求（获取报文头）
    * @param req 请求配置
    */
-  static async head(req: MethodRequest): Promise<Response> {
+  static async head(req: MethodRequest, timeout: number = 180000): Promise<Response> {
     return await this.request({
       ...req,
       method: "HEAD"
-    })
+    }, timeout)
   }
   /**
    * 设置 URL，补全 baseUrl 和传参

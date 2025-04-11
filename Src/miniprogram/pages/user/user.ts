@@ -75,7 +75,6 @@ Component({
       if(currentUserId){
         this.setData({
           isTestMode: app.globalData.testMode,
-          isLocalDebug: app.globalData.localDebug,
           currentUser: currentUserBasic,
           testUserList: app.getUserListCopy()
         });
@@ -285,6 +284,28 @@ Component({
             icon: 'success',
             duration: 1000
           })
+        }
+      })
+    },
+    resetPassword() {
+      if(!this.data.currentUser.email){
+        wx.showToast({
+          title: '请先绑定邮箱',
+          icon: 'none',
+          duration: 1000
+        })
+        return;
+      }
+      const email = this.data.currentUser.email;
+      wx.showModal({
+        title: '提示',
+        content: '确定要重置密码？',
+        success(res) {
+          if (res.confirm) {
+            wx.reLaunch({
+              url: '/pages/login/login?loginMode=3&email=' + email
+            })
+          }
         }
       })
     },

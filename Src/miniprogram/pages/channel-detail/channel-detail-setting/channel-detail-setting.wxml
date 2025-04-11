@@ -3,7 +3,7 @@
   <c-collapse header="频道成员">
     <t-swipe-cell wx:for="{{members}}" wx:key="id">
       <t-cell bind:click="showUsercard" data-index="{{item.id}}" bordered="{{false}}" title="{{item.name}}" class="narrow-cell">
-        <t-avatar slot="image" class="avatar"  image="{{item.avatarUrl}}" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
+        <t-avatar image="{{item.avatarUrl}}" slot="image" class="avatar" t-class-content="external-class-content" size="32px">{{item.name[0]}}</t-avatar>
         <t-tag slot="note" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(item.userGroup)}}">{{item.userGroup}}</t-tag>
       </t-cell>
       <view slot="right" class="btn-wrapper">

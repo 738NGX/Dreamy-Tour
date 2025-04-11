@@ -11,7 +11,7 @@
   <block wx:if="{{channelList.length==0}}">
     <view style="height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
       <image src="{{util.randomCharPicture(0,1)}}" mode="widthFix" style="width:400rpx;" />
-      <text style="margin-top:32rpx; width:80%;text-align:center;">感谢使用梦旅!现在你还没有加入任何频道.\n可以切换到添加频道页面添加你的第一个频道.\n每个页面上均可点击左上角帮助按钮以获得更多使用提示.</text>
+      <text style="margin-top:32rpx; width:70%;text-align:left;">感谢使用梦旅!现在你还没有加入任何频道.\n\n可以切换到添加频道页面添加你的第一个频道.\n\n每个页面上均可点击左上角帮助按钮以获得更多使用提示.</text>
     </view>
   </block>
   <view style="height:400rpx" />

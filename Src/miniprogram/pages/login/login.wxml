@@ -1,8 +1,57 @@
 <!-- pages/login/login.wxml -->
 <view class="main">
-  <t-image src="{{image}}" mode="heightFix" height="120" />
-  <text class="app-name">梦·旅</text>
-  <text class="slogan">Make a Fantastic Departure.</text>
-  <t-button size="medium" shape="round" class="wx-login-btn" bind:tap="wxLogin" icon="logo-wechat-stroke">微信授权登录</t-button>
-  <t-button theme="primary" size="medium" shape="round" class="test-mode-btn" bind:tap="enterTestMode" icon="adjustment">进入演示模式</t-button>
+  <view class="title {{loginMode==0?'title-0':'title-1'}}">
+    <t-image src="{{image}}" mode="heightFix" height="120" />
+    <text class="app-name">梦·旅</text>
+    <text class="slogan">Make a Fantastic Departure.</text>
+  </view>
+  <view wx:if="{{loginMode==0}}" class="column login-handler">
+    <t-button wx:if="{{isMiniApp}}" size="medium" shape="round" class="btn wx-login-btn" bind:tap="wxLogin" icon="logo-wechat-stroke">微信授权登录</t-button>
+    <t-button theme="primary" size="medium" shape="round" class="btn" bind:tap="startPasswordLogin" icon="mail">邮箱密码登录</t-button>
+    <t-button theme="danger" size="medium" shape="round" class="btn" bind:tap="startEmailLogin" icon="user-add">邮箱验证注册</t-button>
+    <t-button wx:if="{{false}}" size="medium" shape="round" class="btn" bind:tap="enterTestMode" icon="adjustment">进入演示模式</t-button>
+  </view>
+  <view wx:if="{{loginMode==1}}" class="column login-handler">
+    <view class="input-example">
+      <t-input value="{{email}}" bind:change="onEmailInput" prefix-icon="mail" style="{{inputStyle}}" placeholder="请输入邮箱" />
+    </view>
+    <view class="input-example">
+      <t-input value="{{password}}" bind:change="onPasswordInput" prefix-icon="key" style="{{inputStyle}}" type="password" maxlength="{{30}}" placeholder="请输入密码" />
+    </view>
+    <view class="input-example">
+      <t-input prefix-icon="verified" value="{{code}}" bind:change="onCodeInput" style="{{inputStyle}}" maxlength="{{6}}" placeholder="请输入验证码">
+        <t-button style="--td-button-small-height:48rpx;" wx:if="{{time==0}}" slot="suffix" theme="primary" variant="outline" size="small" bind:tap="getRegisterCode">获取</t-button>
+        <t-count-down wx:if="{{time>0}}" slot="suffix" format="ss s" time="{{ time }}" bind:finish="countDownFinish" bind:change="countDown"/>
+      </t-input>
+    </view>
+    <t-button theme="primary" size="medium" shape="round" class="btn" bind:tap="handleEmailLogin" icon="login">邮箱验证注册</t-button>
+    <t-button size="medium" shape="round" class="btn" bind:tap="cancelLogin" icon="rollback">返回登录页面</t-button>
+  </view>
+  <view wx:if="{{loginMode==2}}" class="column login-handler">
+    <view class="input-example">
+      <t-input value="{{email}}" bind:change="onEmailInput" prefix-icon="mail" style="{{inputStyle}}" placeholder="请输入邮箱" />
+    </view>
+    <view class="input-example">
+      <t-input value="{{password}}" bind:change="onPasswordInput" prefix-icon="key" style="{{inputStyle}}" type="password" maxlength="{{30}}" placeholder="请输入密码" />
+    </view>
+    <t-button theme="primary" size="medium" shape="round" class="btn" bind:tap="handlePasswordLogin" icon="login">邮箱密码登录</t-button>
+    <t-button theme="danger" size="medium" shape="round" class="btn" bind:tap="startPasswordReset" icon="error">我忘记了密码</t-button>
+    <t-button size="medium" shape="round" class="btn" bind:tap="cancelLogin" icon="rollback">返回登录页面</t-button>
+  </view>
+  <view wx:if="{{loginMode==3}}" class="column login-handler">
+    <view class="input-example">
+      <t-input value="{{email}}" bind:change="onEmailInput" prefix-icon="mail" style="{{inputStyle}}" placeholder="请输入邮箱" />
+    </view>
+    <view class="input-example">
+      <t-input value="{{password}}" bind:change="onPasswordInput" prefix-icon="key" style="{{inputStyle}}" type="password" maxlength="{{30}}" placeholder="请输入密码" />
+    </view>
+    <view class="input-example">
+      <t-input prefix-icon="verified" value="{{code}}" bind:change="onCodeInput" style="{{inputStyle}}" maxlength="{{6}}" placeholder="请输入验证码">
+        <t-button style="--td-button-small-height:48rpx;" wx:if="{{time==0}}" slot="suffix" theme="primary" variant="outline" size="small" bind:tap="getResetCode">获取</t-button>
+        <t-count-down wx:if="{{time>0}}" slot="suffix" format="ss s" time="{{ time }}" bind:finish="countDownFinish" bind:change="countDown"/>
+      </t-input>
+    </view>
+    <t-button theme="primary" size="medium" shape="round" class="btn" bind:tap="handlePasswordReset" icon="login">重新设置密码</t-button>
+    <t-button size="medium" shape="round" class="btn" bind:tap="cancelLogin" icon="rollback">返回登录页面</t-button>
+  </view>
 </view>

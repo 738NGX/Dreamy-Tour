@@ -31,8 +31,8 @@ Component({
   lifetimes: {
     async ready() {
       this.setData({ channelId: this.properties.currentChannel.id });
-      await this.getMembers();
       await this.getAuthority();
+      await this.getMembers();
     },
   },
   methods: {
