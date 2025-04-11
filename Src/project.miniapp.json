@@ -1,8 +1,8 @@
 {
   "miniVersion": "v2",
   "name": "梦旅",
-  "version": "1.0.2",
-  "versionCode": 10002,
+  "version": "1.0.4",
+  "versionCode": 10004,
   "i18nFilePath": "i18n",
   "mini-android": {
     "resourcePath": "miniapp/android/nativeResources",

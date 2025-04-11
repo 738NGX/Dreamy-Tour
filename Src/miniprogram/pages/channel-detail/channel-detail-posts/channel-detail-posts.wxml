@@ -1,6 +1,6 @@
 <wxs module="util" src="../../../utils/util.wxs"></wxs>
 <view class="example-search">
-  <t-search placeholder="搜索帖子" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" shape="round" style="height:60rpx"/>
+  <t-search placeholder="搜索帖子" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" shape="round" style="height:60rpx" />
 </view>
 <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
   <view wx:if="{{leftPosts.length>0||rightPosts.length>0}}" class="post-list">
@@ -9,7 +9,9 @@
         <block wx:for="{{leftPosts}}" wx:key="id">
           <view class="post-card" bindtap="handlePostDetail" data-index="{{item.id}}">
             <!-- 文章图片 -->
-            <image class="post-image" wx:if="{{item.photos.length > 0}}" src="{{item.photos[0].value}}" mode="widthFix" />
+            <view class="post-image-container">
+              <image class="post-image" wx:if="{{item.photos.length > 0}}" src="{{item.photos[0].value}}" mode="widthFix" />
+            </view>
             <!-- 文章信息 -->
             <view class="post-info">
               <view class="post-title">
@@ -27,8 +29,8 @@
                 </view>
               </view>
               <view class="likes">
-                <t-icon name="heart-filled" color="#DF0000" size="18" style="margin-right:10rpx;" wx-if="{{item.isLiked}}"/>
-                <t-icon name="heart" size="18" style="margin-right:10rpx;" wx-if="{{!item.isLiked}}"/>
+                <t-icon name="heart-filled" color="#DF0000" size="18" style="margin-right:10rpx;" wx-if="{{item.isLiked}}" />
+                <t-icon name="heart" size="18" style="margin-right:10rpx;" wx-if="{{!item.isLiked}}" />
                 {{ item.likes.length }}
               </view>
             </view>
@@ -39,7 +41,9 @@
         <block wx:for="{{rightPosts}}" wx:key="id">
           <view class="post-card" bindtap="handlePostDetail" data-index="{{item.id}}">
             <!-- 文章图片 -->
-            <image class="post-image" wx:if="{{item.photos.length > 0}}" src="{{item.photos[0].value}}" mode="widthFix" />
+            <view class="post-image-container">
+              <image class="post-image" wx:if="{{item.photos.length > 0}}" src="{{item.photos[0].value}}" mode="widthFix" />
+            </view>
             <!-- 文章信息 -->
             <view class="post-info">
               <view class="post-title">
@@ -57,8 +61,8 @@
                 </view>
               </view>
               <view class="likes">
-                <t-icon name="heart-filled" color="#DF0000" size="18" style="margin-right:10rpx;" wx-if="{{item.isLiked}}"/>
-                <t-icon name="heart" size="18" style="margin-right:10rpx;" wx-if="{{!item.isLiked}}"/>
+                <t-icon name="heart-filled" color="#DF0000" size="18" style="margin-right:10rpx;" wx-if="{{item.isLiked}}" />
+                <t-icon name="heart" size="18" style="margin-right:10rpx;" wx-if="{{!item.isLiked}}" />
                 {{ item.likes.length }}
               </view>
             </view>
@@ -68,7 +72,7 @@
     </view>
   </view>
   <view wx:else style="height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-    <image src="{{util.randomCharPicture(1,1)}}" mode="widthFix" style="width:400rpx;"/>
+    <image src="{{util.randomCharPicture(1,1)}}" mode="widthFix" style="width:400rpx;" />
     <text style="margin-top:32rpx; width:80%;text-align:center;">频道内还没有任何讨论帖\n点击右下角的按钮发出第一条讨论吧!</text>
   </view>
   <view style="height:400rpx" />
