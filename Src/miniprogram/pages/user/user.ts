@@ -3,7 +3,6 @@ import { User, UserBasic } from "../../utils/user/user";
 import { getByteLength, getImageBase64, getUserGroupName, userExpTarget, userRoleName } from "../../utils/util";
 import { PostCard } from "../../utils/channel/post";
 import { Channel } from "../../utils/channel/channel";
-import { ChunkRes } from "../../utils/fly/chunkRes";
 const app = getApp<IAppOption>();
 
 Component({
@@ -387,45 +386,6 @@ Component({
       const id = e.currentTarget.dataset.index;
       wx.navigateTo({
         url: `/pages/channel-post/channel-post?postId=${id}`,
-      });
-    },
-    async test() {
-      this.setData({testText: ''})
-      const chunkRes = ChunkRes();
-      const res = wx.request({
-        url: `${HttpUtil.baseUrl}/map/streamtest`,
-        method: 'GET',
-        header: {
-          'Authorization': wx.getStorageSync('token') || ''
-        },
-        enableChunked: true,
-        success() {
-          const lastResTexts: string[] | undefined = chunkRes.onComplateReturn();
-          console.log('lastResTexts:', lastResTexts)
-          wx.showToast({
-            title: '请求成功',
-            icon: 'success',
-            duration: 1000
-          })
-        },
-        fail(err: any) {
-          console.error('err:', err)
-          wx.showToast({
-            title: '请求失败',
-            icon: 'error',
-            duration: 1000
-          })
-        }
-      } as any) as any
-      const that = this;
-      res.onChunkReceived(function (result: any) {
-        chunkRes.onChunkReceivedReturn2(
-          result.data,
-        );
-        const resText = chunkRes.getChunkText(result.data);
-        const newText = that.data.testText + resText;
-        that.setData({testText: newText})
-        //console.log('resTexts:', resText)
       });
     }
   }

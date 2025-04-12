@@ -3,7 +3,7 @@ import express, { Request, Response } from "express"
 
 const llmRoute = express.Router();
 
-llmRoute.get('/llm/text', async (req: Request, res: Response) => {
+llmRoute.post('/llm/text', async (req: Request, res: Response) => {
   const { task, max_tokens, temperature } = req.query;
   const completion = await deepseek.chat.completions.create({
     messages: [{ role: "user", content: task as string }],
@@ -20,7 +20,7 @@ llmRoute.get('/llm/text', async (req: Request, res: Response) => {
   res.end();
 })
 
-llmRoute.get('/llm/json', async (req: Request, res: Response) => {
+llmRoute.post('/llm/json', async (req: Request, res: Response) => {
   const { task, max_tokens, temperature } = req.query;
   const completion = await deepseek.chat.completions.create({
     messages: [{ role: "user", content: task as string }],
