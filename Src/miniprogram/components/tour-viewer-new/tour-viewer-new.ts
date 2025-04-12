@@ -132,36 +132,19 @@ Component({
 
     uploadedPhotos: [] as any[],
   },
-  lifetimes: {
-    created() {
-
-    },
-    async ready() {
-      //采用传入的tour初始化行程信息
-      this.setData({
-        currentTour: new Tour(this.properties.tour),
-      });
-      if (this.data.currentTour) {
-        await this.init(this.data.currentTour);
-      }
-      else {
-        this.setData({ currentDateRange: null });
-      }
-      this.filterNodeByDate(this.properties.dateFilter);
-    },
-    moved() {
-
-    },
-    detached() {
-
-    },
-  },
   methods: {
     /**
      * 初始化行程信息与关联用户到缓存
      * @param value 
      */
     async init(value: any) {
+      this.setData({
+        currentTour: new Tour(this.properties.tour),
+      });
+      if (!this.data.currentTour) {
+        this.setData({ currentDateRange: null });
+        return;
+      }
       const currentTour = new Tour(value);
       this.setData({
         currentTour: currentTour,
@@ -192,6 +175,7 @@ Component({
           })),
         currentUserList: await app.getMembersInTour(currentTour.id),
       });
+      this.filterNodeByDate(this.properties.dateFilter);
     },
     /**
      * 对接tour-edit页面的触发器，更新当前行程信息
@@ -553,31 +537,43 @@ Component({
 
       const id = this.data.editingLocationId;
       if (id === -1) return;
-
-      const editingLocation = currentTour.locations[this.data.currentTourCopyIndex][id];
-      const locations = await app.getLocationByAddress(editingLocation.title, '');
-      const itemList = locations.map((item) => {
-        return `${item.address}:位于${item.province}·${item.city}·${item.district}`;
-      })
       const that = this;
-      wx.showActionSheet({
-        alertText: '搜索到以下位置,请选择',
-        itemList: itemList,
-        success(res) {
-          const latitude = locations[res.tapIndex].latitude.toFixed(6);
-          const longitude = locations[res.tapIndex].longitude.toFixed(6);
-          that.setData({
-            mapLocation: [Number(latitude), Number(longitude)],
-            markers: [{
-              id: 0,
-              iconPath: `${CDN_PATH}/Marker1_Activated@3x.png`,
-              latitude: latitude,
-              longitude: longitude,
-              width: 30,
-              height: 30
-            }]
-          });
-        },
+
+      wx.showModal({
+        title: "请输入目标位置所在城市",
+        content: "",
+        editable: true,
+        placeholderText: "用于缩小搜索范围,可留空",
+        showCancel: false,
+        async success(res) {
+          if (res.confirm) {
+            const editingLocation = currentTour.locations[that.data.currentTourCopyIndex][id];
+            const locations = await app.getLocationByAddress(editingLocation.title, res.content);
+            const itemList = locations.map((item) => {
+              return `${item.address}:位于${item.province}·${item.city}·${item.district}`;
+            })
+
+            wx.showActionSheet({
+              alertText: '搜索到以下位置,请选择',
+              itemList: itemList,
+              success(res) {
+                const latitude = locations[res.tapIndex].latitude.toFixed(6);
+                const longitude = locations[res.tapIndex].longitude.toFixed(6);
+                that.setData({
+                  mapLocation: [Number(latitude), Number(longitude)],
+                  markers: [{
+                    id: 0,
+                    iconPath: `${CDN_PATH}/Marker1_Activated@3x.png`,
+                    latitude: latitude,
+                    longitude: longitude,
+                    width: 30,
+                    height: 30
+                  }]
+                });
+              },
+            })
+          }
+        }
       })
     },
     /**
@@ -1052,6 +1048,44 @@ Component({
         }
       });
     },
+    getGaodeWalkDirection() {
+      const currentTour = this.data.currentTour;
+      if (!currentTour) return;
+      const currentTourCopyIndex = this.data.currentTourCopyIndex;
+      const id = this.data.editingTransportationId;
+      const origin = currentTour.locations[currentTourCopyIndex][id];
+      const destination = currentTour.locations[currentTourCopyIndex][id + 1];
+      const that = this;
+      wx.showActionSheet({
+        alertText: '是否规划室内步行路线？',
+        itemList: ['不规划室内路线', '规划室内路线'],
+        async success(res) {
+          const { distance, duration, route: transportations } = await app.getWalkDirections(origin, destination, res.tapIndex);
+          const routeItemList = transportations.map((_, index) => {
+            return `步行${Math.floor(duration[index] / 3600)}小时${Math.round(duration[index] % 3600 / 60)}分钟,${distance[index]}米`;
+          })
+          if (transportList.length === 0) {
+            wx.showToast({
+              title: '获取步行信息失败',
+              icon: 'none'
+            });
+            return;
+          }
+          wx.showActionSheet({
+            alertText: '查询到以下路线,请选择:',
+            itemList: routeItemList,
+            async success(res) {
+              const newTransportation = new Transportation({ ...transportations[res.tapIndex], index: id });
+              currentTour.transportations[currentTourCopyIndex][id] = newTransportation;
+              destination.startOffset = newTransportation.endOffset;
+              that.setData({ currentTour: currentTour });
+              await app.changeFullTour(currentTour);
+              that.onCurrentTourChange(currentTour);
+            }
+          });
+        }
+      });
+    },
     /*
     getGaodeDriveDirection() {
       const currentTour = this.data.currentTour;
@@ -1108,15 +1142,15 @@ Component({
       const that = this;
       wx.showActionSheet({
         alertText: '请选择导航类型:',
-        itemList: ['公交导航'],
+        itemList: ['公交导航', '步行导航'],
         success(res) {
           if (res.tapIndex === 0) {
             // 高德-公交导航
             that.getGaodeTransitDirection();
           }
           else if (res.tapIndex === 1) {
-            // 高德-驾车导航
-            //that.getGaodeDriveDirection();
+            // 高德-步行导航
+            that.getGaodeWalkDirection();
           }
         }
       })

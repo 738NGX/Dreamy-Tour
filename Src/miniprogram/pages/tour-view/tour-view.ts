@@ -31,6 +31,13 @@ Component({
         currentTourId:tourId
        });
        //console.log("currentTourInViewer",currentTour)
+       await this.onShow();
+    },
+    async onShow() {
+      const viewerComponent = this.selectComponent('#viewer');
+      if (viewerComponent && this.data.currentTourId > 0) {
+        await viewerComponent.init(this.data.currentTour);
+      }
     },
     getDateRange(startTimestamp: number, endTimestamp: number): number[][] {
       const startDate = new Date(startTimestamp);

@@ -27,9 +27,17 @@ Component({
       const currentTour = await app.loadFullTour(parseInt(tourId)) as Tour;
       const dateRange = this.getDateRange(currentTour!.startDate, currentTour!.endDate);
       const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
-      this.setData({ currentTour, dateRange, copyOptions,
-          currentTourId:tourId
-       });
+      this.setData({
+        currentTour, dateRange, copyOptions,
+        currentTourId: tourId
+      });
+      await this.onShow();
+    },
+    async onShow() {
+      const viewerComponent = this.selectComponent('#viewer');
+      if (viewerComponent && this.data.currentTourId > 0) {
+        await viewerComponent.init(this.data.currentTour);
+      }
     },
     handleCurrentTourChange(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
@@ -130,11 +138,11 @@ Component({
       this.setData({ currentTour });
       await app.changeFullTour(currentTour);
     },
-    showTourReport(){
+    showTourReport() {
       wx.navigateTo({
-        url:`/pages/report/report?tourId=${this.data.currentTourId}&currentTourCopyIndex=${this.data.currentCopyIndex}&showUserReport=${this.data.showUserReport}`
+        url: `/pages/report/report?tourId=${this.data.currentTourId}&currentTourCopyIndex=${this.data.currentCopyIndex}&showUserReport=${this.data.showUserReport}`
       })
-    //  console.log("tiaozhuan")
+      //  console.log("tiaozhuan")
     }
   }
 })

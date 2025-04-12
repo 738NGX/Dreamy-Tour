@@ -175,10 +175,8 @@
         </t-swipe-cell>
       </block>
       <view wx:if="{{!readonly}}" class="row">
-        <t-button size="large" theme="primary" variant="outline" style="width: 100%;height: 50rpx;" bind:tap="addTransportExpense" data-index="{{i}}">增加交通</t-button>
-      </view>
-      <view wx:if="{{!readonly}}" class="row">
-        <t-button size="large" theme="primary" variant="outline" style="width: 100%;height: 50rpx;" bind:tap="getDirection" data-index="{{i}}">交通导航</t-button>
+        <t-button size="large" theme="primary" variant="outline" style="width: 49%;height: 50rpx;" bind:tap="addTransportExpense" data-index="{{i}}">增加交通</t-button>
+        <t-button size="large" theme="primary" variant="outline" style="width: 49%;height: 50rpx;" bind:tap="getDirection" data-index="{{i}}">交通导航</t-button>
       </view>
     </view>
     <view wx:if="{{util.isInArray(displayingLocationId,i+1)}}" class="connecter" />
