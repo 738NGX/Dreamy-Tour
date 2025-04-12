@@ -8,7 +8,7 @@
 import app from "./app";
 import gaodeMcpClient from "./mcp/gaodeMcpClient";
 
-//gaodeMcpClient.connect();
+gaodeMcpClient.connect();
 
 // 端口号
 const PORT: number = Number(process.env.PORT) || 8080;

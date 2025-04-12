@@ -1,3 +1,4 @@
+import deepseek from "@/config/deepseekConfig";
 import TransitDirectionDto from "@/dto/map/transitDirectionDto";
 import WalkDirectionDto from "@/dto/map/walkDirectionDto";
 import ParamsError from "@/exception/paramsError";
