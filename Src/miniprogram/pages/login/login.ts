@@ -168,7 +168,9 @@ Page({
   },
   async handleLogin(url: string, jsonData: any) {
     try {
-      const res = await HttpUtil.post({ url, jsonData });
+      let baseUrl = HttpUtil.baseUrl;
+      if (url.includes("wx")) { baseUrl = "https://dreamy-tour.738ngx.site/api" }
+      const res = await HttpUtil.post({ url, jsonData, baseUrl });
       const token = res.data.data.token;
       wx.setStorageSync("token", token);
       wx.switchTab({

@@ -191,7 +191,7 @@ export class Tour extends TourBasic {
     this.locations[copyIndex][index].startOffset = this.transportations[copyIndex][index - 1].endOffset;
   }
 
-  addCopy() {
+  pullCopy() {
     this.nodeCopyNames.push(`新行程版本`);
     this.locations.push(
       this.locations[0].map(
@@ -203,6 +203,12 @@ export class Tour extends TourBasic {
         (transportation: Transportation) => new Transportation({ ...transportation })
       )
     );
+  }
+
+  addCopy() {
+    this.nodeCopyNames.push(`新行程版本`);
+    this.locations.push([new Location(this.locations[0][0])]);
+    this.transportations.push([]);
   }
 
   removeCopy(index: number) {

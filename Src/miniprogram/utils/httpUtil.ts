@@ -81,22 +81,16 @@ class HttpUtil {
   // 基础 URL
   static readonly baseUrl = apiUrl;
 
-  /**
-   * 发送网络请求（支持 Token 校验和自动跳转登录）
-   * @param req 请求配置
-   */
-  static async request(req: Request, timeout: number, stream: boolean = false): Promise<Response> {
-    wx.showLoading({
-      title: "请稍候..."
-    });
+  private static getRequestParams(req: Request): WechatMiniprogram.RequestOption | undefined {
     // ================== Token 校验逻辑 ==================
     if (!req.url.endsWith("/wx-login") && !req.url.includes("/email/")) {
       const token = wx.getStorageSync("token");
 
       // 场景 1: 无 Token 直接跳转登录
       if (!token) {
+        wx.hideLoading();
         wx.redirectTo({ url: "/pages/login/login" });
-        return Promise.reject({ errMsg: "缺少 Token，已跳转登录页" });
+        return undefined; // 直接返回 undefined，表示不发送请求
       }
 
       // 场景 2: 合并 Authorization 请求头
@@ -108,13 +102,29 @@ class HttpUtil {
 
     // ================== 构建请求参数 ==================
     const requestParams: WechatMiniprogram.RequestOption = {
-      url: this.getUrl(req.url, req.params),
+      url: this.getUrl(req.url, req.params, req.baseUrl || this.baseUrl), // 补全 URL
       method: (req.method || "GET").toUpperCase() as any, // 默认为 GET
       header: req.header || {},
       data: req.jsonData
     };
 
     if (debug) { console.log('backend request:', requestParams) };
+
+    return requestParams;
+  }
+
+  /**
+   * 发送网络请求（支持 Token 校验和自动跳转登录）
+   * @param req 请求配置
+   */
+  static async request(req: Request, timeout: number, stream: boolean = false): Promise<Response> {
+    wx.showLoading({
+      title: "请稍候..."
+    });
+    const requestParams = this.getRequestParams(req);
+    if (!requestParams) {
+      return Promise.reject({ errMsg: "Token 失效，请重新登录" });
+    }
 
     // ================== 发送请求 ==================
     return new Promise(async (resolve, reject) => {
@@ -264,7 +274,7 @@ class HttpUtil {
    * @param url 
    * @param params
    */
-  private static getUrl(url: string, params?: Record<string, string>): string {
+  private static getUrl(url: string, params?: Record<string, string>, baseUrl: string = this.baseUrl): string {
     // 判断绝对路径（兼容 http/https 任意大小写）
     const isAbsolute = /^https?:\/\//i.test(url);
 
@@ -274,7 +284,7 @@ class HttpUtil {
       fullUrl = url;
     } else {
       // 确保 baseUrl 以斜杠结尾，url 不以斜杠开头
-      const base = this.baseUrl.endsWith('/') ? this.baseUrl : this.baseUrl + '/';
+      const base = baseUrl.endsWith('/') ? baseUrl : baseUrl + '/';
       const adjustedUrl = url.startsWith('/') ? url.slice(1) : url;
       fullUrl = base + adjustedUrl;
     }
@@ -321,9 +331,18 @@ class HttpUtil {
    * @param bindPropName 页面中用于绑定文本更新的字段名称（例如：'testText'、'message' 等）
    * @returns Promise 完整响应文本片段数组
    */
-  static requestStream(url: string, pageContext: any, bindPropName: string): Promise<string[]> {
-    const that = this;
+  static requestStream(req: MethodRequest, pageContext: any, bindPropName: string): Promise<string[]> {
+    const requestParams = this.getRequestParams({ ...req, method: "POST" });
+    if (!requestParams) {
+      return Promise.reject({ errMsg: "Token 失效，请重新登录" });
+    }
+    //const that = this;
     return new Promise((resolve, reject) => {
+      wx.showToast({
+        title: '请求开始',
+        icon: 'success',
+        duration: 1000
+      });
       // 先重置页面对应的数据字段
       pageContext.setData({ [bindPropName]: '' });
 
@@ -332,11 +351,7 @@ class HttpUtil {
 
       // 发起流式 wx.request 请求
       const reqTask = wx.request({
-        url: that.getUrl(url), // 外部传入请求 URL
-        method: 'GET',
-        header: {
-          'Authorization': wx.getStorageSync('token') || ''
-        },
+        ...requestParams,
         enableChunked: true,
         success: () => {
           // 请求完成时，获取最终的响应数组
@@ -364,6 +379,7 @@ class HttpUtil {
         // 内部处理当前数据块数据，拼接响应数据
         chunkRes.onChunkReceivedReturn2(result.data);
         const chunkText = chunkRes.getChunkText(result.data);
+        //console.log('chunkText:', chunkText);
 
         // 将解析到的文本追加到 pageContext 中指定字段 bindPropName 上
         // 由于 pageContext.data 中保存了当前数据，可以直接拼接

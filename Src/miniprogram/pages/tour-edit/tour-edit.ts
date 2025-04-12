@@ -21,7 +21,7 @@ Component({
     currentCopyIndex: 0,
 
     showUserReport: true,
-    
+
     generatorVisible: false,
     generatorText: "",
     generatorResult: "",
@@ -79,20 +79,64 @@ Component({
     },
     async addCopy() {
       const { currentTour } = this.data;
-      currentTour.addCopy();
+      currentTour.pullCopy();
       const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
       this.setData({ currentTour, copyOptions });
       await app.changeFullTour(currentTour);
     },
-    async handleGenerateCopyFromText(){
-
+    handleGenerateCopyFromText() {
+      this.setData({ settingsVisible: false, generatorVisible: !this.data.generatorVisible });
     },
-    async generateCopyFromText(){
-      const task = this.data.generatorText;
-      const res = HttpUtil.requestStream(
-        `/llm/json?task=`,
+    onGeneratorTextChange(e: WechatMiniprogram.CustomEvent) {
+      const { value } = e.detail;
+      this.setData({ generatorText: value });
+    },
+    async generateCopyFromText(needLocations: boolean = false) {
+      const task = `
+旅行计划的开始时间是${this.data.currentTour.startDate}(数字为时间戳),以下是我的旅行计划概述:
+${this.data.generatorText}
+请根据这个概述生成一个新的旅行计划,返回形如{locations:[{title:'',start:'',end:'',note:''},...]}的json格式,其中title为位置的地址文字,start和end为在这个位置的起始时间时间戳和结束时间时间戳,note为在这个位置的备注文字,locations是一个数组,每个元素都是一个位置的对象,请注意,生成的旅行计划应该是一个新的旅行计划,而不是对原始旅行计划的修改.请不要返回任何其他内容.
+`;
+      const res = await HttpUtil.requestStream(
+        {
+          url: `/llm/json`,
+          jsonData: {
+            task: task,
+            temperature: 0.5,
+            max_tokens: 3000,
+          }
+        },
         this, 'generatorResult'
       )
+      try {
+        this.setData({ generatorVisible: false });
+        const resObj = JSON.parse(res.join(''));
+        const { currentTour } = this.data;
+        currentTour.addCopy();
+        const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
+        const copyIndex = currentTour.nodeCopyNames.length - 1;
+        this.setData({ currentTour, copyOptions, currentCopyIndex: copyIndex });
+        for (const location of resObj.locations) {
+          currentTour.pushLocation(copyIndex);
+          const newLocation = currentTour.locations[copyIndex][currentTour.locations[copyIndex].length - 1];
+          const newTransportation = currentTour.transportations[copyIndex][currentTour.transportations[copyIndex].length - 1];
+          newLocation.title = location.title;
+          newLocation.startOffset = parseInt(location.start) - currentTour.startDate;
+          newLocation.endOffset = parseInt(location.end) - currentTour.startDate;
+          newTransportation.endOffset = newLocation.startOffset;
+          newLocation.note = location.note;
+          this.setData({ currentTour });
+        }
+        await app.changeFullTour(currentTour);
+      } catch (err) {
+        console.error('生成失败:', err);
+        wx.showToast({
+          title: '生成失败',
+          icon: 'error',
+        });
+        return;
+      }
+      if (!needLocations) return;
     },
     async changeCopyName(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;

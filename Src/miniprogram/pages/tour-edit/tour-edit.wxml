@@ -1,6 +1,6 @@
 <header helperId="8" class="custom-navbar" title="查看行程" tabList="{{[]}}" />
 <t-popup style="width:85% !important;" visible="{{settingsVisible}}" usingCustomNavbar bind:visible-change="handleSettings" placement="left">
-  <scroll-view class="scrollarea" style="height:90vh" scroll-y type="list">
+  <scroll-view class="scrollarea" style="height:60vh" scroll-y type="list">
     <c-collapse header="行程版本选择">
       <t-radio-group class="narrow-radio" bind:change="onCopyChange" value="{{currentCopyIndex}}">
         <t-radio value="{{0}}">
@@ -16,7 +16,7 @@
       <view class="column">
         <view class="row">
           <t-button bind:tap="addCopy" theme="primary" size="small" variant="text">从默认版本拷贝一份</t-button>
-          <t-button bind:tap="" theme="primary" size="small" variant="text">从文本创建版本(AI)</t-button>
+          <t-button bind:tap="handleGenerateCopyFromText" theme="primary" size="small" variant="text">从文本创建版本(AI)</t-button>
         </view>
         <view class="row">
           <t-button bind:tap="pushCopy" theme="primary" size="small" variant="text">推送当前版本到默认</t-button>
@@ -36,6 +36,15 @@
         </t-input>
       </block>
     </c-collapse>
+  </scroll-view>
+</t-popup>
+<t-popup visible="{{generatorVisible}}" usingCustomNavbar bind:visible-change="handleGenerateCopyFromText" placement="bottom">
+  <scroll-view class="scrollarea" style="height:80vh" scroll-y type="list">
+    <t-textarea bind:change="onGeneratorTextChange" value="{{generatorText}}" placeholder="请输入你的行程描述" disableDefaultPadding="{{true}}" />
+    <t-button bind:tap="generateCopyFromText" theme="primary" size="small" variant="text">生成</t-button>
+    <view class="row">
+      <text>{{generatorResult}}</text>
+    </view>
   </scroll-view>
 </t-popup>
 <t-cell bind:click="handleSettings" title="{{currentTour?currentTour.title:'行程'}}" hover note="查看更多" arrow />
