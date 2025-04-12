@@ -1,3 +1,4 @@
+import HttpUtil from "../../utils/httpUtil";
 import { budgetList, currencyList } from "../../utils/tour/expense";
 import { Tour } from "../../utils/tour/tour";
 import { Location, Transportation } from "../../utils/tour/tourNode";
@@ -20,6 +21,10 @@ Component({
     currentCopyIndex: 0,
 
     showUserReport: true,
+    
+    generatorVisible: false,
+    generatorText: "",
+    generatorResult: "",
   },
   methods: {
     async onLoad(options: any) {
@@ -79,6 +84,16 @@ Component({
       this.setData({ currentTour, copyOptions });
       await app.changeFullTour(currentTour);
     },
+    async handleGenerateCopyFromText(){
+
+    },
+    async generateCopyFromText(){
+      const task = this.data.generatorText;
+      const res = HttpUtil.requestStream(
+        `/llm/json?task=`,
+        this, 'generatorResult'
+      )
+    },
     async changeCopyName(e: WechatMiniprogram.CustomEvent) {
       const { value } = e.detail;
       const index = e.currentTarget.dataset.index;
@@ -99,6 +114,23 @@ Component({
             const { currentTour } = that.data;
             currentTour.locations[index] = currentTour.locations[0].map((location: Location) => new Location(location));
             currentTour.transportations[index] = currentTour.transportations[0].map((transportation: Transportation) => new Transportation(transportation));
+            that.setData({ currentTour });
+            await app.changeFullTour(currentTour);
+          }
+        }
+      });
+    },
+    pushCopy() {
+      const that = this;
+      wx.showModal({
+        title: '警告',
+        content: '是否将当前行程版本推送为默认版本？',
+        async success(res) {
+          if (res.confirm) {
+            const index = that.data.currentCopyIndex;
+            const { currentTour } = that.data;
+            currentTour.locations[0] = currentTour.locations[index].map((location: Location) => new Location(location));
+            currentTour.transportations[0] = currentTour.transportations[index].map((transportation: Transportation) => new Transportation(transportation));
             that.setData({ currentTour });
             await app.changeFullTour(currentTour);
           }
@@ -142,7 +174,6 @@ Component({
       wx.navigateTo({
         url: `/pages/report/report?tourId=${this.data.currentTourId}&currentTourCopyIndex=${this.data.currentCopyIndex}&showUserReport=${this.data.showUserReport}`
       })
-      //  console.log("tiaozhuan")
     }
   }
 })

@@ -8,6 +8,7 @@ export const apiUrl = usingLocal ? "http://127.0.0.1:8080" : (
 );
 
 import { Fly as IFly } from "./fly/fly"
+import { ChunkRes } from "./fly/chunkRes";
 var Fly = require("./fly/fly.min")
 const fly = new Fly() as IFly;
 
@@ -186,11 +187,11 @@ class HttpUtil {
    * GET 请求
    * @param req 请求配置
    */
-  static async get(req: MethodRequest, timeout: number = 180000, stream: boolean = false): Promise<Response> {
+  static async get(req: MethodRequest, timeout: number = 180000): Promise<Response> {
     return await this.request({
       ...req,
       method: "GET"
-    }, timeout, stream)
+    }, timeout)
   }
 
   /**
@@ -310,6 +311,66 @@ class HttpUtil {
     if (hash) finalUrl += `#${hash}`;
 
     return finalUrl;
+  }
+
+  /**
+   * 流式请求封装方法
+   *
+   * @param url 请求地址（可以是完整的 URL 或者从 baseUrl 拼接的相对地址）
+   * @param pageContext 页面上下文对象，必须具有 setData 和 data 属性
+   * @param bindPropName 页面中用于绑定文本更新的字段名称（例如：'testText'、'message' 等）
+   * @returns Promise 完整响应文本片段数组
+   */
+  static requestStream(url: string, pageContext: any, bindPropName: string): Promise<string[]> {
+    const that = this;
+    return new Promise((resolve, reject) => {
+      // 先重置页面对应的数据字段
+      pageContext.setData({ [bindPropName]: '' });
+
+      // 初始化 chunk 处理对象（假定 ChunkRes 已定义好相关逻辑）
+      const chunkRes = ChunkRes();
+
+      // 发起流式 wx.request 请求
+      const reqTask = wx.request({
+        url: that.getUrl(url), // 外部传入请求 URL
+        method: 'GET',
+        header: {
+          'Authorization': wx.getStorageSync('token') || ''
+        },
+        enableChunked: true,
+        success: () => {
+          // 请求完成时，获取最终的响应数组
+          const finalChunks: string[] | undefined = chunkRes.onComplateReturn();
+          wx.showToast({
+            title: '请求成功',
+            icon: 'success',
+            duration: 1000
+          });
+          resolve(finalChunks || []);
+        },
+        fail: (err: any) => {
+          console.error('请求错误:', err);
+          wx.showToast({
+            title: '请求失败',
+            icon: 'error',
+            duration: 1000
+          });
+          reject(err);
+        }
+      } as any) as any; // 根据需要使用类型断言
+
+      // 监听流式数据块到达
+      reqTask.onChunkReceived((result: any) => {
+        // 内部处理当前数据块数据，拼接响应数据
+        chunkRes.onChunkReceivedReturn2(result.data);
+        const chunkText = chunkRes.getChunkText(result.data);
+
+        // 将解析到的文本追加到 pageContext 中指定字段 bindPropName 上
+        // 由于 pageContext.data 中保存了当前数据，可以直接拼接
+        const currentText: string = pageContext.data[bindPropName] || '';
+        pageContext.setData({ [bindPropName]: currentText + chunkText });
+      });
+    });
   }
 }
 
