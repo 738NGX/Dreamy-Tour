@@ -84,7 +84,7 @@ class HttpUtil {
    * 发送网络请求（支持 Token 校验和自动跳转登录）
    * @param req 请求配置
    */
-  static async request(req: Request, timeout: number): Promise<Response> {
+  static async request(req: Request, timeout: number, stream: boolean = false): Promise<Response> {
     wx.showLoading({
       title: "请稍候..."
     });
@@ -117,63 +117,68 @@ class HttpUtil {
 
     // ================== 发送请求 ==================
     return new Promise(async (resolve, reject) => {
-      try {
-        const d = await fly.request(
-          requestParams.url,
-          requestParams.data,
-          {
-            method: requestParams.method,
-            headers: requestParams.header,
-            timeout: timeout
+      if (!stream) {
+        try {
+          const d = await fly.request(
+            requestParams.url,
+            requestParams.data,
+            {
+              method: requestParams.method,
+              headers: requestParams.header,
+              timeout: timeout,
+            }
+          );
+          if (debug) { console.log('backend result:', d) };
+          // 检查响应头是否有 X-Refresh-Token，如果有，刷新本地 token
+          const headers = d.headers as { [key: string]: string | undefined };
+          if (headers["X-Refresh-Token"]) {
+            wx.setStorageSync("token", headers["X-Refresh-Token"])
           }
-        );
-        if (debug) { console.log('backend result:', d) };
-        // 检查响应头是否有 X-Refresh-Token，如果有，刷新本地 token
-        const headers = d.headers as { [key: string]: string | undefined };
-        if (headers["X-Refresh-Token"]) {
-          wx.setStorageSync("token", headers["X-Refresh-Token"])
-        }
-        wx.hideLoading();
-        resolve(d);
-      } catch (e: any) {
-        wx.hideLoading();
-        if (debug) { console.error('backend error:', e) };
-        if (e.status === 1) {
-          wx.showToast({ title: "请求超时,请重试", icon: "error", time: 2000 });
-        } else if (e.status === 400) {
-          e = { ...e, errMsg: "请求参数错误" };
-        } else if (e.status === 401) {
-          wx.removeStorageSync("token");  // 清除失效 Token
-          wx.redirectTo({ url: "/pages/login/login" });
-          wx.showToast({ title: "登陆已过期", icon: "error", time: 2000 });
-          e = { ...e, errMsg: "登录已过期" };
-        } else if (e.status >= 500) {
-          wx.showToast({ title: "服务器异常", icon: "error", time: 2000 });
-          e = { ...e, errMsg: "服务器异常" };
-        }
-        reject(e);
-      }
-      /** 微信原生, 已弃用
-      wx.request({
-        ...requestParams,
-        success: (res: Response) => {
-          // 场景 3: Token 失效统一处理
-          if (res.statusCode === 401) {
+          wx.hideLoading();
+          resolve(d);
+        } catch (e: any) {
+          wx.hideLoading();
+          if (debug) { console.error('backend error:', e) };
+          if (e.status === 1) {
+            wx.showToast({ title: "请求超时,请重试", icon: "error", time: 2000 });
+          } else if (e.status === 400) {
+            e = { ...e, errMsg: "请求参数错误" };
+          } else if (e.status === 401) {
             wx.removeStorageSync("token");  // 清除失效 Token
             wx.redirectTo({ url: "/pages/login/login" });
-            reject({ ...res, errMsg: "Token 失效，请重新登录" });
-          } else if (res.statusCode > 500) {
-            reject({ ...res, errMsg: "服务器异常" });
+            wx.showToast({ title: "登陆已过期", icon: "error", time: 2000 });
+            e = { ...e, errMsg: "登录已过期" };
+          } else if (e.status >= 500) {
+            wx.showToast({ title: "服务器异常", icon: "error", time: 2000 });
+            e = { ...e, errMsg: "服务器异常" };
           }
-          else {
-            resolve(res);
-          }
-        },
-        fail: (err) => {
-          reject(err);
+          reject(e);
         }
-      });
-      */
+      } else {
+        /** 微信原生, 已弃用
+        wx.request({
+          ...requestParams,
+          success: (res: Response) => {
+            // 场景 3: Token 失效统一处理
+            if (res.statusCode === 401) {
+              wx.removeStorageSync("token");  // 清除失效 Token
+              wx.redirectTo({ url: "/pages/login/login" });
+              reject({ ...res, errMsg: "Token 失效，请重新登录" });
+            } else if (res.statusCode > 500) {
+              reject({ ...res, errMsg: "服务器异常" });
+            }
+            else {
+              resolve(res);
+            }
+          },
+          fail: (err) => {
+            reject(err);
+          }
+        });
+      
+        */
+        reject({ errMsg: "流式请求已弃用" });
+      }
     });
   }
 
@@ -181,11 +186,11 @@ class HttpUtil {
    * GET 请求
    * @param req 请求配置
    */
-  static async get(req: MethodRequest, timeout: number = 180000): Promise<Response> {
+  static async get(req: MethodRequest, timeout: number = 180000, stream: boolean = false): Promise<Response> {
     return await this.request({
       ...req,
       method: "GET"
-    }, timeout)
+    }, timeout, stream)
   }
 
   /**

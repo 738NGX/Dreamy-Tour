@@ -3,6 +3,7 @@ import { User, UserBasic } from "../../utils/user/user";
 import { getByteLength, getImageBase64, getUserGroupName, userExpTarget, userRoleName } from "../../utils/util";
 import { PostCard } from "../../utils/channel/post";
 import { Channel } from "../../utils/channel/channel";
+import { ChunkRes } from "../../utils/fly/chunkRes";
 const app = getApp<IAppOption>();
 
 Component({
@@ -28,10 +29,12 @@ Component({
     searchedPosts: [] as PostCard[],
     searchingValueForPosts: '',
     refreshEnable: false,
-        
+
     fullChannelList: [] as Channel[],
     channelList: [] as Channel[],
     searchingValueForChannels: '',
+
+    testText: '测试文本',
   },
 
   /*
@@ -57,7 +60,7 @@ Component({
       });
     },
     async onShow() {
-      try{
+      try {
         const res = await HttpUtil.get({
           url: '/version',
         });
@@ -72,7 +75,7 @@ Component({
       }
       const currentUserBasic = await app.getCurrentUser()
       const currentUserId = currentUserBasic?.id
-      if(currentUserId){
+      if (currentUserId) {
         this.setData({
           isTestMode: app.globalData.testMode,
           currentUser: currentUserBasic,
@@ -87,7 +90,7 @@ Component({
         })
       }
     },
-    showVersion(){
+    showVersion() {
       wx.showModal({
         title: '版本信息',
         content: `客户端版本：${app.globalData.version}\r\n服务端版本：${this.data.backendVersion}`,
@@ -171,7 +174,7 @@ Component({
       currentUser.email = e.detail.value;
       this.setData({ currentUser })
     },
-   
+
     async handleUserNameChangeConfirm() {
       const { currentUser } = this.data;
 
@@ -187,7 +190,7 @@ Component({
       if (!await app.changeUserName(currentUser.name)) {
         const currentUserBasic = await app.getCurrentUser()
         const currentUserId = currentUserBasic?.id
-        if(currentUserId){
+        if (currentUserId) {
           this.setData({
             currentUser: app.getUser(currentUserId)
           });
@@ -205,7 +208,7 @@ Component({
       if (!await app.changeUserBasic(currentUser)) {
         const currentUserBasic = await app.getCurrentUser()
         const currentUserId = currentUserBasic?.id
-        if(currentUserId){
+        if (currentUserId) {
           this.setData({
             currentUser: app.getUser(currentUserId)
           });
@@ -215,7 +218,7 @@ Component({
     async handleUserBasicReset() {
       const currentUserBasic = await app.getCurrentUser()
       const currentUserId = currentUserBasic?.id
-      if(currentUserId){
+      if (currentUserId) {
         this.setData({
           currentUser: app.getUser(currentUserId)
         });
@@ -241,7 +244,7 @@ Component({
       }
       const src = JSON.parse(JSON.stringify(this.data.backgroundImages[0]))
       if (src && src.url)
-      console.log('src.url:', src.url)
+        console.log('src.url:', src.url)
       await app.changeUserBackgroundImage(await getImageBase64(src.url));
       await this.onShow();
     },
@@ -259,12 +262,12 @@ Component({
       const { files } = e.detail;
       this.setData({ backgroundImages: files });
     },
-    uploadVisibleChange(){
+    uploadVisibleChange() {
       this.setData({
         uploadVisible: !this.data.uploadVisible
       })
     },
-    cancelUpload(){
+    cancelUpload() {
       this.handleImageUploadRemove();
       this.uploadVisibleChange();
     },
@@ -288,7 +291,7 @@ Component({
       })
     },
     resetPassword() {
-      if(!this.data.currentUser.email){
+      if (!this.data.currentUser.email) {
         wx.showToast({
           title: '请先绑定邮箱',
           icon: 'none',
@@ -386,5 +389,44 @@ Component({
         url: `/pages/channel-post/channel-post?postId=${id}`,
       });
     },
+    async test() {
+      this.setData({testText: ''})
+      const chunkRes = ChunkRes();
+      const res = wx.request({
+        url: `${HttpUtil.baseUrl}/map/streamtest`,
+        method: 'GET',
+        header: {
+          'Authorization': wx.getStorageSync('token') || ''
+        },
+        enableChunked: true,
+        success() {
+          const lastResTexts: string[] | undefined = chunkRes.onComplateReturn();
+          console.log('lastResTexts:', lastResTexts)
+          wx.showToast({
+            title: '请求成功',
+            icon: 'success',
+            duration: 1000
+          })
+        },
+        fail(err: any) {
+          console.error('err:', err)
+          wx.showToast({
+            title: '请求失败',
+            icon: 'error',
+            duration: 1000
+          })
+        }
+      } as any) as any
+      const that = this;
+      res.onChunkReceived(function (result: any) {
+        chunkRes.onChunkReceivedReturn2(
+          result.data,
+        );
+        const resText = chunkRes.getChunkText(result.data);
+        const newText = that.data.testText + resText;
+        that.setData({testText: newText})
+        //console.log('resTexts:', resText)
+      });
+    }
   }
 })

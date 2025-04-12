@@ -4,23 +4,30 @@ import OpenAI from 'openai';
 import AppConstant from '@/constant/appConstant';
 import deepseek from '@/config/deepseekConfig';
 import CommonUtil from '@/util/commonUtil';
+import EventEmitter from 'events';
 
 type OpenAIResponse = OpenAI.Chat.Completions.ChatCompletion & { _request_id?: string | null; };
 
-class McpClient {
+class McpClient extends EventEmitter {
   name: string;
   client: Client;
   transport: SSEClientTransport;
-  private tools: OpenAI.ChatCompletionTool[] = [];
+  outputs: string[] = [];
+  isConnected: boolean = false;
+  isWorking: boolean = false;
+  tools: OpenAI.ChatCompletionTool[] = [];
   constructor(clientName: string, sseUrl: string) {
+    super();
     this.name = `MCP Client [${CommonUtil.textColor(clientName, 'green')}]`;
     this.client = new Client(
       { name: clientName, version: "1.0.0" },
       { capabilities: { tools: {}, resources: {}, prompts: {} } }
     );
-    this.transport = new SSEClientTransport(
-      new URL(sseUrl)
-    );
+    this.transport = new SSEClientTransport(new URL(sseUrl));
+  }
+  private pushOutputs(newData: string) {
+    this.outputs.push(`data:${newData}`);
+    this.emit('outputChanged', this.outputs);
   }
   async connect() {
     try {
@@ -29,6 +36,7 @@ class McpClient {
         `${new Date().toISOString()} | ${this.name} connected, preparing tools...`,
       );
       await this.prepareTools();
+      this.isConnected = true;
     } catch (error) {
       console.error(`${new Date().toISOString()} | Error connecting to ${this.name}: ${error}`);
     }
@@ -95,11 +103,14 @@ class McpClient {
             });
             if (!result.isError) {
               console.log(`${new Date().toISOString()} | ${this.name}: Tool ${CommonUtil.textColor(toolCall.function.name, 'blue')} called successfully.`);
+              this.pushOutputs(`调用工具${toolCall.function.name}成功`);
             } else {
               console.error(`${new Date().toISOString()} | ${this.name}: Tool ${CommonUtil.textColor(toolCall.function.name, 'blue')} call failed: `, result.error);
+              this.pushOutputs(`调用工具${toolCall.function.name}失败: ${result.error}`);
             }
           } catch (error: any) {
             console.error(`${new Date().toISOString()} | ${this.name}: Error calling tool ${CommonUtil.textColor(toolCall.function.name, 'blue')}:`, error);
+            this.pushOutputs(`调用工具${toolCall.function.name}失败: ${error.message}`);
             messages.push({
               role: 'tool',
               tool_call_id: toolCall.id,
@@ -114,42 +125,58 @@ class McpClient {
     return this.processLLMResponse(newResponse, messages);
   }
   // 处理查询的方法
-  async performTask(task: string, jsonFormat: string = '') {
-    console.log(`${new Date().toISOString()} | ${this.name}: Starting perform task: ${task}`);
-    // 初始化消息数组
-    let messages: OpenAI.ChatCompletionMessageParam[] = [
-      {
-        role: 'user',
-        content: `Perform this task: ${task}. You have access to tools to help you.`,
-      },
-    ];
-    const response = await this.sendMessageWithTools(messages);
-    await this.processLLMResponse(response, messages);
-    console.log(`${new Date().toISOString()} | ${this.name}: Task completed successfully.`);
+  async performTask(task: string, jsonFormat: string | boolean = false) {
+    try {
 
-    // 使得输出结果以json格式呈现
-    if (jsonFormat) {
-      console.log(`${new Date().toISOString()} | ${this.name}: Formatting output as ${jsonFormat}`);
-      messages.push({
-        role: 'user',
-        content: `请将刚才的输出结果以形如${jsonFormat}的json格式呈现`,
-      });
-      const jsonResponse = await deepseek.chat.completions.create({
-        model: AppConstant.DEEPSEEK_MODEL,
-        max_tokens: 4000,
-        messages,
-        response_format: { type: 'json_object' },
-      });
-      messages.push({
-        role: 'assistant',
-        content: jsonResponse.choices[0].message.content
-      });
+      this.isWorking = true;
+      console.log(`${new Date().toISOString()} | ${this.name}: Starting perform task: ${task}`);
+      this.outputs = [];
+      this.pushOutputs('开始执行任务...');
+      // 初始化消息数组
+      let messages: OpenAI.ChatCompletionMessageParam[] = [
+        {
+          role: 'user',
+          content: `Perform this task: ${task}. You have access to tools to help you.`,
+        },
+      ];
+      const response = await this.sendMessageWithTools(messages);
+      await this.processLLMResponse(response, messages);
+      console.log(`${new Date().toISOString()} | ${this.name}: Task completed successfully.`);
+      this.pushOutputs('任务执行成功');
+
+      // 使得输出结果以json格式呈现
+      if (jsonFormat && typeof jsonFormat === 'string') {
+        console.log(`${new Date().toISOString()} | ${this.name}: Formatting output as ${jsonFormat}`);
+        messages.push({
+          role: 'user',
+          content: `请将刚才的输出结果以形如${jsonFormat}的json格式呈现`,
+        });
+        const jsonResponse = await deepseek.chat.completions.create({
+          model: AppConstant.DEEPSEEK_MODEL,
+          max_tokens: 4000,
+          messages,
+          response_format: { type: 'json_object' },
+        });
+        messages.push({
+          role: 'assistant',
+          content: jsonResponse.choices[0].message.content
+        });
+        const result = JSON.parse(messages[messages.length - 1].content as string);
+        console.log(`${new Date().toISOString()} | ${this.name}: Result: `, JSON.stringify(result));
+        this.pushOutputs(`任务执行成功，结果为：${JSON.stringify(result)}`);
+        this.isWorking = false;
+        return { messages, result }
+      } else {
+        console.log(`${new Date().toISOString()} | ${this.name}: Result: `, messages[messages.length - 1].content);
+        this.pushOutputs(`任务执行成功，结果为：${messages[messages.length - 1].content}`);
+        this.isWorking = false;
+        return { messages, result: messages[messages.length - 1].content }
+      }
+    } catch (error) {
+      console.error(`${new Date().toISOString()} | ${this.name}: Error performing task:`, error);
+      this.pushOutputs(`任务意外终止: ${error}`);
+      this.isWorking = false;
     }
-    const result = JSON.parse(messages[messages.length - 1].content as string);
-
-    console.log(`${new Date().toISOString()} | ${this.name}: Result: `, JSON.stringify(result));
-
-    return {messages, result}
   }
   async close() {
     // 关闭 mcp 连接
@@ -157,12 +184,18 @@ class McpClient {
     console.log(
       `${new Date().toISOString()} | ${this.name} closed`,
     );
+    this.isConnected = false;
   }
   async test(task: string, jsonFormat: string) {
     await this.connect();
     console.log(`${new Date().toISOString()} | ${this.name} test started.`);
     if (this.tools.length) {
-      await this.performTask(task, jsonFormat);
+      try {
+        await this.performTask(task, jsonFormat);
+      } catch (error) {
+        console.error(`${new Date().toISOString()} | ${this.name} test error:`, error);
+        this.pushOutputs(`任务执行失败: ${error}`);
+      }
     }
     await this.close();
   }
