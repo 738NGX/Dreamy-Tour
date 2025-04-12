@@ -6,7 +6,36 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.title{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 30rpx;
+  transition: transform 0.3s ease;
+}
+
+.title-0 {
+  transform: translateY(0);
+}
+
+.title-1 {
+  transform: translateY(-100rpx);
+}
+
+.login-handler {
+  height:600rpx; 
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.input-example {
+  margin: 0 150rpx;
+  margin-top: 32rpx;
+  border: 1px solid #0052d9;
+  border-radius: 18rpx;
 }
 
 .app-name {
@@ -15,21 +44,16 @@
   font-family: Arial;
 }
 
-.wx-login-btn {
-  margin-top: 300rpx;
+.btn {
+  margin-top: 32rpx;
   width: 60%;
-  background-color: rgb(67, 194, 67) !important;
-  color:white !important;
   font-weight:600 !important;
   font-family: Microsoft YaHei !important;
 }
 
-.test-mode-btn {
-  margin-top: 10rpx;
-  width: 60%;
-  color:white !important;
-  font-weight:600 !important;
-  font-family: Microsoft YaHei !important;
+.wx-login-btn {
+  color: white !important;
+  background-color: rgb(67, 194, 67) !important;
 }
 
 .slogan{

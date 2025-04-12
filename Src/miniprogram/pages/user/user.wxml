@@ -74,6 +74,7 @@
       </c-collapse>
       <c-collapse header="选项设置">
         <t-cell left-icon="{{isDarkMode?'mode-dark':'mode-light'}}" class="narrow-cell" bordered="{{false}}" title="{{isDarkMode?'深色主题':'浅色主题'}}已启用" description="应用主题默认跟随系统主题" />
+        <t-button theme="primary" style="width:90%; margin:30rpx 0rpx 0rpx 30rpx;" bind:tap="resetPassword">重置密码</t-button>
         <t-button theme="danger" style="width:90%; margin:30rpx" bind:tap="quitLogin">退出登录</t-button>
       </c-collapse>
       <c-collapse header="关于我们">

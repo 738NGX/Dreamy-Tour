@@ -21,7 +21,7 @@
     <view style="height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
       <image src="{{util.randomCharPicture(2,1)}}" mode="widthFix" style="width:400rpx;" />
       <text wx:if="{{!tourView}}" style="margin-top:32rpx; width:80%;text-align:center;">频道内还没有任何群组\n点击右下角的按钮建立第一个群组吧!</text>
-      <text else style="margin-top:32rpx; width:80%;text-align:center;">你现在没有任何进行中的行程\n选择一个频道进入并开始一段新的旅程吧!</text>
+      <text wx:if="{{tourView}}" style="margin-top:32rpx; width:80%;text-align:center;">你现在没有任何进行中的行程\n选择一个频道进入并开始一段新的旅程吧!</text>
     </view>
   </block>
   <view style="height:400rpx" />

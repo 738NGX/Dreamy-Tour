@@ -7,9 +7,9 @@ class GeocodeVo extends VO<GeocodeVo> {
   citycode: string;
   city: string;
   district: string;
-  township: string;
-  neighborhood: string;
-  building: string;
+  township: any[];
+  neighborhood: any[];
+  building: any[];
   adcode: string;
   street: string;
   number: string;

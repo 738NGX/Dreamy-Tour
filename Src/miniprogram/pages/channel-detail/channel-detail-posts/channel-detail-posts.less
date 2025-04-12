@@ -26,6 +26,11 @@
   background-color: var(--bg-color-container-active) !important;
 }
 
+.post-image-container {
+  max-height: 600rpx;
+  overflow: hidden;
+}
+
 .post-image {
   width: 100%;
   border-radius: 8rpx 8rpx 0 0;
@@ -38,15 +43,15 @@
 .post-title {
   font-size: 14px;
   font-family: Microsoft YaHei !important;
-  font-weight:500;
+  font-weight: 500;
   display: flex;
   align-items: flex-start;
   flex-direction: column;
 }
 
-.t-tag{
-  height:40rpx !important;
-  margin-bottom:10rpx;
+.t-tag {
+  height: 40rpx !important;
+  margin-bottom: 10rpx;
 }
 
 .post-meta {
@@ -54,28 +59,28 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  margin-top:-10rpx;
+  margin-top: -10rpx;
   // border-top: 1px solid #f0f0f0;
   font-size: 12px;
   color: #666;
 }
 
-.post-basicinfo{
-  display:flex;
+.post-basicinfo {
+  display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-left:10rpx;
+  margin-left: 10rpx;
 }
 
 .username {
   color: var(--td-text-color-primary);
   flex-grow: 1;
-  font-weight:500;
+  font-weight: 500;
 }
 
-.post-time{
-  margin-right:10rpx;
-  font-size:10px;
+.post-time {
+  margin-right: 10rpx;
+  font-size: 10px;
 }
 
 
@@ -95,8 +100,7 @@
 }
 
 .example-search {
-  background-color: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));;
+  background-color: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));
+  ;
   padding: 16rpx 32rpx;
 }
-
-

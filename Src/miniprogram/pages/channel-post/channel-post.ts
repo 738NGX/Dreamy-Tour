@@ -126,6 +126,25 @@ Component({
         }
       });
     },
+    showPostImage(e: WechatMiniprogram.CustomEvent) {
+      const index = e.currentTarget.dataset.index;
+      const urls = this.data.currentPost.photos.map((photo) => photo.value);
+      wx.previewImage({
+        urls: urls,
+        showmenu: true,
+        current: urls[index],
+      })
+    },
+    showImage(e: WechatMiniprogram.CustomEvent) {
+      const index = e.currentTarget.dataset.index;
+      wx.previewImage({
+        urls: [index],
+        showmenu: true,
+        success: () => {
+          this.setData({ inputVisible: false });
+        }
+      })
+    },
     showUsercard(e: WechatMiniprogram.CustomEvent) {
       const userId = e.currentTarget.dataset.index;
       if (!userId) {

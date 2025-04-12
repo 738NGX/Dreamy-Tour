@@ -15,7 +15,7 @@ declare global {
   interface IAppOption {
     globalData: {
       currentUserId: number;
-      localDebug: boolean;
+      isMiniApp: boolean;
       testMode: boolean;
       currentData: any;
       baseUrl: string;
@@ -320,11 +320,13 @@ declare global {
     changeUserBasic(user: UserBasic): Promise<boolean>;
     changeUserAvatar(url: string): Promise<boolean>;
     changeUserBackgroundImage(url: string): Promise<boolean>;
-    //for tour-editor.ts
+    // for tour-editor.ts
     loadFullTour(tourId: number): Promise<Tour>;
     getMembersInTour(tourId: number): Promise<Member[]>;
     changeFullTour(tour: Tour): Promise<boolean>;
     changeTourLocationPhotos(tourId: number, copyIndex: number, location: Location): Promise<boolean>;
+    getAddressByLocation(location: string): Promise<string>;
+    getLocationByAddress(address: string, city: string): Promise<{ longitude: number, latitude: number, address: string, province: string, city: string, district: string }[]>;
     getTransitDirections(origin: Location, destination: Location, startDate: number, strategy: number): Promise<{ duration: number[], walking_distance: number[], amount: number[], route: Transportation[] }>;
 
     getUserDetail(userId: number): Promise<Member | undefined>;
