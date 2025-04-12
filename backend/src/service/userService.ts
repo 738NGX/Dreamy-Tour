@@ -3,7 +3,7 @@
  * @Author: Franctoryer 
  * @Date: 2025-02-24 23:40:03 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-09 20:25:08
+ * @Last Modified time: 2025-04-12 19:44:13
  */
 import UserDetailVo from "@/vo/user/userDetailVo";
 import User from "@/entity/user";
@@ -44,6 +44,7 @@ import ResetPasswordDto from "@/dto/user/resetPasswordDto";
 import BindEmailDto from "@/dto/user/bindEmailDto";
 import BindWxDto from "@/dto/user/bindWxDto";
 import EmailLoginV2Dto from "@/dto/user/emailLoginV2Dto";
+import ExpUtil from "@/util/expUtil";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
@@ -694,9 +695,9 @@ class UserService {
     const { lastID } = await db.run(
       `INSERT INTO users (
         nickname, wxOpenid, gender, avatarUrl, backgroundImageUrl, roleId,
-        status, lastLoginAt, createdAt, updatedAt
+        status, exp, lastLoginAt, createdAt, updatedAt
       ) VALUES (
-       ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+       ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
        )`,
       [
         defaultNickname,
@@ -706,6 +707,7 @@ class UserService {
         UserUtil.generateDefaultBackgroundImageUrl(),
         UserConstant.DEFAULT_ROLE,
         UserConstant.STATUS_ENABLE,
+        0,
         Date.now(),
         Date.now(),
         Date.now()
@@ -740,11 +742,11 @@ class UserService {
     const { lastID } = await db.run(
       `INSERT INTO users (
         nickname, email, password, gender, 
-        avatarUrl, backgroundImageUrl, roleId,
+        avatarUrl, backgroundImageUrl, roleId, exp,
         status, lastLoginAt, createdAt, updatedAt
       ) VALUES (
        ?, ?, ?, ?, 
-       ?, ?, ?, 
+       ?, ?, ?, ?,
        ?, ?, ?, ?
        )`,
       [
@@ -755,6 +757,7 @@ class UserService {
         UserUtil.generateDefaultAvatarUrl(),
         UserUtil.generateDefaultBackgroundImageUrl(),
         UserConstant.DEFAULT_ROLE,
+        0,
         UserConstant.STATUS_ENABLE,
         Date.now(),
         Date.now(),
@@ -793,24 +796,13 @@ class UserService {
     const yesterdayStr = yesterday.toLocaleDateString("zh-CN", { timeZone: 'Asia/Shanghai' });
     const isContinuousLogin = lastLoginStr === yesterdayStr;
 
+    // 改成异步更新
     if (!isSameDay) {
       if (isContinuousLogin) {
-        await db.run(
-          `UPDATE users SET exp = exp + ? WHERE uid = ?`,
-          [
-            UserConstant.CONTINUOUS_LOGIN_EXP,
-            uid
-          ]
-        )
+        ExpUtil.add(uid, UserConstant.CONTINUOUS_LOGIN_EXP);
       }
       else {
-        await db.run(
-          `UPDATE users SET exp = exp + ? WHERE uid = ?`,
-          [
-            UserConstant.DEFAULT_LOGIN_EXP,
-            uid
-          ]
-        )
+        ExpUtil.add(uid, UserConstant.DEFAULT_LOGIN_EXP);
       }
     }
 

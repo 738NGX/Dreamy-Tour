@@ -20,6 +20,8 @@ import CosUtil from "@/util/cosUtil";
 import CosConstant from "@/constant/cosConstant";
 import UserService from "./userService";
 import ParamsError from "@/exception/paramsError";
+import ExpConstant from "@/constant/expConstant";
+import ExpUtil from "@/util/expUtil";
 
 class GroupService {
   /**
@@ -162,19 +164,19 @@ class GroupService {
     }
     const db = await dbPromise;
     // 删除该用户的加入记录
-    await db.run(
+    db.run(
       `DELETE FROM group_users
        WHERE uid = ? AND groupId = ?`,
       [uid, groupId]
     );
     // 删除该用户的管理员记录
-    await db.run(
+    db.run(
       `DELETE FROM group_admins
        WHERE uid = ? AND groupId = ?`,
       [uid, groupId]
     );
     // 删除该用户的行程记录
-    await db.run(
+    db.run(
       `DELETE FROM tour_users
        WHERE uid = ? AND tourId IN (
          SELECT tourId FROM tours WHERE linkedGroup = ?
@@ -356,7 +358,7 @@ class GroupService {
     }
 
     const db = await dbPromise;
-
+    // 改成联合查询，用集合判断更新
     // 给群组中的成员加经验值,群主和管理员加80，普通成员加50
     // 查询群成员、群管理员和群主
     const groupMembers = await db.all(`SELECT uid FROM group_users WHERE groupId = ?`, [groupId]);
@@ -375,21 +377,18 @@ class GroupService {
 
     // 遍历更新经验值：管理员/群主加80，普通成员加50
     for (const uid of allUserIds) {
-      const experience = adminOrOwnerSet.has(uid) ? 80 : 50;
-      await db.run(
-        `UPDATE users SET exp = exp + ? WHERE uid = ?`,
-        [experience, uid]
-      );
+      const experience = adminOrOwnerSet.has(uid) ? ExpConstant.LEAD_TOUR : ExpConstant.END_TOUR;
+      ExpUtil.add(uid, experience);
     }
 
 
     // 找到关联的行程并解除关联
-    await db.run(
+    db.run(
       `UPDATE tours SET linkedGroup = NULL, status = 2 WHERE tourId = ?`,
       [linkedTourId]
     )
 
-    await db.run(
+    db.run(
       `DELETE FROM groups WHERE groupId = ?`,
       [groupId]
     )
