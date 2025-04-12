@@ -1007,57 +1007,142 @@ Component({
       this.onCurrentTourChange(currentTour);
       //  console.log("editingtrans", editingTransportation)
     },
-    async getTransitDirection(e: WechatMiniprogram.CustomEvent) {
-      if (e.currentTarget.dataset.index != undefined) {
-        this.setData({ editingTransportationId: e.currentTarget.dataset.index });
-      }
-      if (!this.data.currentTour || this.data.editingTransportationId < 0) return;
-
+    /**
+     * 交通导航
+     * @param e 
+     * @returns 
+     */
+    getGaodeTransitDirection() {
       const currentTour = this.data.currentTour;
-      const currentTourCopyIndex = this.data.currentTourCopyIndex;
       if (!currentTour) return;
-
+      const currentTourCopyIndex = this.data.currentTourCopyIndex;
       const id = this.data.editingTransportationId;
       const origin = currentTour.locations[currentTourCopyIndex][id];
       const destination = currentTour.locations[currentTourCopyIndex][id + 1];
       const startDate = currentTour.startDate;
       const that = this;
+      wx.showActionSheet({
+        alertText: '请选择你的乘坐策略:',
+        itemList: ['推荐模式', '最低票价', '最少换乘', '最少步行', '最短时间', '地铁优先'],
+        async success(res) {
+          const strategyList = [0, 1, 2, 3, 8, 7];
+          const { walking_distance, duration, amount, route: transportations } = await app.getTransitDirections(origin, destination, startDate, strategyList[res.tapIndex]);
+          const routeItemList = transportations.map((_, index) => {
+            return `${Math.floor(duration[index] / 3600)}小时${Math.round(duration[index] % 3600 / 60)}分钟,步行距离${walking_distance[index]}米,费用${amount[index]}元`;
+          })
+          if (transportList.length === 0) {
+            wx.showToast({
+              title: '获取公交信息失败',
+              icon: 'none'
+            });
+            return;
+          }
+          wx.showActionSheet({
+            alertText: '查询到以下路线,请选择:',
+            itemList: routeItemList,
+            async success(res) {
+              const newTransportation = new Transportation({ ...transportations[res.tapIndex], index: id });
+              currentTour.transportations[currentTourCopyIndex][id] = newTransportation;
+              destination.startOffset = newTransportation.endOffset;
+              that.setData({ currentTour: currentTour });
+              await app.changeFullTour(currentTour);
+              that.onCurrentTourChange(currentTour);
+            }
+          });
+        }
+      });
+    },
+    /*
+    getGaodeDriveDirection() {
+      const currentTour = this.data.currentTour;
+      if (!currentTour) return;
+      const currentTourCopyIndex = this.data.currentTourCopyIndex;
+      const id = this.data.editingTransportationId;
+      const origin = currentTour.locations[currentTourCopyIndex][id];
+      const destination = currentTour.locations[currentTourCopyIndex][id + 1];
+      const startDate = currentTour.startDate;
+      const that = this;
+      wx.showModal({
+        title: '请输入你的车牌号,用于判断限行相关',
+        content: '',
+        showCancel: false,
+        editable: true,
+        placeholderText: '如 京AHA322,支持6位传统车牌和7位新能源车牌',
+        success(res) {
+          const plate = res.content;
+          wx.showActionSheet({
+            alertText: '请选择你的车辆类型:',
+            itemList: ['普通燃油汽车', '纯电动汽车', '插电式混动汽车'],
+            async success(res) {
+              const vehicleType = res.tapIndex;
+              const { walking_distance, duration, amount, route: transportations } = await app.getDriveDirections(origin, destination, startDate, plate, vehicleType);
+              const routeItemList = transportations.map((_, index) => {
+                return `${Math.floor(duration[index] / 3600)}小时${Math.round(duration[index] % 3600 / 60)}分钟,步行距离${walking_distance[index]}米,费用${amount[index]}元`;
+              })
+              if (transportList.length === 0) {
+                wx.showToast({
+                  title: '获取驾车信息失败',
+                  icon: 'none'
+                });
+                return;
+              }
+              wx.showActionSheet({
+                alertText: '查询到以下路线,请选择:',
+                itemList: routeItemList,
+                async success(res) {
+                  const newTransportation = new Transportation({ ...transportations[res.tapIndex], index: id });
+                  currentTour.transportations[currentTourCopyIndex][id] = newTransportation;
+                  destination.startOffset = newTransportation.endOffset;
+                  that.setData({ currentTour: currentTour });
+                  await app.changeFullTour(currentTour);
+                  that.onCurrentTourChange(currentTour);
+                }
+              });
+            }
+          })
+        }
+      })
+    },
+    */
+    getGaodeDirection() {
+      const that = this;
+      wx.showActionSheet({
+        alertText: '请选择导航类型:',
+        itemList: ['公交导航'],
+        success(res) {
+          if (res.tapIndex === 0) {
+            // 高德-公交导航
+            that.getGaodeTransitDirection();
+          }
+          else if (res.tapIndex === 1) {
+            // 高德-驾车导航
+            //that.getGaodeDriveDirection();
+          }
+        }
+      })
+    },
+    getDirection(e: WechatMiniprogram.CustomEvent) {
+      if (e.currentTarget.dataset.index != undefined) {
+        this.setData({ editingTransportationId: e.currentTarget.dataset.index });
+      }
+      if (!this.data.currentTour || this.data.editingTransportationId < 0) return;
+      const that = this;
 
       wx.showModal({
-        title: '公交导航',
-        content: '是否使用公交导航？获得的路径将覆盖当前节点交通信息',
+        title: '交通导航',
+        content: '是否使用交通导航？获得的路径将覆盖当前节点交通信息',
         success: async (res) => {
           if (res.confirm) {
             wx.showActionSheet({
-              alertText: '请选择你的乘坐策略:',
-              itemList: ['推荐模式', '最低票价', '最少换乘', '最少步行', '最短时间', '地铁优先'],
-              async success(res) {
-                const strategyList = [0, 1, 2, 3, 8, 7];
-                const { walking_distance, duration, amount, route: transportations } = await app.getTransitDirections(origin, destination, startDate, strategyList[res.tapIndex]);
-                const routeItemList = transportations.map((_, index) => {
-                  return `${Math.floor(duration[index] / 3600)}小时${Math.round(duration[index] % 3600 / 60)}分钟,步行距离${walking_distance[index]}米,费用${amount[index]}元`;
-                })
-                if (transportList.length === 0) {
-                  wx.showToast({
-                    title: '获取公交信息失败',
-                    icon: 'none'
-                  });
-                  return;
+              alertText: '请选择导航数据源:',
+              itemList: ['高德地图'],
+              success(res) {
+                if (res.tapIndex === 0) {
+                  // 高德地图API
+                  that.getGaodeDirection();
                 }
-                wx.showActionSheet({
-                  alertText: '查询到以下路线,请选择:',
-                  itemList: routeItemList,
-                  async success(res) {
-                    const newTransportation = new Transportation({ ...transportations[res.tapIndex], index: id });
-                    currentTour.transportations[currentTourCopyIndex][id] = newTransportation;
-                    destination.startOffset = newTransportation.endOffset;
-                    that.setData({ currentTour: currentTour });
-                    await app.changeFullTour(currentTour);
-                    that.onCurrentTourChange(currentTour);
-                  }
-                });
               }
-            });
+            })
           }
         }
       })

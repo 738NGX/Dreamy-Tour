@@ -1,4 +1,5 @@
 import TransitDirectionDto from "@/dto/map/transitDirectionDto";
+import WalkDirectionDto from "@/dto/map/walkDirectionDto";
 import ParamsError from "@/exception/paramsError";
 import GaodeService from "@/service/gaodeService";
 import Result from "@/vo/result";
@@ -35,6 +36,17 @@ mapRoute.get('/map/direction/transit', async (req: Request, res: Response) => {
   });
   const transitDirectionVo = await GaodeService.getTransitDirection(transitDirectionDto);
   res.json(Result.success(transitDirectionVo));
+})
+
+mapRoute.get('/map/direction/walk', async (req: Request, res: Response) => {
+  const { origin, destination, strategy } = req.query;
+  const walkDirectionDto = await WalkDirectionDto.from({
+    origin,
+    destination,
+    strategy
+  });
+  const walkDirectionVo = await GaodeService.getWalkDirection(walkDirectionDto);
+  res.json(Result.success(walkDirectionVo));
 })
 
 export default mapRoute;

@@ -6,11 +6,13 @@ import RegeocodeVo from "@/vo/map/regeocodeVo";
 import axios from "axios";
 import GeocodeVo from "@/vo/map/geocodeVo";
 import TransitDirectionDto from "@/dto/map/transitDirectionDto";
-import TransitDirectionVo, { Route, TransitNode, TransitPlan } from "@/vo/map/transitDirectionVo";
+import TransitDirectionVo, { TransitRoute, TransitNode, TransitPlan } from "@/vo/map/transitDirectionVo";
 import CommonUtil from "@/util/commonUtil";
 import https from "https";
 import GeoEncodeVo from "@/vo/map/geoEncodeVo";
 import GeoDecodeVo from "@/vo/map/geoDecodeVo";
+import WalkDirectionDto from "@/dto/map/walkDirectionDto";
+import WalkDirectionVo, { WalkRoute, WalkPlan } from "@/vo/map/walkDirectionVo";
 
 const agent = new https.Agent({
   servername: 'restapi.amap.com'
@@ -36,7 +38,15 @@ type TransitDirectionResponse = {
   info: string;
   infocode: string;
   count: string;
-  route: Route;
+  route: TransitRoute;
+};
+
+type WalkDirectionResponse = {
+  status: string;
+  info: string;
+  infocode: string;
+  count: string;
+  route: WalkRoute;
 };
 
 function handleError(error: any) {
@@ -206,7 +216,7 @@ class GaodeService {
 ${railway.via_stops.map((stop) => `途经站:${stop.name},时间:${stop.time}${stop.start ? ',线路起点站' : ''}${stop.end ? ',线路终点站' : ''}${stop.wait ? `,停站时间:${stop.wait}秒` : ''}`).join('\n')}
 终点站:${railway.arrival_stop.name},时间:${railway.arrival_stop.time}${railway.arrival_stop.start ? ',线路起点站' : ''}${railway.arrival_stop.end ? ',线路终点站' : ''}${railway.arrival_stop.wait ? `,停站时间:${railway.arrival_stop.wait}秒` : ''}
 票价信息:
-${railway.spaces.map((space) => `${space.code}:${space.cost}元`).join('\n')}
+${railway.spaces.map((space) => `${space.code}:${space.cost}元`).join(' / ')}
               `,
             });
           }
@@ -229,6 +239,34 @@ ${railway.spaces.map((space) => `${space.code}:${space.cost}元`).join('\n')}
         });
       }
       return new TransitDirectionVo({ plans });
+    } catch (error) {
+      console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用', 'red')}] ${url}: ${error}`);
+      throw new ApiError("地图服务接口不可用");
+    }
+  }
+
+  static async getWalkDirection(walkDirectionDto: WalkDirectionDto): Promise<WalkDirectionVo> {
+    const { origin, destination, strategy: isindoor } = walkDirectionDto;
+    const url = `https://restapi.amap.com/v5/direction/walking?key=${AppConstant.GAODE_API_KEY}&isindoor=${isindoor}&origin=${origin}&destination=${destination}&alternative_route=3`;
+    try {
+      const res = await axios.get(url, { httpsAgent: agent }).catch(function (error) {
+        handleError(error);
+        throw new ApiError("地址解析失败");
+      });
+      const data = res.data as WalkDirectionResponse;
+      //const res = await fetch(url);
+      //const data = await res.json() as TransitDirectionResponse;
+      if (data.status !== "1") {
+        throw new ApiError(data.info);
+      }
+      const plans = data.route.paths.map((item) => {
+        return {
+          duration: parseInt(item.cost.duration),
+          distance: parseInt(item.distance),
+          note: item.steps.map((step) => step.instruction).join('\n'),
+        } as WalkPlan;
+      });
+      return new WalkDirectionVo({ plans });
     } catch (error) {
       console.error(`${new Date().toISOString()} | Gaode [${CommonUtil.textColor('地图服务接口不可用', 'red')}] ${url}: ${error}`);
       throw new ApiError("地图服务接口不可用");
