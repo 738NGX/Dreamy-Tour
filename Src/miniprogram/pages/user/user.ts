@@ -318,6 +318,8 @@ Component({
         content: '确定退出登录？',
         success(res) {
           if (res.confirm) {
+            // 删除缓存中的 token
+            wx.removeStorageSync("token")
             wx.reLaunch({
               url: '/pages/login/login'
             })
