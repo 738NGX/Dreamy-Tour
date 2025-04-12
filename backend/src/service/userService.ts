@@ -43,6 +43,7 @@ import UnauthorizedError from "@/exception/unauthorizedError";
 import ResetPasswordDto from "@/dto/user/resetPasswordDto";
 import BindEmailDto from "@/dto/user/bindEmailDto";
 import BindWxDto from "@/dto/user/bindWxDto";
+import EmailLoginV2Dto from "@/dto/user/emailLoginV2Dto";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
@@ -137,7 +138,7 @@ class UserService {
    * @param emailLoginDto 
    * @returns 
    */
-  static async emailLogin(emailLoginDto: EmailLoginDto): Promise<EmailLoginVo> {
+  static async emailLoginByPassword(emailLoginDto: EmailLoginDto): Promise<EmailLoginVo> {
     // 计算密码哈希
     const passwordHash = this.getPasswordHash(emailLoginDto.password);
     // 查数据库是否存在该用户
@@ -161,6 +162,80 @@ class UserService {
     return new EmailLoginVo({
       token: JwtUtil.generateByUid(uid, roleId)
     });
+  }
+
+  /**
+   * 通过验证码进行邮箱登录，如果没有该用户自动注册
+   * @param email 
+   * @param verifyCode 
+   */
+  static async emailLoginByCaptcha(email: string, verifyCode: string): Promise<EmailLoginVo> {
+    // 校验验证码是否正确
+    const isValid = EmailUtil.verifyCode(
+      email,
+      verifyCode,
+      "login"
+    );
+    if (!isValid) {
+      throw new ParamsError("验证码错误！");
+    }
+    // 在数据库查询该用户
+    const db = await dbPromise;
+    const row = await db.get<{ uid: number; roleId: number }>(
+      `
+      SELECT uid, roleId FROM users
+      WHERE email = ?
+      `,
+      [email]
+    );
+    // 如果用户存在，返回 token
+    if (row) {
+      const { uid, roleId } = row;
+      this.updateLastLoginTime(db, uid);  // 异步更新用户登录时间
+      return new EmailLoginVo({
+        token: JwtUtil.generateByUid(uid, roleId)
+      })
+    }
+    // 如果不存在，则新建一个用户
+    const passwordHash = this.getPasswordHash(UserConstant.DEFAULT_PASSWORD);
+    const { uid, roleId } = await this.createUserByEmail(db, email, passwordHash);
+    if (typeof uid === 'number') {
+      this.init(db, uid); // 用户初始化操作
+      return new EmailLoginVo({
+        token: JwtUtil.generateByUid(uid, roleId)
+      })
+    } else {
+      throw new Error("用户 ID 生成异常");
+    }
+  }
+
+  /**
+   * 邮箱登录（两种方式）
+   * @param emailLoginV2Dto 
+   */
+  static async emailLogin(emailLoginV2Dto: EmailLoginV2Dto): Promise<EmailLoginVo> {
+    const grantType = emailLoginV2Dto.grantType;
+    if (grantType == "password") {
+      // 密码登录
+      if (!emailLoginV2Dto.password) {
+        throw new ParamsError("密码不能为空");
+      }
+      return await this.emailLoginByPassword(new EmailLoginDto({
+        email: emailLoginV2Dto.email,
+        password: emailLoginV2Dto.password
+      }))
+    } else if (grantType == "captcha") {
+      // 验证码登录
+      if (!emailLoginV2Dto.verifyCode) {
+        throw new ParamsError("验证码不能为空");
+      }
+      return await this.emailLoginByCaptcha(
+        emailLoginV2Dto.email,
+        emailLoginV2Dto.verifyCode
+      );
+    } else {
+      throw new ParamsError("未知授权类型！");
+    }
   }
 
   /**
@@ -249,11 +324,30 @@ class UserService {
    * @param emailCodevoidvoid
    */
   static async sendVerifyCode(emailCodeDto: EmailCodeDto): Promise<void> {
-    // 发送验证码，6 位数字，3 分钟过期
+    let reminder = ""
+    switch (emailCodeDto.businessType) {
+      case "login":
+        reminder = "您正在尝试邮箱登录，若该邮箱未注册，验证通过后将自动创建账户（初始密码为<b>123456</b>）";
+        break;
+      case "register":
+        reminder = "您正在进行账户注册操作，请保管您的密码，请勿泄露给他人";
+        break;
+      case "reset":
+        reminder = "重置密码后，请保管您的密码，请勿泄露给他人";
+        break;
+      case "bind":
+        reminder = "每个邮箱仅支持绑定一个主账号，<b>若已有该邮箱账号：如果该账号与微信号绑定，将自动解绑；如果该账号无微信号绑定，将自动注销，请谨慎操作！</b>";
+        break;
+      default:
+        reminder = "此操作可能会修改您的账户重要信息。如非本人操作，请立即登录修改密码"
+    }
+
+    // 发送验证码，6 位数字，5 分钟过期
     await EmailUtil.sendVerifyCode(
       emailCodeDto.email,
       {
-        businessType: emailCodeDto.businessType
+        businessType: emailCodeDto.businessType,
+        reminder: reminder
       }
     )
   }
@@ -265,9 +359,18 @@ class UserService {
    */
   static async bindEmail(uid: number, bindEmailDto: BindEmailDto): Promise<void> {
     const db = await dbPromise;
+    // 先校验验证码是否有效
+    const isValid = EmailUtil.verifyCode(
+      bindEmailDto.email,
+      bindEmailDto.verifyCode,
+      "bind"
+    );
+    if (!isValid) {
+      throw new ParamsError("验证码错误！")
+    }
     
     if (bindEmailDto.force) {
-      // 强制绑定模式：使用事务确保原子性
+      // 强制绑定模式：也只能绑定没有绑定微信的邮箱账号
       await db.run('BEGIN TRANSACTION');
       try {
         // 1. 清空其他用户对该邮箱的绑定
@@ -393,13 +496,12 @@ class UserService {
     const db = await dbPromise;
     await db.run(
       `UPDATE users
-      SET gender = ?, email = ?, phone = ?,
+      SET gender = ?, phone = ?,
       signature = ?, birthday = ?, updatedAt = ?
       WHERE uid = ?
       `,
       [
         userInfoDto.gender,
-        userInfoDto.email,
         userInfoDto.phone,
         userInfoDto.signature,
         userInfoDto.birthday,
@@ -631,7 +733,7 @@ class UserService {
     db: Database, 
     email: string,
     passwordHash: string
-  ): Promise<void> {
+  ): Promise<{ uid: number; roleId: number }> {
     const defaultNickname = `用户_${Math.random().toString(36).substr(2, 5)}`;
 
     // 插入新用户，并返回新的用户 id
@@ -664,6 +766,10 @@ class UserService {
 
     // 新用户自动加入世界频道
     ChannelService.join(lastID, ChannelConstant.WORLD_CHANNEL_ID);
+    return {
+      uid: lastID,  // 用户 ID
+      roleId: UserConstant.DEFAULT_ROLE  // 角色 ID
+    }
   }
   /**
    * 更新用户的登录时间

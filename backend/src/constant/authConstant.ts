@@ -23,7 +23,8 @@ class AuthConstant {
     "^/wx-login$",
     "^/api-docs/",  // /api-docs/ 开头的所有 url
     "^/favicon.ico$",
-    "^/email/"      // /email 开头的所有 url
+    "^/email/",      // /email 开头的所有 url
+    "^/v2/email/"
   ]
   // 盐值（密码加盐）
   static readonly SALT = "DREAMY TOUR ---- YOUR TRAVELLING ASSISTANT"

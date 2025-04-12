@@ -19,14 +19,6 @@ class UserInfoDto extends DTO<UserInfoDto> {
    @Type(() => Number)
    gender: number
  
-   // 邮箱
-   @Expose()
-   @IsEmail({}, {
-      message: '邮箱格式不正确'
-   })
-   @Type(() => String)
-   email: string
- 
    // 手机号
    @Expose()
    @Length(11, 11, {

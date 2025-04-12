@@ -22,6 +22,8 @@ class UserConstant {
   static readonly DEFAULT_LOGIN_EXP = 5;
   // 连续登录经验
   static readonly CONTINUOUS_LOGIN_EXP = 8;
+  // 默认密码
+  static readonly DEFAULT_PASSWORD = "123456";
 }
 
 export default UserConstant;
