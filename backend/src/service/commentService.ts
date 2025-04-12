@@ -3,15 +3,17 @@
  * @Author: Franctoryer 
  * @Date: 2025-04-05 19:07:49 
  * @Last Modified by: Franctoryer
- * @Last Modified time: 2025-04-07 12:03:08
+ * @Last Modified time: 2025-04-12 18:56:47
  */
 import CommentBo from "@/bo/comment/commentBo";
 import dbPromise from "@/config/databaseConfig";
 import CosConstant from "@/constant/cosConstant";
+import ExpConstant from "@/constant/expConstant";
 import CommentPublishDto from "@/dto/comment/commentPublishDto";
 import Comment from "@/entity/comment";
 import NotFoundError from "@/exception/notFoundError";
 import CosUtil from "@/util/cosUtil";
+import ExpUtil from "@/util/expUtil";
 import CommentVo from "@/vo/comment/commentVo";
 
 
@@ -93,6 +95,8 @@ class CommentService {
         Date.now()
       ]
     )
+    // 更新经验值
+    ExpUtil.add(uid, ExpConstant.COMMENT);
   }
 
   /**
@@ -150,6 +154,8 @@ class CommentService {
         Date.now()
       ]
      )
+    // 更新经验值
+    ExpUtil.add(uid, ExpConstant.COMMENT);
   }
 
   /**

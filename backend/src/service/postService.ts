@@ -2,8 +2,8 @@
  * 帖子相关业务逻辑
  * @Author: Franctoryer 
  * @Date: 2025-03-03 13:59:07 
- * @Last Modified by: Choihyobin
- * @Last Modified time: 2025-04-07 22:06
+ * @Last Modified by: Franctoryer
+ * @Last Modified time: 2025-04-12 18:54:27
  */
 
 import PostDetailBo from "@/bo/post/postDetailBo";
@@ -11,6 +11,7 @@ import PostListBo from "@/bo/post/postListBo";
 import dbPromise from "@/config/databaseConfig";
 import ChannelConstant from "@/constant/channelConstant";
 import CosConstant from "@/constant/cosConstant";
+import ExpConstant from "@/constant/expConstant";
 import PostConstant from "@/constant/postConstant";
 import PageDto from "@/dto/common/pageDto";
 import PostPublishDto from "@/dto/post/postPublishDto";
@@ -19,6 +20,7 @@ import ForbiddenError from "@/exception/forbiddenError";
 import NotFoundError from "@/exception/notFoundError";
 import ParamsError from "@/exception/paramsError";
 import CosUtil from "@/util/cosUtil";
+import ExpUtil from "@/util/expUtil";
 import PostUtil from "@/util/postUtil";
 import RoleUtil from "@/util/roleUtil";
 import { UserUtil } from "@/util/userUtil";
@@ -76,6 +78,8 @@ class PostService {
         PostConstant.VISIBLE, 0, PostConstant.UNSTICKY, Date.now(), Date.now()
       ]
     )
+    // 异步更新经验值
+    ExpUtil.add(postPublishDto.uid, ExpConstant.POST);
   }
 
   /**
