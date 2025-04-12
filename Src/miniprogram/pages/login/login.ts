@@ -21,7 +21,14 @@ Page({
     if (loginMode) {
       this.setData({ loginMode: Number(loginMode), email });
     }
-    wx.removeStorageSync("token");
+    // 检查缓存中是否存在 token，如果有，直接跳转到频道列表
+    const token = wx.getStorageSync("token");
+    if (token) {
+      app.globalData.testMode = false;
+      wx.switchTab({
+        url: "/pages/channel/channel"
+      });
+    }
     this.setData({ continueTime: 0 });
     app.globalData.currentUserId = 1;
   },
@@ -56,8 +63,23 @@ Page({
       })
       return;
     }
-    const url = "/email/login";
-    const jsonData = { email, password };
+    const url = "/v2/email/login";
+    const jsonData = { email, password, grantType: "password" };
+    app.globalData.testMode = false;
+    await this.handleLogin(url, jsonData);
+  },
+  async handleCaptchaLogin() {
+    const { email, code } = this.data;
+
+    if (!email || !code) {
+      wx.showToast({
+        title: "请输入邮箱和验证码",
+        icon: "none"
+      })
+      return;
+    }
+    const url = "/v2/email/login";
+    const jsonData = { email, verifyCode: code, grantType: "captcha" };
     app.globalData.testMode = false;
     await this.handleLogin(url, jsonData);
   },
@@ -95,6 +117,9 @@ Page({
   },
   async getResetCode() {
     this.getCode("reset");
+  },
+  async getLoginCode() {
+    this.getCode("login");
   },
   async handleEmailLogin() {
     const { email, password, code } = this.data;
@@ -201,4 +226,7 @@ Page({
       }
     })
   },
+  onChange(e) {
+    this.setData({ loginMode: e.detail.value });
+  }
 })
