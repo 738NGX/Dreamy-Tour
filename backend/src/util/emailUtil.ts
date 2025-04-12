@@ -43,10 +43,11 @@ class EmailUtil {
   static async sendVerifyCode(
     to: string,
     options: {
-      businessType?: "register" | "login" | "reset"; // 业务类型
+      businessType?: "register" | "login" | "reset" | "bind"; // 业务类型
       codeLength?: number;       // 验证码长度
       expiresIn?: number;        // 过期时间（秒）
       returnCode?: boolean;      // 是否返回验证码（仅建议测试使用）
+      reminder?: string;         // 提醒用户的注意事项
     } = {}
   ): Promise<{ success: boolean; business?: string }> {
     // 参数合并默认值
@@ -54,7 +55,8 @@ class EmailUtil {
       businessType = "register",
       codeLength = 6,
       expiresIn = 300,
-      returnCode = false
+      returnCode = false,
+      reminder = "此操作可能会修改您的账户重要信息。如非本人操作，请立即登录修改密码"
     } = options;
 
     try {
@@ -71,7 +73,7 @@ class EmailUtil {
       await this.send(
         to,
         `【${AppConstant.APP_NAME}】${this.getBusinessTitle(businessType)}`,
-        this.buildEmailContent(businessType, code, expiresIn)
+        this.buildEmailContent(businessType, code, expiresIn, reminder)
       );
 
       // 仅在明确要求时返回验证码（生产环境应始终为false）
@@ -94,7 +96,8 @@ class EmailUtil {
     const titles: Record<string, string> = {
       register: "注册账号",
       login: "登录账号",
-      reset: "密码重置"
+      reset: "密码重置",
+      bind: "绑定邮箱"
     };
     return titles[type] || "安全验证码";
   }
@@ -109,10 +112,10 @@ class EmailUtil {
   private static buildEmailContent(
     type: string,
     code: string,
-    expiresIn: number
+    expiresIn: number,
+    reminder: string
   ): string {
     const minutes = Math.floor(expiresIn / 60);
-    
     // 使用无换行拼接法
     return [
       '<!DOCTYPE html>',
@@ -135,7 +138,7 @@ class EmailUtil {
       `<div style="margin:25px 0;padding:20px;background:#f8f9fa;border-radius:4px;text-align:center;font-size:24px;letter-spacing:2px;color:#2c3e50;"><b>${code}</b></div>`,
       '<div style="color:#888;font-size:14px;line-height:1.6;">',
       `<p style="margin:10px 0;">⏳ 该验证码 <strong style="color:#e74c3c;">${minutes}</strong> 分钟内有效</p>`,
-      '<p style="margin:10px 0;">⚠️ 注意：此操作可能会修改您的账户重要信息。如非本人操作，请立即登录修改密码</p>',
+      `<p style="margin:10px 0;">⚠️ 注意：${reminder}</p>`,
       '<p style="margin:10px 0;">🔒 请勿将验证码透露给他人（包括客服人员）</p>',
       '</div>',
       '</td>',
@@ -161,7 +164,8 @@ class EmailUtil {
   static verifyCode(
     email: string,
     code: string,
-    businessType: string
+    businessType: string,
+    once?: boolean
   ): boolean {
     const cacheKey = `${businessType}:${email}`;
     const storedCode = globalCache.get(cacheKey);
@@ -169,9 +173,11 @@ class EmailUtil {
     if (!storedCode) {
       return false;
     }
-    // 验证成功后立即删除验证码（防止重复使用）
     if (storedCode === code) {
-      globalCache.del(cacheKey);
+      // 默认只能使用一次，使用完直接删除，防止重复使用
+      if (once ?? true) {
+        globalCache.del(cacheKey);
+      }
       return true;
     }
     return false;

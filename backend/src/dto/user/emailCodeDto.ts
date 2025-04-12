@@ -13,11 +13,11 @@ class EmailCodeDto extends DTO<EmailCodeDto> {
 
   // 业务类型
   @Expose()
-  @IsEnum(['login', 'reset', 'register'], {
-    message: "业务类型必须是 'login', 'reset' 或 'register'"
+  @IsEnum(['login', 'reset', 'register', 'bind'], {
+    message: "业务类型必须是 login, reset, register 或 bind"
   })
   @Type(() => String)
-  businessType?: "login" | "reset" | "register"
+  businessType?: "login" | "reset" | "register" | "bind"
 }
 
 export default EmailCodeDto;

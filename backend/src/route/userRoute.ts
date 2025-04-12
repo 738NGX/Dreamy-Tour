@@ -30,6 +30,7 @@ import EmailLoginDto from "@/dto/user/emailLoginDto";
 import ResetPasswordDto from "@/dto/user/resetPasswordDto";
 import BindEmailDto from "@/dto/user/bindEmailDto";
 import BindWxDto from "@/dto/user/bindWxDto";
+import EmailLoginV2Dto from "@/dto/user/emailLoginV2Dto";
 
 const { version } = require('../../package.json');
 
@@ -69,6 +70,7 @@ userRoute.post('/email/register', async (req: Request, res: Response) => {
 })
 
 /**
+ * TODO: 待删除
  * @description 邮箱登录（不需要验证码）
  * @method POST
  * @path /email/login
@@ -77,10 +79,25 @@ userRoute.post('/email/login', async (req: Request, res: Response) => {
   // 获取登录传参
   const emailLoginDto = await EmailLoginDto.from(req.body);
   // 邮箱登录逻辑
-  const emailLoginVo =  await UserService.emailLogin(emailLoginDto);
+  const emailLoginVo =  await UserService.emailLoginByPassword(emailLoginDto);
   // 返回响应
   res.status(StatusCodes.CREATED)
     .json(Result.success(emailLoginVo));
+})
+
+/**
+ * @description 邮箱登录（密码和验证码两者方式）
+ * @method POST
+ * @path /v2/email/login
+ */
+userRoute.post('/v2/email/login', async (req: Request, res: Response) => {
+  // 获取登录传参
+  const emailLoginV2Dto = await EmailLoginV2Dto.from(req.body);
+  // 邮箱登录逻辑
+  const emailLoginVo = await UserService.emailLogin(emailLoginV2Dto);
+  // 返回响应
+  res.status(StatusCodes.CREATED)
+  .json(Result.success(emailLoginVo));
 })
 
 /**
