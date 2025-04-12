@@ -328,6 +328,8 @@ declare global {
     getAddressByLocation(location: string): Promise<string>;
     getLocationByAddress(address: string, city: string): Promise<{ longitude: number, latitude: number, address: string, province: string, city: string, district: string }[]>;
     getTransitDirections(origin: Location, destination: Location, startDate: number, strategy: number): Promise<{ duration: number[], walking_distance: number[], amount: number[], route: Transportation[] }>;
+    //getDriveDirections(origin: Location, destination: Location, startDate: number, strategy: number): Promise<{ duration: number[], distance: number[], amount: number[], route: Transportation[] }>;
+    getWalkDirections(origin: Location, destination: Location, strategy: number): Promise<{ duration: number[], distance: number[], route: Transportation[] }>;
 
     getUserDetail(userId: number): Promise<Member | undefined>;
   }

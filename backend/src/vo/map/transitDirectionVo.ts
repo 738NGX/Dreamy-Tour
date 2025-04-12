@@ -95,7 +95,7 @@ type Transit = {
   }[];
 }
 
-export type Route = {
+export type TransitRoute = {
   origin: string;
   destination: string;
   transits: Transit[]

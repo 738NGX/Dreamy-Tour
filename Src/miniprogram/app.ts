@@ -5,7 +5,7 @@ import { UserRanking } from "./utils/channel/userRanking";
 import HttpUtil, { apiUrl } from "./utils/httpUtil";
 import { testData } from "./utils/testData";
 import { Budget } from "./utils/tour/budget";
-import { Currency, currencyList, ExpenseType, TransportExpense } from "./utils/tour/expense";
+import { Currency, currencyList, ExpenseType, TransportExpense, TransportType } from "./utils/tour/expense";
 import { FootPrint } from "./utils/tour/footprint";
 import { File, Photo } from "./utils/tour/photo";
 import { Tour, TourBasic, TourStatus } from "./utils/tour/tour";
@@ -21,7 +21,7 @@ App<IAppOption>({
     testMode: true,
     currentData: testData,
     baseUrl: apiUrl,
-    version: "1.0.4",
+    version: "1.0.5",
   },
   onLaunch() {
     // 开屏进入登录页面
@@ -1475,7 +1475,6 @@ App<IAppOption>({
     if (!this.globalData.testMode) {
       try {
         if (comment.parentComment > 0) {
-          console.log("开始发送1");
           const pictures = comment.photos.map((file) => (file.value));
           console.log(pictures);
           await HttpUtil.post({
@@ -1485,9 +1484,7 @@ App<IAppOption>({
               pictures: pictures,
             }
           });
-          console.log("已发送1");
         } else {
-          console.log("开始发送2");
           console.log(comment.photos);
           const pictures = comment.photos.map((file) => (file.value));
           console.log(pictures);
@@ -1498,7 +1495,6 @@ App<IAppOption>({
               pictures: pictures,
             }
           });
-          console.log("已发送2");
         }
         return true;
       } catch (err: any) {
@@ -2484,7 +2480,41 @@ App<IAppOption>({
       return { route: [], duration: [], amount: [], walking_distance: [] };
     }
   },
-
+  async getWalkDirections(origin: Location, destination: Location, strategy: number): Promise<{ duration: number[], distance: number[], route: Transportation[] }>{
+    const originLoc = `${Number(origin.longitude).toFixed(6)},${Number(origin.latitude).toFixed(6)}`;
+    const destinationLoc = `${Number(destination.longitude).toFixed(6)},${Number(destination.latitude).toFixed(6)}`;
+    try {
+      const res = await HttpUtil.get({
+        url: `/map/direction/walk?origin=${originLoc}&destination=${destinationLoc}&strategy=${strategy}`,
+      }, 5000)
+      const plans = res.data.data.plans;
+      const routes = plans.map((plan: any) => {
+        return new Transportation({
+          index: -1,
+          startOffset: origin.endOffset,
+          endOffset: origin.endOffset + plan.duration * 1000,
+          timeOffset: origin.timeOffset,
+          transportExpenses: [new TransportExpense({
+            index: 0,
+            title: `步行约${Math.round(plan.duration/60)}分钟`,
+            amount: 0,
+            currency: Currency.CNY,
+            type: ExpenseType.Transportation,
+            note: plan.note,
+            transportType: TransportType.Walk,
+          })]
+        })
+      }) as Transportation[];
+      return { route: routes, distance: plans.map((plan: any) => plan.distance), duration: plans.map((plan: any) => plan.duration) };
+    } catch (err: any) {
+      console.error(err);
+      wx.showToast({
+        title: err.response.data.msg,
+        icon: "none"
+      });
+      return { route: [], distance: [], duration: [] };
+    }
+  },
   async getUserDetail(userId: number): Promise<Member> {
     if (!this.globalData.testMode) {
       try {
