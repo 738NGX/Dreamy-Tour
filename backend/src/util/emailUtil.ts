@@ -28,7 +28,7 @@ class EmailUtil {
       from: EmailConstant.FROM_EMAIL,
       to: to,
       subject: subject,
-      text: text
+      html: text
     };
 
     return emailServer.sendMail(mailOptions);
@@ -92,9 +92,9 @@ class EmailUtil {
    */
   private static getBusinessTitle(type: string): string {
     const titles: Record<string, string> = {
-      register: "注册验证码",
-      login: "登录验证码",
-      reset: "密码重置验证码"
+      register: "注册账号",
+      login: "登录账号",
+      reset: "密码重置"
     };
     return titles[type] || "安全验证码";
   }
@@ -112,15 +112,44 @@ class EmailUtil {
     expiresIn: number
   ): string {
     const minutes = Math.floor(expiresIn / 60);
-    return `
-尊敬的 ${AppConstant.APP_NAME} 用户：
-
-您正在请求${this.getBusinessTitle(type)}，验证码为：
-【 ${code} 】
-该验证码 ${minutes} 分钟内有效，请勿泄露给他人。
-
-如非本人操作，请忽略本邮件。
-    `.trim();
+    
+    // 使用无换行拼接法
+    return [
+      '<!DOCTYPE html>',
+      '<html>',
+      '<head>',
+      '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">',
+      '<meta name="viewport" content="width=device-width, initial-scale=1">',
+      '</head>',
+      '<body style="margin:0;padding:0;font-family:\'Helvetica Neue\',Helvetica,Arial,sans-serif;line-height:1.5;">',
+      '<table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width:600px;margin:20px auto;background-color:#f6f6f6;">',
+      '<tr>',
+      '<td style="padding:30px 20px;background:#2c3e50;color:white;">',
+      `<h1 style="margin:0;font-size:24px;"><b>${AppConstant.APP_NAME}</b></h1>`,
+      '</td>',
+      '</tr>',
+      '<tr>',
+      '<td style="padding:30px 20px;background:white;">',
+      `<p style="margin:0 0 20px 0;color:#666;">尊敬的 <b>${AppConstant.APP_NAME}</b> 用户：您好！</p>`,
+      `<p style="margin:0 0 15px 0;color:#444;">您正在进行 <span style="color:#e74c3c;"><b>${this.getBusinessTitle(type)}</b></span> 操作</p>`,
+      `<div style="margin:25px 0;padding:20px;background:#f8f9fa;border-radius:4px;text-align:center;font-size:24px;letter-spacing:2px;color:#2c3e50;"><b>${code}</b></div>`,
+      '<div style="color:#888;font-size:14px;line-height:1.6;">',
+      `<p style="margin:10px 0;">⏳ 该验证码 <strong style="color:#e74c3c;">${minutes}</strong> 分钟内有效</p>`,
+      '<p style="margin:10px 0;">⚠️ 注意：此操作可能会修改您的账户重要信息。如非本人操作，请立即登录修改密码</p>',
+      '<p style="margin:10px 0;">🔒 请勿将验证码透露给他人（包括客服人员）</p>',
+      '</div>',
+      '</td>',
+      '</tr>',
+      '<tr>',
+      '<td style="padding:20px;text-align:center;color:#888;font-size:12px;">',
+      '<p style="margin:5px 0;">此为系统邮件，请勿直接回复</p>',
+      `<p style="margin:5px 0;">${AppConstant.APP_NAME} 安全团队</p>`,
+      '</td>',
+      '</tr>',
+      '</table>',
+      '</body>',
+      '</html>'
+    ].join(''); // 关键点：用数组拼接避免换行符
   }
 
   /**

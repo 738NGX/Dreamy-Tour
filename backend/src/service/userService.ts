@@ -41,6 +41,8 @@ import ForbiddenError from "@/exception/forbiddenError";
 import crypto from "crypto"
 import UnauthorizedError from "@/exception/unauthorizedError";
 import ResetPasswordDto from "@/dto/user/resetPasswordDto";
+import BindEmailDto from "@/dto/user/bindEmailDto";
+import BindWxDto from "@/dto/user/bindWxDto";
 
 class UserService {
   static async getUserDetailByUid(uid: number) {
@@ -254,6 +256,133 @@ class UserService {
         businessType: emailCodeDto.businessType
       }
     )
+  }
+
+  /**
+   * 微信用户绑定邮箱
+   * @param uid 用户 ID
+   * @param bindEmailDto 绑定邮箱传参
+   */
+  static async bindEmail(uid: number, bindEmailDto: BindEmailDto): Promise<void> {
+    const db = await dbPromise;
+    
+    if (bindEmailDto.force) {
+      // 强制绑定模式：使用事务确保原子性
+      await db.run('BEGIN TRANSACTION');
+      try {
+        // 1. 清空其他用户对该邮箱的绑定
+        await db.run(
+          `UPDATE users SET email = NULL 
+          WHERE email = ? AND uid <> ?`,
+          [bindEmailDto.email, uid]
+        );
+        
+        // 2. 更新当前用户邮箱
+        await db.run(
+          `UPDATE users SET email = ? 
+          WHERE uid = ?`,
+          [bindEmailDto.email, uid]
+        );
+        
+        await db.run('COMMIT');
+      } catch (error) {
+        await db.run('ROLLBACK');
+        throw error;
+      }
+    } else {
+      // 非强制模式：单次条件更新查询
+      const result = await db.run(
+        `UPDATE users SET email = ?
+        WHERE uid = ? 
+          AND NOT EXISTS (
+            SELECT 1 FROM users 
+            WHERE email = ? AND uid <> ?
+          )`,
+        [bindEmailDto.email, uid, bindEmailDto.email, uid]
+      );
+
+      // 通过影响行数判断是否冲突
+      if (result.changes === 0) {
+        throw new ParamsError('邮箱已被其他用户绑定');
+      }
+    }
+  }
+
+  /**
+   * 邮箱用户绑定微信
+   * @param uid 用户 ID
+   * @param bindWxDto 绑定微信参数
+   */
+  static async bindWx(uid: number, bindWxDto: BindWxDto): Promise<void> {
+    // 获取微信 openid
+    const url = 'https://api.weixin.qq.com/sns/jscode2session';
+    const params = {
+      appid: AppConstant.APP_ID,
+      secret: AppConstant.APP_SECRET,
+      js_code: bindWxDto.code,
+      grant_type: 'authorization_code',
+    };
+    const res = await axios.get(url, { params });
+
+    // 检查微信接口响应状态
+    if (res.status != StatusCodes.OK) throw new WxServiceError();
+    const resJson = res.data;
+
+    // 处理微信接口错误码
+    if (resJson.errcode && resJson.errcode !== 0) {
+      switch (resJson.errcode) {
+        case 40029:
+          throw new ParamsError("授权码无效");
+        case 40163:
+          throw new ParamsError("登录凭证重复使用");
+        default:
+          throw new WxServiceError();
+      }
+    }
+
+    const db = await dbPromise;
+    const openid: string = resJson.openid;
+
+    if (bindWxDto.force) {
+      // 强制绑定模式：使用事务确保原子性操作
+      await db.run('BEGIN TRANSACTION');
+      try {
+        // 1. 解除其他用户的微信绑定
+        await db.run(
+          `UPDATE users SET wx_openid = NULL 
+           WHERE wx_openid = ? AND uid <> ?`,
+          [openid, uid]
+        );
+        
+        // 2. 更新当前用户微信绑定
+        await db.run(
+          `UPDATE users SET wx_openid = ? 
+           WHERE uid = ?`,
+          [openid, uid]
+        );
+        
+        await db.run('COMMIT');
+      } catch (error) {
+        await db.run('ROLLBACK');
+        throw error;
+      }
+    } else {
+      // 非强制模式：单次条件更新查询
+      const result = await db.run(
+        `UPDATE users SET wx_openid = ?
+         WHERE uid = ? 
+           AND NOT EXISTS (
+             SELECT 1 FROM users 
+             WHERE wx_openid = ? AND uid <> ?
+           )`,
+        [openid, uid, openid, uid]
+      );
+
+      // 通过影响行数判断是否冲突
+      if (result.changes === 0) {
+        throw new ParamsError('微信账号已被其他用户绑定');
+      }
+    }
   }
 
   /**

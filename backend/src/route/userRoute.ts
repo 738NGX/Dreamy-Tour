@@ -28,6 +28,8 @@ import CacheUtil from "@/util/cacheUtil";
 import EmailRegisterDto from "@/dto/user/emailRegisterDto";
 import EmailLoginDto from "@/dto/user/emailLoginDto";
 import ResetPasswordDto from "@/dto/user/resetPasswordDto";
+import BindEmailDto from "@/dto/user/bindEmailDto";
+import BindWxDto from "@/dto/user/bindWxDto";
 
 const { version } = require('../../package.json');
 
@@ -119,6 +121,38 @@ userRoute.post('/email/captcha', async (req: Request, res: Response) => {
 userRoute.get('/cache', async (req: Request, res: Response) => {
   const cache = CacheUtil.getAllCacheEntries();
   res.json(Result.success(cache));
+})
+
+/**
+ * @description 微信用户绑定邮箱
+ * @method POST
+ * @path /user/bind-phone
+ */
+userRoute.post('/user/bind-email', async (req: Request, res: Response) => {
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取传参
+  const bindEmailDto = await BindEmailDto.from(req.body);
+  // 执行绑定逻辑
+  await UserService.bindEmail(uid, bindEmailDto);
+  // 返回响应
+  res.json(Result.success(MessageConstant.SUCCESSFUL_BIND));
+})
+
+/**
+ * @description 邮箱用户绑定微信
+ * @method POST
+ * @path /user/bind-wx
+ */
+userRoute.post('/user/bind-wx', async (req: Request, res: Response) => {
+  // 获取 uid
+  const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);
+  // 获取绑定微信传参
+  const bindWxDto = await BindWxDto.from(req.body);
+  // 执行绑定微信逻辑
+  await UserService.bindWx(uid, bindWxDto);
+  // 返回响应
+  res.json(Result.success(MessageConstant.SUCCESSFUL_BIND));
 })
 
 /**
