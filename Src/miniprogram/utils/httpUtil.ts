@@ -9,6 +9,7 @@ export const apiUrl = usingLocal ? "http://127.0.0.1:8080" : (
 
 import { Fly as IFly } from "./fly/fly"
 import { ChunkRes } from "./fly/chunkRes";
+import LoadUtil from "./loadUtil";
 var Fly = require("./fly/fly.min")
 const fly = new Fly() as IFly;
 
@@ -118,9 +119,7 @@ class HttpUtil {
    * @param req 请求配置
    */
   static async request(req: Request, timeout: number, stream: boolean = false): Promise<Response> {
-    wx.showLoading({
-      title: "请稍候..."
-    });
+    LoadUtil.show();
     const requestParams = this.getRequestParams(req);
     if (!requestParams) {
       return Promise.reject({ errMsg: "Token 失效，请重新登录" });
@@ -145,10 +144,10 @@ class HttpUtil {
           if (headers["X-Refresh-Token"]) {
             wx.setStorageSync("token", headers["X-Refresh-Token"])
           }
-          wx.hideLoading();
+          LoadUtil.hide();
           resolve(d);
         } catch (e: any) {
-          wx.hideLoading();
+          LoadUtil.hide();
           if (debug) { console.error('backend error:', e) };
           if (e.status === 1) {
             wx.showToast({ title: "请求超时,请重试", icon: "error", time: 2000 });

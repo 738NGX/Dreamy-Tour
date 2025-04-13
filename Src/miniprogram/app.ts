@@ -21,7 +21,7 @@ App<IAppOption>({
     testMode: true,
     currentData: testData,
     baseUrl: apiUrl,
-    version: "1.0.5",
+    version: "1.0.5"
   },
   onLaunch() {
     // 开屏进入登录页面
