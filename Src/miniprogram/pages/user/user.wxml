@@ -7,14 +7,14 @@
       <t-avatar bordered image="{{currentUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ currentUser.name[0] }}</t-avatar>
       <view class="name-card-username">{{currentUser.name}}</view>
       <view class="row">
-        <t-tag size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(userGroup)}}">{{userGroup}}</t-tag>
+        <t-tag style="margin-top:15rpx;" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(userGroup)}}">{{userGroup}}</t-tag>
         <view wx:if="{{currentUser.gender!='保密'}}" class="gender-icon" style="background-color:#{{currentUser.gender=='男'?'00a1d6':'ff548c'}};">
           <t-icon name="{{currentUser.gender=='男'?'gender-male':'gender-female'}}" size="24rpx" />
         </view>
         <view class="name-card-uid" bind:tap="copyUid">UID: {{currentUser.id}}</view>
       </view>
       <view class="name-card-uid" style="margin-top:20rpx;">{{currentUser.signature}}</view>
-      <t-button wx:if="{{false}}" ghost size="extra-small" class="update-background" bind:tap="uploadVisibleChange">更换背景</t-button>
+      <t-button wx:if="{{true}}" ghost size="extra-small" class="update-background" bind:tap="uploadVisibleChange">更换背景</t-button>
     </view>
   </view>
   <scroll-view scroll-y type="list" class="user-main">
@@ -62,6 +62,12 @@
           <t-button theme="primary" style="width:50%; margin:10rpx" bind:tap="handleUserBasicChange">确认修改</t-button>
           <t-button style="width:50%; margin:10rpx" bind:tap="handleUserBasicReset">取消修改</t-button>
         </view>
+      </c-collapse>
+      <c-collapse header="发布的帖子">
+        <channel-detail-posts selectedUserId="{{currentUser.id}}"/>
+      </c-collapse>
+      <c-collapse header="加入的频道">
+        <channel-list selectedUserId="{{currentUser.id}}"/>
       </c-collapse>
       <c-collapse wx:if="{{isTestMode}}" header="切换演示账号">
         <t-grid column="{{5}}" hover>

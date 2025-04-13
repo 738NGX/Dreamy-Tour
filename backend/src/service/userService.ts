@@ -51,7 +51,7 @@ class UserService {
     const db = await dbPromise;
     const row = await db.get<Partial<User>>(
       `SELECT 
-      uid, nickname, gender, avatarUrl, email,
+      uid, nickname, gender, avatarUrl, backgroundImageUrl, email,
       phone, signature, birthday, exp, roleId
       FROM users WHERE uid = ?`,
       [uid]

@@ -297,6 +297,7 @@ declare global {
      * @param uid 
      */
     getFullPostsByUid(uid: number): Promise<PostCard[]>;
+    getFullPostsInPublicByUid(uid: number): Promise<PostCard[]>;
     // for group.ts
     loadGroup(groupId: number): Promise<{ currentGroup: GroupBasic, linkedTour: TourBasic }>;
     getMembersInGroup(groupId: number): Promise<{ members: Member[], waitingUsers: Member[] }>;

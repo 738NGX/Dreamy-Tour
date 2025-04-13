@@ -23,17 +23,6 @@ Component({
     uploadVisible: false,
     backgroundImages: [],
 
-    fullPosts: [] as PostCard[],
-    leftPosts: [] as PostCard[],
-    rightPosts: [] as PostCard[],
-    searchedPosts: [] as PostCard[],
-    searchingValueForPosts: '',
-    refreshEnable: false,
-
-    fullChannelList: [] as Channel[],
-    channelList: [] as Channel[],
-    searchingValueForChannels: '',
-
     testText: '测试文本',
   },
 
@@ -89,7 +78,20 @@ Component({
           value: '/' + page.route
         })
       }
+      console.log("currentbackgroundimage",this.data.currentUser.backgroundImageUrl)
     },
+    // async onRefresh(){
+    //   const currentUserBasic = await app.getCurrentUser()
+    //   const currentUserId = currentUserBasic?.id
+    //   if (currentUserId) {
+    //     this.setData({
+    //       isTestMode: app.globalData.testMode,
+    //       currentUser: currentUserBasic,
+    //       testUserList: app.getUserListCopy()
+    //     });
+    //   }
+    //   this.caluculateExp();
+    // },
     showVersion() {
       wx.showModal({
         title: '版本信息',
@@ -397,69 +399,5 @@ Component({
         }
       })
     },
-
-    async onRefresh() {
-      this.setData({ refreshEnable: true });
-      await this.getFullPosts();
-      this.searchPosts(this.data.searchingValueForPosts);
-      this.setData({ refreshEnable: false });
-    },
-    async getFullPosts() {
-      const fullPosts = await app.getFullPostsByUid(this.data.currentUser.id); //
-      this.setData({ fullPosts });
-    },
-    searchPosts(searchValue: string = '') {
-      const { fullPosts } = this.data;
-      const leftPosts = [] as PostCard[];
-      const rightPosts = [] as PostCard[];
-      fullPosts.forEach((post, index) => {
-        if (post.title.includes(searchValue) || post.content.includes(searchValue)) {
-          if (index % 2 === 0) {
-            leftPosts.push(post);
-          } else {
-            rightPosts.push(post);
-          }
-        }
-      });
-      this.setData({ leftPosts, rightPosts });
-    },
-    onPostsSearch(e: WechatMiniprogram.CustomEvent) {
-      const { value } = e.detail;
-      this.setData({ searchingValueForPosts: value });
-      this.searchPosts(value);
-    },
-    onPostsSearchClear() {
-      this.setData({ searchingValueForPosts: '' });
-      this.searchPosts();
-    },
-    onChannelClick(e: WechatMiniprogram.CustomEvent) {
-      const channelId = e.currentTarget.dataset.index;
-      wx.navigateTo({
-        url: `/pages/channel-detail/channel-detail?channelId=${channelId}`,
-      });
-    },
-    async loadChannelList() {
-      const channelList = await app.getSelectedUserJoinedChannels(this.data.currentUser.id);
-      this.setData({ channelList, fullChannelList: channelList });
-    },
-    onChannelsSearch(e: WechatMiniprogram.CustomEvent) {
-      const { value } = e.detail;
-      this.setData({
-        searchingValue: value,
-        channelList: this.data.fullChannelList.filter(channel => channel.name.includes(value)),
-      });
-    },
-    onChannelsSearchClear() {
-      this.setData({
-        searchingValue: '',
-        channelList: this.data.fullChannelList,
-      });
-    },
-    handlePostDetail(e: WechatMiniprogram.CustomEvent) {
-      const id = e.currentTarget.dataset.index;
-      wx.navigateTo({
-        url: `/pages/channel-post/channel-post?postId=${id}`,
-      });
-    }
   }
 })

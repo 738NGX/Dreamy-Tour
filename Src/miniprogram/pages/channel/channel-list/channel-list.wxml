@@ -3,12 +3,27 @@
   <t-search placeholder="搜索频道" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" shape="round" style="height:60rpx" />
 </view>
 <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
-  <block wx:if="{{channelList.length>0}}" wx:for="{{channelList}}" wx:key="index" wx:for-index="i">
+ <!-- 选中非自己的用户并且有频道列表时加载，显示不可跳转的频道列表 -->
+  <block wx:if="{{channelList.length>0 && selectedUserId >= 0 && selectedUserId !== currentUserId}}" wx:for="{{channelList}}" wx:key="index" wx:for-index="i">
+    <t-cell title="{{item.name}}" description="{{item.description}}" data-index="{{item.id}}">
+      <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
+    </t-cell>
+  </block>
+  <!-- 选中用户且主页没有频道列表时加载，引导语句 -->
+  <block wx:if="{{channelList.length==0 && selectedUserId >= 0}}">
+    <view style="height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <image src="{{util.randomCharPicture(0,1)}}" mode="widthFix" style="width:400rpx;" />
+      <text style="margin-top:32rpx; margin-left:70rpx; width:70%;text-align:left;">该用户还未加入任何对应频道哦</text>
+    </view>
+  </block>
+  <!-- 主页或选中的用户为自己时加载，显示可以跳转的频道列表 -->
+  <block wx:if="{{channelList.length>0 && (selectedUserId < 0 || selectedUserId == currentUserId)}}" wx:for="{{channelList}}" wx:key="index" wx:for-index="i">
     <t-cell title="{{item.name}}" description="{{item.description}}" arrow data-index="{{item.id}}" bind:click="onChannelClick" hover>
       <t-avatar slot="image" class="avatar" t-class-content="external-class-content">{{item.name[0]}}</t-avatar>
     </t-cell>
   </block>
-  <block wx:if="{{channelList.length==0}}">
+  <!-- 主页且没有频道列表时加载，引导语句 -->
+  <block wx:if="{{channelList.length==0 && selectedUserId < 0}}">
     <view style="height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
       <image src="{{util.randomCharPicture(0,1)}}" mode="widthFix" style="width:400rpx;" />
       <text style="margin-top:32rpx; width:70%;text-align:left;">感谢使用梦旅!现在你还没有加入任何频道.\n\n可以切换到添加频道页面添加你的第一个频道.\n\n每个页面上均可点击左上角帮助按钮以获得更多使用提示.</text>
