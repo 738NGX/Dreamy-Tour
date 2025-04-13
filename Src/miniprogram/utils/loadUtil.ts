@@ -22,13 +22,12 @@ class LoadUtil {
           mask: true
         });
       }
-    }, 150) as unknown as number;
+    }, 200) as unknown as number;
   }
 
   static hide() {
     // 保证请求计数不会为负数
     this.requestCounts = Math.max(this.requestCounts - 1, 0);
-    
     // 立即清除定时器防止无效显示
     if (this.loadingTimer) {
       clearTimeout(this.loadingTimer);
@@ -38,7 +37,9 @@ class LoadUtil {
     // 当没有请求且正在加载时，立即隐藏
     if (this.requestCounts === 0 && this.isLoading) {
       wx.hideLoading();
-      this.isLoading = false;
+      setTimeout(() => {
+        this.isLoading = false;
+      }, 300)
     }
   }
 }
