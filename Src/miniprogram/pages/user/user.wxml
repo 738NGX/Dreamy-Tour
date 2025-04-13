@@ -40,7 +40,7 @@
         <t-input class="narrow-input" borderless disabled label="UID" value="{{currentUser.id}}">
           <t-button slot="suffix" theme="primary" variant="outline" size="small" bind:tap="copyUid">复制</t-button>
         </t-input>
-        <t-input class="narrow-input" borderless disabled label="修改头像">
+        <t-input wx:if="{{isMiniApp}}" class="narrow-input" borderless disabled label="修改头像">
           <t-button slot="suffix" theme="primary" variant="outline" size="small" open-type="chooseAvatar" bind:chooseavatar="uploadAvater">选择</t-button>
         </t-input>
         <view borderless class="narrow-input" style="font-size:32rpx; padding:10rpx;">
@@ -58,9 +58,10 @@
         <t-input borderless class="narrow-input" bind:blur="handleSignatureChange" label="签名" placeholder="请输入个性签名" maxlength="{{30}}" value="{{currentUser.signature}}" />
         <t-input borderless class="narrow-input" bind:blur="handleBirthdayChange" label="生日" placeholder="请输入生日(YYYY-mm-dd)格式" maxlength="{{10}}" value="{{currentUser.birthday}}" />
         <t-input borderless class="narrow-input" bind:blur="handlePhoneChange" label="手机" placeholder="请输入手机号" maxlength="{{11}}" value="{{currentUser.phone}}" />
-        <t-input borderless class="narrow-input" bind:blur="handleEmailChange" label="邮箱" placeholder="请输入邮箱" maxlength="{{80}}" value="{{currentUser.email}}" />
-        <t-button theme="primary" style="width:95%; margin:10rpx" bind:tap="handleUserBasicChange">确认修改</t-button>
-        <t-button style="width:95%; margin:10rpx" bind:tap="handleUserBasicReset">取消修改</t-button>
+        <view class="row">
+          <t-button theme="primary" style="width:50%; margin:10rpx" bind:tap="handleUserBasicChange">确认修改</t-button>
+          <t-button style="width:50%; margin:10rpx" bind:tap="handleUserBasicReset">取消修改</t-button>
+        </view>
       </c-collapse>
       <c-collapse wx:if="{{isTestMode}}" header="切换演示账号">
         <t-grid column="{{5}}" hover>
@@ -74,6 +75,7 @@
       </c-collapse>
       <c-collapse header="选项设置">
         <t-cell left-icon="{{isDarkMode?'mode-dark':'mode-light'}}" class="narrow-cell" bordered="{{false}}" title="{{isDarkMode?'深色主题':'浅色主题'}}已启用" description="应用主题默认跟随系统主题" />
+        <t-cell bind:click="bindEmail" left-icon="mail" class="narrow-cell" bordered="{{false}}" title="{{currentUser.email?'邮箱已绑定,点击换绑':'邮箱未绑定,点击绑定'}}" description="{{currentUser.email?currentUser.email:''}}" arrow hover />
         <t-button theme="primary" style="width:90%; margin:30rpx 0rpx 0rpx 30rpx;" bind:tap="resetPassword">重置密码</t-button>
         <t-button theme="danger" style="width:90%; margin:30rpx" bind:tap="quitLogin">退出登录</t-button>
       </c-collapse>

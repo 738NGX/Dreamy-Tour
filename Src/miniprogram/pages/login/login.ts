@@ -226,7 +226,7 @@ Page({
       }
     })
   },
-  onChange(e) {
+  onChange(e: any) {
     this.setData({ loginMode: e.detail.value });
   }
 })

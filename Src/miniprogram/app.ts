@@ -2132,10 +2132,9 @@ App<IAppOption>({
           url: '/user/info',
           jsonData: {
             gender: user.gender == '女' ? 0 : user.gender == '男' ? 1 : 2,
-            email: user.email,
-            phone: user.phone,
-            signature: user.signature,
-            birthday: user.birthday,
+            phone: user.phone == '' ? '13300000000' : user.phone,
+            signature: user.signature == '请多关照!' ? null : user.signature,
+            birthday: user.birthday == '1970-01-01' ? null : user.birthday,
           }
         });
         return true;
@@ -2203,6 +2202,22 @@ App<IAppOption>({
         const res = await HttpUtil.get({ url: `/tour/${tourId}/full` });
         const { tourId: id, ...tourRest } = res.data.data;
         const tour = new Tour({ id: id, ...tourRest });
+        const userSet = new Set(tour.users);
+        // 过滤掉不在用户列表中的用户
+        for (const copy of tour.locations) {
+          for (const location of copy) {
+            for (const expense of location.expenses) {
+              expense.user = expense.user.filter((userId: number) => userSet.has(userId));
+            }
+          }
+        }
+        for(const copy of tour.transportations){
+          for (const transportation of copy) {
+            for(const expense of transportation.transportExpenses){
+              expense.user = expense.user.filter((userId: number) => userSet.has(userId));
+            }
+          }
+        }
         return tour;
       } catch (err: any) {
         console.error(err);

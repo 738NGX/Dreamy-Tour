@@ -11,6 +11,7 @@ Component({
   },
   data: {
     isTestMode: false,
+    isMiniApp: app.globalData.isMiniApp,
     isDarkMode: wx.getSystemInfoSync().theme == 'dark',
     testUserList: [] as User[],
     userRoleList: userRoleName,
@@ -188,12 +189,7 @@ Component({
       this.setData({ currentUser })
       if (!await app.changeUserName(currentUser.name)) {
         const currentUserBasic = await app.getCurrentUser()
-        const currentUserId = currentUserBasic?.id
-        if (currentUserId) {
-          this.setData({
-            currentUser: app.getUser(currentUserId)
-          });
-        }
+        this.setData({ currentUser: currentUserBasic });
       }
       if (this.data.isTestMode) {
         this.setData({
@@ -206,22 +202,12 @@ Component({
       this.setData({ currentUser })
       if (!await app.changeUserBasic(currentUser)) {
         const currentUserBasic = await app.getCurrentUser()
-        const currentUserId = currentUserBasic?.id
-        if (currentUserId) {
-          this.setData({
-            currentUser: app.getUser(currentUserId)
-          });
-        }
+        this.setData({ currentUser: currentUserBasic });
       }
     },
     async handleUserBasicReset() {
       const currentUserBasic = await app.getCurrentUser()
-      const currentUserId = currentUserBasic?.id
-      if (currentUserId) {
-        this.setData({
-          currentUser: app.getUser(currentUserId)
-        });
-      }
+      this.setData({ currentUser: currentUserBasic });
     },
     async uploadAvater(e: WechatMiniprogram.CustomEvent) {
       const src = e.detail.avatarUrl;
@@ -324,6 +310,89 @@ Component({
             wx.reLaunch({
               url: '/pages/login/login'
             })
+          }
+        }
+      })
+    },
+    bindEmail() {
+      const that = this;
+      wx.showModal({
+        title: '请输入你的邮箱地址',
+        content: '',
+        editable: true,
+        placeholderText: 'takami.chika@aqours.com',
+        async success(res) {
+          if (res.confirm) {
+            const email = res.content;
+            if (email) {
+              try {
+                await HttpUtil.post({
+                  url: "/email/captcha",
+                  jsonData: {
+                    email: email,
+                    businessType: "bind"
+                  }
+                });
+                wx.showToast({
+                  title: "验证码已发送",
+                  icon: "none"
+                });
+                wx.showModal({
+                  title: '验证码已发送到你的邮箱',
+                  content: '',
+                  editable: true,
+                  placeholderText: '请输入验证码',
+                  showCancel: false,
+                  async success(res) {
+                    if (res.confirm) {
+                      const code = res.content;
+                      if (code) {
+                        try {
+                          await HttpUtil.post({
+                            url: "/user/bind-email",
+                            jsonData: {
+                              email: email,
+                              force: false,
+                              verifyCode: code
+                            }
+                          });
+                          wx.showToast({
+                            title: "绑定成功",
+                            icon: "none"
+                          });
+                          const currentUserBasic = await app.getCurrentUser()
+                          that.setData({ currentUser: currentUserBasic });
+                        } catch (err) {
+                          console.error("绑定邮箱失败", err);
+                          wx.showToast({
+                            title: "请重试",
+                            icon: "error"
+                          })
+                        }
+                      } else {
+                        wx.showToast({
+                          title: '验证码不能为空',
+                          icon: 'none',
+                          duration: 1000
+                        })
+                      }
+                    }
+                  }
+                })
+              } catch (err) {
+                console.error("获取验证码失败", err);
+                wx.showToast({
+                  title: "请重试",
+                  icon: "error"
+                })
+              }
+            } else {
+              wx.showToast({
+                title: '邮箱不能为空',
+                icon: 'none',
+                duration: 1000
+              })
+            }
           }
         }
       })
