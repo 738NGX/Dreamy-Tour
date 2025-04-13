@@ -11,6 +11,9 @@
     "t-button": "tdesign-miniprogram/button/button",
     "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
     "t-icon": "tdesign-miniprogram/icon/icon",
-    "t-textarea": "tdesign-miniprogram/textarea/textarea"
+    "t-textarea": "tdesign-miniprogram/textarea/textarea",
+    "t-steps": "tdesign-miniprogram/steps/steps",
+    "t-step-item": "tdesign-miniprogram/step-item/step-item",
+    "t-divider": "tdesign-miniprogram/divider/divider"
   }
 }

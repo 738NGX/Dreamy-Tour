@@ -22,9 +22,10 @@ Component({
 
     showUserReport: true,
 
-    generatorVisible: false,
+    generatorVisible: true,
     generatorText: "",
     generatorResult: "",
+    generatorDisplay: []
   },
   methods: {
     async onLoad(options: any) {
@@ -36,6 +37,7 @@ Component({
         currentTour, dateRange, copyOptions,
         currentTourId: tourId
       });
+      this.watchResult()
       await this.onShow();
     },
     async onShow() {
@@ -93,7 +95,7 @@ Component({
     },
     async generateCopyFromText(needLocations: boolean = false) {
       const task = `
-旅行计划的开始时间是${this.data.currentTour.startDate}(数字为时间戳),以下是我的旅行计划概述:
+旅行计划的开始日期是${this.data.currentTour.startDate}(数字为时间戳),以下是我的旅行计划概述:
 ${this.data.generatorText}
 请根据这个概述生成一个新的旅行计划,返回形如{locations:[{title:'',start:'',end:'',note:''},...]}的json格式,其中title为位置的地址文字,start和end为在这个位置的起始时间时间戳和结束时间时间戳,note为在这个位置的备注文字,locations是一个数组,每个元素都是一个位置的对象,请注意,生成的旅行计划应该是一个新的旅行计划,而不是对原始旅行计划的修改.请不要返回任何其他内容.
 `;
@@ -109,6 +111,7 @@ ${this.data.generatorText}
         this, 'generatorResult'
       )
       try {
+        console.log(this.data.generatorDisplay)
         this.setData({ generatorVisible: false });
         const resObj = JSON.parse(res.join(''));
         const { currentTour } = this.data;
@@ -218,6 +221,126 @@ ${this.data.generatorText}
       wx.navigateTo({
         url: `/pages/report/report?tourId=${this.data.currentTourId}&currentTourCopyIndex=${this.data.currentCopyIndex}&showUserReport=${this.data.showUserReport}`
       })
+    },
+    watchResult() {
+      console.log("开始监听")
+      const that = this;
+      let originalValue = this.data.generatorResult;
+
+      // 使用定时器或事件触发监听
+      setInterval(() => {
+        if (originalValue !== that.data.generatorResult) {
+          originalValue = that.data.generatorResult;
+          that.getDisplay(originalValue);
+        }
+      }, 200); // 每隔 100ms 检查一次
+    },
+    getDisplay(originalValue: any) {
+      const objs = this.convertJson2Obj(originalValue);
+      this.setData({
+        generatorDisplay: objs
+      });
+    },
+    convertJson2Obj(data: string): any {
+      const getTitles = (data: string): string[] => {
+        const regex = /"title":\s*(?:"([^"]*)"|"([^,\n}]+))/g;
+        const titles = [];
+        let match;
+        while ((match = regex.exec(data))!== null) {
+          titles.push(match[1] || match[2].trim());
+        }
+        return titles;
+      };
+    
+      const getNotes = (data: string): string[] => {
+        const regex = /"note":\s*(?:"([^"]*)"|"([^,\n"}]+))/g;
+        const notes = [];
+        let match;
+        while ((match = regex.exec(data))!== null) {
+          notes.push(match[1] || match[2].trim());
+        }
+        return notes;
+      };
+    
+      const getStarts = (data: string): number[] => {
+        const regex = /"start":\s*(\d{13})/g;
+        const starts = [];
+        let match;
+        while ((match = regex.exec(data))!== null) {
+          starts.push(match[1]);
+        }
+        return starts;
+      };
+    
+      const getEnds = (data: string): number[] => {
+        const regex = /"end":\s*(\d{13})/g;
+        const ends = [];
+        let match;
+        while ((match = regex.exec(data))!== null) {
+          ends.push(match[1]);
+        }
+        return ends;
+      };
+    
+      // 将时间戳转换为 yyyy-mm-dd 格式（这里只取日期部分用于分组）
+      const formatDate = (timestamp: number): string => {
+        if (!timestamp) return '';
+        const date = new Date(Number(timestamp));
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+       // 将时间戳转换为 yyyy-mm-dd HH:mm:ss 格式
+       const formatTimestamp = (timestamp: number): string => {
+        if (!timestamp) return '';
+        const date = new Date(Number(timestamp));
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+      };
+      // 合并结果为对象数组并按日期分组
+      const mergeResults = (titles: string[], notes: string[], starts: number[], ends: number[]) => {
+        const maxLength = Math.max(titles.length, notes.length, starts.length, ends.length);
+        const result = [];
+        for (let i = 0; i < maxLength; i++) {
+            result.push({
+                title: titles[i] || '',
+                note: notes[i] || '',
+                start: starts[i] || 0,
+                end: ends[i] || 0
+            });
+        }
+
+        const groupedResult: { [date: string]: any[] } = {};
+        result.forEach(item => {
+            const startDate = formatDate(item.start);
+            if (!groupedResult[startDate]) {
+                groupedResult[startDate] = [];
+            }
+            // 这里再将时间戳格式化为你想要的具体时间格式
+            const formattedItem = {
+                ...item,
+                start: formatTimestamp(item.start),
+                end: formatTimestamp(item.end)
+            };
+            groupedResult[startDate].push(formattedItem);
+        });
+
+        return groupedResult;
+      };
+    
+      const titles = getTitles(data);
+      const notes = getNotes(data);
+      const starts = getStarts(data);
+      const ends = getEnds(data);
+    
+      const mergedResult = mergeResults(titles, notes, starts, ends);
+      return mergedResult;
     }
   }
 })

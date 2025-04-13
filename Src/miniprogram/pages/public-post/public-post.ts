@@ -9,7 +9,7 @@ Component({
 
   },
   data: {
-    currentChannel: {} as ChannelBasic,
+    currentChannel: {} as ChannelBasic
   },
   methods: {
     async onShow() {
