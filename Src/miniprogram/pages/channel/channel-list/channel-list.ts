@@ -30,6 +30,7 @@ Component({
   },
   methods: {
     onRefresh() {
+      console.log("频道列表刷新")
       this.setData({ refreshEnable: true });
       setTimeout(() => {
         this.setData({ refreshEnable: false });
