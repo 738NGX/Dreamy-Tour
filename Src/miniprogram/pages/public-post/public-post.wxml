@@ -1,2 +1,2 @@
 <header helperId="6" class="custom-navbar" tabList="{{[]}}" />
-<channel-detail-posts id="posts" currentChannel="{{currentChannel}}" fabStyle="right: 16px; bottom: 200rpx;" />
+<channel-detail-posts id="posts" currentChannel="{{currentChannel}}" fabStyle="right: 16px; bottom: 200rpx;" wx:if="{{!loading}}" />

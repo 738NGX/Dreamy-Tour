@@ -25,6 +25,6 @@ Component({
         await postsComponent.getFullPosts();
         postsComponent.searchPosts(postsComponent.data.searchingValue);
       }
-    },
+    }
   }
 })

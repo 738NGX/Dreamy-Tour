@@ -11,6 +11,7 @@
     "t-input": "tdesign-miniprogram/input/input",
     "t-textarea": "tdesign-miniprogram/textarea/textarea",
     "t-upload": "tdesign-miniprogram/upload/upload",
-    "t-tag": "tdesign-miniprogram/tag/tag"
+    "t-tag": "tdesign-miniprogram/tag/tag",
+    "t-loading": "tdesign-miniprogram/loading/loading"
   }
 }

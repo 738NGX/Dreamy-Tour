@@ -18,6 +18,7 @@ Component({
     fullChannelList: [] as Channel[],
     channelList: [] as Channel[],
     searchingValue: '',
+    loading: true,
   },
   lifetimes: {
     attached() {
@@ -27,6 +28,11 @@ Component({
     detached() {
 
     },
+    ready() {
+      this.setData({
+        loading: false
+      })
+    }
   },
   methods: {
     onRefresh() {

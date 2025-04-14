@@ -1,6 +1,6 @@
 // API 地址配置
 const usingDomain = true;   // 是否使用域名
-const usingLocal = true;   // 是否使用本地 IP
+const usingLocal = false;   // 是否使用本地 IP
 export const apiUrl = usingLocal ? "http://127.0.0.1:8080" : (
   usingDomain
     ? "https://dreamy-tour.738ngx.site/api"
@@ -118,8 +118,15 @@ class HttpUtil {
    * 发送网络请求（支持 Token 校验和自动跳转登录）
    * @param req 请求配置
    */
-  static async request(req: Request, timeout: number, stream: boolean = false): Promise<Response> {
-    LoadUtil.show();
+  static async request(
+    req: Request, 
+    timeout: number, 
+    stream: boolean = false, 
+    loading?: boolean
+  ): Promise<Response> {
+    if (loading) {
+      LoadUtil.show()
+    }
     const requestParams = this.getRequestParams(req);
     if (!requestParams) {
       return Promise.reject({ errMsg: "Token 失效，请重新登录" });
@@ -144,10 +151,8 @@ class HttpUtil {
           if (headers["X-Refresh-Token"]) {
             wx.setStorageSync("token", headers["X-Refresh-Token"])
           }
-          LoadUtil.hide();
           resolve(d);
         } catch (e: any) {
-          LoadUtil.hide();
           if (debug) { console.error('backend error:', e) };
           if (e.status === 1) {
             wx.showToast({ title: "请求超时,请重试", icon: "error", time: 2000 });
@@ -163,6 +168,10 @@ class HttpUtil {
             e = { ...e, errMsg: "服务器异常" };
           }
           reject(e);
+        } finally {
+          if (loading) {
+            LoadUtil.hide();
+          }
         }
       } else {
         /** 微信原生, 已弃用
@@ -196,77 +205,105 @@ class HttpUtil {
    * GET 请求
    * @param req 请求配置
    */
-  static async get(req: MethodRequest, timeout: number = 3000): Promise<Response> {
-    return await this.request({
-      ...req,
-      method: "GET"
-    }, timeout)
+  static async get(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
+    return await this.request(
+      {
+        ...req,
+        method: "GET"
+      }, 
+      timeout, 
+      loading
+    )
   }
 
   /**
    * POST 请求（提交数据）
    * @param req 请求配置（数据放在 json_data）
    */
-  static async post(req: MethodRequest, timeout: number = 3000): Promise<Response> {
-    return await this.request({
-      ...req,
-      method: "POST"
-    }, timeout)
+  static async post(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
+    return await this.request(
+      {
+        ...req,
+        method: "POST"
+      }, 
+      timeout, 
+      loading
+    )
   }
 
   /**
    * PUT 请求（全量更新资源）
    * @param req 请求配置
    */
-  static async put(req: MethodRequest, timeout: number = 3000): Promise<Response> {
-    return await this.request({
-      ...req,
-      method: "PUT"
-    }, timeout)
+  static async put(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
+    return await this.request(
+      {
+        ...req,
+        method: "PUT"
+      }, 
+      timeout, 
+      loading
+    )
   }
 
   /**
    * DELETE 请求（删除资源）
    * @param req 请求配置
    */
-  static async delete(req: MethodRequest, timeout: number = 3000): Promise<Response> {
-    return await this.request({
-      ...req,
-      method: "DELETE"
-    }, timeout)
+  static async delete(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
+    return await this.request(
+      {
+        ...req,
+        method: "DELETE"
+      }, 
+      timeout, 
+      loading
+    )
   }
 
   /**
    * PATCH 请求（部分更新资源）
    * @param req 请求配置
    */
-  static async patch(req: MethodRequest, timeout: number = 3000): Promise<Response> {
-    return await this.request({
-      ...req,
-      method: "PATCH"
-    }, timeout)
+  static async patch(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
+    return await this.request(
+      {
+        ...req,
+        method: "PATCH"
+      }, 
+      timeout, 
+      loading
+    )
   }
 
   /**
    * OPTIONS 请求（获取通信选项）
    * @param req 请求配置
    */
-  static async options(req: MethodRequest, timeout: number = 3000): Promise<Response> {
-    return await this.request({
-      ...req,
-      method: "OPTIONS"
-    }, timeout)
+  static async options(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
+    return await this.request(
+      {
+        ...req,
+        method: "OPTIONS"
+      }, 
+      timeout, 
+      loading
+    )
   }
 
   /**
    * HEAD 请求（获取报文头）
    * @param req 请求配置
    */
-  static async head(req: MethodRequest, timeout: number = 3000): Promise<Response> {
-    return await this.request({
-      ...req,
-      method: "HEAD"
-    }, timeout)
+  static async head(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
+    return await this.request(
+      {
+        ...req,
+        method: "HEAD"
+      }, 
+      timeout, 
+      loading
+    )
   }
   /**
    * 设置 URL，补全 baseUrl 和传参

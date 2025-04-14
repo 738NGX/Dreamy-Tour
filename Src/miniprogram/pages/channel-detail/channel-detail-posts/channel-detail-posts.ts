@@ -44,6 +44,8 @@ Component({
     originFiles: [] as File[],
 
     currentUserId: -1,
+
+    loading: true,
   },
 
   lifetimes: {
@@ -59,6 +61,9 @@ Component({
         await this.getFullPosts();
       }
       this.searchPosts(this.data.searchingValue);
+      this.setData({
+        loading: false
+      })
     },
   },
 
