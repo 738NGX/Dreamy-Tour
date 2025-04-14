@@ -182,7 +182,7 @@ userRoute.get('/user/detail', async (req: Request, res: Response) => {
   // 获取 uid
   const uid = JwtUtil.getUid(req.header(AuthConstant.TOKEN_HEADER) as string);  // 经过拦截器处理之后，剩下来的请求中一定包含 token，因此断言为 string
   // 接受来自业务层的处理完成的视图对象
-  const userDetailVo = await UserService.getUserDetailByUid(uid);
+  const userDetailVo = await UserService.getOwnUserDetail(uid);
   res.json(Result.success(userDetailVo));
 })
 

@@ -47,6 +47,11 @@ import EmailLoginV2Dto from "@/dto/user/emailLoginV2Dto";
 import ExpUtil from "@/util/expUtil";
 
 class UserService {
+  /**
+   * 获取某个用户 ID 的个人信息（脱敏）
+   * @param uid 
+   * @returns 
+   */
   static async getUserDetailByUid(uid: number) {
     const db = await dbPromise;
     const row = await db.get<Partial<User>>(
@@ -65,6 +70,35 @@ class UserService {
       backgroundImageUrl: row.backgroundImageUrl,
       email: !row.email ? '' : UserUtil.desensitizeEmail(row.email),
       phone: !row.phone ? '' : UserUtil.desensitizePhoneNumber(row.phone),
+      signature: row.signature,
+      birthday: row.birthday,
+      exp: row.exp,
+      role: RoleUtil.roleNumberToString(row.roleId as number)
+    })
+  }
+
+  /**
+   * 获取自己的信息（不脱敏）
+   * @param uid 
+   */
+  static async getOwnUserDetail(uid: number) {
+    const db = await dbPromise;
+    const row = await db.get<Partial<User>>(
+      `SELECT 
+      uid, nickname, gender, avatarUrl, backgroundImageUrl, email,
+      phone, signature, birthday, exp, roleId
+      FROM users WHERE uid = ?`,
+      [uid]
+    );
+    if (!row) throw new NotFoundError("该用户不存在");
+    return new UserDetailVo({
+      uid: row.uid,
+      nickname: row.nickname,
+      gender: UserUtil.getGenderStr(row.gender),
+      avatarUrl: row.avatarUrl,
+      backgroundImageUrl: row.backgroundImageUrl,
+      email: row.email,
+      phone: row.phone,
       signature: row.signature,
       birthday: row.birthday,
       exp: row.exp,
