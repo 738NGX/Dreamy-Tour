@@ -64,6 +64,7 @@ Component({
 
   methods: {
     async onRefresh() {
+      console.log("帖子列表刷新")
       this.setData({ 
         refreshEnable: true,
       });

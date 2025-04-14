@@ -22,6 +22,8 @@ Component({
     backgroundImages: [],
 
     testText: '测试文本',
+
+    refreshEnable:false
   },
   methods: {
     onLoad() {
@@ -62,6 +64,26 @@ Component({
           value: '/' + page.route
         })
       }
+    },
+    async onRefresh(){
+      this.setData({ refreshEnable: true });
+      //个人信息
+      const currentUserBasic = await app.getCurrentUser();
+      const currentUserId = currentUserBasic?.id
+      if (currentUserId) {
+        this.setData({
+          isTestMode: app.globalData.testMode,
+          currentUser: currentUserBasic,
+          testUserList: app.getUserListCopy()
+        });
+
+      //帖子
+      const posts = this.selectComponent('#posts');
+      if (posts) posts.onRefresh();
+      //经验值组件
+      this.caluculateExp();
+      }
+      this.setData({ refreshEnable: false });
     },
     showVersion() {
       wx.showModal({
