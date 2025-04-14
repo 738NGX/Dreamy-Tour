@@ -1,114 +1,125 @@
 @import url(../channel-detail/channel-detail-posts/channel-detail-posts.less);
-page {
-    background-image: linear-gradient(to top, rgba(155, 229, 253, 0.75) 0%, rgba(0, 82, 217, 0.75) 100%);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  
-  .external-class-content {
-    color: #fff;
-    background-color: var(--td-brand-color, #0052d9);
-    font-size: larger;
-    font-weight: 400;
-  }
-  
-  .avatar-example {
-    --td-avatar-border-width-large: 10rpx;
-  }
-  .name-card {
-    height: 35vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    background-size: cover;   
-    background-position: center; 
-    background-repeat: no-repeat;
-  }
-  .avatar-name-id-card{
-    display:flex;
-    flex-direction:row;
-    margin-left:50rpx;
-  }
-  .avatar-name-id-card .name-id-card{
-    display:flex;
-    flex-direction:column;
-    margin-top:10rpx;
-  }
-  .name-card-username {
-    margin-left: 30rpx;
-    font-size: 50rpx;
-    font-weight: bold;
-    color: #fff;
-  }
-  .name-card-uid {
-    margin-left: 40rpx;
-    margin-top: 20rpx;
-    font-size: 30rpx;
-    color: #fff;
-  }
-  .name-card-signature {
-    margin-left: 20rpx;
-    font-size: 24rpx;
-    color: #fff;
-  }
-  
-  .gender-icon {
-    margin-left: 20rpx;
-    border-radius: 100%;
-    padding: 5rpx;
-    color: #fff;
-    border: #fff solid 4rpx;
-  }
-  
-  .update-background{
-    position:fixed !important ;
-    margin-left: 580rpx;
-    margin-top: 500rpx;
-    height:35rpx !important;
-    width:120rpx;
-    font-size:12px !important;
-  }
-  
-  .user-container {
-    width: 100%;
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 10rpx 30rpx 180rpx 30rpx;
-    box-sizing: border-box;
-  }
-  
-  .user-main {
-    height: 60vh;
-    padding-top: 30rpx;
-    background-color: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));
-    // border-radius: 30rpx;
-  }
-  
-  .narrow-cell {
-    display: flex;
-    align-items: center;
-    --td-cell-vertical-padding: 10rpx;
-  }
-  
-  .narrow-input {
-    display: flex;
-    align-items: center;
-    --td-input-vertical-padding: 10rpx;
-  }
-  
-  .avatar-btn {
-    background-color: #0052d9;
-    color: #fff;
-    border-radius: 10rpx;
-  }
-  
-  .input-placeholder {
-    color: #aaa;
-  }
 
-  .row{
-    justify-content: flex-start !important;
-  }
+page {
+  background-image: linear-gradient(to top, rgba(155, 229, 253, 0.75) 0%, rgba(0, 82, 217, 0.75) 100%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.external-class-content {
+  color: #fff;
+  background-color: var(--td-brand-color, #0052d9);
+  font-size: larger;
+  font-weight: 400;
+}
+
+.avatar-example {
+  --td-avatar-border-width-large: 10rpx;
+}
+
+.name-card {
+  height: 35vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.avatar-name-id-card {
+  display: flex;
+  flex-direction: row;
+  margin-left: 50rpx;
+}
+
+.avatar-name-id-card .name-id-card {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10rpx;
+}
+
+.name-card-username {
+  margin-left: 30rpx;
+  font-size: 50rpx;
+  font-weight: bold;
+  color: #fff;
+}
+
+.name-card-uid {
+  margin-left: 40rpx;
+  margin-top: 20rpx;
+  font-size: 30rpx;
+  color: #fff;
+}
+
+.name-card-signature {
+  margin-left: 20rpx;
+  font-size: 24rpx;
+  color: #fff;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-items: flex-start;
+}
+
+.gender-icon {
+  margin-left: 20rpx;
+  border-radius: 100%;
+  padding: 5rpx;
+  color: #fff;
+  border: #fff solid 4rpx;
+}
+
+.update-background {
+  position: fixed !important;
+  margin-left: 580rpx;
+  margin-top: 500rpx;
+  height: 35rpx !important;
+  width: 120rpx;
+  font-size: 12px !important;
+}
+
+.user-container {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 10rpx 30rpx 180rpx 30rpx;
+  box-sizing: border-box;
+}
+
+.user-main {
+  height: 60vh;
+  padding-top: 30rpx;
+  background-color: var(--td-cell-bg-color, var(--td-bg-color-container, var(--td-font-white-1, #ffffff)));
+  // border-radius: 30rpx;
+}
+
+.narrow-cell {
+  display: flex;
+  align-items: center;
+  --td-cell-vertical-padding: 10rpx;
+}
+
+.narrow-input {
+  display: flex;
+  align-items: center;
+  --td-input-vertical-padding: 10rpx;
+}
+
+.avatar-btn {
+  background-color: #0052d9;
+  color: #fff;
+  border-radius: 10rpx;
+}
+
+.input-placeholder {
+  color: #aaa;
+}
+
+.row {
+  justify-content: flex-start !important;
+}
