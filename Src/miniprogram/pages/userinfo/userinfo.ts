@@ -18,6 +18,8 @@ Component({
     backendVersion: '不可用',
     currentChannel: {} as ChannelBasic,
     fullChannelList: [] as Channel[],
+
+    refreshEnable:false,
   },
 
   methods: {
@@ -33,6 +35,22 @@ Component({
         });
         console.log('当前主题：', res.theme)
       });
+    },
+    async refreshUserBasic(){
+      const selectedUserId = this.data.selectedUser.id
+      this.setData({
+        selectedUser:await app.getUserDetail(selectedUserId)
+      })
+    },
+    //调用app.getUserDetail()和子组件刷新函数实现刷新
+    async onRefresh() {
+      this.setData({ refreshEnable: true });
+      await this.refreshUserBasic();
+      const posts = this.selectComponent('#posts');
+      if (posts) posts.onRefresh();
+      const channelList = this.selectComponent('#channel-list');
+      if(channelList) channelList.onRefresh(); 
+      this.setData({ refreshEnable: false });
     },
     copyUid() {
       wx.setClipboardData({
