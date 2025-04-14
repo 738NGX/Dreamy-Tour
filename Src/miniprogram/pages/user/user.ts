@@ -23,7 +23,7 @@ Component({
 
     testText: '测试文本',
 
-    refreshEnable:false
+    refreshEnable: false
   },
   methods: {
     onLoad() {
@@ -65,7 +65,7 @@ Component({
         })
       }
     },
-    async onRefresh(){
+    async onRefresh() {
       this.setData({ refreshEnable: true });
       //个人信息
       const currentUserBasic = await app.getCurrentUser();
@@ -77,11 +77,11 @@ Component({
           testUserList: app.getUserListCopy()
         });
 
-      //帖子
-      const posts = this.selectComponent('#posts');
-      if (posts) posts.onRefresh();
-      //经验值组件
-      this.caluculateExp();
+        //帖子
+        const posts = this.selectComponent('#posts');
+        if (posts) posts.onRefresh();
+        //经验值组件
+        this.caluculateExp();
       }
       this.setData({ refreshEnable: false });
     },
@@ -139,82 +139,169 @@ Component({
       await app.changeUserBasic(currentUser);
       this.caluculateExp();
     },
-    handleNickNameChange(e: WechatMiniprogram.CustomEvent) {
+    handleNickNameChange() {
       const { currentUser } = this.data;
-      currentUser.name = e.detail.value;
-      this.setData({ currentUser })
+      const that = this;
+      wx.showModal({
+        title: '请输入新的昵称',
+        content: currentUser.name,
+        editable: true,
+        placeholderText: '昵称上限10个汉字或20个字符',
+        async success(res) {
+          if (res.confirm) {
+            const name = res.content;
+            if (name && getByteLength(name) <= 20) {
+              currentUser.name = name;
+              if (await app.changeUserName(currentUser.name)) {
+                const currentUserBasic = await app.getCurrentUser()
+                that.setData({ currentUser: currentUserBasic });
+              }
+              if (that.data.isTestMode) {
+                that.setData({
+                  testUserList: app.getUserListCopy()
+                })
+              }
+            } else {
+              wx.showToast({
+                title: '输入不合法',
+                icon: 'none',
+                duration: 1000
+              })
+            }
+          }
+        }
+      })
     },
-    handleGenderChange(e: WechatMiniprogram.CustomEvent) {
+    handleGenderChange() {
       const { currentUser } = this.data;
-      currentUser.gender = e.detail.value;
-      this.setData({ currentUser })
+      const that = this;
+      const itemList = ['男', '女', '保密'];
+      wx.showActionSheet({
+        alertText: '请选择性别',
+        itemList: itemList,
+        async success(res) {
+          currentUser.gender = itemList[res.tapIndex];
+          if (await app.changeUserBasic(currentUser)) {
+            const currentUserBasic = await app.getCurrentUser()
+            that.setData({ currentUser: currentUserBasic });
+          }
+        }
+      })
     },
-    handleSignatureChange(e: WechatMiniprogram.CustomEvent) {
+    handleSignatureChange() {
       const { currentUser } = this.data;
-      currentUser.signature = e.detail.value;
-      this.setData({ currentUser })
+      const that = this;
+      wx.showModal({
+        title: '请输入新的个性签名',
+        content: currentUser.signature,
+        editable: true,
+        placeholderText: '个性签名长度在5-50字之间',
+        async success(res) {
+          if (res.confirm) {
+            const signature = res.content;
+            if (signature.length >= 5 && signature.length <= 50) {
+              currentUser.signature = signature;
+              if (await app.changeUserBasic(currentUser)) {
+                const currentUserBasic = await app.getCurrentUser()
+                that.setData({ currentUser: currentUserBasic });
+              }
+            } else {
+              wx.showToast({
+                title: '输入不合法',
+                icon: 'none',
+                duration: 1000
+              })
+            }
+          }
+        }
+      })
     },
-    handleBirthdayChange(e: WechatMiniprogram.CustomEvent) {
+    handleBirthdayChange() {
       const { currentUser } = this.data;
-      currentUser.birthday = e.detail.value;
-      this.setData({ currentUser })
+      const that = this;
+      wx.showModal({
+        title: '请输入你的生日',
+        content: currentUser.birthday,
+        editable: true,
+        placeholderText: '生日格式限定为YYYY-MM-DD',
+        async success(res) {
+          if (res.confirm) {
+            const birthday = res.content;
+            if (birthday.match(/^\d{4}-\d{2}-\d{2}$/)) {
+              currentUser.birthday = birthday;
+              if (await app.changeUserBasic(currentUser)) {
+                const currentUserBasic = await app.getCurrentUser()
+                that.setData({ currentUser: currentUserBasic });
+              }
+            } else {
+              wx.showToast({
+                title: '输入不合法',
+                icon: 'none',
+                duration: 1000
+              })
+            }
+          }
+        }
+      })
     },
-    handlePhoneChange(e: WechatMiniprogram.CustomEvent) {
+    handlePhoneChange() {
       const { currentUser } = this.data;
-      currentUser.phone = e.detail.value;
-      this.setData({ currentUser })
+      const that = this;
+      wx.showModal({
+        title: '请输入你的手机号',
+        content: currentUser.phone,
+        editable: true,
+        placeholderText: '手机号长度为11位',
+        async success(res) {
+          if (res.confirm) {
+            const signature = res.content;
+            if (signature.length !== 11) {
+              currentUser.signature = signature;
+              if (await app.changeUserBasic(currentUser)) {
+                const currentUserBasic = await app.getCurrentUser()
+                that.setData({ currentUser: currentUserBasic });
+              }
+            } else {
+              wx.showToast({
+                title: '输入不合法',
+                icon: 'none',
+                duration: 1000
+              })
+            }
+          }
+        }
+      })
     },
-    handleEmailChange(e: WechatMiniprogram.CustomEvent) {
-      const { currentUser } = this.data;
-      currentUser.email = e.detail.value;
-      this.setData({ currentUser })
-    },
-
-    async handleUserNameChangeConfirm() {
-      const { currentUser } = this.data;
-
-      if (getByteLength(currentUser.name) > 20) {
-        wx.showToast({
-          title: '昵称过长',
-          icon: 'none',
-          duration: 1000
-        });
-        return;
-      }
-      this.setData({ currentUser })
-      if (!await app.changeUserName(currentUser.name)) {
-        const currentUserBasic = await app.getCurrentUser()
-        this.setData({ currentUser: currentUserBasic });
-      }
-      if (this.data.isTestMode) {
-        this.setData({
-          testUserList: app.getUserListCopy()
-        })
-      }
-    },
-    async handleUserBasicChange() {
-      const { currentUser } = this.data;
-      this.setData({ currentUser })
-      if (!await app.changeUserBasic(currentUser)) {
-        const currentUserBasic = await app.getCurrentUser()
-        this.setData({ currentUser: currentUserBasic });
-      }
-    },
-    async handleUserBasicReset() {
-      const currentUserBasic = await app.getCurrentUser()
-      this.setData({ currentUser: currentUserBasic });
-    },
-    async uploadAvater(e: WechatMiniprogram.CustomEvent) {
-      const src = e.detail.avatarUrl;
+    async uploadAvater(/*e: WechatMiniprogram.CustomEvent*/) {
+      //const src = e.detail.avatarUrl;
       // 可以用原生方式
       //wx.navigateTo({
       //  url: `../upload-avatar/upload-avatar?src=${src}`
       //})
-      console.log('src:', src)
-      await app.changeUserAvatar(await getImageBase64(src));
-      await this.onShow();
+      //console.log('src:', src)
+      //await app.changeUserAvatar(await getImageBase64(src));
+      //await this.onShow();
+      const that = this;
+      wx.chooseImage({
+        count: 1,
+        sizeType: ['original', 'compressed'],
+        sourceType: ['album'],
+        success(res) {
+          const src = res.tempFilePaths[0];
+          (wx as any).cropImage({
+            src: src,
+            cropScale: '1:1',
+            async success(res: any) {
+              const src = res.tempFilePath;
+              await app.changeUserAvatar(await getImageBase64(src));
+              await that.onShow();
+            }
+          })
+        }
+      });
     },
     async uploadBackgroundImage() {
+      /*
       if (!this.data.backgroundImages[0]) {
         wx.showToast({
           title: '不可上传空白内容',
@@ -227,6 +314,25 @@ Component({
         console.log('src.url:', src.url)
       await app.changeUserBackgroundImage(await getImageBase64(src.url));
       await this.onShow();
+      */
+      const that = this;
+      wx.chooseImage({
+        count: 1,
+        sizeType: ['original', 'compressed'],
+        sourceType: ['album'],
+        success(res) {
+          const src = res.tempFilePaths[0];
+          (wx as any).cropImage({
+            src: src,
+            cropScale: '1:1',
+            async success(res: any) {
+              const src = res.tempFilePath;
+              await app.changeUserBackgroundImage(await getImageBase64(src));
+              await that.onShow();
+            }
+          })
+        }
+      });
     },
     handleImageUploadSuccess(e: WechatMiniprogram.CustomEvent) {
       const { files } = e.detail;

@@ -21,7 +21,7 @@ App<IAppOption>({
     testMode: true,
     currentData: testData,
     baseUrl: apiUrl,
-    version: "1.0.5"
+    version: "2.0.0"
   },
   onLaunch() {
     // 开屏进入登录页面
@@ -433,10 +433,10 @@ App<IAppOption>({
   },
 
   // for channel-detail-home.ts
-  async generateTourSaves(channelId: number): Promise<Tour[]> {
+  async generateTourSaves(channelId: number, forUser: boolean = false): Promise<Tour[]> {
     if (!this.globalData.testMode) {
       try {
-        const res = await HttpUtil.get({ url: `/channel/${channelId}/toursaves` });
+        const res = await HttpUtil.get({ url: `/${forUser?'user':'channel'}/${channelId}/toursaves` });
         const constructTour = (data: any): Tour => {
           const { tourId: id, ...tourRest } = data;
           if (tourRest && Array.isArray(tourRest.children)) {

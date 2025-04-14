@@ -31,6 +31,7 @@ import ResetPasswordDto from "@/dto/user/resetPasswordDto";
 import BindEmailDto from "@/dto/user/bindEmailDto";
 import BindWxDto from "@/dto/user/bindWxDto";
 import EmailLoginV2Dto from "@/dto/user/emailLoginV2Dto";
+import TourService from "@/service/tourService";
 
 const { version } = require('../../package.json');
 
@@ -338,6 +339,15 @@ userRoute.get('/user/:uid/post-list', async (req: Request, res: Response) => {
   res.json(
     Result.success(postListVos)
   );
+})
+
+userRoute.get('/user/:userId/toursaves', async (req: Request, res: Response) => {
+  // 获取频道 ID
+  const userId = Number(req.params.userId);
+  // 获取行程列表
+  const tourSaves = await TourService.getTourSavesByUserId(userId);
+  // 返回响应
+  res.json(Result.success(tourSaves));
 })
 
 export default userRoute;

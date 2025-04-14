@@ -50,6 +50,13 @@ Component({
       type: Object,
       value: {},
     },
+    selectedUserId: {
+      type: Number,
+      value: -1,
+      observer: function () {
+        this.onRefresh()
+      }
+    }
   },
 
   data: {
@@ -82,18 +89,26 @@ Component({
 
   lifetimes: {
     async ready() {
-      await this.generateTourSaves();
-      this.generateFullFootprints();
-      this.generateFullMarkers();
-      await this.generateUserRankings();
+      await this.onRefresh();
     },
   },
 
   methods: {
+    async onRefresh() {
+      await this.generateTourSaves();
+      this.generateFullFootprints();
+      this.generateFullMarkers();
+      if (this.properties.selectedUserId < 0) await this.generateUserRankings();
+    },
     async generateTourSaves() {
-      if (!this.properties.currentChannel) return;
-      const tourSaves = await app.generateTourSaves(this.properties.currentChannel.id);
-      this.setData({ tourSaves: tourSaves });
+      if (this.properties.selectedUserId >= 0) {
+        const tourSaves = await app.generateTourSaves(this.properties.selectedUserId, true);
+        this.setData({ tourSaves: tourSaves });
+      } else {
+        if (!this.properties.currentChannel) return;
+        const tourSaves = await app.generateTourSaves(this.properties.currentChannel.id, false);
+        this.setData({ tourSaves: tourSaves });
+      }
     },
     generateFullFootprints() {
       const footprints = this.data.tourSaves.map(tour => {
@@ -149,8 +164,8 @@ Component({
       this.setData({ fullMarkers: markers, markers: markers });
     },
     async generateUserRankings() {
-      if(!this.properties.currentChannel) return;
-      const rankList = await app.generateUserRankings(this.properties.currentChannel.id,this.data.footprints);
+      if (!this.properties.currentChannel) return;
+      const rankList = await app.generateUserRankings(this.properties.currentChannel.id, this.data.footprints);
       this.setData({ userRankings: rankList });
     },
     onRankingVisibleChange() {

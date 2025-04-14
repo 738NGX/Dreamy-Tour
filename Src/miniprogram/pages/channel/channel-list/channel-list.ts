@@ -7,7 +7,7 @@ Component({
     selectedUserId:{
       type: Number,
       value: -1,
-      observer: function (newVal) {
+      observer: function () {
         this.onRefresh()
       }
     }
@@ -48,7 +48,6 @@ Component({
       });
     },
     async loadChannelList() {
-      console.log("selectedUserId-Channel-list",this.properties.selectedUserId)
       const channelList = this.properties.selectedUserId > 0 ? await app.getSelectedUserJoinedChannels(this.properties.selectedUserId) : await app.getCurrentUserJoinedChannels()
       this.setData({ channelList, fullChannelList: channelList });
     },

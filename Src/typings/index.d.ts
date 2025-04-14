@@ -112,7 +112,7 @@ declare global {
      * @param channelId 频道ID
      * @returns 生成频道中的行程列表
      */
-    generateTourSaves(channelId: number): Promise<Tour[]>;
+    generateTourSaves(channelId: number, forUser: boolean): Promise<Tour[]>;
     /**
      * @param footprints 行程足迹列表
      * @returns 一个频道中的用户行程次数排名

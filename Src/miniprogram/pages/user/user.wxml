@@ -13,66 +13,47 @@
       <view class="name-card-uid" bind:tap="copyUid">UID: {{currentUser.id}}</view>
     </view>
     <view class="name-card-uid" style="margin-top:20rpx;">{{currentUser.signature}}</view>
-    <t-button wx:if="{{true}}" ghost size="extra-small" class="update-background" bind:tap="uploadVisibleChange">更换背景</t-button>
+    <t-button wx:if="{{true}}" ghost size="extra-small" class="update-background" bind:tap="uploadBackgroundImage">更换背景</t-button>
   </view>
 </view>
 <t-tabs animation="{{ { duration: 0.6 } }}" defaultValue="{{0}}">
-  <t-tab-panel label="个人信息" value="0" style="height:60vh;">
-    <view>
-      <t-input borderless disabled label="经验值">
-        <!-- t-button slot="suffix" theme="primary" variant="outline" size="small" bind:tap="signIn">点击签到</t-button -->
-      </t-input>
+  <t-tab-panel label="信息选项" value="0" style="height:60vh;">
+    <view style="margin:16rpx;">
+      <view>
+        <t-input borderless disabled label="经验值">
+          <!-- t-button slot="suffix" theme="primary" variant="outline" size="small" bind:tap="signIn">点击签到</t-button -->
+        </t-input>
+      </view>
+      <t-progress style="margin: 0 30rpx 30rpx 30rpx;" theme="plump" color="{{ {  from: '#0052D9', to: '#48c6ef' } }}" label="{{expLabel}}" percentage="{{expPercentage}}" />
+      <t-grid column="{{3}}">
+        <t-grid-item t-class-image="image" text="每日登陆" icon="assignment-checked">
+          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">每日登陆经验+5\n连续登陆经验+8</text>
+        </t-grid-item>
+        <t-grid-item t-class-image="image" text="参与频道讨论" icon="chat-checked">
+          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">发布帖子经验+30\n发布评论经验+10</text>
+        </t-grid-item>
+        <t-grid-item t-class-image="image" text="完成一次行程" icon="map-checked">
+          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">组织者经验+80\n参与者经验+50</text>
+        </t-grid-item>
+      </t-grid>
     </view>
-    <t-progress style="margin: 0 30rpx 30rpx 30rpx;" theme="plump" color="{{ {  from: '#0052D9', to: '#48c6ef' } }}" label="{{expLabel}}" percentage="{{expPercentage}}" />
-    <t-grid column="{{3}}">
-      <t-grid-item t-class-image="image" text="每日登陆" icon="assignment-checked">
-        <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">每日登陆经验+5\n连续登陆经验+8</text>
-      </t-grid-item>
-      <t-grid-item t-class-image="image" text="参与频道讨论" icon="chat-checked">
-        <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">发布帖子经验+30\n发布评论经验+10</text>
-      </t-grid-item>
-      <t-grid-item t-class-image="image" text="完成一次行程" icon="map-checked">
-        <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">组织者经验+80\n参与者经验+50</text>
-      </t-grid-item>
-    </t-grid>
-    <view style="margin:32rpx;">
-      <t-input class="narrow-input" borderless disabled label="UID" value="{{currentUser.id}}">
-        <t-button slot="suffix" theme="primary" variant="outline" size="small" bind:tap="copyUid">复制</t-button>
-      </t-input>
-      <t-input wx:if="{{isMiniApp}}" class="narrow-input" borderless disabled label="修改头像">
-        <t-button slot="suffix" theme="primary" variant="outline" size="small" open-type="chooseAvatar" bind:chooseavatar="uploadAvater">选择</t-button>
-      </t-input>
-      <view borderless class="narrow-input" style="font-size:32rpx; padding:10rpx;">
-        <view style="margin-right:32rpx;">昵称</view>
-        <input type="nickname" value="{{currentUser.name}}" maxlength="{{15}}" bindchange="handleNickNameChange" placeholder-style="input-placeholder" bind:blur="handleUserNameChangeConfirm" placeholder="请输入昵称" />
-      </view>
-      <view borderless class="narrow-input" style="font-size:32rpx; padding:10rpx;">
-        <view style="margin-right:32rpx;">性别</view>
-        <t-radio-group bind:change="handleGenderChange" value="{{currentUser.gender}}" borderless>
-          <t-radio style="margin-right:32rpx;" block="{{false}}" label="男" value="男" />
-          <t-radio style="margin-right:32rpx;" block="{{false}}" label="女" value="女" />
-          <t-radio style="margin-right:32rpx;" block="{{false}}" label="保密" value="保密" />
-        </t-radio-group>
-      </view>
-      <t-input borderless class="narrow-input" bind:blur="handleSignatureChange" label="签名" placeholder="请输入个性签名" maxlength="{{30}}" value="{{currentUser.signature}}" />
-      <t-input borderless class="narrow-input" bind:blur="handleBirthdayChange" label="生日" placeholder="请输入生日(YYYY-mm-dd)格式" maxlength="{{10}}" value="{{currentUser.birthday}}" />
-      <t-input borderless class="narrow-input" bind:blur="handlePhoneChange" label="手机" placeholder="请输入手机号" maxlength="{{11}}" value="{{currentUser.phone}}" />
-      <view class="row">
-        <t-button theme="primary" style="width:50%; margin:10rpx" bind:tap="handleUserBasicChange">确认修改</t-button>
-        <t-button style="width:50%; margin:10rpx" bind:tap="handleUserBasicReset">取消修改</t-button>
-      </view>
-    </view>
-    <view style="height:200rpx" />
-  </t-tab-panel>
-  <t-tab-panel label="帖子列表" value="1" style="height:60vh;">
-    <channel-detail-posts id="posts" selectedUserId="{{currentUser.id}}" />
-  </t-tab-panel>
-  <t-tab-panel label="选项设置" value="2" style="height:60vh;">
-    <view style="height:32rpx" />
-    <t-cell left-icon="{{isDarkMode?'mode-dark':'mode-light'}}" class="narrow-cell" bordered="{{false}}" title="{{isDarkMode?'深色主题':'浅色主题'}}已启用" description="应用主题默认跟随系统主题" />
     <t-cell bind:click="bindEmail" left-icon="mail" class="narrow-cell" bordered="{{false}}" title="{{currentUser.email?'邮箱已绑定,点击换绑':'邮箱未绑定,点击绑定'}}" description="{{currentUser.email?currentUser.email:''}}" arrow hover />
+    <t-cell bind:click="uploadAvater" left-icon="user-circle" title="头像" note="修改" hover arrow bordered="{{false}}" />
+    <t-cell bind:click="handleNickNameChange" left-icon="textbox" title="昵称" note="{{currentUser.name}}" hover arrow bordered="{{false}}" />
+    <t-cell bind:click="handleGenderChange" left-icon="{{currentUser.gender=='男'?'gender-male':'gender-female'}}" title="性别" note="{{currentUser.gender}}" hover arrow bordered="{{false}}" />
+    <t-cell bind:click="handleSignatureChange" left-icon="edit" title="签名" note="{{currentUser.signature}}" hover arrow bordered="{{false}}" />
+    <t-cell bind:click="handleBirthdayChange" left-icon="cake" title="生日" note="{{currentUser.birthday}}" hover arrow bordered="{{false}}" />
+    <t-cell bind:click="handlePhoneChange" left-icon="call" title="手机" note="{{currentUser.phone}}" hover arrow bordered="{{false}}" />
+    <t-cell left-icon="{{isDarkMode?'mode-dark':'mode-light'}}" class="narrow-cell" bordered="{{false}}" title="{{isDarkMode?'深色主题':'浅色主题'}}已启用" description="应用主题默认跟随系统主题" />
     <t-button theme="primary" style="width:90%; margin:30rpx 0rpx 0rpx 30rpx;" bind:tap="resetPassword">重置密码</t-button>
     <t-button theme="danger" style="width:90%; margin:30rpx" bind:tap="quitLogin">退出登录</t-button>
+    <view style="height:200rpx" />
+  </t-tab-panel>
+  <t-tab-panel label="我的帖子" value="1" style="height:60vh;">
+    <channel-detail-posts id="posts" selectedUserId="{{currentUser.id}}" />
+  </t-tab-panel>
+  <t-tab-panel label="历史行程" value="2" style="height:60vh;">
+    <channel-detail-home id="home" selectedUserId="{{currentUser.id}}" />
   </t-tab-panel>
   <t-tab-panel label="关于我们" value="3" style="height:60vh;">
     <view style="height:32rpx" />

@@ -24,7 +24,7 @@ Component({
     selectedUserId: {
       type:Number,
       value: -1,
-      observer: function (newVal) {
+      observer: function () {
         this.onRefresh()
       }
     }

@@ -314,6 +314,49 @@ class TourService {
     );
   }
 
+  static async getTourSavesByUserId(userId: number): Promise<TourVo[]> {
+    const db = await dbPromise;
+    const rows = await db.all<Partial<Tour>[]>(
+      `
+      SELECT tourId, title, status, linkedChannel, channelVisible,
+        linkedGroup, startDate, endDate, timeOffset,
+        mainCurrency, subCurrency, currencyExchangeRate,
+        nodeCopyNames, budgets, locations, transportations
+      FROM tours
+      WHERE status = 2 AND EXISTS (
+        SELECT 1 FROM tour_users WHERE tour_users.tourId = tours.tourId AND uid = ?
+      )
+      `,
+      [userId]
+    );
+    if (!rows) {
+      throw new ParamsError("该用户没有行程");
+    }
+    return await Promise.all(
+      rows.map(async row => {
+        // 查询关联用户
+        const users = await db.all<Partial<{ uid: number }>[]>(`
+          SELECT uid FROM tour_users WHERE tourId = ?
+        `, [row.tourId]);
+
+        if (!users || users.length === 0) {
+          throw new ParamsError("该行程没有关联用户");
+        }
+
+        const { nodeCopyNames, budgets, locations, transportations, ...rowRest } = row;
+
+        return new TourVo({
+          ...rowRest,
+          nodeCopyNames: nodeCopyNames ? JSON.parse(nodeCopyNames as string) : [],
+          budgets: budgets ? JSON.parse(budgets as string) : [],
+          locations: locations ? JSON.parse(locations as string) : [],
+          transportations: transportations ? JSON.parse(transportations as string) : [],
+          users: users.map(user => user.uid!),
+        });
+      })
+    );
+  }
+
   /**
    * 
    * @param tourBasicDto 

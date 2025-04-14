@@ -20,6 +20,7 @@
     "t-fab": "tdesign-miniprogram/fab/fab",
     "t-textarea": "tdesign-miniprogram/textarea/textarea",
     "channel-detail-posts": "/pages/channel-detail/channel-detail-posts/channel-detail-posts",
+    "channel-detail-home": "/pages/channel-detail/channel-detail-home/channel-detail-home",
     "channel-list": "/pages/channel/channel-list/channel-list",
     "t-tabs": "tdesign-miniprogram/tabs/tabs",
     "t-tab-panel": "tdesign-miniprogram/tab-panel/tab-panel"

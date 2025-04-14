@@ -32,4 +32,4 @@
   </block>
   <view style="height:200rpx" />
 </scroll-view>
-<t-fab icon="user-circle" bind:click="onRankingVisibleChange" text="旅行排行" />
+<t-fab wx:if="{{selectedUserId<0}}" icon="user-circle" bind:click="onRankingVisibleChange" text="旅行排行" />
