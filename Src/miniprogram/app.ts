@@ -2421,6 +2421,57 @@ App<IAppOption>({
         );
     }
   },
+  async getFullPostsInPublicByUid(uid: number): Promise<PostCard[]> {
+    if (!this.globalData.testMode) {
+      try {
+        const results = await HttpUtil.get({ url: `/user/${uid}/post-list` });
+        const fullPosts = results.data.data.map((res: any) => {
+          return {
+            id: res.postId,
+            title: res.title,
+            content: '',
+            linkedChannel: res.channelId,
+            user: res.user.uid,
+            time: res.createdAt,
+            likes: Array(res.likeSum).fill(0),
+            photos: [new Photo({ value: res.pictureUrl })],
+            isSticky: res.isSticky,
+            username: res.user.nickname,
+            avatarUrl: res.user.avatarUrl,
+            timeStr: formatPostTime(res.createdAt) ?? '',
+            isLiked: res.action.isLiked,
+          } as PostCard;
+        })
+        .filter((post:PostCard) => post.linkedChannel == 1);
+        return fullPosts;
+      } catch (err: any) {
+        wx.showToast({
+          title: err.response.data.msg,
+          icon: "none"
+        });
+        return [];
+      }
+    } else {
+      const currentUserId = this.globalData.currentUserId
+      return this.getPostListCopy()
+        .map((post) => {
+          return {
+            ...post,
+            username: this.getUser(post.user)?.name ?? '未知用户',
+            avatarUrl: this.getUser(post.user)?.avatarUrl ?? '',
+            timeStr: formatPostTime(post.time) ?? '',
+            isLiked: post.likes.includes(currentUserId) ? true : false,
+          }
+        })
+        .filter((post) =>
+          post.user == uid &&
+          post.linkedChannel == 1
+        )
+        .sort((a, b) =>
+          (b.isSticky ? 1 : 0) - (a.isSticky ? 1 : 0) || b.time - a.time
+        );
+    }
+  },
   async getAddressByLocation(location: string): Promise<string> {
     try {
       const res = await HttpUtil.get({ url: `/map/geoDecode?location=${location}` }, 5000)

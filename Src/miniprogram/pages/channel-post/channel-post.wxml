@@ -21,7 +21,10 @@
         <t-button bind:tap="onPostStickyChange" class="text-btn" wx:if="{{isChannelAdmin}}" size="small" theme="primary" variant="text">{{ currentPost.isSticky ? '取消置顶' : '置顶帖子' }}</t-button>
       </view> -->
       <view class="post-meta">
-        <view bind:tap="showUsercard" data-index="{{author.id}}">
+
+        <!-- <view bind:tap="showUsercard" data-index="{{author.id}}"> -->
+        <view bind:tap="showUserInfo" data-index="{{author.id}}">
+
           <t-avatar class="avatar-example" image="{{author.avatarUrl}}" t-class-content="external-class-content" size="32px">{{ author.name[0] }}</t-avatar>
         </view>
         <view class="username" style="margin-left:6rpx">
@@ -39,7 +42,8 @@
     <t-cell bind:click="handleCommentsSort" title="共{{structedComments.length}}条评论" hover note="{{commentsSortType}}" arrow />
     <block wx:for="{{structedComments}}" wx:key="id" wx:for-index="i">
       <view class="comment-item">
-        <view bind:tap="showUsercard" data-index="{{item.user}}">
+        <!-- <view bind:tap="showUsercard" data-index="{{item.user}}"> -->
+        <view bind:tap="showUserInfo" data-index="{{item.user}}">
           <t-avatar image="{{item.avatarUrl}}" style="margin:10rpx 5rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.userName[0] }}</t-avatar>
         </view>
         <view style="margin-left:20rpx; width:75%;" data-index="{{item.id}}" bindtap="handleReplyInput">
@@ -87,7 +91,8 @@
   <scroll-view class="scrollarea" scroll-y type="list" style="height: 55vh;">
     <block wx:for="{{replies}}" wx:key="id" wx:for-index="i">
       <view class="comment-item">
-        <view bind:tap="showUsercard" data-index="{{item.user}}">
+        <!-- <view bind:tap="showUsercard" data-index="{{item.user}}"> -->
+        <view bind:tap="showUserInfo" data-index="{{item.user}}">
           <t-avatar image="{{item.avatarUrl}}" style="margin:10rpx 0rpx;" class="avatar-example" t-class-content="external-class-content" size="32px">{{ item.userName[0] }}</t-avatar>
         </view>
         <view style="margin-left:20rpx; width:75%;" data-index="{{item.id}}" bindtap="handleReplyInput">

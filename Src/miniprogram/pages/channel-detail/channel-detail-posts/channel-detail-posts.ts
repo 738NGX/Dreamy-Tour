@@ -20,6 +20,13 @@ Component({
     height: {
       type: Number,
       value: 75,
+    },
+    selectedUserId: {
+      type:Number,
+      value: -1,
+      observer: function (newVal) {
+        this.onRefresh()
+      }
     }
   },
 
@@ -35,25 +42,55 @@ Component({
     inputTitle: '',
     inputValue: '',
     originFiles: [] as File[],
+
+    currentUserId: -1,
   },
 
   lifetimes: {
     async ready() {
-      await this.getFullPosts();
-      this.searchPosts();
+      await this.getCurrentUserId();
+      if(this.properties.selectedUserId > 0 ){
+        if(this.properties.selectedUserId == this.data.currentUserId){
+          await this.getFullPostsByUid()
+        } else {
+          await this.getFullPostsInPublicByUid()
+        }
+      } else {
+        await this.getFullPosts();
+      }
+      this.searchPosts(this.data.searchingValue);
     },
   },
 
   methods: {
     async onRefresh() {
-      this.setData({ refreshEnable: true });
-      await this.getFullPosts();
+      this.setData({ 
+        refreshEnable: true,
+      });
+      await this.getCurrentUserId();
+      if(this.properties.selectedUserId > 0 ){
+        if(this.properties.selectedUserId == this.data.currentUserId){
+          await this.getFullPostsByUid()
+        } else {
+          await this.getFullPostsInPublicByUid()
+        }
+      } else {
+        await this.getFullPosts();
+      }
       this.searchPosts(this.data.searchingValue);
       this.setData({ refreshEnable: false });
     },
     async getFullPosts() {
       const fullPosts = await app.getFullPostsInChannel(this.properties.currentChannel.id);
       this.setData({ fullPosts });
+    },
+    async getFullPostsByUid(){
+      const fullPosts = await app.getFullPostsByUid(this.properties.selectedUserId);
+      this.setData({ fullPosts })
+    },
+    async getFullPostsInPublicByUid(){
+      const fullPosts = await app.getFullPostsInPublicByUid(this.properties.selectedUserId);
+      this.setData({ fullPosts })
     },
     searchPosts(searchValue: string = '') {
       const { fullPosts } = this.data;
@@ -125,6 +162,11 @@ Component({
         });
         await this.onRefresh();
       }
+    },
+    async getCurrentUserId(){
+      const currentUserBasic = await app.getCurrentUser()
+      const currentUserId = currentUserBasic?.id
+      this.setData({currentUserId})
     }
   }
 });
