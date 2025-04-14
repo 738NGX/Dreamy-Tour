@@ -9,7 +9,8 @@ Component({
   },
   data: {
     isTestMode: false,
-    isDarkMode: wx.getSystemInfoSync().theme == 'dark',
+    // isDarkMode: wx.getSystemInfoSync().theme == 'dark',
+    isDarkMode: true,
     userRoleList: userRoleName,
     selectedUser: {} as Member,
     expPercentage: 0,
