@@ -1,6 +1,5 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
 <!-- header class="custom-navbar" tabList="{{[]}}" / -->
-<t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
 <view style="background: linear-gradient(rgba(0, 0, 0, {{isDarkMode?0.5:0}}), rgba(0, 0, 0, {{isDarkMode?0.5:0}})), url({{currentUser.backgroundImageUrl ? currentUser.backgroundImageUrl : 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/background_images/default.jpg'}}) no-repeat 0% 20%/ cover;">
   <view class="name-card">
     <view style="height:150rpx" />
@@ -63,6 +62,7 @@
         <t-button style="width:50%; margin:10rpx" bind:tap="handleUserBasicReset">取消修改</t-button>
       </view>
     </view>
+    <view style="height:200rpx" />
   </t-tab-panel>
   <t-tab-panel label="帖子列表" value="1" style="height:60vh;">
     <channel-detail-posts id="posts" selectedUserId="{{currentUser.id}}" />
@@ -113,4 +113,3 @@
 <t-popup-headered style="height:20vh;overflow:hidden;" visible="{{uploadVisible}}" title="上传图片" bind:visible-change="uploadVisibleChange" bindConfirm="uploadBackgroundImage" bindCancel="cancelUpload" placement="bottom">
   <t-upload draggable max="1" media-type="{{['image']}}" files="{{backgroundImages}}" bind:success="handleImageUploadSuccess" bind:remove="handleImageUploadRemove" bind:click="handleImageUploadClick" bind:drop="handleImageUploadDrop" />
 </t-popup-headered>
-</t-pull-down-refresh>

@@ -1,49 +1,45 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
 <!-- header class="custom-navbar" tabList="{{[]}}" / -->
 <header class="custom-navbar" title="{{selectedUser.name}}的主页" tabList="{{[]}}" />
-<scroll-view class="scrollarea" style="height:100vh" scroll-y type="list">
-  <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
-    <view>
-      <view class="name-card" style="background: linear-gradient(rgba(0, 0, 0, {{isDarkMode?0.5:0}}), rgba(0, 0, 0, {{isDarkMode?0.5:0}})), url({{selectedUser.backgroundImageUrl ? selectedUser.backgroundImageUrl : 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/background_images/default.jpg'}}) no-repeat 0% 20%/ cover;">
-        <view style="height:100rpx" />
-        <view class="avatar-name-id-card">
-          <t-avatar bordered image="{{selectedUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ selectedUser.name[0] }}</t-avatar>
-          <view class="name-id-card">
-            <view class="name-card-username">{{selectedUser.name}}</view>
-            <view class="name-card-uid" bind:tap="copyUid">UID: {{selectedUser.id}}</view>
-          </view>
+<view class="name-card" style="background: linear-gradient(rgba(0, 0, 0, {{isDarkMode?0.5:0}}), rgba(0, 0, 0, {{isDarkMode?0.5:0}})), url({{selectedUser.backgroundImageUrl ? selectedUser.backgroundImageUrl : 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/background_images/default.jpg'}}) no-repeat 0% 20%/ cover;">
+  <view style="height:60rpx" />
+  <view class="avatar-name-id-card">
+    <t-avatar bordered image="{{selectedUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ selectedUser.name[0] }}</t-avatar>
+    <view class="name-id-card">
+      <view class="name-card-username">{{selectedUser.name}}</view>
+      <view class="row" style="margin-left:60rpx;margin-top:20rpx;align-items:center;justify-content:flex-start;">
+        <t-tag size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(selectedUser.userGroup)}}">{{selectedUser.userGroup}}</t-tag>
+        <view wx:if="{{selectedUser.gender!='保密'}}" class="gender-icon" style="background-color:#{{selectedUser.gender=='男'?'00a1d6':'ff548c'}};">
+          <t-icon name="{{selectedUser.gender=='男'?'gender-male':'gender-female'}}" size="20rpx" />
         </view>
-        <view class="row" style="margin-left:60rpx;margin-top:20rpx;align-items:center;justify-content:flex-start;">
-          <t-tag size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(selectedUser.userGroup)}}">{{selectedUser.userGroup}}</t-tag>
-          <view wx:if="{{selectedUser.gender!='保密'}}" class="gender-icon" style="background-color:#{{selectedUser.gender=='男'?'00a1d6':'ff548c'}};">
-            <t-icon name="{{selectedUser.gender=='男'?'gender-male':'gender-female'}}" size="20rpx" />
-          </view>
-        </view>
-        <view class="name-card-signature" style="margin-top:20rpx;margin-left:60rpx">
-          <t-icon name="edit" style="margin-right:10rpx;" size="32rpx" />
-          {{selectedUser.signature?selectedUser.signature:'请多关照!'}}
-        </view>
-        <view class="name-card-signature" style="margin-top:20rpx;margin-left:60rpx">
-          <t-icon name="cake" style="margin-right:10rpx;" size="32rpx" />
-          {{selectedUser.birthday?selectedUser.birthday:'保密'}}
-        </view>
-        <view class="name-card-signature" style="margin-top:20rpx;margin-left:60rpx">
-          <t-icon name="call" style="margin-right:10rpx;" size="32rpx" />
-          {{selectedUser.phone?selectedUser.phone:'保密'}}
-        </view>
-        <view class="name-card-signature" style="margin-top:20rpx;margin-left:60rpx">
-          <t-icon name="mail" style="margin-right:10rpx;" size="32rpx" />
-          {{selectedUser.email?selectedUser.email:'保密'}}
-        </view>
+        <view bind:tap="copyUid" style="color:white;margin-left:30rpx;">UID: {{selectedUser.id}}</view>
       </view>
-      <t-tabs animation="{{ { duration: 0.6 } }}" defaultValue="{{0}}">
-        <t-tab-panel label="帖子" value="0">
-          <channel-detail-posts id="posts" selectedUserId="{{selectedUser.id}}" />
-        </t-tab-panel>
-        <t-tab-panel label="频道" value="1">
-          <channel-list id="channel-lists" selectedUserId="{{selectedUser.id}}" />
-        </t-tab-panel>
-      </t-tabs>
     </view>
-  </t-pull-down-refresh>
-</scroll-view>
+  </view>
+  <view style="height:36rpx" />
+  <view class="name-card-signature" style="margin-top:20rpx;margin-left:60rpx">
+    <t-icon name="edit" style="margin-right:10rpx;" size="32rpx" />
+    {{selectedUser.signature?selectedUser.signature:'请多关照!'}}
+  </view>
+  <view class="name-card-signature" style="margin-top:20rpx;margin-left:60rpx">
+    <t-icon name="cake" style="margin-right:10rpx;" size="32rpx" />
+    {{selectedUser.birthday?selectedUser.birthday:'保密'}}
+  </view>
+  <view class="name-card-signature" style="margin-top:20rpx;margin-left:60rpx">
+    <t-icon name="call" style="margin-right:10rpx;" size="32rpx" />
+    {{selectedUser.phone?selectedUser.phone:'保密'}}
+  </view>
+  <view class="name-card-signature" style="margin-top:20rpx;margin-left:60rpx">
+    <t-icon name="mail" style="margin-right:10rpx;" size="32rpx" />
+    {{selectedUser.email?selectedUser.email:'保密'}}
+  </view>
+  <view style="height:60rpx" />
+</view>
+<t-tabs animation="{{ { duration: 0.6 } }}" defaultValue="{{0}}">
+  <t-tab-panel label="帖子" value="0" style="height:60vh;">
+    <channel-detail-posts id="posts" selectedUserId="{{selectedUser.id}}" />
+  </t-tab-panel>
+  <t-tab-panel label="频道" value="1" style="height:60vh;">
+    <channel-list id="channel-lists" selectedUserId="{{selectedUser.id}}" />
+  </t-tab-panel>
+</t-tabs>
