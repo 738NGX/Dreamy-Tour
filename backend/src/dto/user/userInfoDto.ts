@@ -26,6 +26,9 @@ class UserInfoDto extends DTO<UserInfoDto> {
    @Length(11, 11, {
       message: '手机号只能是 $constraint1 位'
    })
+   @Matches(/\d{11}/, {
+      message: "手机号只能是数字"
+   })
    phone?: string | null;
  
    // 个性签名（允许空值）
