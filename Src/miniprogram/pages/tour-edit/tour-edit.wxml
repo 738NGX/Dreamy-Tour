@@ -1,6 +1,6 @@
 <header helperId="8" class="custom-navbar" title="查看行程" tabList="{{[]}}" />
 <t-popup style="width:85% !important;" visible="{{settingsVisible}}" usingCustomNavbar bind:visible-change="handleSettings" placement="left">
-  <scroll-view class="scrollarea" style="height:60vh" scroll-y type="list">
+  <scroll-view class="scrollarea" style="height:90vh" scroll-y type="list">
     <c-collapse header="行程版本选择">
       <t-radio-group class="narrow-radio" bind:change="onCopyChange" value="{{currentCopyIndex}}">
         <t-radio value="{{0}}">

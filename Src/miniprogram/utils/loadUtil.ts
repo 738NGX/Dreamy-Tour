@@ -19,7 +19,6 @@ class LoadUtil {
         this.isLoading = true;
         wx.showLoading({
           title: "请稍候...",
-          mask: true
         });
       }
     }, 200) as unknown as number;

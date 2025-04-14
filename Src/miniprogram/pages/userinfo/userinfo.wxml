@@ -1,18 +1,18 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
 <!-- header class="custom-navbar" tabList="{{[]}}" / -->
 <header class="custom-navbar" title="{{selectedUser.name}}的主页" tabList="{{[]}}" />
-<view class="name-card" style="background: linear-gradient(rgba(0, 0, 0, {{isDarkMode?0.5:0}}), rgba(0, 0, 0, {{isDarkMode?0.5:0}})), url({{selectedUser.backgroundImageUrl ? selectedUser.backgroundImageUrl : 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/background_images/default.jpg'}}) no-repeat 0% 20%/ cover;">
+<view class="name-card" style="background: linear-gradient(rgba(0, 0, 0, {{isDarkMode?0.4:0.1}}), rgba(18, 38, 87, {{isDarkMode?0.5:0.3}})), url({{selectedUser.backgroundImageUrl ? selectedUser.backgroundImageUrl : 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/background_images/default.jpg'}}) no-repeat 0% 20%/ cover;">
   <view style="height:60rpx" />
   <view class="avatar-name-id-card">
     <t-avatar bordered image="{{selectedUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ selectedUser.name[0] }}</t-avatar>
     <view class="name-id-card">
       <view class="name-card-username">{{selectedUser.name}}</view>
-      <view class="row" style="margin-left:60rpx;margin-top:20rpx;align-items:center;justify-content:flex-start;">
+      <view class="row" style="margin-left:30rpx;margin-top:20rpx;align-items:center;justify-content:flex-start;">
         <t-tag size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(selectedUser.userGroup)}}">{{selectedUser.userGroup}}</t-tag>
         <view wx:if="{{selectedUser.gender!='保密'}}" class="gender-icon" style="background-color:#{{selectedUser.gender=='男'?'00a1d6':'ff548c'}};">
-          <t-icon name="{{selectedUser.gender=='男'?'gender-male':'gender-female'}}" size="20rpx" />
+          <t-icon name="{{selectedUser.gender=='男'?'gender-male':'gender-female'}}" size="24rpx" />
         </view>
-        <view bind:tap="copyUid" style="color:white;margin-left:30rpx;">UID: {{selectedUser.id}}</view>
+        <view bind:tap="copyUid" style="color:white;margin-left:24rpx;font-size:small;">UID: {{selectedUser.id}}</view>
       </view>
     </view>
   </view>

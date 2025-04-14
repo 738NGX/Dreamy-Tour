@@ -89,7 +89,7 @@ class HttpUtil {
 
       // 场景 1: 无 Token 直接跳转登录
       if (!token) {
-        wx.hideLoading();
+        LoadUtil.hide();
         wx.redirectTo({ url: "/pages/login/login" });
         return undefined; // 直接返回 undefined，表示不发送请求
       }
@@ -109,7 +109,7 @@ class HttpUtil {
       data: req.jsonData
     };
 
-    if (debug) { console.log('backend request:', requestParams) };
+    if (debug) { console.log('backend request:\n', requestParams) };
 
     return requestParams;
   }
@@ -118,15 +118,8 @@ class HttpUtil {
    * 发送网络请求（支持 Token 校验和自动跳转登录）
    * @param req 请求配置
    */
-  static async request(
-    req: Request, 
-    timeout: number, 
-    stream: boolean = false, 
-    loading?: boolean
-  ): Promise<Response> {
-    if (loading) {
-      LoadUtil.show()
-    }
+  static async request(req: Request, timeout: number, showLoading: boolean): Promise<Response> {
+    if (showLoading) LoadUtil.show();
     const requestParams = this.getRequestParams(req);
     if (!requestParams) {
       return Promise.reject({ errMsg: "Token 失效，请重新登录" });
@@ -134,69 +127,48 @@ class HttpUtil {
 
     // ================== 发送请求 ==================
     return new Promise(async (resolve, reject) => {
-      if (!stream) {
-        try {
-          const d = await fly.request(
-            requestParams.url,
-            requestParams.data,
-            {
-              method: requestParams.method,
-              headers: requestParams.header,
-              timeout: timeout,
-            }
-          );
-          if (debug) { console.log('backend result:', d) };
-          // 检查响应头是否有 X-Refresh-Token，如果有，刷新本地 token
-          const headers = d.headers as { [key: string]: string | undefined };
-          if (headers["X-Refresh-Token"]) {
-            wx.setStorageSync("token", headers["X-Refresh-Token"])
+      try {
+        const d = await fly.request(
+          requestParams.url,
+          requestParams.data,
+          {
+            method: requestParams.method,
+            headers: requestParams.header,
+            timeout: timeout,
           }
-          resolve(d);
-        } catch (e: any) {
-          if (debug) { console.error('backend error:', e) };
-          if (e.status === 1) {
-            wx.showToast({ title: "请求超时,请重试", icon: "error", time: 2000 });
-          } else if (e.status === 400) {
-            e = { ...e, errMsg: "请求参数错误" };
-          } else if (e.status === 401) {
-            wx.removeStorageSync("token");  // 清除失效 Token
-            wx.redirectTo({ url: "/pages/login/login" });
-            wx.showToast({ title: "登陆已过期", icon: "error", time: 2000 });
-            e = { ...e, errMsg: "登录已过期" };
-          } else if (e.status >= 500) {
-            wx.showToast({ title: "服务器异常", icon: "error", time: 2000 });
-            e = { ...e, errMsg: "服务器异常" };
+        );
+        if (debug) {
+          const size = (length: number) => {
+            if (length < 1024) return length + 'B';
+            else if (length < 1024 * 1024) return (length / 1024).toFixed(2) + 'KB';
+            else return (length / (1024 * 1024)).toFixed(2) + 'MB';
           }
-          reject(e);
-        } finally {
-          if (loading) {
-            LoadUtil.hide();
-          }
+          console.log('backend result:', size(JSON.stringify(d.data).length), '\n', d)
+        };
+        // 检查响应头是否有 X-Refresh-Token，如果有，刷新本地 token
+        const headers = d.headers as { [key: string]: string | undefined };
+        if (headers["X-Refresh-Token"]) {
+          wx.setStorageSync("token", headers["X-Refresh-Token"])
         }
-      } else {
-        /** 微信原生, 已弃用
-        wx.request({
-          ...requestParams,
-          success: (res: Response) => {
-            // 场景 3: Token 失效统一处理
-            if (res.statusCode === 401) {
-              wx.removeStorageSync("token");  // 清除失效 Token
-              wx.redirectTo({ url: "/pages/login/login" });
-              reject({ ...res, errMsg: "Token 失效，请重新登录" });
-            } else if (res.statusCode > 500) {
-              reject({ ...res, errMsg: "服务器异常" });
-            }
-            else {
-              resolve(res);
-            }
-          },
-          fail: (err) => {
-            reject(err);
-          }
-        });
-      
-        */
-        reject({ errMsg: "流式请求已弃用" });
+        if (showLoading) LoadUtil.hide();
+        resolve(d);
+      } catch (e: any) {
+        if (showLoading) LoadUtil.hide();
+        if (debug) { console.error('backend error:', e) };
+        if (e.status === 1) {
+          wx.showToast({ title: "请求超时,请重试", icon: "error", time: 2000 });
+        } else if (e.status === 400) {
+          e = { ...e, errMsg: "请求参数错误" };
+        } else if (e.status === 401) {
+          wx.removeStorageSync("token");  // 清除失效 Token
+          wx.redirectTo({ url: "/pages/login/login" });
+          wx.showToast({ title: "登陆已过期", icon: "error", time: 2000 });
+          e = { ...e, errMsg: "登录已过期" };
+        } else if (e.status >= 500) {
+          wx.showToast({ title: "服务器异常", icon: "error", time: 2000 });
+          e = { ...e, errMsg: "服务器异常" };
+        }
+        reject(e);
       }
     });
   }
@@ -205,105 +177,77 @@ class HttpUtil {
    * GET 请求
    * @param req 请求配置
    */
-  static async get(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
-    return await this.request(
-      {
-        ...req,
-        method: "GET"
-      }, 
-      timeout, 
-      loading
-    )
+  static async get(req: MethodRequest, timeout: number = 20000, showLoading: boolean = false): Promise<Response> {
+    return await this.request({
+      ...req,
+      method: "GET"
+    }, timeout, showLoading)
   }
 
   /**
    * POST 请求（提交数据）
    * @param req 请求配置（数据放在 json_data）
    */
-  static async post(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
-    return await this.request(
-      {
-        ...req,
-        method: "POST"
-      }, 
-      timeout, 
-      loading
-    )
+  static async post(req: MethodRequest, timeout: number = 20000, showLoading: boolean = true): Promise<Response> {
+    return await this.request({
+      ...req,
+      method: "POST"
+    }, timeout, showLoading)
   }
 
   /**
    * PUT 请求（全量更新资源）
    * @param req 请求配置
    */
-  static async put(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
-    return await this.request(
-      {
-        ...req,
-        method: "PUT"
-      }, 
-      timeout, 
-      loading
-    )
+  static async put(req: MethodRequest, timeout: number = 20000, showLoading: boolean = true): Promise<Response> {
+    return await this.request({
+      ...req,
+      method: "PUT"
+    }, timeout, showLoading)
   }
 
   /**
    * DELETE 请求（删除资源）
    * @param req 请求配置
    */
-  static async delete(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
-    return await this.request(
-      {
-        ...req,
-        method: "DELETE"
-      }, 
-      timeout, 
-      loading
-    )
+  static async delete(req: MethodRequest, timeout: number = 20000, showLoading: boolean = false): Promise<Response> {
+    return await this.request({
+      ...req,
+      method: "DELETE"
+    }, timeout, showLoading)
   }
 
   /**
    * PATCH 请求（部分更新资源）
    * @param req 请求配置
    */
-  static async patch(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
-    return await this.request(
-      {
-        ...req,
-        method: "PATCH"
-      }, 
-      timeout, 
-      loading
-    )
+  static async patch(req: MethodRequest, timeout: number = 20000, showLoading: boolean = false): Promise<Response> {
+    return await this.request({
+      ...req,
+      method: "PATCH"
+    }, timeout, showLoading)
   }
 
   /**
    * OPTIONS 请求（获取通信选项）
    * @param req 请求配置
    */
-  static async options(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
-    return await this.request(
-      {
-        ...req,
-        method: "OPTIONS"
-      }, 
-      timeout, 
-      loading
-    )
+  static async options(req: MethodRequest, timeout: number = 20000, showLoading: boolean = false): Promise<Response> {
+    return await this.request({
+      ...req,
+      method: "OPTIONS"
+    }, timeout, showLoading)
   }
 
   /**
    * HEAD 请求（获取报文头）
    * @param req 请求配置
    */
-  static async head(req: MethodRequest, timeout: number = 3000, loading?: boolean): Promise<Response> {
-    return await this.request(
-      {
-        ...req,
-        method: "HEAD"
-      }, 
-      timeout, 
-      loading
-    )
+  static async head(req: MethodRequest, timeout: number = 20000, showLoading: boolean = false): Promise<Response> {
+    return await this.request({
+      ...req,
+      method: "HEAD"
+    }, timeout, showLoading)
   }
   /**
    * 设置 URL，补全 baseUrl 和传参

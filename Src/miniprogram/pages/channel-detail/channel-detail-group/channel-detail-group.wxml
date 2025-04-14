@@ -3,6 +3,9 @@
   <t-search placeholder="搜索群组" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" shape="round" style="height:60rpx" />
 </view>
 <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
+  <view class="loading-container-flex">
+    <t-loading wx:if="{{loading}}" theme="circular" size="60rpx" text="加载中..." class="wrapper" />
+  </view>
   <block wx:if="{{joinedGroups.length>0||unJoinedGroups.length>0}}">
     <t-cell wx:if="{{!tourView}}" title="已加入" style="--td-cell-vertical-padding:10rpx;" />
     <block wx:for="{{joinedGroups}}" wx:key="index">
@@ -17,7 +20,7 @@
       </t-cell>
     </block>
   </block>
-  <block wx:else>
+  <block wx:elif="{{!loading}}">
     <view style="height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
       <image src="{{util.randomCharPicture(2,1)}}" mode="widthFix" style="width:400rpx;" />
       <text wx:if="{{!tourView}}" style="margin-top:32rpx; width:80%;text-align:center;">频道内还没有任何群组\n点击右下角的按钮建立第一个群组吧!</text>

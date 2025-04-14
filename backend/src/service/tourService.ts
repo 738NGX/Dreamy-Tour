@@ -16,6 +16,7 @@ import RoleUtil from "@/util/roleUtil";
 import LocationPhotosDto from "@/dto/image/locationPhotosDto";
 import CosUtil from "@/util/cosUtil";
 import CosConstant from "@/constant/cosConstant";
+import TourSavesVo from "@/vo/tour/tourSavesVo";
 
 class TourService {
   /**
@@ -273,14 +274,12 @@ class TourService {
     });
   }
 
-  static async getTourSavesByChannelId(channelId: number): Promise<TourVo[]> {
+  static async getTourSavesByChannelId(channelId: number): Promise<TourSavesVo[]> {
     const db = await dbPromise;
     const rows = await db.all<Partial<Tour>[]>(
       `
       SELECT tourId, title, status, linkedChannel, channelVisible,
-        linkedGroup, startDate, endDate, timeOffset,
-        mainCurrency, subCurrency, currencyExchangeRate,
-        nodeCopyNames, budgets, locations, transportations
+        startDate, endDate, locations
       FROM tours
       WHERE linkedChannel = ? AND channelVisible = 1 AND status = 2
       `,
@@ -300,28 +299,27 @@ class TourService {
           throw new ParamsError("该行程没有关联用户");
         }
 
-        const { nodeCopyNames, budgets, locations, transportations, ...rowRest } = row;
+        const { locations, ...rowRest } = row;
 
-        return new TourVo({
+        const locationsCopy = locations ? JSON.parse(locations as string) : [];
+        // 过滤掉没有照片的地点
+        const filteredLocationsWithPhotos = locationsCopy.map((copy: any[]) => {
+          return copy.filter((location: any) => location.photos && location.photos.length > 0);
+        });
+
+        return new TourSavesVo({
           ...rowRest,
-          nodeCopyNames: nodeCopyNames ? JSON.parse(nodeCopyNames as string) : [],
-          budgets: budgets ? JSON.parse(budgets as string) : [],
-          locations: locations ? JSON.parse(locations as string) : [],
-          transportations: transportations ? JSON.parse(transportations as string) : [],
-          users: users.map(user => user.uid!),
+          locations: filteredLocationsWithPhotos,
         });
       })
     );
   }
 
-  static async getTourSavesByUserId(userId: number): Promise<TourVo[]> {
+  static async getTourSavesByUserId(userId: number): Promise<TourSavesVo[]> {
     const db = await dbPromise;
     const rows = await db.all<Partial<Tour>[]>(
       `
-      SELECT tourId, title, status, linkedChannel, channelVisible,
-        linkedGroup, startDate, endDate, timeOffset,
-        mainCurrency, subCurrency, currencyExchangeRate,
-        nodeCopyNames, budgets, locations, transportations
+      SELECT tourId, title, status, channelVisible, startDate, endDate, locations
       FROM tours
       WHERE status = 2 AND EXISTS (
         SELECT 1 FROM tour_users WHERE tour_users.tourId = tours.tourId AND uid = ?
@@ -343,15 +341,17 @@ class TourService {
           throw new ParamsError("该行程没有关联用户");
         }
 
-        const { nodeCopyNames, budgets, locations, transportations, ...rowRest } = row;
+        const { locations, ...rowRest } = row;
 
-        return new TourVo({
+        const locationsCopy = locations ? JSON.parse(locations as string) : [];
+        // 过滤掉没有照片的地点
+        const filteredLocationsWithPhotos = locationsCopy.map((copy: any[]) => {
+          return copy.filter((location: any) => location.photos && location.photos.length > 0);
+        });
+
+        return new TourSavesVo({
           ...rowRest,
-          nodeCopyNames: nodeCopyNames ? JSON.parse(nodeCopyNames as string) : [],
-          budgets: budgets ? JSON.parse(budgets as string) : [],
-          locations: locations ? JSON.parse(locations as string) : [],
-          transportations: transportations ? JSON.parse(transportations as string) : [],
-          users: users.map(user => user.uid!),
+          locations: filteredLocationsWithPhotos,
         });
       })
     );
@@ -424,7 +424,8 @@ class TourService {
 
   static async updateTourLocationPhotos(locationPhotosDto: LocationPhotosDto) {
     const { tourId, copyIndex, locationIndex, photos } = locationPhotosDto;
-    // 先反序列化原先行程的locations
+  
+    // 1. 从数据库中反序列化原始的行程locations数据
     const db = await dbPromise;
     const row = await db.get<Partial<{ locations: string }>>(
       `SELECT locations FROM tours WHERE tourId = ?`,
@@ -434,47 +435,67 @@ class TourService {
       throw new ParamsError("该行程不存在");
     }
     const locations = JSON.parse(row.locations as string);
-    // 删除原先locations照片在cos上的存储
-    if (locations.photos && locations.photos.length > 0) {
-      const deletePromises = locations.photos.map(async (photo: any) => {
-        if (CosUtil.isValidCosUrl(photo.value)) {
-          return await CosUtil.deleteFile(photo.value);
-        }
-      })
-      // 异步删除所有文件
-      await Promise.all(deletePromises);
-    }
-    // 更新指定位置的照片
-    if (!photos) {
-      locations[copyIndex][locationIndex].photos = [];
-      // 序列化locations,写回数据库
+    
+    // 假设locations的数据结构为二维数组或者对象，通过copyIndex和locationIndex定位当前位置的数据
+    const currentLocation = locations[copyIndex][locationIndex];
+    // 旧照片列表（可能为空），其中每个元素形如 { ariaLabel: '', value: url }
+    const oldPhotos: any[] = currentLocation.photos || [];
+    
+    // 2. 将旧照片列表中过滤出有效的COS链接
+    const oldCosUrls = oldPhotos
+      .filter(photo => CosUtil.isValidCosUrl(photo.value))
+      .map(photo => photo.value);
+    
+    // 3. 如果传入的photos为空或数组长度为0，则将所有原有COS文件删除，并清空照片列表
+    if (!photos || photos.length === 0) {
+      if (oldCosUrls.length > 0) {
+        const deletePromises = oldCosUrls.map(async (url) => {
+          return await CosUtil.deleteFile(url);
+        });
+        await Promise.all(deletePromises);
+      }
+      // 清空当前位置信息中的照片并写回DB
+      currentLocation.photos = [];
       await db.run(
         `UPDATE tours SET locations = ? WHERE tourId = ?`,
-        [
-          JSON.stringify(locations),
-          tourId
-        ]
+        [JSON.stringify(locations), tourId]
       );
+      return;
     }
-    const uploadPromises = photos.map(async (photo, index) => {
-      return await CosUtil.uploadBase64Picture(
-        CosConstant.TOUR_PICTURES_FOLDER,
-        photo
-      );
-    })
-    // 异步上传所有文件
-    const fileUrlList = await Promise.all(uploadPromises);
-    // 更新照片列表
-    locations[copyIndex][locationIndex].photos = fileUrlList.map(file => { return { ariaLabel: '', value: file } });
-    // 序列化locations,写回数据库
+    
+    // 4. 从传入的新照片列表中筛选出已有的COS链接（无需重新上传）
+    const newPhotosCosUrls = photos.filter(photo => CosUtil.isValidCosUrl(photo));
+    
+    // 5. 找出旧照片中存在但在新列表中已不再保留的COS链接，依此删除
+    const urlsToDelete = oldCosUrls.filter(url => !newPhotosCosUrls.includes(url));
+    if (urlsToDelete.length > 0) {
+      const deletePromises = urlsToDelete.map(async (url) => {
+        return await CosUtil.deleteFile(url);
+      });
+      await Promise.all(deletePromises);
+    }
+    
+    // 6. 对新照片列表中非COS链接（即base64文件）进行上传处理
+    const uploadPromises = photos.map(async (photo) => {
+      if (!CosUtil.isValidCosUrl(photo)) {
+        // 新的Base64文件上传到COS，返回上传后的COS链接
+        return await CosUtil.uploadBase64Picture(CosConstant.TOUR_PICTURES_FOLDER, photo);
+      } else {
+        // 已经是COS链接的直接返回
+        return photo;
+      }
+    });
+    const processedPhotoUrls = await Promise.all(uploadPromises);
+    
+    // 7. 更新当前位置信息中的照片数组，封装成统一格式（{ ariaLabel: '', value: url }）
+    currentLocation.photos = processedPhotoUrls.map(url => ({ ariaLabel: '', value: url }));
+    
+    // 8. 序列化locations数据，并写回数据库
     await db.run(
       `UPDATE tours SET locations = ? WHERE tourId = ?`,
-      [
-        JSON.stringify(locations),
-        tourId
-      ]
+      [JSON.stringify(locations), tourId]
     );
-  }
+  }  
 }
 
 export default TourService;

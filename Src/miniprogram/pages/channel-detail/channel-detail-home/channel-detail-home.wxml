@@ -4,7 +4,7 @@
     <t-cell title="行程" leftIcon="bookmark" note="{{selectingMarkerInfo.tourTitle}}" />
     <t-cell title="地点" leftIcon="location" note="{{selectingMarkerInfo.locationTitle}}" />
     <t-cell title="时间" leftIcon="time" note="{{selectingMarkerInfo.time}}" />
-    <t-cell title="时区" leftIcon="user-time" note="{{selectingMarkerInfo.timezone}}" />
+    <t-cell wx:if="{{selectedUserId<0}}" title="时区" leftIcon="user-time" note="{{selectingMarkerInfo.timezone}}" />
   </scroll-view>
 </t-popup>
 <t-popup style="width:80vw; border-radius: 15rpx; padding:10rpx;" visible="{{rankingVisible}}" usingCustomNavbar bind:visible-change="onRankingVisibleChange" placement="center">
@@ -17,7 +17,6 @@
     </block>
   </scroll-view>
 </t-popup>
-<t-calendar visible="{{filterVisible}}" value="{{filterDate}}" minDate="{{filterMinDate}}" maxDate="{{filterMaxDate}}" type="range" bind:confirm="handleFilterConfirm" />
 <!-- 正式页面 -->
 <map style="width:100%;height:500rpx;" scale="3" latitude="{{31.307627}}" longitude="{{121.496300}}" markers="{{markers}}" bindmarkertap="onMarkerDetailVisibleChange" />
 <t-cell title="日期筛选器" leftIcon="calendar" hover note="清空筛选" bind:click="clearFilter" arrow />
@@ -25,6 +24,9 @@
   <view class="wrapper__left">{{filterDateStr[0]}}</view>
   <t-icon class="wrapper__center" name="swap-right" size="40rpx" />
   <view class="wrapper__right">{{filterDateStr[1]}}</view>
+</view>
+<view wx:if="{{selectedUserId<0||filterVisible}}">
+  <t-calendar style="{{selectedUserId<0?'':'height:30vh;'}}" use-popup="{{selectedUserId<0}}" visible="{{filterVisible}}" value="{{filterDate}}" minDate="{{filterMinDate}}" maxDate="{{filterMaxDate}}" type="range" bind:select="handleFilterConfirm" />
 </view>
 <scroll-view class="scrollarea" style="height:45vh;" scroll-y type="list">
   <block wx:for="{{footprints}}" wx:key="index" wx:for-index="i">

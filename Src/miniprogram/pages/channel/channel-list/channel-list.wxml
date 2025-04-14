@@ -3,6 +3,9 @@
   <t-search placeholder="搜索频道" value="{{searchingValue}}" bind:blur="onSearch" bind:clear="onSearchClear" shape="round" style="height:60rpx" />
 </view>
 <t-pull-down-refresh value="{{refreshEnable}}" loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}" usingCustomNavbar bind:refresh="onRefresh">
+  <view class="loading-container-flex">
+    <t-loading wx:if="{{loading}}" theme="circular" size="60rpx" text="加载中..." class="wrapper" />
+  </view>
  <!-- 选中非自己的用户并且有频道列表时加载，显示不可跳转的频道列表 -->
   <block wx:if="{{channelList.length>0 && selectedUserId >= 0 && selectedUserId !== currentUserId}}" wx:for="{{channelList}}" wx:key="index" wx:for-index="i">
     <t-cell title="{{item.name}}" description="{{item.description}}" data-index="{{item.id}}">

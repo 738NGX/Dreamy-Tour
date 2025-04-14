@@ -1,6 +1,6 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
 <!-- header class="custom-navbar" tabList="{{[]}}" / -->
-<view style="background: linear-gradient(rgba(0, 0, 0, {{isDarkMode?0.5:0}}), rgba(0, 0, 0, {{isDarkMode?0.5:0}})), url({{currentUser.backgroundImageUrl ? currentUser.backgroundImageUrl : 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/background_images/default.jpg'}}) no-repeat 0% 20%/ cover;">
+<view style="background: linear-gradient(rgba(0, 0, 0, {{isDarkMode?0.4:0.1}}), rgba(18, 38, 87, {{isDarkMode?0.5:0.3}})), url({{currentUser.backgroundImageUrl ? currentUser.backgroundImageUrl : 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/background_images/default.jpg'}}) no-repeat 0% 20%/ cover;">
   <view class="name-card">
     <view style="height:150rpx" />
     <t-avatar bordered image="{{currentUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ currentUser.name[0] }}</t-avatar>
@@ -16,8 +16,14 @@
     <t-button wx:if="{{true}}" ghost size="extra-small" class="update-background" bind:tap="uploadBackgroundImage">更换背景</t-button>
   </view>
 </view>
-<t-tabs animation="{{ { duration: 0.6 } }}" defaultValue="{{0}}">
-  <t-tab-panel label="信息选项" value="0" style="height:60vh;">
+<t-tabs animation="{{ { duration: 0.6 } }}" defaultValue="{{0}}" swipeable="{{false}}">
+  <t-tab-panel label="历史行程" value="0" style="height:60vh;">
+    <channel-detail-home id="home" selectedUserId="{{currentUser.id}}" />
+  </t-tab-panel>
+  <t-tab-panel label="我的帖子" value="1" style="height:60vh;">
+    <channel-detail-posts id="posts" selectedUserId="{{currentUser.id}}" />
+  </t-tab-panel>
+  <t-tab-panel label="更多选项" value="2" style="height:60vh;">
     <view style="margin:16rpx;">
       <view>
         <t-input borderless disabled label="经验值">
@@ -49,12 +55,6 @@
     <t-button theme="danger" style="width:90%; margin:30rpx" bind:tap="quitLogin">退出登录</t-button>
     <view style="height:200rpx" />
   </t-tab-panel>
-  <t-tab-panel label="我的帖子" value="1" style="height:60vh;">
-    <channel-detail-posts id="posts" selectedUserId="{{currentUser.id}}" />
-  </t-tab-panel>
-  <t-tab-panel label="历史行程" value="2" style="height:60vh;">
-    <channel-detail-home id="home" selectedUserId="{{currentUser.id}}" />
-  </t-tab-panel>
   <t-tab-panel label="关于我们" value="3" style="height:60vh;">
     <view style="height:32rpx" />
     <t-cell left-icon="history" bind:click="showVersion" class="narrow-cell" bordered="{{false}}" title="梦·旅 Dreamy Tour" arrow hover>
@@ -75,7 +75,9 @@
         <text slot="description" style="margin-top:6rpx; color:#aaa; font-size:22rpx;">Yule Chen\nFrom SCAI, SUFE</text>
       </t-grid-item>
     </t-grid>
-    <image src="https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/LOGO2.png" mode="widthFix" style="width:100%;" />
+    <view style="margin:32rpx;">
+      <image src="https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/LOGO2.png" mode="widthFix" style="width:100%;" />
+    </view>
     <view style="height:200rpx" />
   </t-tab-panel>
 </t-tabs>

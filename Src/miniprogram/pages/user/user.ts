@@ -64,26 +64,14 @@ Component({
           value: '/' + page.route
         })
       }
-    },
-    async onRefresh() {
-      this.setData({ refreshEnable: true });
-      //个人信息
-      const currentUserBasic = await app.getCurrentUser();
-      const currentUserId = currentUserBasic?.id
-      if (currentUserId) {
-        this.setData({
-          isTestMode: app.globalData.testMode,
-          currentUser: currentUserBasic,
-          testUserList: app.getUserListCopy()
-        });
-
-        //帖子
-        const posts = this.selectComponent('#posts');
-        if (posts) posts.onRefresh();
-        //经验值组件
-        this.caluculateExp();
+      const homeComponent = this.selectComponent('#home');
+      if (homeComponent) {
+        await homeComponent.onRefresh();
       }
-      this.setData({ refreshEnable: false });
+      const postsComponent = this.selectComponent('#posts');
+      if (postsComponent) {
+        await postsComponent.onRefresh();
+      }
     },
     showVersion() {
       wx.showModal({
@@ -195,11 +183,11 @@ Component({
         title: '请输入新的个性签名',
         content: currentUser.signature,
         editable: true,
-        placeholderText: '个性签名长度在5-50字之间',
+        placeholderText: '个性签名长度在5-20字之间',
         async success(res) {
           if (res.confirm) {
             const signature = res.content;
-            if (signature.length >= 5 && signature.length <= 50) {
+            if (signature.length >= 5 && signature.length <= 20) {
               currentUser.signature = signature;
               if (await app.changeUserBasic(currentUser)) {
                 const currentUserBasic = await app.getCurrentUser()

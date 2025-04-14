@@ -54,11 +54,14 @@ Component({
     searchingValue: '',
     inputTitle: '',
     inputValue: '',
+
+    loading: true,
   },
   lifetimes: {
     async ready() {
       await this.classifyGroups();
       await this.getTourTemplates();
+      this.setData({ loading: false });
     },
   },
   methods: {

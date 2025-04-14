@@ -444,7 +444,8 @@ App<IAppOption>({
           }
           return new Tour({ id, ...tourRest });
         }
-        return res.data.data.map(constructTour);
+        const toursaves = res.data.data.map(constructTour) as Tour[];
+        return toursaves.sort((a, b) => b.startDate - a.startDate)
       } catch (err: any) {
         console.error(err);
         wx.showToast({
@@ -2517,7 +2518,7 @@ App<IAppOption>({
     try {
       const res = await HttpUtil.get({
         url: `/map/direction/transit?origin=${originLoc}&destination=${destinationLoc}&date=${date}&time=${time}&strategy=${strategy}`,
-      }, 5000)
+      }, 15000)
       const plans = res.data.data.plans;
       const routes = plans.map((plan: any) => {
         return new Transportation({
@@ -2552,7 +2553,7 @@ App<IAppOption>({
     try {
       const res = await HttpUtil.get({
         url: `/map/direction/walk?origin=${originLoc}&destination=${destinationLoc}&strategy=${strategy}`,
-      }, 5000)
+      }, 15000)
       const plans = res.data.data.plans;
       const routes = plans.map((plan: any) => {
         return new Transportation({

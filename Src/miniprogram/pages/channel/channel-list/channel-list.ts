@@ -37,6 +37,9 @@ Component({
   methods: {
     onRefresh() {
       console.log("频道列表刷新")
+      this.setData({
+        loading: true
+      })
       this.setData({ refreshEnable: true });
       setTimeout(() => {
         this.setData({ refreshEnable: false });
@@ -46,6 +49,9 @@ Component({
         channelList: this.data.fullChannelList.filter(
         channel => channel.name.includes(this.data.searchingValue))
       });
+      this.setData({
+        loading: false
+      })
     },
     onChannelClick(e: WechatMiniprogram.CustomEvent) {
       const channelId = e.currentTarget.dataset.index;
