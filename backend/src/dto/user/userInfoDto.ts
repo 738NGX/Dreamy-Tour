@@ -35,7 +35,7 @@ class UserInfoDto extends DTO<UserInfoDto> {
    @Expose()
    @IsOptional()
    @ValidateIf(o => o.signature !== null && o.signature !== undefined && o.signature !== '')
-   @Length(5, 100, {
+   @Length(1, 20, {
       message: '个性签名的长度不能小于 $constraint1 个字符，不能大于 $constraint2 个字符'
    })
    signature?: string | null;
