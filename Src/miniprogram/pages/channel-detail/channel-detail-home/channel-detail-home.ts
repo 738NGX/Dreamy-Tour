@@ -164,7 +164,7 @@ Component({
       this.setData({ fullMarkers: markers, markers: markers });
     },
     async generateUserRankings() {
-      if(this.properties.selectedUserId >= 0) return;
+      if (this.properties.selectedUserId >= 0) return;
       if (!this.properties.currentChannel) return;
       const rankList = await app.generateUserRankings(this.properties.currentChannel.id, this.data.footprints);
       this.setData({ userRankings: rankList });
@@ -204,10 +204,11 @@ Component({
       this.setData({ markers: markers });
     },
     handleFilter() {
-      this.setData({ filterVisible: true });
+      this.setData({ filterVisible: !this.data.filterVisible });
     },
     handleFilterConfirm(e: WechatMiniprogram.CustomEvent) {
       const filterDate = e.detail.value;
+      if (!filterDate[0] || !filterDate[1]) return;
       this.setData({
         filterDate: filterDate,
         filterDateStr: [formatDate(filterDate[0]), formatDate(filterDate[1])],
