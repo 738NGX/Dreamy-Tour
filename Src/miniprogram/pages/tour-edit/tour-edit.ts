@@ -115,7 +115,8 @@ ${this.data.generatorText}
       )
       try {
         this.setData({ generatorVisible: false });
-        const resObj = JSON.parse(res.join(''));
+        const resObj = JSON.parse(this.convertDatesToTimestamp(res.join('')));
+        console.log(resObj);
         const { currentTour } = this.data;
         currentTour.addCopy();
         const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
