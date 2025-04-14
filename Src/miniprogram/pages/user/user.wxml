@@ -1,6 +1,6 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
 <!-- header class="custom-navbar" tabList="{{[]}}" / -->
-<view style="background: linear-gradient(rgba(0, 0, 0, {{isDarkMode?0.5:0}}), rgba(0, 0, 0, {{isDarkMode?0.5:0}})), url({{currentUser.backgroundImageUrl ? currentUser.backgroundImageUrl : 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/background_images/default.jpg'}}) no-repeat 0% 20%/ cover;">
+<view style="background: linear-gradient(rgba(0, 0, 0, {{isDarkMode?0.4:0.1}}), rgba(18, 38, 87, {{isDarkMode?0.5:0.3}})), url({{currentUser.backgroundImageUrl ? currentUser.backgroundImageUrl : 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/background_images/default.jpg'}}) no-repeat 0% 20%/ cover;">
   <view class="name-card">
     <view style="height:150rpx" />
     <t-avatar bordered image="{{currentUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ currentUser.name[0] }}</t-avatar>
