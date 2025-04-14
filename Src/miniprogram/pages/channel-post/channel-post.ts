@@ -404,7 +404,6 @@ Component({
         return;
       } else {
        wx.navigateTo({url: `/pages/userinfo/userinfo?uid=${userId}`})
-       console.log("路由跳转")
       }
     }
   }

@@ -73,11 +73,12 @@
   </view>
   <view wx:else style="height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;">
     <image src="{{util.randomCharPicture(1,1)}}" mode="widthFix" style="width:400rpx;" />
-    <text style="margin-top:32rpx; width:80%;text-align:center;">频道内还没有任何讨论帖\n点击右下角的按钮发出第一条讨论吧!</text>
+    <text wx:if="{{selectedUserId < 0}}" style="margin-top:32rpx; width:80%;text-align:center;">频道内还没有任何讨论帖\n点击右下角的按钮发出第一条讨论吧!</text>
+    <text wx:if="{{selectedUserId >= 0}}" style="margin-top:32rpx; width:80%;text-align:center;">该用户暂未在公共频道发布对应帖子</text>
   </view>
   <view style="height:400rpx" />
 </t-pull-down-refresh>
-<t-fab icon="add" bind:click="handlePost" style="{{fabStyle}}"></t-fab>
+<t-fab wx:if="{{selectedUserId < 0}}" icon="add" bind:click="handlePost" style="{{fabStyle}}"></t-fab>
 <!-- 发帖输入框 -->
 <t-popup-headered style="height:80vh;" visible="{{inputVisible}}" title="发布帖子" confirmText="发布" bind:visible-change="handlePost" bindConfirm="handleInputSend" bindCancel="handlePost" placement="bottom">
   <t-input placeholder="请输入标题" bind:change="handleTitleInput" value="{{inputTitle}}" maxlength="{{20}}" />

@@ -18,6 +18,8 @@
     "t-search": "tdesign-miniprogram/search/search",
     "t-pull-down-refresh": "tdesign-miniprogram/pull-down-refresh/pull-down-refresh",
     "t-fab": "tdesign-miniprogram/fab/fab",
-    "t-textarea": "tdesign-miniprogram/textarea/textarea"
+    "t-textarea": "tdesign-miniprogram/textarea/textarea",
+    "channel-detail-posts": "/pages/channel-detail/channel-detail-posts/channel-detail-posts",
+    "channel-list": "/pages/channel/channel-list/channel-list"
   }
 }

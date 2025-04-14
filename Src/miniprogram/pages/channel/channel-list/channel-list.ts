@@ -4,17 +4,24 @@ const app = getApp<IAppOption>();
 
 Component({
   properties: {
-
+    selectedUserId:{
+      type: Number,
+      value: -1,
+      observer: function (newVal) {
+        this.onRefresh()
+      }
+    }
   },
   data: {
     refreshEnable: false,
-    
+    currentUserId: -2,
     fullChannelList: [] as Channel[],
     channelList: [] as Channel[],
     searchingValue: '',
   },
   lifetimes: {
     attached() {
+      this.getCurrentUserId();
       this.loadChannelList();
     },
     detached() {
@@ -40,7 +47,8 @@ Component({
       });
     },
     async loadChannelList() {
-      const channelList = await app.getCurrentUserJoinedChannels();
+      console.log("selectedUserId-Channel-list",this.properties.selectedUserId)
+      const channelList = this.properties.selectedUserId > 0 ? await app.getSelectedUserJoinedChannels(this.properties.selectedUserId) : await app.getCurrentUserJoinedChannels()
       this.setData({ channelList, fullChannelList: channelList });
     },
     onSearch(e: WechatMiniprogram.CustomEvent) {
@@ -56,5 +64,10 @@ Component({
         channelList: this.data.fullChannelList,
       });
     },
+    async getCurrentUserId(){
+      const currentUserBasic = await app.getCurrentUser()
+      const currentUserId = currentUserBasic?.id
+      this.setData({currentUserId})
+    }
   }
 });
