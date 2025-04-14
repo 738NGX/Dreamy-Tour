@@ -40,12 +40,23 @@
 </t-popup>
 <t-popup visible="{{generatorVisible}}" usingCustomNavbar bind:visible-change="handleGenerateCopyFromText" placement="bottom">
   <scroll-view class="scrollarea" style="height:80vh" scroll-y type="list">
-    <t-textarea bind:change="onGeneratorTextChange" value="{{generatorText}}" placeholder="请输入你的行程描述" disableDefaultPadding="{{true}}" />
-    <t-button bind:tap="generateCopyFromText" theme="primary" size="small" variant="text">生成</t-button>
+    <view class="input">
+      <t-textarea
+      label="{{'旅游日期：' + dateRange[1].label + '  →  ' + dateRange[2].label}}"
+      placeholder="请输入你的行程描述"
+      maxcharacter="1000"
+      disableDefaultPadding="{{true}}"
+      indicator
+      bind:change="onGeneratorTextChange" 
+      value="{{generatorText}}"
+      bordered
+    />
+    <t-button bind:tap="generateCopyFromText" theme="light" size="small" shape="circle" icon="send" class="generator-btn"></t-button>
+    </view>
     <view class="column tour">
       <view class="day" wx:for="{{generatorDisplay}}" wx:key="*this">
         <t-divider class="date-title" content="{{index}}" />
-        <t-steps layout="vertical" current="{{item.length - 1}}">
+        <t-steps layout="vertical" current="{{item.length - 1}}" class="steps">
         <t-step-item wx:for="{{item}}" wx:key="index" title="{{item.title + '（' + item.start + ' ~ ' + item.end + '）'}}" content="{{item.note}}" />
       </t-steps>
       </view>
