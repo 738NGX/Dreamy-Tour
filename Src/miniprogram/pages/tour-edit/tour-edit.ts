@@ -2,6 +2,7 @@ import HttpUtil from "../../utils/httpUtil";
 import { budgetList, currencyList } from "../../utils/tour/expense";
 import { Tour } from "../../utils/tour/tour";
 import { Location, Transportation } from "../../utils/tour/tourNode";
+import { formatDate } from "../../utils/util";
 
 const app = getApp<IAppOption>();
 
@@ -14,7 +15,7 @@ Component({
     currentTourId: 0 as number,
     settingsVisible: false,
 
-    dateRange: [{label: ''}, {label: ''}, {label: ''}] as any[],
+    dateRange: [] as any[],
     currentDateFilter: { label: "全部", value: [0, 0, 0] } as any,
 
     copyOptions: [] as any[],
@@ -22,7 +23,7 @@ Component({
 
     showUserReport: true,
 
-    generatorVisible: true,
+    generatorVisible: false,
     generatorText: "",
     generatorResult: "",
     generatorDisplay: []
@@ -96,7 +97,7 @@ Component({
       const currentDate = new Date().toISOString();
       const task = `
 你现在是个旅游规划助手，你要帮我规划每天的行程安排
-旅行计划的开始日期是${this.data.dateRange[1].label}, 结束日期是 ${this.data.dateRange[2].label}（默认的开始和结束日期为 ${currentDate}，若前面有请忽略）。
+旅行计划的开始日期是${formatDate(this.data.currentTour.startDate)}, 结束日期是 ${formatDate(this.data.currentTour.endDate)}（默认的开始和结束日期为 ${currentDate}，若前面有请忽略）。
 以下是我的旅行计划概述:
 ${this.data.generatorText}
 请根据这个概述生成一个新的旅行计划,返回形如{locations:[{start:'',end:'',title:'',note:''},...]}的json格式,其中title为位置的地址文字,start和end为在这个位置的起始时间和结束时间（时间格式必须为 yyyy-mm-dd hh:mm:ss）,note为在这个位置的备注文字,locations是一个数组,每个元素都是一个位置的对象,请注意,生成的旅行计划应该是一个新的旅行计划,而不是对原始旅行计划的修改.请不要返回任何其他内容.
@@ -301,12 +302,12 @@ ${this.data.generatorText}
        const formatTimestamp = (timestamp: number): string => {
         if (!timestamp) return '';
         const date = new Date(Number(timestamp));
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
+        //const year = date.getFullYear();
+        //const month = String(date.getMonth() + 1).padStart(2, '0');
+        //const day = String(date.getDate()).padStart(2, '0');
         const hours = String(date.getHours()).padStart(2, '0');
         const minutes = String(date.getMinutes()).padStart(2, '0');
-        const seconds = String(date.getSeconds()).padStart(2, '0');
+        //const seconds = String(date.getSeconds()).padStart(2, '0');
         return `${hours}:${minutes}`;
       };
       // 合并结果为对象数组并按日期分组
@@ -353,7 +354,7 @@ ${this.data.generatorText}
       const dateRegex = /"(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})"/g;
     
       // 替换的日期为时间戳
-      return str.replace(dateRegex, (match: string, yyyy: string, mm: string, dd: string, hh: string, MM: string, ss: string): string => {
+      return str.replace(dateRegex, (_match: string, yyyy: string, mm: string, dd: string, hh: string, MM: string, ss: string): string => {
         // 构造 Date 对象（注意月份要减1，因为JS月份是0-11）
         const date = new Date(`${yyyy}-${mm}-${dd}T${hh}:${MM}:${ss}`);
         

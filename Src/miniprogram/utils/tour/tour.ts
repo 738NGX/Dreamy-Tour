@@ -183,7 +183,7 @@ export class Tour extends TourBasic {
     }
     this.locations[copyIndex].splice(index, 1);
     this.transportations[copyIndex].splice(index, 1);
-    for (let i = index; i < this.transportations.length; i++) {
+    for (let i = index - 1; i < this.transportations[copyIndex].length; i++) {
       this.locations[copyIndex][i].index = i;
       this.transportations[copyIndex][i].index = i;
     }

@@ -42,7 +42,7 @@
   <scroll-view class="scrollarea" style="height:80vh" scroll-y type="list">
     <view class="input">
       <t-textarea
-      label="{{'旅游日期：' + dateRange[1].label + '  →  ' + dateRange[2].label}}"
+      label="{{'旅游日期：' + dateRange[1].label + '  →  ' + dateRange[dateRange.length-1].label}}"
       placeholder="请输入你的行程描述"
       maxcharacter="1000"
       disableDefaultPadding="{{true}}"
