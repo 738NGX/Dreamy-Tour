@@ -545,7 +545,7 @@ App<IAppOption>({
             channelId: channelId.toString(),
             pictures: await Promise.all(originFiles.map(async (file) => await getImageBase64(file.url)))
           }
-        });
+        }, 180000);
         return true;
       } catch (err: any) {
         wx.showToast({
@@ -1483,7 +1483,7 @@ App<IAppOption>({
               content: comment.content,
               pictures: pictures,
             }
-          });
+          }, 180000);
         } else {
           console.log(comment.photos);
           const pictures = comment.photos.map((file) => (file.value));
@@ -1494,7 +1494,7 @@ App<IAppOption>({
               content: comment.content,
               pictures: pictures,
             }
-          });
+          }, 180000);
         }
         return true;
       } catch (err: any) {
@@ -2211,9 +2211,9 @@ App<IAppOption>({
             }
           }
         }
-        for(const copy of tour.transportations){
+        for (const copy of tour.transportations) {
           for (const transportation of copy) {
-            for(const expense of transportation.transportExpenses){
+            for (const expense of transportation.transportExpenses) {
               expense.user = expense.user.filter((userId: number) => userSet.has(userId));
             }
           }
@@ -2442,7 +2442,7 @@ App<IAppOption>({
             isLiked: res.action.isLiked,
           } as PostCard;
         })
-        .filter((post:PostCard) => post.linkedChannel == 1);
+          .filter((post: PostCard) => post.linkedChannel == 1);
         return fullPosts;
       } catch (err: any) {
         wx.showToast({
@@ -2546,7 +2546,7 @@ App<IAppOption>({
       return { route: [], duration: [], amount: [], walking_distance: [] };
     }
   },
-  async getWalkDirections(origin: Location, destination: Location, strategy: number): Promise<{ duration: number[], distance: number[], route: Transportation[] }>{
+  async getWalkDirections(origin: Location, destination: Location, strategy: number): Promise<{ duration: number[], distance: number[], route: Transportation[] }> {
     const originLoc = `${Number(origin.longitude).toFixed(6)},${Number(origin.latitude).toFixed(6)}`;
     const destinationLoc = `${Number(destination.longitude).toFixed(6)},${Number(destination.latitude).toFixed(6)}`;
     try {
@@ -2562,7 +2562,7 @@ App<IAppOption>({
           timeOffset: origin.timeOffset,
           transportExpenses: [new TransportExpense({
             index: 0,
-            title: `步行约${Math.round(plan.duration/60)}分钟`,
+            title: `步行约${Math.round(plan.duration / 60)}分钟`,
             amount: 0,
             currency: Currency.CNY,
             type: ExpenseType.Transportation,
