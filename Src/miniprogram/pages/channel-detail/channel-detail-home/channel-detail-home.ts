@@ -176,12 +176,10 @@ Component({
     },
     onMarkerDetailVisibleChange(e: WechatMiniprogram.CustomEvent) {
       let id = e.detail.markerId;
-      console.log(id);
       if (id === undefined) { id = -1; }
       this.setData({
         markerDetailVisible: !this.data.markerDetailVisible,
       });
-      console.log(this.data.markerDetailVisible);
       if (id != -1) {
         this.setData({
           currentPhotoIndex: 0,

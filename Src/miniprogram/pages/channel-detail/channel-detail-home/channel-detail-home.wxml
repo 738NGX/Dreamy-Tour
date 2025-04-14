@@ -17,7 +17,7 @@
     </block>
   </scroll-view>
 </t-popup>
-<t-calendar style="{{selectedUserId<0?'':'height:40vh;margin-bottom:100rpx;'}}" visible="{{filterVisible}}" value="{{filterDate}}" minDate="{{filterMinDate}}" maxDate="{{filterMaxDate}}" type="range" bind:confirm="handleFilterConfirm" />
+<t-calendar style="{{selectedUserId<0?'':'height:50vh;margin-bottom:100rpx;'}}" visible="{{filterVisible}}" value="{{filterDate}}" minDate="{{filterMinDate}}" maxDate="{{filterMaxDate}}" type="range" bind:confirm="handleFilterConfirm" />
 <!-- 正式页面 -->
 <map style="width:100%;height:500rpx;" scale="3" latitude="{{31.307627}}" longitude="{{121.496300}}" markers="{{markers}}" bindmarkertap="onMarkerDetailVisibleChange" />
 <t-cell title="日期筛选器" leftIcon="calendar" hover note="清空筛选" bind:click="clearFilter" arrow />

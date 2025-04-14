@@ -89,7 +89,7 @@ class HttpUtil {
 
       // 场景 1: 无 Token 直接跳转登录
       if (!token) {
-        wx.hideLoading();
+        LoadUtil.hide();
         wx.redirectTo({ url: "/pages/login/login" });
         return undefined; // 直接返回 undefined，表示不发送请求
       }
@@ -109,7 +109,7 @@ class HttpUtil {
       data: req.jsonData
     };
 
-    if (debug) { console.log('backend request:', requestParams) };
+    if (debug) { console.log('backend request:\n', requestParams) };
 
     return requestParams;
   }
@@ -138,7 +138,14 @@ class HttpUtil {
               timeout: timeout,
             }
           );
-          if (debug) { console.log('backend result:', d) };
+          if (debug) {
+            const size = (length: number) => {
+              if (length < 1024) return length + 'B';
+              else if (length < 1024 * 1024) return (length / 1024).toFixed(2) + 'KB';
+              else return (length / (1024 * 1024)).toFixed(2) + 'MB';
+            }
+            console.log('backend result:', size(JSON.stringify(d.data).length), '\n', d)
+          };
           // 检查响应头是否有 X-Refresh-Token，如果有，刷新本地 token
           const headers = d.headers as { [key: string]: string | undefined };
           if (headers["X-Refresh-Token"]) {
