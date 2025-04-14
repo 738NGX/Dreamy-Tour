@@ -1,10 +1,10 @@
-<t-popup visible="{{markerDetailVisible}}" bind:visible-change="onMarkerDetailVisibleChange" placement="bottom" style="height: 50vh;">
+<t-popup visible="{{markerDetailVisible}}" bind:visible-change="onMarkerDetailVisibleChange" placement="bottom" style="height: 50vh;" >
   <scroll-view class="scrollarea" scroll-y type="list" style="height: 50vh;">
     <t-swiper wx:if="{{selectingMarkerInfo.photos}}" current="{{currentPhotoIndex}}" autoplay="{{true}}" duration="{{500}}" interval="{{5000}}" list="{{selectingMarkerInfo.photos}}" navigation="{{ { type: 'dots-bar' } }}" />
     <t-cell title="行程" leftIcon="bookmark" note="{{selectingMarkerInfo.tourTitle}}" />
     <t-cell title="地点" leftIcon="location" note="{{selectingMarkerInfo.locationTitle}}" />
     <t-cell title="时间" leftIcon="time" note="{{selectingMarkerInfo.time}}" />
-    <t-cell title="时区" leftIcon="user-time" note="{{selectingMarkerInfo.timezone}}" />
+    <t-cell wx:if="{{selectedUserId<0}}" title="时区" leftIcon="user-time" note="{{selectingMarkerInfo.timezone}}" />
   </scroll-view>
 </t-popup>
 <t-popup style="width:80vw; border-radius: 15rpx; padding:10rpx;" visible="{{rankingVisible}}" usingCustomNavbar bind:visible-change="onRankingVisibleChange" placement="center">
@@ -17,7 +17,7 @@
     </block>
   </scroll-view>
 </t-popup>
-<t-calendar visible="{{filterVisible}}" value="{{filterDate}}" minDate="{{filterMinDate}}" maxDate="{{filterMaxDate}}" type="range" bind:confirm="handleFilterConfirm" />
+<t-calendar style="{{selectedUserId<0?'':'height:40vh;margin-bottom:100rpx;'}}" visible="{{filterVisible}}" value="{{filterDate}}" minDate="{{filterMinDate}}" maxDate="{{filterMaxDate}}" type="range" bind:confirm="handleFilterConfirm" />
 <!-- 正式页面 -->
 <map style="width:100%;height:500rpx;" scale="3" latitude="{{31.307627}}" longitude="{{121.496300}}" markers="{{markers}}" bindmarkertap="onMarkerDetailVisibleChange" />
 <t-cell title="日期筛选器" leftIcon="calendar" hover note="清空筛选" bind:click="clearFilter" arrow />

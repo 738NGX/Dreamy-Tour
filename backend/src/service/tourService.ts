@@ -345,12 +345,18 @@ class TourService {
 
         const { nodeCopyNames, budgets, locations, transportations, ...rowRest } = row;
 
+        const locationsCopy = locations ? JSON.parse(locations as string) : [];
+        // 过滤掉没有照片的地点
+        const filteredLocationsWithPhotos = locationsCopy.map((version: any[]) => {
+          return version.filter((location: any) => location.photos && location.photos.length > 0);
+        });
+
         return new TourVo({
           ...rowRest,
-          nodeCopyNames: nodeCopyNames ? JSON.parse(nodeCopyNames as string) : [],
-          budgets: budgets ? JSON.parse(budgets as string) : [],
-          locations: locations ? JSON.parse(locations as string) : [],
-          transportations: transportations ? JSON.parse(transportations as string) : [],
+          nodeCopyNames: [],
+          budgets: [],
+          locations: filteredLocationsWithPhotos,
+          transportations: [],
           users: users.map(user => user.uid!),
         });
       })

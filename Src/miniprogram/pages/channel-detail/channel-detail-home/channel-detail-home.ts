@@ -98,7 +98,7 @@ Component({
       await this.generateTourSaves();
       this.generateFullFootprints();
       this.generateFullMarkers();
-      if (this.properties.selectedUserId < 0) await this.generateUserRankings();
+      await this.generateUserRankings();
     },
     async generateTourSaves() {
       if (this.properties.selectedUserId >= 0) {
@@ -164,6 +164,7 @@ Component({
       this.setData({ fullMarkers: markers, markers: markers });
     },
     async generateUserRankings() {
+      if(this.properties.selectedUserId >= 0) return;
       if (!this.properties.currentChannel) return;
       const rankList = await app.generateUserRankings(this.properties.currentChannel.id, this.data.footprints);
       this.setData({ userRankings: rankList });
@@ -175,10 +176,12 @@ Component({
     },
     onMarkerDetailVisibleChange(e: WechatMiniprogram.CustomEvent) {
       let id = e.detail.markerId;
+      console.log(id);
       if (id === undefined) { id = -1; }
       this.setData({
         markerDetailVisible: !this.data.markerDetailVisible,
       });
+      console.log(this.data.markerDetailVisible);
       if (id != -1) {
         this.setData({
           currentPhotoIndex: 0,

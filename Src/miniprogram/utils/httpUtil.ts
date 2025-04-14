@@ -1,6 +1,6 @@
 // API 地址配置
 const usingDomain = true;   // 是否使用域名
-const usingLocal = true;   // 是否使用本地 IP
+const usingLocal = false;   // 是否使用本地 IP
 export const apiUrl = usingLocal ? "http://127.0.0.1:8080" : (
   usingDomain
     ? "https://dreamy-tour.738ngx.site/api"
@@ -196,7 +196,7 @@ class HttpUtil {
    * GET 请求
    * @param req 请求配置
    */
-  static async get(req: MethodRequest, timeout: number = 3000): Promise<Response> {
+  static async get(req: MethodRequest, timeout: number = 20000): Promise<Response> {
     return await this.request({
       ...req,
       method: "GET"
@@ -207,7 +207,7 @@ class HttpUtil {
    * POST 请求（提交数据）
    * @param req 请求配置（数据放在 json_data）
    */
-  static async post(req: MethodRequest, timeout: number = 3000): Promise<Response> {
+  static async post(req: MethodRequest, timeout: number = 20000): Promise<Response> {
     return await this.request({
       ...req,
       method: "POST"
@@ -218,7 +218,7 @@ class HttpUtil {
    * PUT 请求（全量更新资源）
    * @param req 请求配置
    */
-  static async put(req: MethodRequest, timeout: number = 3000): Promise<Response> {
+  static async put(req: MethodRequest, timeout: number = 20000): Promise<Response> {
     return await this.request({
       ...req,
       method: "PUT"
@@ -229,7 +229,7 @@ class HttpUtil {
    * DELETE 请求（删除资源）
    * @param req 请求配置
    */
-  static async delete(req: MethodRequest, timeout: number = 3000): Promise<Response> {
+  static async delete(req: MethodRequest, timeout: number = 20000): Promise<Response> {
     return await this.request({
       ...req,
       method: "DELETE"
@@ -240,7 +240,7 @@ class HttpUtil {
    * PATCH 请求（部分更新资源）
    * @param req 请求配置
    */
-  static async patch(req: MethodRequest, timeout: number = 3000): Promise<Response> {
+  static async patch(req: MethodRequest, timeout: number = 20000): Promise<Response> {
     return await this.request({
       ...req,
       method: "PATCH"
@@ -251,7 +251,7 @@ class HttpUtil {
    * OPTIONS 请求（获取通信选项）
    * @param req 请求配置
    */
-  static async options(req: MethodRequest, timeout: number = 3000): Promise<Response> {
+  static async options(req: MethodRequest, timeout: number = 20000): Promise<Response> {
     return await this.request({
       ...req,
       method: "OPTIONS"
@@ -262,7 +262,7 @@ class HttpUtil {
    * HEAD 请求（获取报文头）
    * @param req 请求配置
    */
-  static async head(req: MethodRequest, timeout: number = 3000): Promise<Response> {
+  static async head(req: MethodRequest, timeout: number = 20000): Promise<Response> {
     return await this.request({
       ...req,
       method: "HEAD"
