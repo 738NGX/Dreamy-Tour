@@ -1,114 +1,114 @@
 <wxs module="util" src="../../utils/util.wxs"></wxs>
 <!-- header class="custom-navbar" tabList="{{[]}}" / -->
-<scroll-view class="scrollarea" style="height:100vh" scroll-y type="list">
-  <view style="background: linear-gradient(rgba(0, 0, 0, {{isDarkMode?0.5:0}}), rgba(0, 0, 0, {{isDarkMode?0.5:0}})), url({{currentUser.backgroundImageUrl ? currentUser.backgroundImageUrl : 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/background_images/default.jpg'}}) no-repeat 0% 20%/ cover;">
-    <view class="name-card">
-      <view style="height:150rpx" />
-      <t-avatar bordered image="{{currentUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ currentUser.name[0] }}</t-avatar>
-      <view class="name-card-username">{{currentUser.name}}</view>
-      <view class="row">
-        <t-tag style="margin-top:15rpx;" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(userGroup)}}">{{userGroup}}</t-tag>
-        <view wx:if="{{currentUser.gender!='保密'}}" class="gender-icon" style="background-color:#{{currentUser.gender=='男'?'00a1d6':'ff548c'}};">
-          <t-icon name="{{currentUser.gender=='男'?'gender-male':'gender-female'}}" size="24rpx" />
-        </view>
-        <view class="name-card-uid" bind:tap="copyUid">UID: {{currentUser.id}}</view>
+<view style="background: linear-gradient(rgba(0, 0, 0, {{isDarkMode?0.5:0}}), rgba(0, 0, 0, {{isDarkMode?0.5:0}})), url({{currentUser.backgroundImageUrl ? currentUser.backgroundImageUrl : 'https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/background_images/default.jpg'}}) no-repeat 0% 20%/ cover;">
+  <view class="name-card">
+    <view style="height:150rpx" />
+    <t-avatar bordered image="{{currentUser.avatarUrl}}" size="150rpx" class="avatar-example" t-class-content="external-class-content">{{ currentUser.name[0] }}</t-avatar>
+    <view class="name-card-username">{{currentUser.name}}</view>
+    <view class="row">
+      <t-tag style="margin-top:15rpx;" size="small" variant="light-outline" theme="{{util.getUserGroupTagTheme(userGroup)}}">{{userGroup}}</t-tag>
+      <view wx:if="{{currentUser.gender!='保密'}}" class="gender-icon" style="background-color:#{{currentUser.gender=='男'?'00a1d6':'ff548c'}};">
+        <t-icon name="{{currentUser.gender=='男'?'gender-male':'gender-female'}}" size="24rpx" />
       </view>
-      <view class="name-card-uid" style="margin-top:20rpx;">{{currentUser.signature}}</view>
-      <t-button wx:if="{{true}}" ghost size="extra-small" class="update-background" bind:tap="uploadVisibleChange">更换背景</t-button>
+      <view class="name-card-uid" bind:tap="copyUid">UID: {{currentUser.id}}</view>
     </view>
+    <view class="name-card-uid" style="margin-top:20rpx;">{{currentUser.signature}}</view>
+    <t-button wx:if="{{true}}" ghost size="extra-small" class="update-background" bind:tap="uploadVisibleChange">更换背景</t-button>
   </view>
-  <scroll-view scroll-y type="list" class="user-main">
-    <view class="user-container">
-      <view>
-        <t-input borderless disabled label="经验值">
-          <!-- t-button slot="suffix" theme="primary" variant="outline" size="small" bind:tap="signIn">点击签到</t-button -->
-        </t-input>
-      </view>
-      <t-progress style="margin: 0 30rpx 30rpx 30rpx;" theme="plump" color="{{ {  from: '#0052D9', to: '#48c6ef' } }}" label="{{expLabel}}" percentage="{{expPercentage}}" />
-      <t-grid column="{{3}}">
-        <t-grid-item t-class-image="image" text="每日登陆" icon="assignment-checked">
-          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">每日登陆经验+5\n连续登陆经验+8</text>
-        </t-grid-item>
-        <t-grid-item t-class-image="image" text="参与频道讨论" icon="chat-checked">
-          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">发布帖子经验+30\n发布评论经验+10</text>
-        </t-grid-item>
-        <t-grid-item t-class-image="image" text="完成一次行程" icon="map-checked">
-          <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">组织者经验+80\n参与者经验+50</text>
-        </t-grid-item>
-      </t-grid>
-      <c-collapse header="个人信息">
-        <t-input class="narrow-input" borderless disabled label="UID" value="{{currentUser.id}}">
-          <t-button slot="suffix" theme="primary" variant="outline" size="small" bind:tap="copyUid">复制</t-button>
-        </t-input>
-        <t-input wx:if="{{isMiniApp}}" class="narrow-input" borderless disabled label="修改头像">
-          <t-button slot="suffix" theme="primary" variant="outline" size="small" open-type="chooseAvatar" bind:chooseavatar="uploadAvater">选择</t-button>
-        </t-input>
-        <view borderless class="narrow-input" style="font-size:32rpx; padding:10rpx;">
-          <view style="margin-right:32rpx;">昵称</view>
-          <input type="nickname" value="{{currentUser.name}}" maxlength="{{15}}" bindchange="handleNickNameChange" placeholder-style="input-placeholder" bind:blur="handleUserNameChangeConfirm" placeholder="请输入昵称" />
-        </view>
-        <view borderless class="narrow-input" style="font-size:32rpx; padding:10rpx;">
-          <view style="margin-right:32rpx;">性别</view>
-          <t-radio-group bind:change="handleGenderChange" value="{{currentUser.gender}}" borderless>
-            <t-radio style="margin-right:32rpx;" block="{{false}}" label="男" value="男" />
-            <t-radio style="margin-right:32rpx;" block="{{false}}" label="女" value="女" />
-            <t-radio style="margin-right:32rpx;" block="{{false}}" label="保密" value="保密" />
-          </t-radio-group>
-        </view>
-        <t-input borderless class="narrow-input" bind:blur="handleSignatureChange" label="签名" placeholder="请输入个性签名" maxlength="{{30}}" value="{{currentUser.signature}}" />
-        <t-input borderless class="narrow-input" bind:blur="handleBirthdayChange" label="生日" placeholder="请输入生日(YYYY-mm-dd)格式" maxlength="{{10}}" value="{{currentUser.birthday}}" />
-        <t-input borderless class="narrow-input" bind:blur="handlePhoneChange" label="手机" placeholder="请输入手机号" maxlength="{{11}}" value="{{currentUser.phone}}" />
-        <view class="row">
-          <t-button theme="primary" style="width:50%; margin:10rpx" bind:tap="handleUserBasicChange">确认修改</t-button>
-          <t-button style="width:50%; margin:10rpx" bind:tap="handleUserBasicReset">取消修改</t-button>
-        </view>
-      </c-collapse>
-      <c-collapse header="发布的帖子">
-        <channel-detail-posts selectedUserId="{{currentUser.id}}"/>
-      </c-collapse>
-      <c-collapse header="加入的频道">
-        <channel-list selectedUserId="{{currentUser.id}}"/>
-      </c-collapse>
-      <c-collapse wx:if="{{isTestMode}}" header="切换演示账号">
-        <t-grid column="{{5}}" hover>
-          <t-grid-item data-index="{{item.id}}" bind:click="changeTestUser" icon="{{item.avatarUrl ? '' : 'user-1'}}" text="{{item.name}}" wx:for="{{testUserList}}" wx:key="id" image="{{item.avatarUrl}}" />
-        </t-grid>
-      </c-collapse>
-      <c-collapse wx:if="{{false}}" header="切换账号权限">
-        <t-grid column="{{4}}" hover>
-          <t-grid-item data-index="{{item}}" bind:click="changeUserRole" text="{{item}}" wx:for="{{userRoleList}}" wx:key="id" icon="user-1" />
-        </t-grid>
-      </c-collapse>
-      <c-collapse header="选项设置">
-        <t-cell left-icon="{{isDarkMode?'mode-dark':'mode-light'}}" class="narrow-cell" bordered="{{false}}" title="{{isDarkMode?'深色主题':'浅色主题'}}已启用" description="应用主题默认跟随系统主题" />
-        <t-cell bind:click="bindEmail" left-icon="mail" class="narrow-cell" bordered="{{false}}" title="{{currentUser.email?'邮箱已绑定,点击换绑':'邮箱未绑定,点击绑定'}}" description="{{currentUser.email?currentUser.email:''}}" arrow hover />
-        <t-button theme="primary" style="width:90%; margin:30rpx 0rpx 0rpx 30rpx;" bind:tap="resetPassword">重置密码</t-button>
-        <t-button theme="danger" style="width:90%; margin:30rpx" bind:tap="quitLogin">退出登录</t-button>
-      </c-collapse>
-      <c-collapse header="关于我们">
-        <image src="https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/LOGO2.png" mode="widthFix" style="width:100%;" />
-        <t-cell left-icon="history" bind:click="showVersion" class="narrow-cell" bordered="{{false}}" title="梦·旅 Dreamy Tour" arrow hover>
-          <text slot="description" style="color:#aaa; font-size:22rpx;">Make a Fantastic Departure.</text>
-        </t-cell>
-        <t-cell data-index="0" bind:click="copyInfo" left-icon="logo-github" class="narrow-cell" bordered="{{false}}" title="Github仓库地址" hover arrow>
-          <text slot="description" style="color:#aaa; font-size:22rpx;">github.com/738NGX/Dreamy-Tour</text>
-        </t-cell>
-        <t-cell left-icon="code" class="narrow-cell" bordered="{{false}}" title="开发者" />
-        <t-grid column="{{3}}" hover>
-          <t-grid-item data-index="1" bind:click="copyInfo" t-class-image="image" text="738NGX" image="https://avatars.githubusercontent.com/u/79038651?v=4">
-            <text slot="description" style="margin-top:6rpx; color:#aaa; font-size:22rpx;">Ningyue Ji\nFrom SCAI, SUFE</text>
-          </t-grid-item>
-          <t-grid-item data-index="2" bind:click="copyInfo" t-class-image="image" text="Franctoryer" image="https://avatars.githubusercontent.com/u/131339494?v=4">
-            <text slot="description" style="margin-top:6rpx; color:#aaa; font-size:22rpx;">Litao Zhu\nFrom SCAI, SUFE</text>
-          </t-grid-item>
-          <t-grid-item data-index="3" bind:click="copyInfo" t-class-image="image" text="Choihyobin111" image="https://avatars.githubusercontent.com/u/179166711?v=4">
-            <text slot="description" style="margin-top:6rpx; color:#aaa; font-size:22rpx;">Yule Chen\nFrom SCAI, SUFE</text>
-          </t-grid-item>
-        </t-grid>
-      </c-collapse>
+</view>
+<t-tabs animation="{{ { duration: 0.6 } }}" defaultValue="{{0}}">
+  <t-tab-panel label="个人信息" value="0" style="height:60vh;">
+    <view>
+      <t-input borderless disabled label="经验值">
+        <!-- t-button slot="suffix" theme="primary" variant="outline" size="small" bind:tap="signIn">点击签到</t-button -->
+      </t-input>
     </view>
-  </scroll-view>
-  <t-popup-headered style="height:20vh;overflow:hidden;" visible="{{uploadVisible}}" title="上传图片" bind:visible-change="uploadVisibleChange" bindConfirm="uploadBackgroundImage" bindCancel="cancelUpload" placement="bottom">
-    <t-upload draggable max="1" media-type="{{['image']}}" files="{{backgroundImages}}" bind:success="handleImageUploadSuccess" bind:remove="handleImageUploadRemove" bind:click="handleImageUploadClick" bind:drop="handleImageUploadDrop" />
-  </t-popup-headered>
-</scroll-view>
+    <t-progress style="margin: 0 30rpx 30rpx 30rpx;" theme="plump" color="{{ {  from: '#0052D9', to: '#48c6ef' } }}" label="{{expLabel}}" percentage="{{expPercentage}}" />
+    <t-grid column="{{3}}">
+      <t-grid-item t-class-image="image" text="每日登陆" icon="assignment-checked">
+        <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">每日登陆经验+5\n连续登陆经验+8</text>
+      </t-grid-item>
+      <t-grid-item t-class-image="image" text="参与频道讨论" icon="chat-checked">
+        <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">发布帖子经验+30\n发布评论经验+10</text>
+      </t-grid-item>
+      <t-grid-item t-class-image="image" text="完成一次行程" icon="map-checked">
+        <text slot="description" style="margin-top:10rpx; color:#aaa; font-size:22rpx;">组织者经验+80\n参与者经验+50</text>
+      </t-grid-item>
+    </t-grid>
+    <view style="margin:32rpx;">
+      <t-input class="narrow-input" borderless disabled label="UID" value="{{currentUser.id}}">
+        <t-button slot="suffix" theme="primary" variant="outline" size="small" bind:tap="copyUid">复制</t-button>
+      </t-input>
+      <t-input wx:if="{{isMiniApp}}" class="narrow-input" borderless disabled label="修改头像">
+        <t-button slot="suffix" theme="primary" variant="outline" size="small" open-type="chooseAvatar" bind:chooseavatar="uploadAvater">选择</t-button>
+      </t-input>
+      <view borderless class="narrow-input" style="font-size:32rpx; padding:10rpx;">
+        <view style="margin-right:32rpx;">昵称</view>
+        <input type="nickname" value="{{currentUser.name}}" maxlength="{{15}}" bindchange="handleNickNameChange" placeholder-style="input-placeholder" bind:blur="handleUserNameChangeConfirm" placeholder="请输入昵称" />
+      </view>
+      <view borderless class="narrow-input" style="font-size:32rpx; padding:10rpx;">
+        <view style="margin-right:32rpx;">性别</view>
+        <t-radio-group bind:change="handleGenderChange" value="{{currentUser.gender}}" borderless>
+          <t-radio style="margin-right:32rpx;" block="{{false}}" label="男" value="男" />
+          <t-radio style="margin-right:32rpx;" block="{{false}}" label="女" value="女" />
+          <t-radio style="margin-right:32rpx;" block="{{false}}" label="保密" value="保密" />
+        </t-radio-group>
+      </view>
+      <t-input borderless class="narrow-input" bind:blur="handleSignatureChange" label="签名" placeholder="请输入个性签名" maxlength="{{30}}" value="{{currentUser.signature}}" />
+      <t-input borderless class="narrow-input" bind:blur="handleBirthdayChange" label="生日" placeholder="请输入生日(YYYY-mm-dd)格式" maxlength="{{10}}" value="{{currentUser.birthday}}" />
+      <t-input borderless class="narrow-input" bind:blur="handlePhoneChange" label="手机" placeholder="请输入手机号" maxlength="{{11}}" value="{{currentUser.phone}}" />
+      <view class="row">
+        <t-button theme="primary" style="width:50%; margin:10rpx" bind:tap="handleUserBasicChange">确认修改</t-button>
+        <t-button style="width:50%; margin:10rpx" bind:tap="handleUserBasicReset">取消修改</t-button>
+      </view>
+    </view>
+  </t-tab-panel>
+  <t-tab-panel label="帖子列表" value="1" style="height:60vh;">
+    <channel-detail-posts selectedUserId="{{currentUser.id}}" />
+  </t-tab-panel>
+  <t-tab-panel label="选项设置" value="2" style="height:60vh;">
+    <view style="height:32rpx" />
+    <t-cell left-icon="{{isDarkMode?'mode-dark':'mode-light'}}" class="narrow-cell" bordered="{{false}}" title="{{isDarkMode?'深色主题':'浅色主题'}}已启用" description="应用主题默认跟随系统主题" />
+    <t-cell bind:click="bindEmail" left-icon="mail" class="narrow-cell" bordered="{{false}}" title="{{currentUser.email?'邮箱已绑定,点击换绑':'邮箱未绑定,点击绑定'}}" description="{{currentUser.email?currentUser.email:''}}" arrow hover />
+    <t-button theme="primary" style="width:90%; margin:30rpx 0rpx 0rpx 30rpx;" bind:tap="resetPassword">重置密码</t-button>
+    <t-button theme="danger" style="width:90%; margin:30rpx" bind:tap="quitLogin">退出登录</t-button>
+  </t-tab-panel>
+  <t-tab-panel label="关于我们" value="3" style="height:60vh;">
+    <view style="height:32rpx" />
+    <t-cell left-icon="history" bind:click="showVersion" class="narrow-cell" bordered="{{false}}" title="梦·旅 Dreamy Tour" arrow hover>
+      <text slot="description" style="color:#aaa; font-size:22rpx;">Make a Fantastic Departure.</text>
+    </t-cell>
+    <t-cell data-index="0" bind:click="copyInfo" left-icon="logo-github" class="narrow-cell" bordered="{{false}}" title="Github仓库地址" hover arrow>
+      <text slot="description" style="color:#aaa; font-size:22rpx;">github.com/738NGX/Dreamy-Tour</text>
+    </t-cell>
+    <t-cell left-icon="code" class="narrow-cell" bordered="{{false}}" title="开发者" />
+    <t-grid column="{{3}}" hover>
+      <t-grid-item data-index="1" bind:click="copyInfo" t-class-image="image" text="738NGX" image="https://avatars.githubusercontent.com/u/79038651?v=4">
+        <text slot="description" style="margin-top:6rpx; color:#aaa; font-size:22rpx;">Ningyue Ji\nFrom SCAI, SUFE</text>
+      </t-grid-item>
+      <t-grid-item data-index="2" bind:click="copyInfo" t-class-image="image" text="Franctoryer" image="https://avatars.githubusercontent.com/u/131339494?v=4">
+        <text slot="description" style="margin-top:6rpx; color:#aaa; font-size:22rpx;">Litao Zhu\nFrom SCAI, SUFE</text>
+      </t-grid-item>
+      <t-grid-item data-index="3" bind:click="copyInfo" t-class-image="image" text="Choihyobin111" image="https://avatars.githubusercontent.com/u/179166711?v=4">
+        <text slot="description" style="margin-top:6rpx; color:#aaa; font-size:22rpx;">Yule Chen\nFrom SCAI, SUFE</text>
+      </t-grid-item>
+    </t-grid>
+    <image src="https://dreamy-tour-1319433252.cos.ap-beijing.myqcloud.com/LOGO2.png" mode="widthFix" style="width:100%;" />
+    <view style="height:200rpx" />
+  </t-tab-panel>
+</t-tabs>
+<view class="user-container">
+  <c-collapse wx:if="{{isTestMode}}" header="切换演示账号">
+    <t-grid column="{{5}}" hover>
+      <t-grid-item data-index="{{item.id}}" bind:click="changeTestUser" icon="{{item.avatarUrl ? '' : 'user-1'}}" text="{{item.name}}" wx:for="{{testUserList}}" wx:key="id" image="{{item.avatarUrl}}" />
+    </t-grid>
+  </c-collapse>
+  <c-collapse wx:if="{{false}}" header="切换账号权限">
+    <t-grid column="{{4}}" hover>
+      <t-grid-item data-index="{{item}}" bind:click="changeUserRole" text="{{item}}" wx:for="{{userRoleList}}" wx:key="id" icon="user-1" />
+    </t-grid>
+  </c-collapse>
+</view>
+<t-popup-headered style="height:20vh;overflow:hidden;" visible="{{uploadVisible}}" title="上传图片" bind:visible-change="uploadVisibleChange" bindConfirm="uploadBackgroundImage" bindCancel="cancelUpload" placement="bottom">
+  <t-upload draggable max="1" media-type="{{['image']}}" files="{{backgroundImages}}" bind:success="handleImageUploadSuccess" bind:remove="handleImageUploadRemove" bind:click="handleImageUploadClick" bind:drop="handleImageUploadDrop" />
+</t-popup-headered>

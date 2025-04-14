@@ -1,8 +1,6 @@
 import HttpUtil from "../../utils/httpUtil";
 import { User, UserBasic } from "../../utils/user/user";
 import { getByteLength, getImageBase64, getUserGroupName, userExpTarget, userRoleName } from "../../utils/util";
-import { PostCard } from "../../utils/channel/post";
-import { Channel } from "../../utils/channel/channel";
 const app = getApp<IAppOption>();
 
 Component({
@@ -25,20 +23,6 @@ Component({
 
     testText: '测试文本',
   },
-
-  /*
-  lifetimes: {
-    async ready() {
-      await this.getFullPosts();
-      this.searchPosts();
-      await this.loadChannelList();
-      this.setData({
-        channelList: this.data.fullChannelList.filter(
-        channel => channel.name.includes(this.data.searchingValueForChannels))
-      });
-    },
-  },
-  */
   methods: {
     onLoad() {
       wx.onThemeChange((res) => {
@@ -78,20 +62,7 @@ Component({
           value: '/' + page.route
         })
       }
-      console.log("currentbackgroundimage",this.data.currentUser.backgroundImageUrl)
     },
-    // async onRefresh(){
-    //   const currentUserBasic = await app.getCurrentUser()
-    //   const currentUserId = currentUserBasic?.id
-    //   if (currentUserId) {
-    //     this.setData({
-    //       isTestMode: app.globalData.testMode,
-    //       currentUser: currentUserBasic,
-    //       testUserList: app.getUserListCopy()
-    //     });
-    //   }
-    //   this.caluculateExp();
-    // },
     showVersion() {
       wx.showModal({
         title: '版本信息',

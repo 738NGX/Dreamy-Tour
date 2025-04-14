@@ -11,6 +11,8 @@
     "t-radio-group": "tdesign-miniprogram/radio-group/radio-group",
     "t-radio": "tdesign-miniprogram/radio/radio",
     "channel-detail-posts": "/pages/channel-detail/channel-detail-posts/channel-detail-posts",
-    "channel-list": "/pages/channel/channel-list/channel-list"
+    "channel-list": "/pages/channel/channel-list/channel-list",
+    "t-tabs": "tdesign-miniprogram/tabs/tabs",
+    "t-tab-panel": "tdesign-miniprogram/tab-panel/tab-panel"
   }
 }
