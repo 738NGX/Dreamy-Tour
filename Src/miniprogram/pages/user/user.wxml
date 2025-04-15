@@ -47,9 +47,9 @@
     <t-cell bind:click="uploadAvater" left-icon="user-circle" title="头像" note="修改" hover arrow bordered="{{false}}" />
     <t-cell bind:click="handleNickNameChange" left-icon="textbox" title="昵称" note="{{currentUser.name}}" hover arrow bordered="{{false}}" />
     <t-cell bind:click="handleGenderChange" left-icon="{{currentUser.gender=='男'?'gender-male':'gender-female'}}" title="性别" note="{{currentUser.gender}}" hover arrow bordered="{{false}}" />
-    <t-cell bind:click="handleSignatureChange" left-icon="edit" title="签名" note="{{currentUser.signature}}" hover arrow bordered="{{false}}" />
     <t-cell bind:click="handleBirthdayChange" left-icon="cake" title="生日" note="{{currentUser.birthday}}" hover arrow bordered="{{false}}" />
     <t-cell bind:click="handlePhoneChange" left-icon="call" title="手机" note="{{currentUser.phone}}" hover arrow bordered="{{false}}" />
+    <t-cell bind:click="handleSignatureChange" left-icon="edit" title="签名" description="{{currentUser.signature}}" hover arrow bordered="{{false}}" />
     <t-cell left-icon="{{isDarkMode?'mode-dark':'mode-light'}}" class="narrow-cell" bordered="{{false}}" title="{{isDarkMode?'深色主题':'浅色主题'}}已启用" description="应用主题默认跟随系统主题" />
     <t-button theme="primary" style="width:90%; margin:30rpx 0rpx 0rpx 30rpx;" bind:tap="resetPassword">重置密码</t-button>
     <t-button theme="danger" style="width:90%; margin:30rpx" bind:tap="quitLogin">退出登录</t-button>
