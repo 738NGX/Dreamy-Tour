@@ -242,9 +242,9 @@ Component({
         placeholderText: '手机号长度为11位',
         async success(res) {
           if (res.confirm) {
-            const signature = res.content;
-            if (signature.length !== 11) {
-              currentUser.signature = signature;
+            const phone = res.content;
+            if (phone.length === 11) {
+              currentUser.phone = phone;
               if (await app.changeUserBasic(currentUser)) {
                 const currentUserBasic = await app.getCurrentUser()
                 that.setData({ currentUser: currentUserBasic });
