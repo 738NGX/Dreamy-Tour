@@ -88,6 +88,13 @@ class TourService {
       if (!tourTemplate) {
         throw new ParamsError("行程模板不存在");
       }
+      // 地点需要删除所有的照片，防止链接重复引用
+      const locations = JSON.parse(tourTemplate.locations as string);
+      locations.forEach((copy: any[]) => {
+        copy.forEach((location: any) => {
+          location.photos = [];
+        });
+      });
       const newTour = await db.run(
         `INSERT INTO tours(
           title, status, linkedChannel, channelVisible,
@@ -110,7 +117,7 @@ class TourService {
           tourTemplate.currencyExchangeRate,
           tourTemplate.nodeCopyNames,
           tourTemplate.budgets,
-          tourTemplate.locations,
+          locations,
           tourTemplate.transportations,
           Date.now(),
           Date.now()
