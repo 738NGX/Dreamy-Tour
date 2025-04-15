@@ -107,7 +107,7 @@ class TourService {
           tourName,
           0,
           linkedChannel,
-          0,
+          1,
           linkedGroup,
           tourTemplate.startDate,
           tourTemplate.endDate,
