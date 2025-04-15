@@ -436,7 +436,7 @@ App<IAppOption>({
   async generateTourSaves(channelId: number, forUser: boolean = false): Promise<Tour[]> {
     if (!this.globalData.testMode) {
       try {
-        const res = await HttpUtil.get({ url: `/${forUser?'user':'channel'}/${channelId}/toursaves` });
+        const res = await HttpUtil.get({ url: `/${forUser ? 'user' : 'channel'}/${channelId}/toursaves` });
         const constructTour = (data: any): Tour => {
           const { tourId: id, ...tourRest } = data;
           if (tourRest && Array.isArray(tourRest.children)) {
@@ -472,7 +472,8 @@ App<IAppOption>({
         userTourCount.set(userId, (userTourCount.get(userId) || 0) + 1);
       });
     });
-    const rankList = (await this.getMembersInChannel(channelId)).members.map(user => {
+    const members = (await this.getMembersInChannel(channelId)).members;
+    const rankList = members.map(user => {
       const count = userTourCount.get(user.id) || 0;
       return { rank: 0, name: user.name, avatarUrl: user.avatarUrl, count } as UserRanking;
     }).filter((user) => user.count > 0);
@@ -2518,7 +2519,7 @@ App<IAppOption>({
     try {
       const res = await HttpUtil.get({
         url: `/map/direction/transit?origin=${originLoc}&destination=${destinationLoc}&date=${date}&time=${time}&strategy=${strategy}`,
-      }, 15000)
+      }, 15000, true)
       const plans = res.data.data.plans;
       const routes = plans.map((plan: any) => {
         return new Transportation({
@@ -2553,7 +2554,7 @@ App<IAppOption>({
     try {
       const res = await HttpUtil.get({
         url: `/map/direction/walk?origin=${originLoc}&destination=${destinationLoc}&strategy=${strategy}`,
-      }, 15000)
+      }, 15000, true)
       const plans = res.data.data.plans;
       const routes = plans.map((plan: any) => {
         return new Transportation({

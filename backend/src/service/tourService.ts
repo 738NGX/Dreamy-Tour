@@ -310,6 +310,7 @@ class TourService {
         return new TourSavesVo({
           ...rowRest,
           locations: filteredLocationsWithPhotos,
+          users: users.map(user => user.uid!),
         });
       })
     );
@@ -332,15 +333,6 @@ class TourService {
     }
     return await Promise.all(
       rows.map(async row => {
-        // 查询关联用户
-        const users = await db.all<Partial<{ uid: number }>[]>(`
-          SELECT uid FROM tour_users WHERE tourId = ?
-        `, [row.tourId]);
-
-        if (!users || users.length === 0) {
-          throw new ParamsError("该行程没有关联用户");
-        }
-
         const { locations, ...rowRest } = row;
 
         const locationsCopy = locations ? JSON.parse(locations as string) : [];

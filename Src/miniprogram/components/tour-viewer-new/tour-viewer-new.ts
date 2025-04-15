@@ -703,7 +703,7 @@ Component({
       const { currentTour, currentTourCopyIndex, editingLocationId, editingLocation } = this.data;
       if (!currentTour || !editingLocation) return;
       currentTour.locations[currentTourCopyIndex][editingLocationId] = editingLocation
-      await app.changeTourLocationPhotos(currentTour.id, editingLocationId, editingLocation);
+      await app.changeTourLocationPhotos(currentTour.id, this.data.copyIndex, editingLocation);
       const updatedTour = await app.loadFullTour(currentTour.id);
       this.onCurrentTourChange(updatedTour);
       this.setData({

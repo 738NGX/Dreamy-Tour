@@ -13,6 +13,7 @@ class TourSavesVo extends VO<TourSavesVo> {
   // 行程结束日期
   endDate: number;
   locations: any[][];
+  users: number[];
 }
 
 export default TourSavesVo;
