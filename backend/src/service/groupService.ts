@@ -319,7 +319,7 @@ class GroupService {
     )
     // 找到关联的行程并修改行程名
     await db.run(
-      `UPDATE tours SET name = ? WHERE linkedGroup = ?`,
+      `UPDATE tours SET title = ? WHERE linkedGroup = ?`,
       [
         groupModifyDto.name,
         groupId

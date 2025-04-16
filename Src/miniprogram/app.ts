@@ -18,7 +18,7 @@ App<IAppOption>({
   globalData: {
     currentUserId: 1,
     isMiniApp: true,
-    testMode: true,
+    testMode: false,
     currentData: testData,
     baseUrl: apiUrl,
     version: "2.0.0"

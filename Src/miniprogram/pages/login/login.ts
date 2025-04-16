@@ -24,7 +24,6 @@ Page({
     // 检查缓存中是否存在 token，如果有，直接跳转到频道列表
     const token = wx.getStorageSync("token");
     if (token) {
-      app.globalData.testMode = false;
       wx.switchTab({
         url: "/pages/channel/channel"
       });
@@ -65,7 +64,6 @@ Page({
     }
     const url = "/v2/email/login";
     const jsonData = { email, password, grantType: "password" };
-    app.globalData.testMode = false;
     await this.handleLogin(url, jsonData);
   },
   async handleCaptchaLogin() {
@@ -80,7 +78,6 @@ Page({
     }
     const url = "/v2/email/login";
     const jsonData = { email, verifyCode: code, grantType: "captcha" };
-    app.globalData.testMode = false;
     await this.handleLogin(url, jsonData);
   },
   async getCode(businessType: string) {
@@ -139,7 +136,6 @@ Page({
         title: "注册成功",
         icon: "success"
       });
-      app.globalData.testMode = false;
       this.handleLogin("/email/login", jsonData);
     } catch (err: any) {
       console.error("注册失败", err);
@@ -167,7 +163,6 @@ Page({
         title: "重置成功",
         icon: "success"
       });
-      app.globalData.testMode = false;
       this.handleLogin("/email/login", jsonData);
     } catch (err: any) {
       console.error("重置失败", err);
@@ -184,11 +179,9 @@ Page({
     this.setData({ continueTime: time.detail.ss * MILLISECONDS.SECOND });
   },
   async wxLogin() {
-    app.globalData.testMode = false;
     this.handleWxLogin();
   },
   enterTestMode() {
-    app.globalData.testMode = true;
     this.handleWxLogin();
   },
   async handleLogin(url: string, jsonData: any) {
