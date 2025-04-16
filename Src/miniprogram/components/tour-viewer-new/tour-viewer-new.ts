@@ -1492,7 +1492,7 @@ Component({
         currentTour.locations[copyIndex][id].timeOffset
       );
       console.log(id, copyIndex)
-      currentTour.removeLocation(id, copyIndex);
+      await currentTour.removeLocation(id, copyIndex);
 
       await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);

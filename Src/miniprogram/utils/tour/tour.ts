@@ -3,6 +3,8 @@ import { Budget } from './budget';
 import { Currency, currencyList } from './expense';
 import { Location, Transportation } from './tourNode';
 
+const app = getApp<IAppOption>();
+
 export enum TourStatus { Planning, Ongoing, Finished, Cancelled };
 
 export const tourStatusList = [
@@ -172,10 +174,12 @@ export class Tour extends TourBasic {
     }
   }
 
-  removeLocation(index: number, copyIndex: number = 0) {
+  async removeLocation(index: number, copyIndex: number = 0) {
     if (index == 0 || this.locations[copyIndex].length <= 1) {
       return;
     }
+    this.locations[copyIndex][index].photos = [];
+    await app.changeTourLocationPhotos(this.id, copyIndex, this.locations[copyIndex][index]);
     if (index == this.locations[copyIndex].length - 1) {
       this.locations[copyIndex].pop();
       this.transportations[copyIndex].pop();
@@ -195,7 +199,7 @@ export class Tour extends TourBasic {
     this.nodeCopyNames.push(`新行程版本`);
     this.locations.push(
       this.locations[0].map(
-        (location: Location) => new Location({ ...location })
+        (location: Location) => new Location({ ...location, photos: [] })
       )
     );
     this.transportations.push(
@@ -207,15 +211,20 @@ export class Tour extends TourBasic {
 
   addCopy() {
     this.nodeCopyNames.push(`新行程版本`);
-    this.locations.push([new Location(this.locations[0][0])]);
+    this.locations.push([new Location({ ...this.locations[0][0], photos: [] })]);
     this.transportations.push([]);
   }
 
-  removeCopy(index: number) {
+  async removeCopy(index: number) {
     if (this.nodeCopyNames.length <= 1) {
       return;
     }
     this.nodeCopyNames.splice(index, 1);
+    // 删除locations中的所有照片
+    for (const loc of this.locations[index]) {
+      loc.photos = [];
+      await app.changeTourLocationPhotos(this.id, index, loc);
+    }
     this.locations.splice(index, 1);
     this.transportations.splice(index, 1);
   }
