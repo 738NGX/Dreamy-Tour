@@ -3,8 +3,6 @@ import { Budget } from './budget';
 import { Currency, currencyList } from './expense';
 import { Location, Transportation } from './tourNode';
 
-const app = getApp<IAppOption>();
-
 export enum TourStatus { Planning, Ongoing, Finished, Cancelled };
 
 export const tourStatusList = [
@@ -179,7 +177,7 @@ export class Tour extends TourBasic {
       return;
     }
     this.locations[copyIndex][index].photos = [];
-    await app.changeTourLocationPhotos(this.id, copyIndex, this.locations[copyIndex][index]);
+    await getApp<IAppOption>().changeTourLocationPhotos(this.id, copyIndex, this.locations[copyIndex][index]);
     if (index == this.locations[copyIndex].length - 1) {
       this.locations[copyIndex].pop();
       this.transportations[copyIndex].pop();
@@ -223,7 +221,7 @@ export class Tour extends TourBasic {
     // 删除locations中的所有照片
     for (const loc of this.locations[index]) {
       loc.photos = [];
-      await app.changeTourLocationPhotos(this.id, index, loc);
+      await getApp<IAppOption>().changeTourLocationPhotos(this.id, index, loc);
     }
     this.locations.splice(index, 1);
     this.transportations.splice(index, 1);
