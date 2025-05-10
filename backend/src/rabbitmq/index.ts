@@ -13,7 +13,9 @@ async function startRabbitMQ(): Promise<void> {
     }
   } catch (err: any) {
     logger.error(`Failed to start server: ${err.message}`);
-    process.exit(1);
+    logger.info(process.env.PORT)
+    logger.info(process.env.RABBITMQ_HOST)
+    // process.exit(1);
   }
 }
 
