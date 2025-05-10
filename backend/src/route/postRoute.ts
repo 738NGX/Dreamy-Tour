@@ -71,7 +71,7 @@ postRoute.get('/v1/post/list', async (req: Request, res: Response) => {
 /**
  * @description 获取公共频道的帖子列表（有分页）
  * @method GET
- * @path /post/list
+ * @path /v2/post/list
  */
 postRoute.get('/v2/post/list', async (req: Request, res: Response) => {
   // 获取 uid

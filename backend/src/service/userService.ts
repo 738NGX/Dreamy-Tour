@@ -45,6 +45,8 @@ import BindEmailDto from "@/dto/user/bindEmailDto";
 import BindWxDto from "@/dto/user/bindWxDto";
 import EmailLoginV2Dto from "@/dto/user/emailLoginV2Dto";
 import ExpUtil from "@/util/expUtil";
+import { rabbitMQProducer } from "@/rabbitmq/producer";
+import rabbitMQConfig from "@/config/rabbitMqConfig";
 
 class UserService {
   /**
@@ -355,35 +357,13 @@ class UserService {
   }
 
   /**
-   * 向某个邮箱发送验证码，并把验证码和验证码 ID 返回给用户
+   * 向某个邮箱发送验证码
    * @param emailCodevoidvoid
    */
   static async sendVerifyCode(emailCodeDto: EmailCodeDto): Promise<void> {
-    let reminder = ""
-    switch (emailCodeDto.businessType) {
-      case "login":
-        reminder = "您正在尝试邮箱登录，若该邮箱未注册，验证通过后将自动创建账户（初始密码为<b>123456</b>）";
-        break;
-      case "register":
-        reminder = "您正在进行账户注册操作，请保管您的密码，请勿泄露给他人";
-        break;
-      case "reset":
-        reminder = "重置密码后，请保管您的密码，请勿泄露给他人";
-        break;
-      case "bind":
-        reminder = "每个邮箱仅支持绑定一个主账号，<b>若已有该邮箱账号：如果该账号与微信号绑定，将自动解绑；如果该账号无微信号绑定，将自动注销，请谨慎操作！</b>";
-        break;
-      default:
-        reminder = "此操作可能会修改您的账户重要信息。如非本人操作，请立即登录修改密码"
-    }
-
-    // 发送验证码，6 位数字，5 分钟过期
-    await EmailUtil.sendVerifyCode(
-      emailCodeDto.email,
-      {
-        businessType: emailCodeDto.businessType,
-        reminder: reminder
-      }
+    // 发送到消息队列
+    await rabbitMQProducer.sendMessage(
+      rabbitMQConfig.queues.emailCaptcha, emailCodeDto
     )
   }
 

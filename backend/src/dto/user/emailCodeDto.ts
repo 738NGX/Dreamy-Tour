@@ -1,6 +1,6 @@
 import DTO from "@/base/dto";
 import { Expose, Type } from "class-transformer";
-import { IsEmail, IsEnum, Matches } from "class-validator";
+import { IsEmail, IsEnum } from "class-validator";
 
 class EmailCodeDto extends DTO<EmailCodeDto> {
   // 邮箱

@@ -1,0 +1,21 @@
+[2025-05-10T12:47:33.804] [ERROR] default - RabbitMq Error: Error: Handshake terminated by server: 403 (ACCESS-REFUSED) with message "ACCESS_REFUSED - Login was refused using authentication mechanism PLAIN. For details see the broker logfile."
+[2025-05-10T12:51:50.418] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
+[2025-05-10T13:18:09.420] [INFO] default - Message sent to queue email_captcha_queue: {"email":"643612824@qq.com","businessType":"login"}
+[2025-05-10T13:38:15.777] [INFO] default - Consumer started for queue: email_captcha_queue
+[2025-05-10T13:38:40.833] [INFO] default - Message sent to queue email_captcha_queue: {"email":"643612824@qq.com","businessType":"login"}
+[2025-05-10T13:38:56.429] [INFO] default - Message sent to queue email_captcha_queue: {"email":"643612824@qq.com","businessType":"login"}
+[2025-05-10T13:40:11.142] [ERROR] default - RabbitMQ error: Unexpected close
+[2025-05-10T13:40:11.146] [WARN] default - RabbitMQ connection lost, reconnecting in 5000ms...
+[2025-05-10T13:40:11.147] [WARN] default - RabbitMQ connection lost, reconnecting in 5000ms...
+[2025-05-10T13:40:16.161] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
+[2025-05-10T13:42:33.721] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
+[2025-05-10T13:44:30.182] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
+[2025-05-10T13:46:28.658] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
+[2025-05-10T13:46:56.183] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
+[2025-05-10T13:47:22.948] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
+[2025-05-10T13:47:31.754] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
+[2025-05-10T13:48:55.279] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
+[2025-05-10T13:50:04.234] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
+[2025-05-10T13:51:42.960] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
+[2025-05-10T13:53:04.415] [INFO] default - Consumer started for queue: email_captcha_queue
+[2025-05-10T13:53:27.927] [INFO] default - Message sent to queue email_captcha_queue: {"email":"643612824@qq.com","businessType":"login"}
