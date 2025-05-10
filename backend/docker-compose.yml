@@ -7,13 +7,17 @@ services:
     ports:
       - "5672:5672"  # AMQP端口
       - "15672:15672"  # 管理界面端口
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin    # 创建默认用户
+      - RABBITMQ_DEFAULT_PASS=123456   # 创建默认密码
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 20s
 
   backend:
     build:

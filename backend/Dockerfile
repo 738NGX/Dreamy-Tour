@@ -29,9 +29,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 VOLUME ./database
 
 # 设置环境变量和暴露端口
-ENV HOST=127.0.0.1
-ENV PORT=8080
-EXPOSE 8080
+# ENV HOST=127.0.0.1
+# ENV PORT=8080
+# EXPOSE 8080
 
 # 设置启动命令为 entrypoint 脚本
 ENTRYPOINT ["/app/entrypoint.sh"]

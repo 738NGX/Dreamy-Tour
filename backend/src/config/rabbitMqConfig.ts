@@ -8,7 +8,8 @@
 
 const rabbitMQConfig = {
   // 连接地址
-  url: `amqp://${process.env.RABBITMQ_USER || 'admin'}:${process.env.RABBITMQ_PASSWORD || '123456'}@${process.env.RABBITMQ_HOST || 'localhost'}:${process.env.RABBITMQ_PORT || '5672'}`,
+  // url: `amqp://${process.env.RABBITMQ_USER || 'admin'}:${process.env.RABBITMQ_PASSWORD || '123456'}@${process.env.RABBITMQ_HOST || 'localhost'}:${process.env.RABBITMQ_PORT || '5672'}`,
+  url: "amqp://admin:123456@rabbitmq:5672",
   // 队列
   queues: {
     // 消息提醒
