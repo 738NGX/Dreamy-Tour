@@ -158,12 +158,12 @@ ${this.data.generatorText}
       const that = this;
       wx.showModal({
         title: '警告',
-        content: '是否将当前行程版本同步为默认版本？',
+        content: '是否将当前行程版本同步为默认版本？默认行程上传的照片不会被同步',
         async success(res) {
           if (res.confirm) {
             const index = that.data.currentCopyIndex;
             const { currentTour } = that.data;
-            currentTour.locations[index] = currentTour.locations[0].map((location: Location) => new Location(location));
+            currentTour.locations[index] = currentTour.locations[0].map((location: Location) => new Location({...location, photos: []}));
             currentTour.transportations[index] = currentTour.transportations[0].map((transportation: Transportation) => new Transportation(transportation));
             that.setData({ currentTour });
             await app.changeFullTour(currentTour);
@@ -175,12 +175,12 @@ ${this.data.generatorText}
       const that = this;
       wx.showModal({
         title: '警告',
-        content: '是否将当前行程版本推送为默认版本？',
+        content: '是否将当前行程版本推送为默认版本？当前行程上传的照片不会被推送',
         async success(res) {
           if (res.confirm) {
             const index = that.data.currentCopyIndex;
             const { currentTour } = that.data;
-            currentTour.locations[0] = currentTour.locations[index].map((location: Location) => new Location(location));
+            currentTour.locations[0] = currentTour.locations[index].map((location: Location) => new Location({ ...location, photos: [] }));
             currentTour.transportations[0] = currentTour.transportations[index].map((transportation: Transportation) => new Transportation(transportation));
             that.setData({ currentTour });
             await app.changeFullTour(currentTour);
@@ -191,7 +191,7 @@ ${this.data.generatorText}
     async removeCopy(e: WechatMiniprogram.CustomEvent) {
       const index = e.currentTarget.dataset.index;
       const { currentTour } = this.data;
-      currentTour.removeCopy(index);
+      await currentTour.removeCopy(index);
       const copyOptions = currentTour.nodeCopyNames.map((name: string, index: number) => ({ label: name, value: index }));
       this.setData({ currentTour, copyOptions, currentCopyIndex: 0 });
       await app.changeFullTour(currentTour);
@@ -253,42 +253,42 @@ ${this.data.generatorText}
         const regex = /"title":\s*(?:"([^"]*)"|"([^,\n}]+))/g;
         const titles = [];
         let match;
-        while ((match = regex.exec(data))!== null) {
+        while ((match = regex.exec(data)) !== null) {
           titles.push(match[1] || match[2].trim());
         }
         return titles;
       };
-    
+
       const getNotes = (data: string): string[] => {
         const regex = /"note":\s*(?:"([^"]*)"|"([^,\n"}]+))/g;
         const notes = [];
         let match;
-        while ((match = regex.exec(data))!== null) {
+        while ((match = regex.exec(data)) !== null) {
           notes.push(match[1] || match[2].trim());
         }
         return notes;
       };
-    
+
       const getStarts = (data: string): string[] => {
         const regex = /"start":\s*(\d{13})/g;
         const starts = [];
         let match;
-        while ((match = regex.exec(data))!== null) {
+        while ((match = regex.exec(data)) !== null) {
           starts.push(match[1]);
         }
         return starts;
       };
-    
+
       const getEnds = (data: string): string[] => {
         const regex = /"end":\s*(\d{13})/g;
         const ends = [];
         let match;
-        while ((match = regex.exec(data))!== null) {
+        while ((match = regex.exec(data)) !== null) {
           ends.push(match[1]);
         }
         return ends;
       };
-    
+
       // 将时间戳转换为 yyyy-mm-dd 格式（这里只取日期部分用于分组）
       const formatDate = (timestamp: number): string => {
         if (!timestamp) return '';
@@ -298,8 +298,8 @@ ${this.data.generatorText}
         const day = String(date.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
       };
-       // 将时间戳转换为 yyyy-mm-dd HH:mm:ss 格式
-       const formatTimestamp = (timestamp: number): string => {
+      // 将时间戳转换为 yyyy-mm-dd HH:mm:ss 格式
+      const formatTimestamp = (timestamp: number): string => {
         if (!timestamp) return '';
         const date = new Date(Number(timestamp));
         //const year = date.getFullYear();
@@ -315,49 +315,49 @@ ${this.data.generatorText}
         const maxLength = Math.max(titles.length, notes.length, starts.length, ends.length);
         const result = [];
         for (let i = 0; i < maxLength; i++) {
-            result.push({
-                title: titles[i] || '',
-                note: notes[i] || '',
-                start: starts[i] || 0,
-                end: ends[i] || 0
-            });
+          result.push({
+            title: titles[i] || '',
+            note: notes[i] || '',
+            start: starts[i] || 0,
+            end: ends[i] || 0
+          });
         }
 
         const groupedResult: { [date: string]: any[] } = {};
         result.forEach(item => {
-            const startDate = formatDate(Number(item.start));
-            if (!groupedResult[startDate]) {
-                groupedResult[startDate] = [];
-            }
-            // 这里再将时间戳格式化为你想要的具体时间格式
-            const formattedItem = {
-                ...item,
-                start: formatTimestamp(Number(item.start)),
-                end: formatTimestamp(Number(item.end))
-            };
-            groupedResult[startDate].push(formattedItem);
+          const startDate = formatDate(Number(item.start));
+          if (!groupedResult[startDate]) {
+            groupedResult[startDate] = [];
+          }
+          // 这里再将时间戳格式化为你想要的具体时间格式
+          const formattedItem = {
+            ...item,
+            start: formatTimestamp(Number(item.start)),
+            end: formatTimestamp(Number(item.end))
+          };
+          groupedResult[startDate].push(formattedItem);
         });
 
         return groupedResult;
       };
-    
+
       const titles = getTitles(data);
       const notes = getNotes(data);
       const starts = getStarts(data);
       const ends = getEnds(data);
-    
+
       const mergedResult = mergeResults(titles, notes, starts, ends);
       return mergedResult;
     },
     convertDatesToTimestamp(str: string): string {
       // 正则匹配 yyyy:mm:dd hh:mm:ss 格式的日期
       const dateRegex = /"(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})"/g;
-    
+
       // 替换的日期为时间戳
       return str.replace(dateRegex, (_match: string, yyyy: string, mm: string, dd: string, hh: string, MM: string, ss: string): string => {
         // 构造 Date 对象（注意月份要减1，因为JS月份是0-11）
         const date = new Date(`${yyyy}-${mm}-${dd}T${hh}:${MM}:${ss}`);
-        
+
         // 返回13位时间戳
         return date.getTime().toString();
       });

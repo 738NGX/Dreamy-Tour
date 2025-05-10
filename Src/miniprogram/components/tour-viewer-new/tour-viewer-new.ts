@@ -239,8 +239,6 @@ Component({
         selectingDatetime: selectingDatetime,
         datetimeEditMode: DatetimeEditMode.StartDate
       });
-      await app.changeFullTour(currentTour);
-      this.onCurrentTourChange(currentTour);
     },
     /**
      * 位置节点结束日期修改
@@ -263,8 +261,6 @@ Component({
         selectingDatetime: selectingDatetime,
         datetimeEditMode: DatetimeEditMode.EndDate
       });
-      await app.changeFullTour(currentTour);
-      this.onCurrentTourChange(currentTour);
     },
     /**
      * 修改datetime的值
@@ -1492,7 +1488,7 @@ Component({
         currentTour.locations[copyIndex][id].timeOffset
       );
       console.log(id, copyIndex)
-      currentTour.removeLocation(id, copyIndex);
+      await currentTour.removeLocation(id, copyIndex);
 
       await app.changeFullTour(currentTour);
       this.onCurrentTourChange(currentTour);
