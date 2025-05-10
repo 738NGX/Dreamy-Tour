@@ -43,8 +43,12 @@ class EmailConsumer extends RabbitMQConsumer {
           reminder: reminder
         }
       )
+
+      // 确认消息
+      channel.ack(msg);
     } catch(err: any) {
-      logger.error(`Failed to consume msg in ${rabbitMQConfig.queues.emailCaptcha}: ${err}`)
+      logger.error(`Failed to consume msg in ${rabbitMQConfig.queues.emailCaptcha}: ${err}`);
+      channel.nack(msg, false, false);
     }
   }
 }

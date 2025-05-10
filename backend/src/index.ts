@@ -17,7 +17,7 @@ import startRabbitMQ from "./rabbitmq";
 
   // 端口号
   const PORT: number = Number(process.env.PORT) || 8080;
-
+  
   // 监听端口
   app.listen(PORT, () => {
     console.log(`

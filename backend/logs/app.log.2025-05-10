@@ -19,3 +19,11 @@
 [2025-05-10T13:51:42.960] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
 [2025-05-10T13:53:04.415] [INFO] default - Consumer started for queue: email_captcha_queue
 [2025-05-10T13:53:27.927] [INFO] default - Message sent to queue email_captcha_queue: {"email":"643612824@qq.com","businessType":"login"}
+[2025-05-10T14:17:35.875] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
+[2025-05-10T14:19:55.520] [INFO] default - Consumer started for queue: email_captcha_queue
+[2025-05-10T14:20:22.033] [INFO] default - Message sent to queue email_captcha_queue: {"email":"643612824@qq.com","businessType":"login"}
+[2025-05-10T14:20:22.742] [INFO] default - Message sent to queue email_captcha_queue: {"email":"643612824@qq.com","businessType":"login"}
+[2025-05-10T14:20:23.329] [INFO] default - Message sent to queue email_captcha_queue: {"email":"643612824@qq.com","businessType":"login"}
+[2025-05-10T14:50:21.994] [ERROR] default - RabbitMQ error: Channel closed by server: 406 (PRECONDITION-FAILED) with message "PRECONDITION_FAILED - delivery acknowledgement on channel 1 timed out. Timeout value used: 1800000 ms. This timeout value can be configured, see consumers doc guide to learn more"
+[2025-05-10T14:50:21.999] [WARN] default - RabbitMQ connection lost, reconnecting in 5000ms...
+[2025-05-10T17:42:27.302] [ERROR] default - RabbitMq Error: Error: getaddrinfo ENOTFOUND rabbitmq
