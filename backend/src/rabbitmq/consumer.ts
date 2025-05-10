@@ -10,7 +10,7 @@ abstract class RabbitMQConsumer {
 
   async start(channel: Channel): Promise<void> {
     await channel.consume(this.queue, (msg) => this.handleMessage(channel, msg), { noAck: false });
-    logger.info(`Consumer started for queue: ${this.queue}`);
+    logger.info(`[RabbitMQ] Consumer started for queue: ${this.queue}`);
   }
 
   protected abstract handleMessage(channel: Channel, msg: ConsumeMessage | null): Promise<void>;

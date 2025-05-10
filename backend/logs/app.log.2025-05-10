@@ -27,3 +27,22 @@
 [2025-05-10T14:50:21.994] [ERROR] default - RabbitMQ error: Channel closed by server: 406 (PRECONDITION-FAILED) with message "PRECONDITION_FAILED - delivery acknowledgement on channel 1 timed out. Timeout value used: 1800000 ms. This timeout value can be configured, see consumers doc guide to learn more"
 [2025-05-10T14:50:21.999] [WARN] default - RabbitMQ connection lost, reconnecting in 5000ms...
 [2025-05-10T17:42:27.302] [ERROR] default - RabbitMq Error: Error: getaddrinfo ENOTFOUND rabbitmq
+[2025-05-10T23:00:44.566] [ERROR] default - RabbitMq Error: Error: getaddrinfo ENOTFOUND rabbitmq
+[2025-05-10T23:01:45.809] [INFO] default - [RabbitMQ] 成功初始化连接
+[2025-05-10T23:01:45.812] [INFO] default - Consumer started for queue: email_captcha_queue
+[2025-05-10T23:01:45.813] [INFO] default - [RabbitMQ] 所有消费者已就绪，服务启动完成
+[2025-05-10T23:02:11.078] [ERROR] default - RabbitMQ error: Unexpected close
+[2025-05-10T23:02:11.082] [WARN] default - RabbitMQ connection lost, reconnecting in 5000ms...
+[2025-05-10T23:02:11.084] [WARN] default - RabbitMQ connection lost, reconnecting in 5000ms...
+[2025-05-10T23:02:16.097] [ERROR] default - RabbitMq Error: Error: Socket closed abruptly during opening handshake
+[2025-05-10T23:04:25.885] [INFO] default - [MCP] 高德 MCP 服务启动成功
+[2025-05-10T23:04:25.892] [ERROR] default - RabbitMq Error: Error: connect ECONNREFUSED ::1:5672
+[2025-05-10T23:04:56.848] [INFO] default - [MCP] 高德 MCP 服务启动成功
+[2025-05-10T23:04:56.918] [INFO] default - [RabbitMQ] 成功初始化连接
+[2025-05-10T23:04:56.920] [INFO] default - Consumer started for queue: email_captcha_queue
+[2025-05-10T23:04:56.920] [INFO] default - [RabbitMQ] 所有消费者已就绪，服务启动完成
+[2025-05-10T23:11:31.010] [INFO] default - [MCP Client] 高德 MCP 服务连接成功，正在准备相关工具...
+[2025-05-10T23:11:31.101] [INFO] default - [MCP Client] 高德 MCP 相关工具集连接成功：maps_direction_bicycling,maps_direction_driving,maps_direction_transit_integrated,maps_direction_walking,maps_distance,maps_geo,maps_regeocode,maps_ip_location,maps_schema_personal_map,maps_around_search,maps_search_detail,maps_text_search,maps_schema_navi,maps_schema_take_taxi,maps_weather
+[2025-05-10T23:11:31.170] [INFO] default - [RabbitMQ] 成功初始化连接
+[2025-05-10T23:11:31.172] [INFO] default - Consumer started for queue: email_captcha_queue
+[2025-05-10T23:11:31.172] [INFO] default - [RabbitMQ] 所有消费者已就绪，服务启动完成

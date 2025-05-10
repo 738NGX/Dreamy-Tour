@@ -5,6 +5,7 @@ import AppConstant from '@/constant/appConstant';
 import deepseek from '@/config/deepseekConfig';
 import CommonUtil from '@/util/commonUtil';
 import EventEmitter from 'events';
+import { logger } from '@/config/loggerConfig';
 
 type OpenAIResponse = OpenAI.Chat.Completions.ChatCompletion & { _request_id?: string | null; };
 
@@ -32,9 +33,7 @@ class McpClient extends EventEmitter {
   async connect() {
     try {
       await this.client.connect(this.transport);
-      console.log(
-        `${new Date().toISOString()} | ${this.name} connected, preparing tools...`,
-      );
+      logger.info("[MCP Client] 高德 MCP 服务连接成功，正在准备相关工具...")
       await this.prepareTools();
       this.isConnected = true;
     } catch (error) {
@@ -56,10 +55,7 @@ class McpClient extends EventEmitter {
       };
     });
     // 打印连接成功信息和工具名称
-    console.log(
-      `${new Date().toISOString()} | ${this.name} connected with tools: `,
-      this.tools.map((item) => item.function.name),
-    );
+    logger.info(`[MCP Client] 高德 MCP 相关工具集连接成功：${this.tools.map((item) => item.function.name)}`)
   }
   async sendMessageWithTools(messages: OpenAI.ChatCompletionMessageParam[], tools: OpenAI.Chat.Completions.ChatCompletionTool[] = this.tools) {
     // 调用 OpenAI 的聊天完成接口

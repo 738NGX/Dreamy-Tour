@@ -58,8 +58,6 @@ class RabbitMQConnection {
    * @param err 
    */
   private handleError(err: any): void {
-    logger.info(process.env.PORT)
-    logger.info(process.env.RABBITMQ_HOST)
     logger.error(`RabbitMQ error: ${err.message}`);
   }
 

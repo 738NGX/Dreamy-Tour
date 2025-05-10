@@ -11,13 +11,13 @@ import startRabbitMQ from "./rabbitmq";
 
 !async function() {
   // 启动高德 MCP 服务
-  gaodeMcpClient.connect();
+  await gaodeMcpClient.connect();
   // 启动 RabbitMQ 服务
   await startRabbitMQ()
 
   // 端口号
   const PORT: number = Number(process.env.PORT) || 8080;
-  
+
   // 监听端口
   app.listen(PORT, () => {
     console.log(`

@@ -23,6 +23,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: zhulitao/dreamy-tour:latest
     container_name: backend
     ports:
       - "1919:1919"
@@ -31,7 +32,7 @@ services:
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=admin
       - RABBITMQ_PASSWORD=123456
-      - HOST=1919
+      - PORT=1919
     volumes:
       - ./database:/app/database
     depends_on:

@@ -10,6 +10,7 @@ import NotFoundError from "@/exception/notFoundError";
 import ApiError from "@/exception/apiError";
 import InternalError from "@/exception/internalError";
 import EmptyFileError from "@/exception/emptyFileError";
+import { logger } from "@/config/loggerConfig";
 
 // 定义错误处理函数类型
 type ErrorHandler = (
@@ -82,7 +83,7 @@ const exceptionHandler = (
   }
 
   // 未知错误处理（日志 + 统一响应）
-  console.error(`${err.name}: ${err.message}`);
+  logger.error(`[服务器未知异常] ${err.name}: ${err.message}`)
   res.status(StatusCodes.INTERNAL_SERVER_ERROR)
     .json(Result.error("未知异常，请检查服务器日志"));
 };
