@@ -18,13 +18,34 @@ const rabbitMQConfig = {
     // 用户经验值
     userExp: "user_exp_queue"
   },
+  // 重试队列
+  retryQueue: {
+    name: "retry_queue",
+    messageTtl: 5000, // 延迟 5s 发给死信交换机
+  },
+  // 失败队列
+  failQueue: {
+    name: "fail_queue"
+  },
   // 交换机
-  exchange: {
-    name: "default",
+  mainExchange: {
+    name: "default_exchange",
     type: "direct"
+  },
+  // 重试交换机
+  retryExchange: {
+    name: "retry_exchange",
+    type: "topic"
+  },
+  // 失败交换机
+  failExchange: {
+    name: "fail_exchange",
+    type: "topic"
   },
   // 重连延时
   retryDelay: 5000,
+  // 自定义重试请求头
+  retryHeader: "x-retry-header",
 }
 
 export default rabbitMQConfig;

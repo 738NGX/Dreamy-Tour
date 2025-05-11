@@ -7,7 +7,17 @@ class RabbitMQProducer {
     try {
       const channel = rabbitMQConnection.getChannel();
       const msgBuffer = Buffer.from(JSON.stringify(message));
-      channel.publish(rabbitMQConfig.exchange.name, queue, msgBuffer, { persistent: true });
+      channel.publish(
+        rabbitMQConfig.mainExchange.name, 
+        queue, 
+        msgBuffer, 
+        { 
+          persistent: true,
+          headers: {
+            "x-retry-count": 0  // 重试次数
+          }
+        }
+      );
       logger.info(`Message sent to queue ${queue}: ${JSON.stringify(message)}`);
     } catch (err: any) {
       logger.error(`Failed to send message to ${queue}: ${err}`);

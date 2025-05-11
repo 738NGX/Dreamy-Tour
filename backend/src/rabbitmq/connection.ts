@@ -21,14 +21,51 @@ class RabbitMQConnection {
       this.connection = await amqp.connect(rabbitMQConfig.url);
       this.channel = await this.connection.createChannel()
 
-      // 配置交换机和队列
-      await this.channel.assertExchange(rabbitMQConfig.exchange.name, rabbitMQConfig.exchange.type, {
+      // 主交换机
+      await this.channel.assertExchange(rabbitMQConfig.mainExchange.name, rabbitMQConfig.mainExchange.type, {
+        durable: true,
+      });
+
+      // 重试交换机
+      await this.channel.assertExchange(rabbitMQConfig.retryExchange.name, rabbitMQConfig.retryExchange.type, {
+        durable: true
+      })
+
+      // 失败交换机
+      await this.channel.assertExchange(rabbitMQConfig.failExchange.name, rabbitMQConfig.failExchange.type, {
+        durable: true
+      })
+
+      // 配置队列
+      for (const queue of Object.values(rabbitMQConfig.queues)) {
+        await this.channel.assertQueue(queue, { 
+          durable: true,
+          deadLetterExchange: rabbitMQConfig.retryExchange.name
+        });
+        await this.channel.bindQueue(queue, rabbitMQConfig.mainExchange.name, queue);
+      }
+
+      // 重试队列[延时队列]（5s 后重试）
+      await this.channel.assertQueue(rabbitMQConfig.retryQueue.name, {
+        durable: true,
+        deadLetterExchange: rabbitMQConfig.mainExchange.name,
+        messageTtl: rabbitMQConfig.retryQueue.messageTtl
+      });
+      await this.channel.bindQueue(
+        rabbitMQConfig.retryQueue.name,
+        rabbitMQConfig.retryExchange.name,
+        "#"   // 接受所有队列的失败消息的转发
+      );
+
+      // 失败队列
+      await this.channel.assertQueue(rabbitMQConfig.failQueue.name, {
         durable: true
       });
-      for (const queue of Object.values(rabbitMQConfig.queues)) {
-        await this.channel.assertQueue(queue, { durable: true });
-        await this.channel.bindQueue(queue, rabbitMQConfig.exchange.name, queue);
-      }
+      await this.channel.bindQueue(
+        rabbitMQConfig.failQueue.name, 
+        rabbitMQConfig.failExchange.name,
+        "#" // 接受所有队列的失败消息的转发
+      )
 
       // 处理连接和通道错误
       this.connection.on('error', (err) => this.handleError(err));
